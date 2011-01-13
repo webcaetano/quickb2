@@ -1,0 +1,1 @@
+This .swc is the quick and easy way to bring QuickB2 and all of its dependencies into your project.  The qb2SWCBuilder project is used to easily generate the .swc.  If you want to generate it yourself, you must have FlashDevelop with ExportSWC installed.

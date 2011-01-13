@@ -1,0 +1,1 @@
+QuickB2 uses the Flash event model exclusively for all event/callback stuff.  You generally don't instansiate these on your own, just query them when you receive one.
