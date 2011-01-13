@@ -15,4 +15,4 @@ Import /swc/QuickB2.swc into the IDE of your choice and copy/paste some code fro
 Third Quickest
 ==============
 
-Read through the manual in /docs/ and then do 'Second Quickest'.
+Read through the manual in /docs/ and then do 'Second Quickest'. 
