@@ -1,0 +1,1 @@
+This folder contains the "guts" of the documentation (a mess of html stuff), and a generator.  You need FlashDevelop to build the documentation using the .docproj tool, which basically guifies the whole task of using asdoc from the command line.

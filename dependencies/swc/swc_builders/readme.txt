@@ -1,0 +1,1 @@
+This folder contains projects to build .swc files for any open-source dependencies that don't provide them, or if they need to be built in a certain way.  You'll need FlashDevelop with ExportSWC installed (http://sourceforge.net/projects/exportswc/) if you want to build them yourself.

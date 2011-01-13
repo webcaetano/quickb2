@@ -1,0 +1,85 @@
+/**
+ * Copyright (c) 2010 Johnson Center for Simulation at Pine Technical College
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
+package QuickB2.debugging
+{
+	/**
+	 * ...
+	 * @author Doug Koellmer
+	 */
+	public class qb2DebugDrawSettings
+	{
+		public static const DRAW_OUTLINES:uint       = 0x00000001;
+		public static const DRAW_FILLS:uint          = 0x00000002;
+		public static const DRAW_CIRCLE_SPOKE_1:uint = 0x00000004;
+		public static const DRAW_CIRCLE_SPOKE_2:uint = 0x00000008;
+		public static const DRAW_CIRCLE_SPOKE_3:uint = 0x00000010;
+		public static const DRAW_CIRCLE_SPOKE_4:uint = 0x00000020;
+		public static const DRAW_CENTROIDS:uint      = 0x00000040;
+		public static const DRAW_BOUND_BOXES:uint    = 0x00000080;
+		public static const DRAW_BOUND_CIRCLES:uint  = 0x00000100;
+		public static const DRAW_JOINTS:uint         = 0x00000200;
+		public static const DRAW_POSITIONS:uint      = 0x00000400;
+		public static const DRAW_VERTICES:uint       = 0x00000800;
+		public static const DRAW_CIRCLE_SPOKES:uint  = DRAW_CIRCLE_SPOKE_1 | DRAW_CIRCLE_SPOKE_2 | DRAW_CIRCLE_SPOKE_3 | DRAW_CIRCLE_SPOKE_4;
+		
+		public static var drawFlags:uint = DRAW_OUTLINES | DRAW_FILLS | DRAW_CIRCLE_SPOKES | DRAW_JOINTS;
+		
+		public static var dynamicFillColor:uint = 0x0000ff;
+		public static var dynamicOutlineColor:uint = 0xffffff;
+		
+		public static var staticFillColor:uint = 0x666666;
+		public static var staticOutlineColor:uint = 0xffffff;
+		
+		public static var kinematicFillColor:uint = 0xff0000;
+		public static var kinematicOutlineColor:uint = 0xffffff;
+		
+		public static var jointFillColor:uint = 0xff9900;
+		public static var jointOutlineColor:uint = 0xff9900;
+		
+		public static var fillAlpha:Number = .75;
+		public static var outlineAlpha:Number = .75;
+		
+		public static var boundBoxColor:uint = 0x006633;
+		public static var boundBoxAlpha:Number = .75;
+		
+		public static var boundCircleColor:uint = 0x006633;
+		public static var boundCircleAlpha:Number = .75;
+		
+		public static var centroidColor:uint   = 0x00ffff;
+		public static var centroidAlpha:Number = .75;
+		
+		public static var lineThickness:Number = 1;
+		public static var pointRadius:Number   = 3;
+		
+		public static var boundBoxStartDepth:uint = 1;
+		public static var boundBoxEndDepth:uint = 1;
+		
+		public static var boundCircleStartDepth:uint = 1;
+		public static var boundCircleEndDepth:uint = 1;
+		
+		public static var centroidStartDepth:uint = 1;
+		public static var centroidEndDepth:uint = 1;
+		
+		public static var jointLineThickness:Number = 2;
+	}
+}

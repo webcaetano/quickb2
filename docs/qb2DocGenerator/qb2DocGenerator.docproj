@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<docProject xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <pageTitle>QuickB2 API Documentation</pageTitle>
+  <classPaths>..\..\src;..\..\dependencies\src\As3Math;..\..\extensions\TopDown</classPaths>
+  <sourcesList />
+  <outputDirectory>guts/</outputDirectory>
+  <activeCompiler>1</activeCompiler>
+  <extraOptions>-library-path "..\..\dependencies\swc\box2das.swc" "..\..\dependencies\swc\minimalcomps.swc" -package-description-file=qb2PackageDescriptions.xml
+</extraOptions>
+</docProject>
