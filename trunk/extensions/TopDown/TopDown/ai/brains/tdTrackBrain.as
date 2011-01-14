@@ -63,6 +63,7 @@ package TopDown.ai.brains
 			{  return _cooldownRate;  }
 		public function set cooldownRate(value:Number):void
 			{  _cooldownRate = value;  }
+		private var _cooldownRate:Number = .02;
 			
 		public var minHitSpeed:Number = 5;
 		public var maxHitSpeed:Number = 50;
@@ -70,8 +71,6 @@ package TopDown.ai.brains
 		public var tetherMultiplier:Number = 10;
 		public var tetherMinimum:Number = 10;
 		public var tetherMaximum:Number = 100;
-			
-		private var _cooldownRate:Number = .02;
 		
 		public var ignoreGod:Boolean = false;
 		public var avoidUTurns:Boolean = true;

@@ -650,14 +650,15 @@ package QuickB2.objects.tangibles
 		{
 			for (var i:int = 0; i < _objects.length; i++) 
 			{
+				if ( _objects[i].drawsDebug )
+				{
+					_objects[i].drawDebug(graphics);
+				}
+				
 				if ( _objects[i] is qb2Tangible )
 				{
 					(_objects[i] as qb2Tangible).drawDebugExtras(graphics);
 				}
-				
-				if ( !_objects[i].drawsDebug )  continue;
-				
-				_objects[i].drawDebug(graphics);
 			}
 		}
 		

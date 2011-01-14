@@ -110,6 +110,12 @@ package QuickB2.misc
 		
 		public function get position():amPoint2d
 			{  return new amPoint2d(_interactiveSource.mouseX, _interactiveSource.mouseY);  }
+			
+		public function get mouseX():Number
+			{  return _interactiveSource.mouseX;  }
+			
+		public function get mouseY():Number
+			{  return _interactiveSource.mouseY;  }
 		
 		public function get interactiveSource():InteractiveObject
 			{  return _interactiveSource;  }
