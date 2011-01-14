@@ -590,16 +590,5 @@ package TopDown.objects
 		{
 			calcTireShares();
 		}
-		
-		public override function drawDebug(graphics:Graphics):void
-		{
-			if ( tdDebugDrawSettings.drawFlags & tdDebugDrawSettings.DRAW_SKIDS )
-			{
-				for ( var i:int = 0; i < tires.length; i++)
-					tires[i].drawDebugSkids(graphics);
-			}
-			
-			super.drawDebug(graphics);
-		}
 	}
 }

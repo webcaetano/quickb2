@@ -420,6 +420,13 @@ package QuickB2.stock
 			return world;
 		}
 		
+		public static function newSoftPolyCircle(center:amPoint2d, radius:Number, numSegments:uint = 12, mass:Number = 1, groupIndex:int = -1 ):qb2SoftPoly
+		{
+			var poly:qb2SoftPoly = new qb2SoftPoly();
+			poly.setAsCircle(center, radius, numSegments, mass, groupIndex);
+			return poly;
+		}
+		
 		public static function newPillBody(center:amPoint2d, width:Number, height:Number, mass:Number = 0, initRotation:Number = 0):qb2Body
 		{
 			var body:qb2Body = new qb2Body();

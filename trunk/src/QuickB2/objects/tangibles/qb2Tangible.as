@@ -489,31 +489,56 @@ package QuickB2.objects.tangibles
 				}
 			}
 			
-			var fixtures1:Vector.<b2Fixture> = distanceTo_getFixtures(this);
-			var fixtures2:Vector.<b2Fixture> = distanceTo_getFixtures(otherTangible);
-			
-			if ( !fixtures1 || !fixtures2 )
-			{
-				return NaN;
-			}
+			var fixtures1:Array = distanceTo_getFixtures(this);
+			var fixtures2:Array = distanceTo_getFixtures(otherTangible);
 			
 			var numFixtures1:int = fixtures1.length;
 			var smallest:Number = Number.MAX_VALUE;
 			var vec:V2 = null;
 			var pointA:amPoint2d = new amPoint2d();
 			var pointB:amPoint2d = new amPoint2d();
+			
+			var din:b2DistanceInput = b2Def.distanceInput;
 			var dout:b2DistanceOutput = b2Def.distanceOutput;
+			distanceTo_pointShape = distanceTo_pointShape ? distanceTo_pointShape : new b2CircleShape();
 			
 			for (var i:int = 0; i < numFixtures1; i++) 
 			{
-				var ith:b2Fixture = fixtures1[i];
+				var ithFixture:* = fixtures1[i];
+				
+				if ( ithFixture is b2Fixture )
+				{
+					var asFix:b2Fixture = ithFixture as b2Fixture;
+					din.proxyA.Set( asFix.m_shape);
+					din.transformA.xf = asFix.m_body.GetTransform();
+				}
+				else
+				{
+					din.proxyA.Set( distanceTo_pointShape);
+					din.transformA.xf = ithFixture as XF;
+				}
 				
 				var numFixtures2:int = fixtures2.length;
 				for (var j:int = 0; j < numFixtures2; j++) 
 				{
-					var jth:b2Fixture = fixtures2[j];
+					var jthFixture:* = fixtures2[j];
 					
-					var seperation:V2 = ith.GetDistance(jth);
+					if ( jthFixture is b2Fixture )
+					{
+						asFix = jthFixture as b2Fixture;
+						din.proxyB.Set( (jthFixture as b2Fixture).m_shape);
+						din.transformB.xf = asFix.m_body.GetTransform();
+					}
+					else
+					{
+						din.proxyB.Set( distanceTo_pointShape);
+						din.transformB.xf = jthFixture as XF;
+					}
+					
+					din.useRadii = true;
+					b2Def.simplexCache.count = 0;
+					b2Distance();
+					var seperation:V2 = dout.pointB.v2.subtract(dout.pointA.v2);
 					var distance:Number = seperation.lengthSquared();
 					
 					if ( distance < smallest )
@@ -532,9 +557,10 @@ package QuickB2.objects.tangibles
 				return NaN;
 			}
 			
+			vec.multiplyN(worldPixelsPerMeter);
+			
 			if ( outputVector )
 			{
-				vec.multiplyN(worldPixelsPerMeter);
 				outputVector.set(vec.x, vec.y);
 			}
 			if ( outputPointThis )
@@ -542,7 +568,6 @@ package QuickB2.objects.tangibles
 				pointA.scaleBy(worldPixelsPerMeter);
 				outputPointThis.copy(pointA);
 			}
-			
 			if ( outputPointOther )
 			{
 				pointB.scaleBy(worldPixelsPerMeter);
@@ -552,9 +577,11 @@ package QuickB2.objects.tangibles
 			return vec.length();
 		}
 		
-		private static function distanceTo_getFixtures(tang:qb2Tangible):Vector.<b2Fixture>
+		private static var distanceTo_pointShape:b2CircleShape;
+		
+		private static function distanceTo_getFixtures(tang:qb2Tangible):Array
 		{
-			var returnFixtures:Vector.<b2Fixture>;
+			var returnFixtures:Array = [];
 			
 			var queue:Vector.<qb2Object> = new Vector.<qb2Object>();
 			queue.unshift(tang);
@@ -566,11 +593,6 @@ package QuickB2.objects.tangibles
 				{
 					var shapeFixtures:Vector.<b2Fixture> = (object as qb2Shape).fixtures;
 					
-					if ( shapeFixtures.length && !returnFixtures )
-					{
-						returnFixtures = new Vector.<b2Fixture>();
-					}
-					
 					for (var i:int = 0; i < shapeFixtures.length; i++) 
 					{
 						returnFixtures.push(shapeFixtures[i]);
@@ -578,14 +600,33 @@ package QuickB2.objects.tangibles
 				}
 				else if ( object is qb2ObjectContainer )
 				{
-					var asContainer:qb2ObjectContainer = object as qb2ObjectContainer
+					var asContainer:qb2ObjectContainer = object as qb2ObjectContainer;
 					var numObjects:int = asContainer._objects.length;
+					var hasTangChildren:Boolean = false;
 					for (var j:int = 0; j < numObjects; j++) 
 					{
 						var jth:qb2Object = asContainer._objects[j];
 						if ( jth is qb2Tangible )
 						{
 							queue.unshift(jth);
+							
+							hasTangChildren = true;
+						}
+					}
+					
+					if ( !hasTangChildren )
+					{
+						if ( asContainer._bodyB2 )
+						{
+							returnFixtures.push(asContainer._bodyB2.GetTransform());
+						}
+						else
+						{
+							var worldPnt:amPoint2d = asContainer.getWorldPoint(new amPoint2d());
+							var xf:XF = new XF();
+							xf.p.x = worldPnt.x / asContainer.worldPixelsPerMeter;
+							xf.p.y = worldPnt.y / asContainer.worldPixelsPerMeter;
+							returnFixtures.push(xf);
 						}
 					}
 				}

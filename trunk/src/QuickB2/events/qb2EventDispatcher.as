@@ -110,7 +110,7 @@ package QuickB2.events
 		
 		public override function hasEventListener(type:String):Boolean
 		{
-			if ( _eventFlags & getCachedEventBit(type) )
+			if ( _eventFlags & eventBitMap[type] )
 			{
 				return true;
 			}

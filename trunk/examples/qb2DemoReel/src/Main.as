@@ -47,7 +47,7 @@
 		private static const demoClasses:Vector.<Class> = Vector.<Class>
 		([
 			CarDriving, StockSofts, JelloCar, StockRigids, RigidCar, StressTest,
-			BubblePop, Cup, Actors, ShapeTransformation, Drawing, Joints
+			BubblePop, Cup, Actors, ShapeTransformation, Drawing, Joints, Distance
 		]);
 		
 		private var _demos:Vector.<Demo> = new Vector.<Demo>();

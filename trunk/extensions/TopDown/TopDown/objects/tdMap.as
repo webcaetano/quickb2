@@ -24,7 +24,9 @@ package TopDown.objects
 {
 	import As3Math.geo2d.*;
 	import flash.display.Graphics;
+	import flash.events.Event;
 	import flash.utils.*;
+	import QuickB2.events.qb2AddRemoveEvent;
 	import QuickB2.objects.qb2Object;
 	import QuickB2.objects.tangibles.*;
 	import TopDown.ai.*;
@@ -45,8 +47,16 @@ package TopDown.objects
 		
 		public function tdMap():void
 		{
+		}
+		
+		private function descendantEvent(evt:Event):void
+		{
 			
 		}
+		
+		public var skidDrawContext:Graphics = null;
+		
+		//public function drawSkid(
 		
 		public function get trafficManager():tdTrafficManager
 			{  return _trafficManager;  }
