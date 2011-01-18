@@ -26,7 +26,9 @@ package QuickB2.debugging
 	import flash.display.DisplayObject;
 	import flash.events.*;
 	import flash.net.SharedObject;
+	import flash.system.System;
 	import flash.utils.Dictionary;
+	import flash.utils.getTimer;
 	import QuickB2.objects.*;
 	import QuickB2.objects.tangibles.*;
 	
@@ -63,12 +65,14 @@ package QuickB2.debugging
 		
 		private var boundBoxRange:HRangeSlider, centroidRange:HRangeSlider, boundCircleRange:HRangeSlider;
 		
-		private var fps:FPSMeter;
+		private var fps:Label;
 		private var polyCount:Label;
 		private var circCount:Label;
 		private var jointCount:Label;
+		private var ram:Label;
 		
 		private var pausePlay:PushButton;
+		private var stepButton:PushButton;
 		
 		private var polyStart:String  = "  POLYGONS";
 		private var circStart:String  = "  CIRCLES";
@@ -147,12 +151,19 @@ package QuickB2.debugging
 			polyCount = new Label(this, left, centroidRangeLabel.y + centroidRangeLabel.height + 10, "0" + polyStart);
 			circCount = new Label(this, left, polyCount.y + polyCount.height + heightOffset, "0" + circStart);
 			jointCount = new Label(this, left, circCount.y + circCount.height + heightOffset, "0" + jointStart);
-			fps = new FPSMeter(this,    left, 390, "FPS: ");
+			fps = new Label(this,    left, 390, "FPS: ");
+			
+			ram = new Label(this, left, fps.y - fps.height-heightOffset, "RAM: ");
 			//fps.y = this.height - fps.height;
 			
 			pausePlay = new PushButton(this, 0, 390, "Pause", buttonPushed);
 			pausePlay.width *= .5;
 			pausePlay.x = this.width - pausePlay.width - 5;
+			
+			stepButton = new PushButton(this, 0, 390, "Step", buttonPushed);
+			stepButton.width *= .5;
+			stepButton.x = pausePlay.x;
+			stepButton.y = pausePlay.y - stepButton.height - 5;
 			
 			addEventListener(Event.ADDED_TO_STAGE, added); // to start fps
 			
@@ -179,7 +190,41 @@ package QuickB2.debugging
 			var data:Object = sharedData;
 			data.windowX = this.x;
 			data.windowY = this.y;
+			
+			_frames++;
+			var time:int = getTimer();
+			var elapsed:int = time - _startTime;
+			
+			if( elapsed >= 500)
+			{
+				var fpsNum:int = Math.round(_frames * 1000 / elapsed);
+				_frames = 0;
+				_startTime = time;
+				
+				fps.text = fpsNum + "  FPS";
+				
+				var memory:String = (System.totalMemory / 1000).toFixed(0);
+				var memStringLen:int = memory.length;
+				var newMemory:String = "";
+				for (var i:int = memStringLen; i >= 0; i-= 3) 
+				{
+					var sliceLength:int = 3;
+					var end:int = i - sliceLength;
+					var numbersLeft:Boolean = end > 0;
+					
+					if ( !numbersLeft )
+					{
+						end = 0;
+					}
+					
+					newMemory = (numbersLeft ? "," : "") + memory.slice(end, i) + newMemory;
+				}
+				ram.text = newMemory + "  KB";
+			}
 		}
+		
+		private var _frames:int = 0;
+		private var _startTime:int = 0;
 		
 		private function initSettings():void
 		{
@@ -294,33 +339,44 @@ package QuickB2.debugging
 			var sum:int = 0;
 			
 			var dict:Dictionary = qb2World.worldDict;
-			if ( pausePlay.label == "Pause" )
+			if( evt.target == stepButton )
+			{
+				pausePlay.label = "Play"
+				
+				for (key in dict)
+				{
+					if ( dict[key].running )
+					{
+						dict[key].stop();
+					}
+					else
+					{
+						dict[key].step();
+					}
+				}
+			}
+			else if ( pausePlay.label == "Pause" )
 			{
 				pausePlay.label = "Play";
 				
 				for (var key:* in dict )
 				{
 					dict[key].stop();
-					sum++;
 				}
 			}
-			else
+			else if( pausePlay.label == "Play" )
 			{
 				pausePlay.label = "Pause";
 				
 				for (key in dict)
 				{
 					dict[key].start();
-					sum++;
 				}
 			}
-			
-			trace("Number of worlds paused or played: " + sum);
 		}
 		
 		private function added(evt:Event):void
 		{
-			fps.start();
 			removeEventListener(Event.ADDED_TO_STAGE, added, false);
 			addEventListener(Event.REMOVED_FROM_STAGE, removed, false, 0, true );
 			addEventListener(Event.ENTER_FRAME, update, false, 0, true);
@@ -328,7 +384,6 @@ package QuickB2.debugging
 		
 		private function removed(evt:Event):void
 		{
-			fps.stop();
 			removeEventListener(Event.REMOVED_FROM_STAGE, removed, false);
 			addEventListener(Event.ADDED_TO_STAGE, added, false, 0, true);
 			removeEventListener(Event.ENTER_FRAME, update);

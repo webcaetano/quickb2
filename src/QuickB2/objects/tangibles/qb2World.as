@@ -58,27 +58,27 @@ package QuickB2.objects.tangibles
 		 * @default 1.0/30.0
 		 * @see #realTimeUpdate
 		 */
-		public var timeStep:Number   = 1.0 / 30.0;
+		public var defaultTimeStep:Number   = 1.0 / 30.0;
 		
 		/** If true, things will update based on the actual elapsed time since the last update.
-		 * If false, the simulation will update on the fixed time step specified by timeStep.
+		 * If false, the simulation will update on the fixed time step specified by defaultTimeStep.
 		 * @default true
-		 * @see #timeStep
+		 * @see #defaultTimeStep
 		 */
 		public var realtimeUpdate:Boolean = false;
-		
-		/** If realtimeUpdate is true, this is the maximum step that will be taken per frame.  Large timesteps cause instabilities.
-		 * @default = 1.0
-		 * @see #realtimeUpdate
-		 */
-		public var maximumRealtimeStep:Number = 1.0;
 		
 		/** Number of iterations to use for each update. A higher number will produce a slower but more accurate simulation.  Lower, vice
 		 * versa. The default of 10 is suitable for most real time physics simulations.  Rarely will you have to change this.
 		 * @default 10
 		 */
-		public var positionIterations:uint = 3;
-		public var velocityIterations:uint = 8;
+		public var defaultPositionIterations:uint = 3;
+		public var defaultVelocityIterations:uint = 8;
+		
+		/** If realtimeUpdate is true, this is the maximum step that will be taken per frame.  Large timesteps cause instabilities.
+		 * @default = 1.0/20.0
+		 * @see #realtimeUpdate
+		 */
+		public var maximumRealtimeStep:Number = 1.0/20.0;
 		
 		private var lastTime:Number = 0;
 	
@@ -93,7 +93,7 @@ package QuickB2.objects.tangibles
 		
 		private const delayedCalls:Vector.<qb2InternalDelayedCall> = new Vector.<qb2InternalDelayedCall>();
 		
-		//--- Maintain an array of all active worlds, only useful for qb2DebugDrawPanel for the time being.
+		//--- (b2World=>qb2World) Maintains an array of all active worlds, only useful for qb2DebugDrawPanel for the time being.
 		//--- Weak keys allow the world to be garbage collected, and effectively automatically removed from the array.
 		//--- The user should really never instantiate more than one world, but you never know I guess.
 		qb2_friend static const worldDict:Dictionary = new Dictionary(true);
@@ -330,7 +330,14 @@ package QuickB2.objects.tangibles
 		//--- This function is used as a middle man so that the outside world only sees step() without the
 		//--- Event parameter input, which might be a little confusing if you just wanted to update manually.
 		private function enterFrame(evt:Event):void
-			{  step();  }
+		{
+			var currTime:Number = getTimer() / 1000;
+			var timeStep:Number = realtimeUpdate ? amUtils.constrain(currTime - lastTime, 0, maximumRealtimeStep) : defaultTimeStep;
+			
+			step(timeStep, defaultPositionIterations, defaultVelocityIterations);
+			
+			lastTime = currTime;
+		}
 		
 		/** The last time step that was used to advance the physics world in step().  This can change for each pass if realTimeUpdate == true
 		 * @default 0
@@ -351,13 +358,11 @@ package QuickB2.objects.tangibles
 		private var timer:Number = 0;
 		
 		/** Updates the physics world. This includes processing debug mouse input, drawing debug graphics, updating fps, calling pre/postCallback(), and updating sprite/actor positions (if applicable).
-		 * @see #timeStep
+		 * @see #defaultTimeStep
 		 * @see #realtimeUpdate
 		 */
-		public function step():void
+		public function step( timeStep:Number = 1/30.0, positionIterations:uint = 3, velocityIterations:uint = 8 ):void
 		{
-			var currTime:Number = getTimer() / 1000;
-			
 			for (var key:* in preEventers)
 			{
 				var dispatcher:qb2Object = key as qb2Object;
@@ -368,12 +373,11 @@ package QuickB2.objects.tangibles
 			
 			mouseDrag();
 			
-			_lastTimeStep = realtimeUpdate ? amUtils.constrain(currTime - lastTime, 0, maximumRealtimeStep) : timeStep;
-			
+			_lastTimeStep = timeStep;
 			timer += _lastTimeStep;
 	
 			processingBox2DStuff = true;
-				b2Base.lib.b2World_Step(_worldB2._ptr, _lastTimeStep, velocityIterations, positionIterations);
+				b2Base.lib.b2World_Step(_worldB2._ptr, timeStep, velocityIterations, positionIterations);
 			processingBox2DStuff = false;
 			
 			//--- Go through the changes made by the user to the physics world (if any) inside contact callbacks.
@@ -412,18 +416,15 @@ package QuickB2.objects.tangibles
 				}
 			}
 			delayedCalls.length = 0;
-	
+			
 			update();
 			
 			if ( debugDrawContext )
 			{
 				debugDrawContext.clear();
-				if ( drawsDebug )
-				{
-					drawDebug(debugDrawContext);
-				}
+				drawDebug(debugDrawContext);
 			}
-
+			
 			//--- Give the user a chance to do some logic.
 			for ( key in postEventers)
 			{
@@ -432,8 +433,6 @@ package QuickB2.objects.tangibles
 				postEvent._object = dispatcher;
 				dispatcher.dispatchEvent(postEvent);
 			}
-			
-			lastTime = currTime;
 		}
 		
 		public function get totalNumPolygons():uint

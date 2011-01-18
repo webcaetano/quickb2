@@ -48,8 +48,6 @@ package TopDown.debugging
 		public static var tiresOnTop:Boolean = true;
 		
 		public static var skidColor:uint  = 0x000000;
-		public static var skidLifetime:Number = 3;
-		public static var skidAlpha:Number = .6;
 		
 		public static var trackColor:uint = 0x999999;
 		public static var trackThickness:Number = 1;

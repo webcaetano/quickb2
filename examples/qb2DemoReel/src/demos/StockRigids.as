@@ -66,7 +66,7 @@ package demos
 			twoRoundRects.position.set(currX, currY);
 			twoRoundRects.addObject(qb2Stock.newRoundedRectBody(new amPoint2d(-25, 0), 50, 100, 10, 1));
 			twoRoundRects.addObject(qb2Stock.newRoundedRectBody(new amPoint2d(50, 0), 50, 100, 10, 1, AM_PI / 2));
-			twoRoundRects.scaleBy(.75, twoRoundRects.position); // shrink this guy a little so he fits better in the layout.
+			twoRoundRects.scaleBy(.75, .75, twoRoundRects.position); // shrink this guy a little so he fits better in the layout.
 			addObject(twoRoundRects);
 			
 			currX += incX;

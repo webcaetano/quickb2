@@ -49,15 +49,6 @@ package TopDown.objects
 		{
 		}
 		
-		private function descendantEvent(evt:Event):void
-		{
-			
-		}
-		
-		public var skidDrawContext:Graphics = null;
-		
-		//public function drawSkid(
-		
 		public function get trafficManager():tdTrafficManager
 			{  return _trafficManager;  }
 		public function set trafficManager(manager:tdTrafficManager):void
@@ -77,25 +68,47 @@ package TopDown.objects
 		
 		protected override function justAddedObject(object:qb2Object):void
 		{
-			if ( !(object is tdTrack) )  return;
-			
-			var track:tdTrack = object as tdTrack;
-			track._map = this;
-			
-			trackDict[track] = true;
-			
-			updateTrackBranches(track);
+			if ( object is tdTrack )
+			{
+				var track:tdTrack = object as tdTrack;
+				track._map = this;
+				
+				trackDict[track] = true;
+				
+				updateTrackBranches(track);
+			}
+			else if ( object is tdTerrain )
+			{
+				var terrain:tdTerrain = object as tdTerrain;
+				
+				if ( terrain.ubiquitous )
+				{
+					ubiquitousTerrain = terrain;
+				}
+			}
 		}
+		
+		td_friend var ubiquitousTerrain:tdTerrain;
 		
 		protected override function justRemovedObject(object:qb2Object):void
 		{
-			if ( !(object is tdTrack) )  return;
-			
-			var track:tdTrack = object as tdTrack;
-			track.clearBranches();
-			track._map = null;
-			
-			delete trackDict[track];
+			if ( object is tdTrack )
+			{
+				var track:tdTrack = object as tdTrack;
+				track.clearBranches();
+				track._map = null;
+				
+				delete trackDict[track];
+			}
+			else if ( object is tdTerrain )
+			{
+				var terrain:tdTerrain = object as tdTerrain;
+				
+				if ( terrain.ubiquitous )
+				{
+					ubiquitousTerrain = null;
+				}
+			}
 		}
 		
 		td_friend function updateTrackBranches(track:tdTrack):void

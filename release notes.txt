@@ -6,8 +6,6 @@
 
 - updates and corrections to the manual
 
-- added a class heirarchy to documentation folder
-
 - included generated documentation on svn (before you had to generate it yourself).
 
 - fixed a bug with changing the mass of an in-world object from not zero to zero and vice versa
@@ -18,7 +16,7 @@
 
 - changed around some component properties for various proxies, fixed some formatting and typos
 
-- made qb2DebugPanel remember your settings locally and cleaned up a lot of code in qb2DebugPanel
+- made qb2DebugPanel remember your settings locally and cleaned up a lot of code there...also added Step button and RAM usage
 
 - added car example to qb2DemoReel
 
@@ -39,3 +37,7 @@
 - moved the clone function so it's declared virtually in qb2Object, instead of seperately in qb2Tangible and qb2Joint.
 
 - added a distanceTo function to qb2Tangible...finds the shortest distance between two tangibles' geometry and optionally outputs the closest points and the vector seperating them
+
+- optimized debug drawing by putting it in the main update iteration, instead of having its own seperate iteration aterwards.
+
+- added a qb2TreeIterator to make it easy to do a level-order traversal of any qb2ObjectContainer hieararchy.

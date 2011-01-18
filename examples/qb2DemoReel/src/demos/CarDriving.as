@@ -3,16 +3,7 @@ package demos
 	import As3Math.consts.*;
 	import As3Math.general.*;
 	import As3Math.geo2d.*;
-	import com.greensock.events.LoaderEvent;
-	import com.greensock.loading.data.SWFLoaderVars;
-	import com.greensock.loading.SWFLoader;
-	import com.greensock.plugins.AutoAlphaPlugin;
-	import flash.events.Event;
-	import flash.system.ApplicationDomain;
-	import flash.system.LoaderContext;
-	import flash.utils.getDefinitionByName;
 	import QuickB2.events.*;
-	import QuickB2.misc.qb2Keyboard;
 	import QuickB2.objects.tangibles.*;
 	import QuickB2.stock.*;
 	import TopDown.ai.*;
@@ -20,7 +11,6 @@ package demos
 	import TopDown.ai.controllers.*;
 	import TopDown.carparts.*;
 	import TopDown.debugging.*;
-	import TopDown.loaders.tdFlashLoader;
 	import TopDown.objects.*;
 	import TopDown.stock.*;
 	
@@ -42,6 +32,17 @@ package demos
 		public function CarDriving() 
 		{
 			var center:amPoint2d = new amPoint2d(stage.stageWidth / 2, stage.stageHeight / 2);
+			
+			//--- Make a terrain that encompasses the whole map, basically so skids are drawn everywhere.
+			var defaultTerrain:tdTerrain = new tdTerrain(true);
+			map.addObject(defaultTerrain);
+			
+			var icyPatch:tdTerrain = new tdTerrain();
+			icyPatch.frictionZMultiplier = .1;
+			icyPatch.slidingSkidColor = 0x00ff00;
+			icyPatch.position.set(stageWidth * 1.5, stageHeight * 1.5);
+			icyPatch.addObject(qb2Stock.newCircleShape(new amPoint2d(), 200, 0));
+			map.addObject(icyPatch);
 			
 			//--- Give the car geometry and mass.  Provide junk in the trunk so that the car has oversteer and can do handbrake turns more easily.
 			var carWidth:Number = 60;
@@ -73,8 +74,7 @@ package demos
 			playerCar.brain = playerBrain;
 			
 			//--- Give the car an engine and transmission...both optional, but needed if you want the car to move under its own power.
-			playerCar.engine = new tdEngine();
-			playerCar.tranny = new tdTransmission();
+			playerCar.addObject(new tdEngine(), new tdTransmission());
 			
 			//--- Gear ratios for the transmission, starting with reverse, then first, second, etc.
 			playerCar.tranny.gearRatios = Vector.<Number>([3.5, 3.5, 3, 2.5, 2, 1.5, 1]);
@@ -85,7 +85,7 @@ package demos
 			curve.addEntry(2000, 310);
 			curve.addEntry(3000, 320);
 			curve.addEntry(4000, 325);
-			curve.addEntry(5000, 330); // (this would be the maximum torque this engine can produce).
+			curve.addEntry(5000, 330); // (this is the maximum torque the engine can produce).
 			curve.addEntry(6000, 325);
 			curve.addEntry(7000, 320);
 			
@@ -108,14 +108,9 @@ package demos
 			trafficManager.maxNumCars = 1;
 			map.trafficManager = trafficManager;
 			
-			var terrain:tdTerrain = new tdTerrain();
-			terrain.frictionZMultiplier = 0;
-			terrain.addObject(qb2Stock.newCircleShape(new amPoint2d(), 100, 0));
-			addObject(terrain);
-			
-			var circ:qb2CircleShape = qb2Stock.newCircleShape( new amPoint2d(), 30, 1000);
-			circ.frictionZ = 1;
-			addObject(circ);
+			var box:qb2PolygonShape = qb2Stock.newRectShape(icyPatch.position.clone(), 50, 200, 300, RAD_15);
+			box.frictionZ = 1;
+			addObject(box);
 			
 			this.addEventListener(qb2UpdateEvent.PRE_UPDATE,  updateManager);
 			this.addEventListener(qb2UpdateEvent.POST_UPDATE, updateCamera);

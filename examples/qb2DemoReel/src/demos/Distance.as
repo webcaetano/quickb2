@@ -50,8 +50,11 @@ package demos
 			pointB.draw(graphics, 5, false);
 			graphics.endFill();
 			
-			graphics.lineStyle(2, distanceColor, qb2DebugDrawSettings.outlineAlpha);
-			vector.draw(graphics, pointA, 0, 0);
+			if ( vector.lengthSquared )
+			{
+				graphics.lineStyle(2, distanceColor, qb2DebugDrawSettings.outlineAlpha);
+				vector.draw(graphics, pointA, 0, 0);
+			}
 		}
 	}
 }

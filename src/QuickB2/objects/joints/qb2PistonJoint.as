@@ -26,6 +26,7 @@ package QuickB2.objects.joints
 	import As3Math.general.*;
 	import As3Math.geo2d.*;
 	import Box2DAS.Common.*;
+	import Box2DAS.Dynamics.b2Body;
 	import Box2DAS.Dynamics.Joints.*;
 	import flash.display.*;
 	import QuickB2.*;
@@ -132,8 +133,8 @@ package QuickB2.objects.joints
 				
 				correctLocalVec();
 				
-				var corrected1:amPoint2d = getCorrectedLocal1(conversion);
-				var corrected2:amPoint2d = getCorrectedLocal2(conversion);
+				var corrected1:amPoint2d = getCorrectedLocal1(conversion, conversion);
+				var corrected2:amPoint2d = getCorrectedLocal2(conversion, conversion);
 				
 				
 				if ( jointB2 is b2PrismaticJoint )
@@ -476,8 +477,8 @@ package QuickB2.objects.joints
 				var limits:Array = getMetricLimits(theWorld.pixelsPerMeter);
 				
 				var conversion:Number = theWorld.pixelsPerMeter;
-				var corrected1:amPoint2d    = getCorrectedLocal1(conversion);
-				var corrected2:amPoint2d    = getCorrectedLocal2(conversion);
+				var corrected1:amPoint2d    = getCorrectedLocal1(conversion, conversion);
+				var corrected2:amPoint2d    = getCorrectedLocal2(conversion, conversion);
 				var correctedVec:amVector2d = getCorrectedLocalVec();
 				
 				if ( _syncedObjectRotation )
@@ -566,14 +567,14 @@ package QuickB2.objects.joints
 		
 		public override function draw(graphics:Graphics):void
 		{
-			var worldPoints:Vector.<amPoint2d> = drawAnchors(graphics);
+			var worldPoints:Vector.<V2> = drawAnchors(graphics);
 			
 			graphics.endFill();
 			
 			if ( !worldPoints || worldPoints.length != 2 )   return;
 			
-			var world1:amPoint2d = worldPoints[0];
-			var world2:amPoint2d = worldPoints[1];
+			var world1:amPoint2d = new amPoint2d(worldPoints[0].x, worldPoints[0].y);
+			var world2:amPoint2d = new amPoint2d(worldPoints[1].x, worldPoints[1].y);
 			
 			if ( world1.equals(world2) )  return;
 			
@@ -618,6 +619,35 @@ package QuickB2.objects.joints
 			diff.scaleBy(.5);
 			drawPnt.translateBy(side).translateBy(diff);
 			graphics.lineTo(drawPnt.x, drawPnt.y);
+		}
+		
+		qb2_friend override function getWorldAnchors():Vector.<V2>
+		{
+			var bodyA:b2Body, bodyB:b2Body;
+			var anchorA:b2Vec2, anchorB:b2Vec2;
+			if ( prisJoint )
+			{
+				bodyA = prisJoint.m_bodyA;
+				bodyB = prisJoint.m_bodyB;
+				anchorA = prisJoint.m_localAnchor1;
+				anchorB = prisJoint.m_localAnchor2;
+			}
+			else
+			{
+				bodyA   = lineJoint.m_bodyA;
+				bodyB   = lineJoint.m_bodyB;
+				anchorA = lineJoint.m_localAnchor1;
+				anchorB = lineJoint.m_localAnchor2;
+			}
+			
+			reusableV2.xy(anchorA.x, anchorA.y);
+			var anch1:V2 = bodyA.GetWorldPoint(reusableV2);
+			reusableV2.xy(anchorB.x, anchorB.y);
+			var anch2:V2 = bodyB.GetWorldPoint(reusableV2);
+			anch1.multiplyN(worldPixelsPerMeter);
+			anch2.multiplyN(worldPixelsPerMeter);
+			
+			return Vector.<V2>([anch1, anch2]);
 		}
 		
 		public override function toString():String 

@@ -204,11 +204,11 @@ package TopDown.ai
 		private var _end:amPoint2d;
 			
 			
-		public function scaleBy(value:Number, origin:amPoint2d = null):tdTrack
+		public function scaleBy(xValue:Number, yValue:Number, origin:amPoint2d = null):tdTrack
 		{
 			freezeUpdate = true;
-				_start.scaleBy(value, origin);
-				_end.scaleBy(value, origin);
+				_start.scaleBy(xValue, yValue, origin);
+				_end.scaleBy(xValue, yValue, origin);
 			freezeUpdate = false;
 			
 			updateOnMap(null);

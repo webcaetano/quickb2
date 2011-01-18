@@ -44,16 +44,9 @@ package QuickB2.misc
 		public var mouseWentDown:Function;
 		public var mouseWentUp:Function;
 		
-		public function qb2Mouse(interactiveSource:InteractiveObject) 
+		public function qb2Mouse(initInteractiveSource:InteractiveObject) 
 		{
-			_interactiveSource = interactiveSource;
-			
-			if ( _interactiveSource )
-			{
-				_interactiveSource.addEventListener(MouseEvent.MOUSE_DOWN, mouseEvent, false, 0, true );
-				_interactiveSource.addEventListener(MouseEvent.MOUSE_UP,   mouseEvent, false, 0, true );
-				_interactiveSource.addEventListener(MouseEvent.CLICK,      mouseEvent, false, 0, true );
-			}
+			interactiveSource = initInteractiveSource;
 		}
 		
 		private function mouseEvent(evt:MouseEvent):void
@@ -117,6 +110,26 @@ package QuickB2.misc
 		public function get mouseY():Number
 			{  return _interactiveSource.mouseY;  }
 		
+		public function set interactiveSource(source:InteractiveObject):void
+		{
+			if ( _interactiveSource )
+			{
+				_interactiveSource.removeEventListener(MouseEvent.MOUSE_DOWN, mouseEvent);
+				_interactiveSource.removeEventListener(MouseEvent.MOUSE_UP,   mouseEvent);
+				_interactiveSource.removeEventListener(MouseEvent.CLICK,      mouseEvent);
+			}
+			
+			_interactiveSource = source;
+			
+			if ( _interactiveSource )
+			{
+				_interactiveSource.addEventListener(MouseEvent.MOUSE_DOWN, mouseEvent, false, 0, true );
+				_interactiveSource.addEventListener(MouseEvent.MOUSE_UP,   mouseEvent, false, 0, true );
+				_interactiveSource.addEventListener(MouseEvent.CLICK,      mouseEvent, false, 0, true );
+			}
+			
+			_isDown = false;
+		}
 		public function get interactiveSource():InteractiveObject
 			{  return _interactiveSource;  }
 		private var _interactiveSource:InteractiveObject;

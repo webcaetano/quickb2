@@ -20,9 +20,11 @@
  * THE SOFTWARE.
  */
 
-package TopDown.carparts 
+package TopDown.internals 
 {
-	import TopDown.objects.tdCarBody;
+	import As3Math.geo2d.amPoint2d;
+	import flash.display.Sprite;
+	
 	import TopDown.td_friend;
 	use namespace td_friend;
 	
@@ -30,22 +32,12 @@ package TopDown.carparts
 	 * ...
 	 * @author Doug Koellmer
 	 */
-	public class tdCarPart
+	public class tdInternalSkidEntry
 	{
-		public function tdCarPart() 
-		{
-			
-		}
-		
-		public function get carBody():tdCarBody
-		{
-			return _carBody;
-		}
-		td_friend var _carBody:tdCarBody;
-		
-		public virtual function clone():tdCarPart
-		{
-			return null;
-		}
+		td_friend var start:amPoint2d;
+		td_friend var end:amPoint2d;
+		td_friend var type:uint;
+		td_friend var thickness:Number;
+		td_friend var startTime:Number;
 	}
 }

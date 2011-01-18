@@ -81,8 +81,6 @@ package TopDown.carparts
 		td_friend var _baseRadsPerSec:Number = 0;
 		td_friend var _extraRadsPerSec:Number = 0;
 		
-		private const skidEntries:Vector.<tdInternalDebugSkidEntry> = new Vector.<tdInternalDebugSkidEntry>();
-		
 		//td_friend var terrains:Vector.<tdTerrain> = new Vector.<tdTerrain>();
 
 		td_friend var _load:Number = 0;
@@ -101,30 +99,18 @@ package TopDown.carparts
 			width = initWidth;
 			radius = initRadius;
 			
-			addEventListener(qb2AddRemoveEvent.ADDED_TO_WORLD, addedOrRemoved, false, 0, true);
 			addEventListener(qb2AddRemoveEvent.REMOVED_FROM_WORLD, addedOrRemoved, false, 0, true);
 		}
 		
-		private function addedOrRemoved(evt:qb2AddRemoveEvent):void
+		private function addedOrRemoved(evt:Event):void
 		{
-			if ( evt.type == qb2AddRemoveEvent.ADDED_TO_WORLD )
-			{
-				_map = getAncestor(tdMap) as tdMap;
-			}
-			else
-			{
-				_map = null;
-			}
+			lastWorldPos = null;
 		}
 		
-		public function get map():tdMap
-			{  return _map;  }
-		private var _map:tdMap;
+		td_friend var lastWorldPos:amPoint2d = null;
 		
 		public function get carBody():tdCarBody
-		{
-			return _carBody;
-		}
+			{  return _carBody;  }
 		td_friend var _carBody:tdCarBody;
 		
 		public override function clone():qb2Object
@@ -234,7 +220,6 @@ package TopDown.carparts
 		td_friend function invalidateMetrics():void
 		{
 			metricsValidated = false;
-			skidEntries.length = 0;
 		}
 		
 		
@@ -248,11 +233,11 @@ package TopDown.carparts
 			pointUpdated(null);
 		}
 		
-		public function scaleBy(value:Number, origin:amPoint2d = null):void
+		public function scaleBy(xValue:Number, yValue:Number, origin:amPoint2d = null):void
 		{
-			_position.scaleBy(value, origin);
-			width *= value;
-			radius *= value;
+			_position.scaleBy(xValue, yValue, origin);
+			width *= Math.abs(xValue);
+			radius *= Math.abs(yValue);
 		}
 		
 		private function pointUpdated(evt:amUpdateEvent):void
@@ -449,59 +434,6 @@ package TopDown.carparts
 						currRot += rotInc;
 						currRot = currRot % (Math.PI * 2);
 					}
-				}
-			}
-		}
-		
-		public function drawDebugSkids(graphics:Graphics):void
-		{
-			var time:Number = world ? world.clock : 0;
-
-			if ( _isSkidding )
-			{
-				var entry:tdInternalDebugSkidEntry = new tdInternalDebugSkidEntry();
-				
-				var worldPosition:amPoint2d = getWorldPosition();
-				
-				if ( _wasSkidding && _isSkidding && skidEntries.length )
-				{
-					entry.start = skidEntries[skidEntries.length - 1].end;
-				}
-				else
-				{
-					var translater:amVector2d = linearVelocity.normal.scaleBy( -worldPixelsPerMeter * world.lastTimeStep);
-					
-					if ( !translater.isNaNVec() )
-						entry.start = worldPosition.translatedBy(linearVelocity.normal.scaleBy( -worldPixelsPerMeter * world.lastTimeStep));
-					else
-						entry.start = worldPosition;
-				}
-				
-				entry.end = worldPosition;
-				entry.color = tdDebugDrawSettings.skidColor;
-				entry.thickness = _width * tdDebugDrawSettings.tireScale;
-				entry.lifetime = tdDebugDrawSettings.skidLifetime;
-				entry.startTime = time;
-				entry.startAlpha = tdDebugDrawSettings.skidAlpha;
-				
-				skidEntries.push( entry );
-			}
-			
-			for ( var i:int = 0; i < skidEntries.length; i++ )
-			{
-				entry = skidEntries[i];
-				
-				if ( time - entry.startTime > entry.lifetime )
-				{
-					skidEntries.splice(i--, 1);
-				}
-				else
-				{
-					var alpha:Number = entry.startAlpha * (1 - (time - entry.startTime) / entry.lifetime);
-					graphics.lineStyle(entry.thickness, entry.color, alpha, false, "normal", CapsStyle.NONE);
-					//trace(entry.thickness, entry.color, alpha, entry.start, entry.end);
-					graphics.moveTo(entry.start.x, entry.start.y);
-					graphics.lineTo(entry.end.x, entry.end.y);
 				}
 			}
 		}

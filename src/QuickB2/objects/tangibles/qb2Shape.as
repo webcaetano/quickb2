@@ -163,12 +163,12 @@ package QuickB2.objects.tangibles
 		}
 	
 		
-		public override function scaleBy(value:Number, origin:amPoint2d = null, scaleMass:Boolean = true, scaleJointAnchors:Boolean = true, scaleActor:Boolean = true):qb2Tangible
+		public override function scaleBy(xValue:Number, yValue:Number, origin:amPoint2d = null, scaleMass:Boolean = true, scaleJointAnchors:Boolean = true, scaleActor:Boolean = true):qb2Tangible
 		{
-			super.scaleBy(value, origin, scaleMass, scaleJointAnchors, scaleActor);
+			super.scaleBy(xValue, yValue, origin, scaleMass, scaleJointAnchors, scaleActor);
 			
 			if ( scaleJointAnchors )
-				qb2Joint.scaleJointAnchors(value, this as qb2IRigidObject);
+				qb2Joint.scaleJointAnchors(xValue, yValue, this as qb2IRigidObject);
 				
 			return this;
 		}

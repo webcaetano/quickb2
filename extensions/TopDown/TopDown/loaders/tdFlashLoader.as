@@ -160,7 +160,7 @@ package TopDown.loaders
 				}
 				else if ( tag is tdProxyGearRatio )
 				{
-					if ( !carBody.tranny )  carBody.tranny = new tdTransmission();
+					if ( !carBody.tranny )  carBody.addObject(new tdTransmission());
 					
 					var ratioTag:tdProxyGearRatio = tag as tdProxyGearRatio;
 					var tranny:tdTransmission = carBody.tranny;
@@ -173,17 +173,16 @@ package TopDown.loaders
 				}
 				else if ( tag is tdProxyTransmission )
 				{
-					if ( !carBody.tranny )  carBody.tranny = new tdTransmission();
+					if ( !carBody.tranny )  carBody.addObject(new tdTransmission());
 					
 					applyTrannyTag(carBody.tranny, tag);
 				}
 				else if ( tag is tdProxyTorqueEntry )
 				{
-					if ( !carBody.engine )  carBody.engine = new tdEngine();
+					if ( !carBody.engine )  carBody.addObject(new tdEngine());
 					
 					var torqueTag:tdProxyTorqueEntry = tag as tdProxyTorqueEntry;
-					var engine:tdEngine = carBody.engine;
-					var curve:tdTorqueCurve = engine.torqueCurve;
+					var curve:tdTorqueCurve = carBody.engine.torqueCurve;
 					curve.addEntry(torqueTag.rpm, torqueTag.torque);
 				}
 			}

@@ -175,14 +175,14 @@ package QuickB2.objects.joints
 			anchorUpdated(_localAnchor2);
 		}
 		
-		qb2_friend function getCorrectedLocal1(scaling:Number):amPoint2d
+		qb2_friend function getCorrectedLocal1(scalingX:Number, scalingY:Number):amPoint2d
 		{
-			return _object1._bodyB2 ? _localAnchor1.scaledBy(1/scaling) : _object1.getWorldPoint(_localAnchor1, _object1._ancestorBody).scaleBy(1/scaling);
+			return _object1._bodyB2 ? _localAnchor1.scaledBy(1/scalingX, 1/scalingY) : _object1.getWorldPoint(_localAnchor1, _object1._ancestorBody).scaleBy(1/scalingX, 1/scalingY);
 		}
 		
-		qb2_friend function getCorrectedLocal2(scaling:Number):amPoint2d
+		qb2_friend function getCorrectedLocal2(scalingX:Number, scalingY:Number):amPoint2d
 		{
-			return _object2._bodyB2 ? _localAnchor2.scaledBy(1 / scaling) : _object2.getWorldPoint(_localAnchor2, _object2._ancestorBody).scaleBy(1 / scaling);
+			return _object2._bodyB2 ? _localAnchor2.scaledBy(1/scalingX, 1/scalingY) : _object2.getWorldPoint(_localAnchor2, _object2._ancestorBody).scaleBy(1/scalingX, 1/scalingY);
 		}
 		
 		qb2_friend virtual function correctLocals():void  {}
@@ -312,7 +312,7 @@ package QuickB2.objects.joints
 			makeJointB2(_world);
 		}
 		
-		qb2_friend static function scaleJointAnchors(value:Number, rigid:qb2IRigidObject):void
+		qb2_friend static function scaleJointAnchors(xValue:Number, yValue:Number, rigid:qb2IRigidObject):void
 		{
 			for (var i:int = 0; i < rigid.numAttachedJoints; i++) 
 			{
@@ -323,17 +323,17 @@ package QuickB2.objects.joints
 				{
 					if ( joint._object1 == rigid )
 					{
-						joint._localAnchor1.scaleBy(value);
+						joint._localAnchor1.scaleBy(xValue, yValue);
 					}
 					else if ( joint._object2 == rigid )
 					{
-						joint._localAnchor2.scaleBy(value);
+						joint._localAnchor2.scaleBy(xValue, yValue);
 					}
 				}
 				else
 				{
 					if ( joint._object2 == rigid )
-						joint._localAnchor2.scaleBy(value);
+						joint._localAnchor2.scaleBy(xValue, yValue);
 				}
 			}
 		}
@@ -362,52 +362,20 @@ package QuickB2.objects.joints
 			}
 		}
 		
-		qb2_friend function drawAnchors(graphics:Graphics):Vector.<amPoint2d>
+		qb2_friend virtual function getWorldAnchors():Vector.<V2> { return null };
+		
+		protected static var reusableDrawPoint:amPoint2d = new amPoint2d();
+		protected static var reusableV2:V2 = new V2();
+		
+		qb2_friend function drawAnchors(graphics:Graphics):Vector.<V2>
 		{
-			var worldAnchors:Vector.<amPoint2d> = null;
-			var worldPoint:amPoint2d = null;
+			var worldAnchors:Vector.<V2> = jointB2 ? getWorldAnchors() : null;
 			
-			if ( requiresTwoRigids )
+			if ( worldAnchors )
 			{
-				if ( hasOneWorldPoint )
+				for (var i:int = 0; i < worldAnchors.length; i++) 
 				{
-					if ( _localAnchor1 && _object1 && _object1.world && _localAnchor2 && _object2 && _object2.world )
-					{
-						worldAnchors = new Vector.<amPoint2d>();
-						worldPoint = _object1.getWorldPoint(_localAnchor1).midwayPoint(_object2.getWorldPoint(_localAnchor2));
-						worldPoint.draw(graphics, anchorDrawRadius, false);
-						worldAnchors.push(worldPoint);
-					}
-				}
-				else
-				{
-					if ( _localAnchor1 && _object1 && _object1.world )
-					{
-						worldAnchors = new Vector.<amPoint2d>();
-						worldPoint = _object1.getWorldPoint(_localAnchor1);
-						worldPoint.draw(graphics, anchorDrawRadius, false);
-						worldAnchors.push(worldPoint);
-					}
-					
-					if ( _localAnchor2 && _object2 && _object2.world )
-					{
-						if ( !worldAnchors )  worldAnchors = new Vector.<amPoint2d>();
-						
-						worldPoint = _object2.getWorldPoint(_localAnchor2);
-						worldPoint.draw(graphics, anchorDrawRadius, false);
-						worldAnchors.push(worldPoint);
-					}
-				}
-			}
-			else
-			{
-				if ( _localAnchor2 && _object2 && _object2.world  )
-				{
-					worldAnchors = new Vector.<amPoint2d>();
-					
-					worldPoint = _object2.getWorldPoint(_localAnchor2);
-					worldPoint.draw(graphics, anchorDrawRadius, false);
-					worldAnchors.push(worldPoint);
+					reusableDrawPoint.set( worldAnchors[i].x, worldAnchors[i].y).draw(graphics, anchorDrawRadius, false);
 				}
 			}
 			

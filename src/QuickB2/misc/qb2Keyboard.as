@@ -56,10 +56,12 @@ package QuickB2.misc
 			}
 		}
 		
-		public static function makeSingleton(theStage:Stage):void
+		public static function makeSingleton(theStage:Stage):qb2Keyboard
 		{
 			if ( !_singleton )
 				_singleton = new qb2Keyboard(theStage);
+				
+			return _singleton;
 		}
 		
 		public function releaseListeners():void

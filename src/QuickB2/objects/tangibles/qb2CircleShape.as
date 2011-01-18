@@ -66,41 +66,6 @@ package QuickB2.objects.tangibles
 			return newCircleShape;
 		}
 		
-		public override function getBoundBox(worldSpace:qb2Tangible = null):amBoundBox2d
-		{
-			var box:amBoundBox2d = new amBoundBox2d();
-			
-			if ( !parent || worldSpace == this || worldSpace == parent )
-			{
-				box.setByCopy(position, position);
-			}
-			else
-			{
-				var worldPos:amPoint2d = parent.getWorldPoint(position, worldSpace);
-				box.setByCopy(worldPos, worldPos);
-			}
-			
-			box.swell(_radius);
-			return box;
-		}
-		
-		public override function getBoundCircle(worldSpace:qb2Tangible = null):amBoundCircle2d
-		{
-			var boundCircle:amBoundCircle2d = new amBoundCircle2d();
-			
-			if ( !parent || worldSpace == this || worldSpace == parent )
-			{
-				boundCircle.set(position.clone(), _radius);
-			}
-			else
-			{
-				var worldPos:amPoint2d = parent.getWorldPoint(position, worldSpace);
-				boundCircle.set(worldPos, _radius);
-			}
-			
-			return boundCircle;
-		}
-		
 		public function convertToPoly(numSides:uint = 12, retainJoints:Boolean = true ):qb2PolygonShape
 		{
 			var poly:qb2PolygonShape = qb2Stock.newRegularPolygonShape(_position.clone(), radius, numSides, _rotation);
@@ -161,15 +126,15 @@ package QuickB2.objects.tangibles
 		public override function get centerOfMass():amPoint2d
 			{  return _position.clone();  }
 		
-		public override function scaleBy(value:Number, origin:amPoint2d = null, scaleMass:Boolean = true, scaleJointAnchors:Boolean = true, scaleActor:Boolean = true):qb2Tangible
+		public override function scaleBy(xValue:Number, yValue:Number, origin:amPoint2d = null, scaleMass:Boolean = true, scaleJointAnchors:Boolean = true, scaleActor:Boolean = true):qb2Tangible
 		{
-			super.scaleBy(value, origin, scaleMass, scaleJointAnchors);
+			super.scaleBy(xValue, yValue, origin, scaleMass, scaleJointAnchors);
 			
 			freezeFlush = true;
-				_position.scaleBy(value, origin);
+				_position.scaleBy(xValue, yValue, origin);
 			freezeFlush = false;
 			
-			_radius *= value;
+			_radius *= (xValue + yValue)/2;
 			
 			var newArea:Number = (_radius * _radius) * Math.PI;
 			var newMass:Number = scaleMass ? newArea * _density : _mass;
