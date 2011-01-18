@@ -22,6 +22,7 @@
 
 package QuickB2.objects.tangibles
 {
+	import adobe.utils.CustomActions;
 	import As3Math.consts.*;
 	import As3Math.general.*;
 	import As3Math.geo2d.*;
@@ -445,13 +446,16 @@ package QuickB2.objects.tangibles
 		
 		public virtual function rotateBy(radians:Number, origin:amPoint2d = null):qb2Tangible { return null; }
 		
-		public function scaleBy(value:Number, origin:amPoint2d = null, scaleMass:Boolean = true, scaleJointAnchors:Boolean = true, scaleActor:Boolean = true):qb2Tangible
+		public function scaleBy(xValue:Number, yValue:Number, origin:amPoint2d = null, scaleMass:Boolean = true, scaleJointAnchors:Boolean = true, scaleActor:Boolean = true):qb2Tangible
 		{
 			if ( this.actor && scaleActor && (this is qb2IRigidObject) )
 			{
 				var mat:Matrix = this.actor.transform.matrix;
-				mat.scale(value, value);
+				mat.scale(xValue, yValue);
 				this.actor.transform.matrix = mat;
+				
+				//this.actor.scaleX *= xValue;
+				//this.actor.scaleY *= yValue;
 			}
 			
 			return this;
@@ -459,7 +463,7 @@ package QuickB2.objects.tangibles
 		
 		public virtual function translateBy(vector:amVector2d):qb2Tangible { return null; }
 		
-		public function distanceTo(otherTangible:qb2Tangible, outputVector:amVector2d = null, outputPointThis:amPoint2d = null, outputPointOther:amPoint2d = null ):Number
+		public function distanceTo(otherTangible:qb2Tangible, outputVector:amVector2d = null, outputPointThis:amPoint2d = null, outputPointOther:amPoint2d = null, ... excludes):Number
 		{
 			//--- Do a bunch of checks for whether this is a legal operation in the first place.
 			if ( !this.world || !otherTangible.world )
@@ -489,8 +493,8 @@ package QuickB2.objects.tangibles
 				}
 			}
 			
-			var fixtures1:Array = distanceTo_getFixtures(this);
-			var fixtures2:Array = distanceTo_getFixtures(otherTangible);
+			var fixtures1:Array = distanceTo_getFixtures(this, excludes);
+			var fixtures2:Array = distanceTo_getFixtures(otherTangible, excludes);
 			
 			var numFixtures1:int = fixtures1.length;
 			var smallest:Number = Number.MAX_VALUE;
@@ -557,7 +561,9 @@ package QuickB2.objects.tangibles
 				return NaN;
 			}
 			
-			vec.multiplyN(worldPixelsPerMeter);
+			var physScale:Number = worldPixelsPerMeter;
+			
+			vec.multiplyN(physScale);
 			
 			if ( outputVector )
 			{
@@ -565,12 +571,12 @@ package QuickB2.objects.tangibles
 			}
 			if ( outputPointThis )
 			{
-				pointA.scaleBy(worldPixelsPerMeter);
+				pointA.scaleBy(physScale, physScale);
 				outputPointThis.copy(pointA);
 			}
 			if ( outputPointOther )
 			{
-				pointB.scaleBy(worldPixelsPerMeter);
+				pointB.scaleBy(physScale, physScale);
 				outputPointOther.copy(pointB);
 			}
 		
@@ -579,7 +585,7 @@ package QuickB2.objects.tangibles
 		
 		private static var distanceTo_pointShape:b2CircleShape;
 		
-		private static function distanceTo_getFixtures(tang:qb2Tangible):Array
+		private static function distanceTo_getFixtures(tang:qb2Tangible, excludes:Array):Array
 		{
 			var returnFixtures:Array = [];
 			
@@ -588,6 +594,23 @@ package QuickB2.objects.tangibles
 			while ( queue.length )
 			{
 				var object:qb2Object = queue.shift();
+				
+				for (var k:int = 0; k < excludes.length; k++) 
+				{
+					var exclude:* = excludes[k];
+					if ( exclude is Class )
+					{
+						var asClass:Class = exclude as Class;
+						if ( object is asClass )
+						{
+							continue;
+						}
+					}
+					else if ( object == exclude )
+					{
+						continue;
+					}
+				}
 				
 				if ( object is qb2Shape )
 				{
@@ -974,14 +997,140 @@ package QuickB2.objects.tangibles
 			return localRotation;
 		}
 		
-		public virtual function getBoundBox(worldSpace:qb2Tangible = null):amBoundBox2d
+		public function getBoundBox(worldSpace:qb2Tangible = null):amBoundBox2d
+		{
+			var box:amBoundBox2d = new amBoundBox2d();
+			var boxSet:Boolean = false;
+			
+			var queue:Vector.<qb2Tangible> = new Vector.<qb2Tangible>();
+			queue.unshift(this);
+			
+			while ( queue.length )
+			{
+				var tang:qb2Tangible = queue.shift();
+				
+				if ( tang is qb2Shape )
+				{
+					if ( tang is qb2CircleShape )
+					{
+						var asCircleShape:qb2CircleShape = tang as qb2CircleShape;
+						var circlePoint:amPoint2d = asCircleShape.parent.getWorldPoint(asCircleShape.position, worldSpace);
+						
+						if ( !boxSet )
+						{
+							box.min = circlePoint;
+							box.max.copy(box.min);
+							box.swell(asCircleShape.radius);
+							boxSet = true;
+						}
+						else
+						{
+							box.expandToPoint(circlePoint, asCircleShape.radius);
+						}
+					}
+					else if ( tang is qb2PolygonShape )
+					{
+						var asPolygonShape:qb2PolygonShape = tang as qb2PolygonShape;
+						
+						for (var i:int = 0; i < asPolygonShape.numVertices; i++) 
+						{
+							var ithVertex:amPoint2d = asPolygonShape.parent.getWorldPoint(asPolygonShape.getVertexAt(i), worldSpace);
+							
+							if ( !boxSet )
+							{
+								box.min = ithVertex
+								box.max.copy(box.min);
+								boxSet = true;
+							}
+							else
+							{
+								box.expandToPoint(ithVertex);
+							}
+						}
+					}
+				}
+				else if ( tang is qb2ObjectContainer )
+				{
+					var asContainer:qb2ObjectContainer = tang as qb2ObjectContainer;
+					
+					for ( i = 0; i < asContainer._objects.length; i++) 
+					{
+						var ithObject:qb2Object = asContainer._objects[i];
+						
+						if ( ithObject is qb2Tangible )
+						{
+							queue.unshift(ithObject as qb2Tangible);
+						}
+					}
+				}
+			}
+			
+			if ( !boxSet && (this is qb2Body) )
+			{
+				var worldPos:amPoint2d = getWorldPoint( (this as qb2Body)._position, worldSpace);
+				box.setByCopy(worldPos, worldPos);
+			}
+			
+			return box;
+		}
+		
+		public function getConvexHull(worldSpace:qb2Tangible = null):amPolygon2d
 		{
 			return null;
 		}
 		
-		public virtual function getBoundCircle(worldSpace:qb2Tangible = null):amBoundCircle2d
+		public function getBoundCircle(worldSpace:qb2Tangible = null):amBoundCircle2d
 		{
-			return null;
+			var circle:amBoundCircle2d = new amBoundCircle2d();
+			var circleSet:Boolean = false;
+			
+			var queue:Vector.<qb2Tangible> = new Vector.<qb2Tangible>();
+			queue.unshift(this);
+			
+			var points:Dictionary = new Dictionary(true);
+			
+			while ( queue.length )
+			{
+				var tang:qb2Tangible = queue.shift();
+				
+				if ( tang is qb2Shape )
+				{
+					if ( tang is qb2CircleShape )
+					{
+						var asCircleShape:qb2CircleShape = tang as qb2CircleShape;
+						var circlePoint:amPoint2d = asCircleShape.parent.getWorldPoint(asCircleShape.position, worldSpace);
+						points[circlePoint] = asCircleShape.radius;
+					}
+					else if ( tang is qb2PolygonShape )
+					{
+						var asPolygonShape:qb2PolygonShape = tang as qb2PolygonShape;
+						
+						for (var i:int = 0; i < asPolygonShape.numVertices; i++) 
+						{
+							var ithVertex:amPoint2d = asPolygonShape.parent.getWorldPoint(asPolygonShape.getVertexAt(i), worldSpace);
+							points[ithVertex] = 0;
+						}
+					}
+				}
+				else if ( tang is qb2ObjectContainer )
+				{
+					var asContainer:qb2ObjectContainer = tang as qb2ObjectContainer;
+					
+					for ( i = 0; i < asContainer._objects.length; i++) 
+					{
+						var ithObject:qb2Object = asContainer._objects[i];
+						
+						if ( ithObject is qb2Tangible )
+						{
+							queue.unshift(ithObject as qb2Tangible);
+						}
+					}
+				}
+			}
+			
+			
+			
+			return circle;
 		}
 		
 		public function getLinearVelocityAtPoint(point:amPoint2d):amVector2d
@@ -1243,7 +1392,11 @@ package QuickB2.objects.tangibles
 			}
 			
 			frictionJoint.m_maxForce = maxForce;
-			frictionJoint.m_maxTorque = _frictionZ * theWorld.gravityZ * _bodyB2.GetInertia();
+			
+			//--- NOTE: this isn't correct, but i can't figure out how to get the units to match up to get torque.
+		//	frictionJoint.m_maxTorque = _frictionZ * theWorld.gravityZ * _bodyB2.GetInertia();
+			frictionJoint.m_maxTorque = maxForce;
+			
 			var centroid:V2 = _bodyB2.GetLocalCenter();
 			frictionJoint.m_localAnchorA.x = centroid.x;
 			frictionJoint.m_localAnchorA.y = centroid.y;
@@ -1253,6 +1406,16 @@ package QuickB2.objects.tangibles
 		
 		qb2_friend function rigid_recomputeBodyB2Mass():void
 		{
+			//--- Box2D gets pissed sometimes if you change a body from dynamic to static/kinematic within a contact callback.
+			//--- So whenever this happen's the call is delayed until after the physics step, which shouldn't affect the simulation really.
+			var theWorld:qb2World = qb2World.worldDict[_bodyB2.m_world] as qb2World;
+			var changingToZeroMass:Boolean = !_mass || _isKinematic;
+			if ( _bodyB2.GetType() == b2Body.b2_dynamicBody && changingToZeroMass && theWorld.processingBox2DStuff )
+			{
+				theWorld.addDelayedCall(null, this.rigid_recomputeBodyB2Mass);
+				return;
+			}
+			
 			_bodyB2.SetType(_isKinematic ? b2Body.b2_kinematicBody : (_mass ? b2Body.b2_dynamicBody : b2Body.b2_staticBody));
 			//_bodyB2.ResetMassData(); // this is called by SetType(), so was redundant, but i'm still afraid that commenting it out would break something, so it's here for now.
 			

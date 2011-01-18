@@ -85,11 +85,11 @@ package QuickB2.objects.tangibles
 		
 		function rotateBy(radians:Number, origin:amPoint2d = null):qb2Tangible;
 		
-		function scaleBy(value:Number, origin:amPoint2d = null, scaleMass:Boolean = true, scaleJointAnchors:Boolean = true, scaleActor:Boolean = true):qb2Tangible;
+		function scaleBy(xValue:Number, yValue:Number, origin:amPoint2d = null, scaleMass:Boolean = true, scaleJointAnchors:Boolean = true, scaleActor:Boolean = true):qb2Tangible;
 		
 		function translateBy(vector:amVector2d):qb2Tangible;
 		
-		function distanceTo(otherTangible:qb2Tangible, outputVector:amVector2d = null, outputPointThis:amPoint2d = null, outputPointOther:amPoint2d = null ):Number
+		function distanceTo(otherTangible:qb2Tangible, outputVector:amVector2d = null, outputPointThis:amPoint2d = null, outputPointOther:amPoint2d = null, ... excludes):Number
 		
 		function get density():Number;
 		function set density(value:Number):void;

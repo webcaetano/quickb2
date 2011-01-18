@@ -87,8 +87,8 @@ package QuickB2.objects.joints
 			if ( jointB2 )
 			{
 				var conversion:Number = worldPixelsPerMeter;
-				var corrected1:amPoint2d = getCorrectedLocal1(conversion);
-				var corrected2:amPoint2d = getCorrectedLocal2(conversion);
+				var corrected1:amPoint2d = getCorrectedLocal1(conversion, conversion);
+				var corrected2:amPoint2d = getCorrectedLocal2(conversion, conversion);
 				
 				joint.m_localAnchorA.x = corrected1.x;
 				joint.m_localAnchorA.y = corrected1.y;
@@ -133,8 +133,8 @@ package QuickB2.objects.joints
 			if ( checkForMake(theWorld) )
 			{
 				var conversion:Number = theWorld.pixelsPerMeter;
-				var corrected1:amPoint2d    = getCorrectedLocal1(conversion);
-				var corrected2:amPoint2d    = getCorrectedLocal2(conversion);
+				var corrected1:amPoint2d    = getCorrectedLocal1(conversion, conversion);
+				var corrected2:amPoint2d    = getCorrectedLocal2(conversion, conversion);
 				
 				var weldJointDef:b2WeldJointDef = b2Def.weldJoint;
 				weldJointDef.localAnchorA.x   = corrected1.x;
@@ -172,13 +172,13 @@ package QuickB2.objects.joints
 		
 		public override function draw(graphics:Graphics):void
 		{
-			var worldPoints:Vector.<amPoint2d> = drawAnchors(graphics);
+			var worldPoints:Vector.<V2> = drawAnchors(graphics);
 			
 			if ( !worldPoints )   return;
 			
 			graphics.endFill();
 			
-			var world1:amPoint2d = worldPoints[0];
+			var world1:amPoint2d = reusableDrawPoint.set(worldPoints[0].x, worldPoints[0].y);
 			var vec:amVector2d = new amVector2d(1, 1);
 			vec.setLength(crossDrawRadius);
 			
@@ -190,6 +190,23 @@ package QuickB2.objects.joints
 			graphics.moveTo(world1.x, world1.y);
 			world1.translateBy(vec.negate().scaleBy(2));
 			graphics.lineTo(world1.x, world1.y);
+		}
+		
+		qb2_friend override function getWorldAnchors():Vector.<V2>
+		{
+			reusableV2.xy(joint.m_localAnchorA.x, joint.m_localAnchorA.y);
+			var anch1:V2 = joint.m_bodyA.GetWorldPoint(reusableV2);
+			reusableV2.xy(joint.m_localAnchorB.x, joint.m_localAnchorB.y);
+			var anch2:V2 = joint.m_bodyB.GetWorldPoint(reusableV2);
+			anch1.multiplyN(worldPixelsPerMeter);
+			anch2.multiplyN(worldPixelsPerMeter);
+			
+			var vecX:Number = (anch2.x - anch1.x) / 2;
+			var vecY:Number = (anch2.y - anch1.y) / 2;
+			anch1.x += vecX;
+			anch1.y += vecY;
+			
+			return Vector.<V2>([anch1]);
 		}
 		
 		public override function toString():String 

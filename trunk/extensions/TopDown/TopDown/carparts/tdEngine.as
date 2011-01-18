@@ -24,6 +24,7 @@ package TopDown.carparts
 {
 	import As3Math.general.amUtils;
 	import QuickB2.misc.qb2UnitConverter;
+	import QuickB2.objects.qb2Object;
 	import TopDown.objects.tdCarBody;
 	
 	import TopDown.td_friend;
@@ -33,10 +34,8 @@ package TopDown.carparts
 	 * ...
 	 * @author Doug Koellmer
 	 */
-	public class tdEngine extends tdCarPart
+	public class tdEngine extends qb2Object
 	{
-		public var userData:*;
-		
 		public var torqueCurve:tdTorqueCurve = new tdTorqueCurve();
 
 		td_friend var _radsPerSec:Number = 0;
@@ -50,7 +49,9 @@ package TopDown.carparts
 		{
 		}
 		
-		public override function clone():tdCarPart
+		td_friend var _carBody:tdCarBody;
+		
+		public override function clone():qb2Object
 		{
 			var engine:tdEngine = new tdEngine();
 			engine.cancelThrottleWhenShifting = this.cancelThrottleWhenShifting;

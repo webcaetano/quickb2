@@ -110,7 +110,7 @@ package QuickB2.objects.joints
 		{
 			if ( jointB2 )
 			{
-				var corrected:amPoint2d = getCorrectedLocal2(worldPixelsPerMeter);
+				var corrected:amPoint2d = getCorrectedLocal2(worldPixelsPerMeter, worldPixelsPerMeter);
 				
 				joint.m_localAnchor.x = corrected.x;
 				joint.m_localAnchor.y = corrected.y;
@@ -208,18 +208,27 @@ package QuickB2.objects.joints
 		
 		public override function draw(graphics:Graphics):void
 		{
-			var worldPoints:Vector.<amPoint2d> = drawAnchors(graphics);
+			var worldPoints:Vector.<V2> = drawAnchors(graphics);
 			
 			graphics.endFill();
 			
 			if ( !worldPoints )   return;
 			
-			var world1:amPoint2d = worldPoints[0];
+			var world1:amPoint2d = reusableDrawPoint.set(worldPoints[0].x, worldPoints[0].y);
 			
 			var diff:amVector2d = worldTarget.minus(world1);
 			
 			if ( diff.lengthSquared > 1 ) // Not checking for this would causes some sloppy graphics.
 				diff.draw(graphics, world1, 0, arrowDrawSize);
+		}
+		
+		qb2_friend override function getWorldAnchors():Vector.<V2>
+		{
+			reusableV2.xy(joint.m_localAnchor.x, joint.m_localAnchor.y);
+			var anch1:V2 = joint.m_bodyB.GetWorldPoint(reusableV2);
+			anch1.multiplyN(worldPixelsPerMeter);
+			
+			return Vector.<V2>([anch1]);
 		}
 		
 		public override function toString():String 

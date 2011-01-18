@@ -25,6 +25,7 @@ package QuickB2.objects.joints
 	import As3Math.*;
 	import As3Math.geo2d.*;
 	import Box2DAS.Common.*;
+	import Box2DAS.Dynamics.b2Body;
 	import Box2DAS.Dynamics.Joints.*;
 	import flash.display.*;
 	import QuickB2.*;
@@ -92,8 +93,8 @@ package QuickB2.objects.joints
 			if ( jointB2 )
 			{
 				var conversion:Number = worldPixelsPerMeter;
-				var corrected1:amPoint2d = getCorrectedLocal1(conversion);
-				var corrected2:amPoint2d = getCorrectedLocal2(conversion);
+				var corrected1:amPoint2d = getCorrectedLocal1(conversion, conversion);
+				var corrected2:amPoint2d = getCorrectedLocal2(conversion, conversion);
 				
 				if ( jointB2 is b2DistanceJoint )
 				{
@@ -208,8 +209,8 @@ package QuickB2.objects.joints
 			if ( checkForMake(theWorld) )
 			{
 				var conversion:Number = theWorld.pixelsPerMeter;
-				var corrected1:amPoint2d    = getCorrectedLocal1(conversion);
-				var corrected2:amPoint2d    = getCorrectedLocal2(conversion);
+				var corrected1:amPoint2d    = getCorrectedLocal1(conversion, conversion);
+				var corrected2:amPoint2d    = getCorrectedLocal2(conversion, conversion);
 				
 				if ( _isRope )
 				{
@@ -279,14 +280,14 @@ package QuickB2.objects.joints
 		
 		public override function draw(graphics:Graphics):void
 		{
-			var worldPoints:Vector.<amPoint2d> = drawAnchors(graphics);
+			var worldPoints:Vector.<V2> = drawAnchors(graphics);
 			
 			graphics.endFill();
 			
 			if ( !worldPoints || worldPoints.length != 2 )   return;
 			
-			var world1:amPoint2d = worldPoints[0];
-			var world2:amPoint2d = worldPoints[1];
+			var world1:amPoint2d = new amPoint2d(worldPoints[0].x, worldPoints[0].y);
+			var world2:amPoint2d = new amPoint2d(worldPoints[1].x, worldPoints[1].y);
 			
 			var diff:amVector2d = world2.minus(world1);
 			var distance:Number = diff.length;
@@ -309,6 +310,36 @@ package QuickB2.objects.joints
 				}
 			}
 		}
+		
+		qb2_friend override function getWorldAnchors():Vector.<V2>
+		{
+			var bodyA:b2Body, bodyB:b2Body;
+			var anchorA:b2Vec2, anchorB:b2Vec2;
+			if ( distJoint )
+			{
+				bodyA = distJoint.m_bodyA;
+				bodyB = distJoint.m_bodyB;
+				anchorA = distJoint.m_localAnchor1;
+				anchorB = distJoint.m_localAnchor2;
+			}
+			else
+			{
+				bodyA   = ropeJoint.m_bodyA;
+				bodyB   = ropeJoint.m_bodyB;
+				anchorA = ropeJoint.m_localAnchorA;
+				anchorB = ropeJoint.m_localAnchorB;
+			}
+			
+			reusableV2.xy(anchorA.x, anchorA.y);
+			var anch1:V2 = bodyA.GetWorldPoint(reusableV2);
+			reusableV2.xy(anchorB.x, anchorB.y);
+			var anch2:V2 = bodyB.GetWorldPoint(reusableV2);
+			anch1.multiplyN(worldPixelsPerMeter);
+			anch2.multiplyN(worldPixelsPerMeter);
+			
+			return Vector.<V2>([anch1, anch2]);
+		}
+		
 		
 		public override function toString():String 
 			{  return qb2DebugTraceSettings.formatToString(this, "qb2DistanceJoint");  }

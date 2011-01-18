@@ -28,7 +28,7 @@ package demos
 			var start:amPoint2d = new amPoint2d(startX, startY);
 			
 			bubbleBody = new qb2Body();
-			bubbleBody.position.set(400, 300);
+			bubbleBody.position.set(stageWidth/2, stageHeight/2);
 			
 			for (var i:int = 0; i < numAcross; i++) 
 			{

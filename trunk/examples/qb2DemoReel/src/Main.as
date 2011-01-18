@@ -46,7 +46,7 @@
 		//--- All the demo classes to cycle through.
 		private static const demoClasses:Vector.<Class> = Vector.<Class>
 		([
-			CarDriving, StockSofts, JelloCar, StockRigids, RigidCar, StressTest,
+			CarDriving, RigidCar, StockSofts, JelloCar, StockRigids, StressTest,
 			BubblePop, Cup, Actors, ShapeTransformation, Drawing, Joints, Distance
 		]);
 		
@@ -78,7 +78,8 @@
 			world.debugDrawContext = (addChild(new Sprite()) as Sprite).graphics;
 			world.realtimeUpdate = true;
 			world.gravity.y = 10;
-			world.positionIterations = 10;
+			world.defaultPositionIterations = 10;
+			world.defaultVelocityIterations = 10;
 			world.start(); // sets up an ENTER_FRAME loop automatically.  Manual 'step()' method can also be used.
 			world.addEventListener(qb2UpdateEvent.POST_UPDATE, update);
 			
@@ -209,6 +210,12 @@
 				_demos[currIndex] = currDemo;
 				CodeBlocks.singleton.highlightTab(fileName);
 			}
+			
+			//--- Just make the world refresh stuff if it's paused and the user switches demos.
+			if ( !world.running )
+			{
+				world.step();
+			}
 		}
 		
 		private function buildGui():void
@@ -236,6 +243,7 @@
 			_noteLabel.textField.autoSize = TextFieldAutoSize.CENTER;
 			Style.fontSize = 8;
 			Style.LABEL_TEXT = 0x666666;
+			this.setChildIndex(_noteLabel, 0);
 			
 			//--- This class handles the displaying of the actual code used to create the demos, including what you're reading now!
 			addChildAt(_codeBlocks = new CodeBlocks(), 0);

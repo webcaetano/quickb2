@@ -39,7 +39,7 @@ package demos
 			
 			//--- Add a cool little star.  Make this guy a little springier and bouncier.
 			var jelloStar:qb2SoftPoly = new qb2SoftPoly();
-			jelloStar.setAsStar(new amPoint2d(currX, yPos), 50, 25, 6, 2, 1, -3);
+			jelloStar.setAsStar(new amPoint2d(currX, yPos), 50, 25, 5, 2, 1, -3);
 			jelloStar.springK = 10;
 			jelloStar.restitution = .5;
 			addObject(jelloStar);

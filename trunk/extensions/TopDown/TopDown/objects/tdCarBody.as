@@ -94,7 +94,20 @@ package TopDown.objects
 		private function addedOrRemoved(evt:qb2AddRemoveEvent):void
 		{
 			invalidateTireMetrics();
+			
+			if ( evt.type == qb2AddRemoveEvent.ADDED_TO_WORLD )
+			{
+				_map = getAncestor(tdMap) as tdMap;
+			}
+			else
+			{
+				_map = null;
+			}
 		}
+		
+		public function get map():tdMap
+			{  return _map;  }
+		private var _map:tdMap;
 		
 		private function invalidateTireMetrics():void
 		{
@@ -116,28 +129,13 @@ package TopDown.objects
 			cloned.rollingFrictionWithBrakes = this.rollingFrictionWithBrakes;
 			cloned.rollingFrictionWithThrottle = this.rollingFrictionWithThrottle;
 			
-			cloned.engine = _engine ? _engine.clone() as tdEngine       : null;
-			cloned.tranny = _tranny ? _tranny.clone() as tdTransmission : null;
-			
 			return cloned;
 		}
 		
-		public function set engine(anEngine:tdEngine):void
-		{
-			if ( _engine )  _engine._carBody = null;
-			_engine = anEngine;
-			if ( _engine )  _engine._carBody = this;
-		}
 		public function get engine():tdEngine
 			{  return _engine;  }
 		td_friend var _engine:tdEngine = null;
 		
-		public function set tranny(aTranny:tdTransmission):void
-		{
-			if ( _tranny )  _tranny._carBody = null;
-			_tranny = aTranny;
-			if ( _tranny )  _tranny._carBody = this;
-		}
 		public function get tranny():tdTransmission
 			{  return _tranny;  }
 		td_friend var _tranny:tdTransmission = null;
@@ -153,33 +151,55 @@ package TopDown.objects
 			
 		protected override function justAddedObject(object:qb2Object):void
 		{
-			if ( !(object is tdTire) )  return;
-			
-			var tire:tdTire = object as tdTire;
-			tire._carBody = this;
-			
-			if ( tire.isDriven )  numDrivenTires++;
-			
-			tire.invalidateMetrics();
-			
-			tires.push(tire);
-			
-			calcTireShares();
+			if ( object is tdTire )
+			{
+				var tire:tdTire = object as tdTire;
+				tire._carBody = this;
+				
+				if ( tire.isDriven )  numDrivenTires++;
+				
+				tire.invalidateMetrics();
+				
+				tires.push(tire);
+				
+				calcTireShares();
+			}
+			else if ( object is tdEngine )
+			{
+				_engine = object as tdEngine;
+				_engine._carBody = this;
+			}
+			else if ( object is tdTransmission )
+			{
+				_tranny = object as tdTransmission;
+				_tranny._carBody = this;
+			}
 		}
 		
 		protected override function justRemovedObject(object:qb2Object):void
 		{
-			if ( !(object is tdTire) )  return;
-			
-			var tire:tdTire = object as tdTire;
-			
-			tire._carBody = null;
-			
-			tire.invalidateMetrics();
-			
-			tires.splice(tires.indexOf(tire), 1);
-			
-			calcTireShares();
+			if ( object is tdTire )
+			{
+				var tire:tdTire = object as tdTire;
+				
+				tire._carBody = null;
+				
+				tire.invalidateMetrics();
+				
+				tires.splice(tires.indexOf(tire), 1);
+				
+				calcTireShares();
+			}
+			else if ( object is tdEngine )
+			{
+				_engine._carBody = null;
+				_engine = null;
+			}
+			else if ( object is tdTransmission )
+			{
+				_tranny._carBody = null;
+				_tranny = null;
+			}
 		}
 	
 		td_friend function calcTireShares():void
@@ -339,7 +359,7 @@ package TopDown.objects
 			var driveTorquePerTire:Number = 0;
 			if ( _engine && _tranny )
 			{
-				_tranny.update();
+				_tranny.relay_update();
 				_engine.throttle(Math.abs(pedal));
 				driveTorquePerTire = tranny.calcTireTorque(engine.torque) / numDrivenTires;
 				driveTorquePerTire = tranny.inReverse ? -driveTorquePerTire : driveTorquePerTire;
@@ -373,12 +393,14 @@ package TopDown.objects
 			
 			//--- Calculate weight transfer and center of mass. This is later factored into each tire's load.
 			//--- Tires like on a motorcycle will have 0 lateral weight transfer applied, because in real
-			//--- life the driver is responsible for adjusting center of mass to keep lateral tranfer somewhat equalized
+			//--- life the driver is responsible for adjusting center of mass to keep lateral tranfer zeroed out.
 			var totMass:Number = this.mass;
 			var vertDiff:Number = axle.avgBot   - axle.avgTop,
 				horDiff:Number  = axle.avgRight - axle.avgLeft;
 			var longTransfer:Number = vertDiff ? (zCenterOfMass / vertDiff) * totMass * _kinematics._longAccel : 0;
 			var latTransfer:Number  = horDiff  ? (zCenterOfMass / horDiff)  * totMass * _kinematics._latAccel  : 0;
+			
+			var ubiquitousTerrain:qb2Terrain = _map && _map.ubiquitousTerrain ? _map.ubiquitousTerrain : null;
 
 			//--- Iterate through the tires, applying various forces to the body at the tires' locations.
 			var actualNumDrivenTires:int = numDrivenTires;
@@ -431,33 +453,33 @@ package TopDown.objects
 				
 				if ( this.isSleeping && !pedal && !tire._extraRadsPerSec )  continue;  // skip sleeping bodies to boost performance.
 				
-				//--- Figure out which terrains, if any, this tire is running over and compound their frictions.
-				var frictionMultiplier:Number = 1, rollingFrictionMultiplier:Number = 1;
+				var highestTerrain:qb2Terrain = ubiquitousTerrain;
+				
 				if ( _terrains )
 				{
 					for ( var j:uint = 0; j < _terrains.length; j++ )
 					{
 						var jthTerrain:qb2Terrain = _terrains[j];
-						var jthTdTerrain:tdTerrain = jthTerrain as tdTerrain;
 						
 						if ( !testTiresIndividuallyAgainstTerrains )
 						{
-							frictionMultiplier        *= jthTerrain.frictionZMultiplier;
-							rollingFrictionMultiplier *= jthTdTerrain ? jthTdTerrain.rollingFrictionZMultiplier : 1;
+							highestTerrain = jthTerrain;
 						}
-						else
+						else if ( jthTerrain.testPoint(worldTirePos) )
 						{
-							if ( jthTerrain.alwaysUse )
-							{
-								frictionMultiplier        *= jthTerrain.frictionZMultiplier;
-								rollingFrictionMultiplier *= jthTdTerrain ? jthTdTerrain.rollingFrictionZMultiplier : 1;
-							}
-							else if ( jthTerrain.testPoint(worldTirePos) )
-							{
-								frictionMultiplier        *= jthTerrain.frictionZMultiplier;
-								rollingFrictionMultiplier *= jthTdTerrain ? jthTdTerrain.rollingFrictionZMultiplier : 1;
-							}
+							highestTerrain = jthTerrain;
 						}
+					}
+				}
+				
+				var frictionMultiplier:Number = 1, rollingFrictionMultiplier:Number = 1;
+				if ( highestTerrain )
+				{
+					frictionMultiplier *= highestTerrain.frictionZMultiplier;
+					
+					if ( highestTerrain is tdTerrain )
+					{
+						rollingFrictionMultiplier *= (highestTerrain as tdTerrain).rollingFrictionZMultiplier;
 					}
 				}
 				
@@ -559,8 +581,41 @@ package TopDown.objects
 				}
 	
 				//--- Apply lateral friction force.
-				if( force )
-					this.applyForce(worldTirePos, tireSideways.scaleBy(force*1));
+				if ( force )
+				{
+					this.applyForce(worldTirePos, tireSideways.scaleBy(force * 1));
+				}
+				
+				if ( highestTerrain && (highestTerrain is tdTerrain) )
+				{
+					var highestTdTerrain:tdTerrain = highestTerrain as tdTerrain;
+					
+					var drawSliding:Boolean = highestTdTerrain.drawSlidingSkids && tire._isSkidding;
+					var drawRolling:Boolean = highestTdTerrain.drawRollingSkids;
+					
+					if ( drawSliding || drawRolling )
+					{
+						var start:amPoint2d = null, end:amPoint2d = worldTirePos;
+						
+						if ( tire.lastWorldPos )
+						{
+							start = tire.lastWorldPos;
+						}
+						else
+						{
+							var translater:amVector2d = linearVelocity.normal.scaleBy( -worldPixelsPerMeter * world.lastTimeStep);
+							
+							if ( !translater.isNaNVec() )
+								start = worldTirePos.translatedBy(linearVelocity.normal.scaleBy( -worldPixelsPerMeter * world.lastTimeStep));
+							else
+								start = worldTirePos;
+						}
+						
+						highestTdTerrain.addSkid(start, end, tire._width, drawSliding ? tdTerrain.SKID_TYPE_SLIDING : tdTerrain.SKID_TYPE_ROLLING);
+					}
+				}
+				
+				tire.lastWorldPos = worldTirePos;
 			}
 			
 			//--- Feed average driven tire speed back into the engine, because it's all connected.
@@ -570,15 +625,15 @@ package TopDown.objects
 			}
 		}
 		
-		public override function scaleBy(value:Number, origin:amPoint2d = null, scaleMass:Boolean = true, scaleJointAnchors:Boolean = true, scaleActor:Boolean = true):qb2Tangible
-		{			
+		public override function scaleBy(xValue:Number, yValue:Number, origin:amPoint2d = null, scaleMass:Boolean = true, scaleJointAnchors:Boolean = true, scaleActor:Boolean = true):qb2Tangible
+		{
 			for (var i:int = 0; i < tires.length; i++) 
 			{
 				var tire:tdTire = tires[i];
-				tire.scaleBy(value);
+				tire.scaleBy(xValue, yValue);
 			}
 			
-			return super.scaleBy(value, origin, scaleMass, scaleJointAnchors);
+			return super.scaleBy(xValue, yValue, origin, scaleMass, scaleJointAnchors);
 		}
 
 		public override function toString():String

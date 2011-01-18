@@ -601,12 +601,14 @@ package QuickB2.objects.tangibles
 			updateMassProps(value - _mass, 0);
 		}
 		
-		public override function scaleBy(value:Number, origin:amPoint2d = null, scaleMass:Boolean = true, scaleJointAnchors:Boolean = true, scaleActor:Boolean = true):qb2Tangible
+		public override function scaleBy(xValue:Number, yValue:Number, origin:amPoint2d = null, scaleMass:Boolean = true, scaleJointAnchors:Boolean = true, scaleActor:Boolean = true):qb2Tangible
 		{
-			super.scaleBy(value, origin, scaleMass, scaleJointAnchors, scaleActor);
+			super.scaleBy(xValue, yValue, origin, scaleMass, scaleJointAnchors, scaleActor);
 			
 			if ( scaleJointAnchors && (this is qb2Body) )
-				qb2Joint.scaleJointAnchors(value, this as qb2IRigidObject);
+				qb2Joint.scaleJointAnchors(xValue, yValue, this as qb2IRigidObject);
+				
+			var forwardOrigin:amPoint2d = this is qb2Group ? origin : null;
 			
 			var massDiff:Number = 0, areaDiff:Number = 0;
 			pushMassFreeze();
@@ -620,14 +622,14 @@ package QuickB2.objects.tangibles
 					var prevMass:Number = physObject._mass;
 					var prevArea:Number = physObject._surfaceArea;
 					
-					physObject.scaleBy(value, subOrigin, scaleMass, scaleJointAnchors);
+					physObject.scaleBy(xValue, yValue, forwardOrigin, scaleMass, scaleJointAnchors, scaleActor);
 					
 					massDiff += physObject._mass - prevMass;
 					areaDiff += physObject._surfaceArea - prevArea;
 				}
 				
 				if ( this is qb2IRigidObject )
-					(this as qb2IRigidObject).position.scaleBy(value, origin); // eventually calls pointUpdated(), which translates everything.
+					(this as qb2IRigidObject).position.scaleBy(xValue, yValue, origin); // eventually calls pointUpdated(), which translates everything.
 			}
 			popMassFreeze();
 			
@@ -660,158 +662,6 @@ package QuickB2.objects.tangibles
 					(_objects[i] as qb2Tangible).drawDebugExtras(graphics);
 				}
 			}
-		}
-		
-		public override function getBoundBox(worldSpace:qb2Tangible = null):amBoundBox2d
-		{
-			var box:amBoundBox2d = new amBoundBox2d();
-			var boxSet:Boolean = false;
-			
-			var queue:Vector.<qb2Tangible> = new Vector.<qb2Tangible>();
-			queue.unshift(this);
-			
-			while ( queue.length )
-			{
-				var tang:qb2Tangible = queue.shift();
-				
-				if ( tang is qb2Shape )
-				{
-					if ( tang is qb2CircleShape )
-					{
-						var asCircleShape:qb2CircleShape = tang as qb2CircleShape;
-						var circlePoint:amPoint2d = asCircleShape.parent.getWorldPoint(asCircleShape.position, worldSpace);
-						
-						if ( !boxSet )
-						{
-							box.min = circlePoint;
-							box.max.copy(box.min);
-							box.swell(asCircleShape.radius);
-							boxSet = true;
-						}
-						else
-						{
-							box.expandToPoint(circlePoint, asCircleShape.radius);
-						}
-					}
-					else if ( tang is qb2PolygonShape )
-					{
-						var asPolygonShape:qb2PolygonShape = tang as qb2PolygonShape;
-						
-						for (var i:int = 0; i < asPolygonShape.numVertices; i++) 
-						{
-							var ithVertex:amPoint2d = asPolygonShape.parent.getWorldPoint(asPolygonShape.getVertexAt(i), worldSpace);
-							
-							if ( !boxSet )
-							{
-								box.min = ithVertex
-								box.max.copy(box.min);
-								boxSet = true;
-							}
-							else
-							{
-								box.expandToPoint(ithVertex);
-							}
-						}
-					}
-				}
-				else if ( tang is qb2ObjectContainer )
-				{
-					var asContainer:qb2ObjectContainer = tang as qb2ObjectContainer;
-					
-					for ( i = 0; i < asContainer._objects.length; i++) 
-					{
-						var ithObject:qb2Object = asContainer._objects[i];
-						
-						if ( ithObject is qb2Tangible )
-						{
-							queue.unshift(ithObject as qb2Tangible);
-						}
-					}
-				}
-			}
-			
-			if ( !boxSet && (this is qb2Body) )
-			{
-				var worldPos:amPoint2d = getWorldPoint( (this as qb2Body)._position, worldSpace);
-				box.setByCopy(worldPos, worldPos);
-			}
-			
-			return box;
-		}
-		
-		public override function getBoundCircle(worldSpace:qb2Tangible = null):amBoundCircle2d
-		{
-			var circle:amBoundCircle2d = new amBoundCircle2d();
-			var circleSet:Boolean = false;
-			
-			var queue:Vector.<qb2Tangible> = new Vector.<qb2Tangible>();
-			queue.unshift(this);
-			
-			while ( queue.length )
-			{
-				var tang:qb2Tangible = queue.shift();
-				
-				if ( tang is qb2Shape )
-				{
-					if ( tang is qb2CircleShape )
-					{
-						var asCircleShape:qb2CircleShape = tang as qb2CircleShape;
-						var circlePoint:amPoint2d = asCircleShape.parent.getWorldPoint(asCircleShape.position, worldSpace);
-						
-						if ( !circleSet )
-						{
-							circle.center.copy(circlePoint);
-							circle.swell(asCircleShape.radius);
-							circleSet = true;
-						}
-						else
-						{
-							circle.expandToPoint(circlePoint, asCircleShape.radius);
-						}
-					}
-					else if ( tang is qb2PolygonShape )
-					{
-						var asPolygonShape:qb2PolygonShape = tang as qb2PolygonShape;
-						
-						for (var i:int = 0; i < asPolygonShape.numVertices; i++) 
-						{
-							var ithVertex:amPoint2d = asPolygonShape.parent.getWorldPoint(asPolygonShape.getVertexAt(i), worldSpace);
-							
-							if ( !circleSet )
-							{
-								circle.center.copy(ithVertex);
-								circleSet = true;
-							}
-							else
-							{
-								circle.expandToPoint(ithVertex);
-							}
-						}
-					}
-				}
-				else if ( tang is qb2ObjectContainer )
-				{
-					var asContainer:qb2ObjectContainer = tang as qb2ObjectContainer;
-					
-					for ( i = 0; i < asContainer._objects.length; i++) 
-					{
-						var ithObject:qb2Object = asContainer._objects[i];
-						
-						if ( ithObject is qb2Tangible )
-						{
-							queue.unshift(ithObject as qb2Tangible);
-						}
-					}
-				}
-			}
-			
-			if ( !circleSet && (this is qb2Body) )
-			{
-				var worldPos:amPoint2d = getWorldPoint( (this as qb2Body)._position, worldSpace);
-				circle.set(worldPos, 0);
-			}
-			
-			return circle;
 		}
 		
 		public override function get centerOfMass():amPoint2d

@@ -23,6 +23,7 @@
 package TopDown.carparts
 {
 	import QuickB2.misc.qb2UnitConverter;
+	import QuickB2.objects.qb2Object;
 	import TopDown.objects.tdCarBody;
 	
 	import TopDown.td_friend;
@@ -32,7 +33,7 @@ package TopDown.carparts
 	 * ...
 	 * @author Doug Koellmer
 	 */
-	public class tdTransmission extends tdCarPart
+	public class tdTransmission extends qb2Object
 	{
 		// 3.5, 3.5, 3, 2.5, 2, 1.5, 1
 		
@@ -57,7 +58,9 @@ package TopDown.carparts
 		{
 		}
 		
-		public override function clone():tdCarPart
+		td_friend var _carBody:tdCarBody;
+		
+		public override function clone():qb2Object
 		{
 			var tranny:tdTransmission = new tdTransmission();
 			tranny.torqueConversion = torqueConversion;
@@ -67,12 +70,13 @@ package TopDown.carparts
 			tranny.transmissionType = transmissionType;
 			tranny.shiftTime = shiftTime;
 			tranny.shiftingInterruptible = shiftingInterruptible;
+			
 			return tranny;
 		}
 		
 		private var _lastForwardBack:Number = 0;
 		
-		td_friend function update():void
+		protected override function update():void
 		{
 			var forwardBack:Number = _carBody.brainPort.NUMBER_PORT_1;
 			var shiftAccumulator:int = _carBody.brainPort.INTEGER_PORT_1;

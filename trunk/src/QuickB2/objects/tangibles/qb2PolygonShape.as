@@ -151,96 +151,6 @@ package QuickB2.objects.tangibles
 		
 		public function get numVertices():uint
 			{  return polygon.numVertices;  }
-
-		public override function getBoundBox(worldSpace:qb2Tangible = null):amBoundBox2d
-		{
-			var box:amBoundBox2d = new amBoundBox2d();
-			
-			var numVerts:uint = numVertices;
-			
-			if ( !parent || worldSpace == this || worldSpace == parent )
-			{
-				if ( numVerts )
-				{
-					var firstPoint:amPoint2d = getVertexAt(0);
-					box.setByCopy(firstPoint, firstPoint);
-					
-					for ( var i:int = 1; i < numVerts; i++ )
-					{
-						box.expandToPoint(getVertexAt(i));
-					}
-				}
-				else
-				{
-					box.setByCopy(position, position);
-				}
-			}
-			else
-			{
-				if ( numVerts )
-				{
-					firstPoint = parent.getWorldPoint(getVertexAt(0), worldSpace);
-					box.setByCopy(firstPoint, firstPoint);
-					
-					for ( i = 1; i < numVerts; i++ )
-					{
-						box.expandToPoint(parent.getWorldPoint(getVertexAt(i), worldSpace));
-					}
-				}
-				else
-				{
-					var worldPos:amPoint2d = parent.getWorldPoint(position, worldSpace);
-					box.setByCopy(worldPos, worldPos);
-				}
-			}
-			
-			return box;
-		}
-		
-		public override function getBoundCircle(worldSpace:qb2Tangible = null):amBoundCircle2d
-		{
-			var boundCircle:amBoundCircle2d = new amBoundCircle2d();
-			
-			var numVerts:uint = numVertices;
-			
-			if ( !parent || worldSpace == this || worldSpace == parent )
-			{
-				if ( numVerts )
-				{
-					var firstPoint:amPoint2d = getVertexAt(0);
-					boundCircle.set(firstPoint.clone(), 0);
-					
-					for ( var i:int = 1; i < numVerts; i++ )
-					{
-						boundCircle.expandToPoint(getVertexAt(i));
-					}
-				}
-				else
-				{
-					boundCircle.set(_position.clone(), 0);
-				}
-			}
-			else
-			{
-				if ( numVerts )
-				{
-					firstPoint = parent.getWorldPoint(getVertexAt(0), worldSpace);
-					boundCircle.set(firstPoint, 0);
-					
-					for ( i = 1; i < numVerts; i++ )
-					{
-						boundCircle.expandToPoint(parent.getWorldPoint(getVertexAt(i), worldSpace));
-					}
-				}
-				else
-				{
-					var worldPos:amPoint2d = parent.getWorldPoint(position, worldSpace);
-					boundCircle.set(worldPos, 0);
-				}
-			}
-			
-			return boundCircle;
-		}
 		
 		public override function setTransform(point:amPoint2d, rotationInRadians:Number):qb2IRigidObject
 		{
@@ -249,16 +159,16 @@ package QuickB2.objects.tangibles
 			return super.setTransform(point, rotationInRadians);
 		}
 		
-		public override function scaleBy(value:Number, origin:amPoint2d = null, scaleMass:Boolean = true, scaleJointAnchors:Boolean = true, scaleActor:Boolean = true):qb2Tangible
+		public override function scaleBy(xValue:Number, yValue:Number, origin:amPoint2d = null, scaleMass:Boolean = true, scaleJointAnchors:Boolean = true, scaleActor:Boolean = true):qb2Tangible
 		{
-			super.scaleBy(value, origin, scaleMass, scaleJointAnchors);
+			super.scaleBy(xValue, yValue, origin, scaleMass, scaleJointAnchors);
 			
 			freezeFlush = true;
-				_position.scaleBy(value, origin);
+				_position.scaleBy(xValue, yValue, origin);
 			freezeFlush = false;
 			
 			polygon.removeEventListener(amUpdateEvent.ENTITY_UPDATED, polygonUpdated);
-				polygon.scaleBy(value, _position);
+				polygon.scaleBy(xValue, yValue, _position);
 			polygon.addEventListener(amUpdateEvent.ENTITY_UPDATED, polygonUpdated);
 			
 			var newArea:Number = polygon.area;
@@ -423,7 +333,8 @@ package QuickB2.objects.tangibles
 					pnt = _parent == _ancestorBody ? pnt : _ancestorBody.getLocalPoint(_parent.getWorldPoint(pnt));
 				}
 				
-				pnt.scaleBy(1 / conversion);
+				var inverse:Number = 1 / conversion;
+				pnt.scaleBy(inverse, inverse);
 				b2Verts[i] = new V2(pnt.x, pnt.y);
 			}
 			

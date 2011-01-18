@@ -38,8 +38,6 @@ package QuickB2.stock
 	 */
 	public class qb2Terrain extends qb2Body
 	{
-		public var alwaysUse:Boolean = false;
-		
 		public function qb2Terrain() 
 		{
 			isGhost = true;
@@ -133,7 +131,6 @@ package QuickB2.stock
 			var cloned:qb2Terrain = super.clone() as qb2Terrain;
 			
 			cloned.frictionZMultiplier = this.frictionZMultiplier;
-			cloned.alwaysUse = this.alwaysUse;
 			
 			return cloned;
 		}

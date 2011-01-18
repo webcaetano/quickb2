@@ -143,10 +143,32 @@ package QuickB2.objects.tangibles
 				const ACTOR_BOUND_BOX_LEAVES:uint = qb2KillBox.ACTOR_BOUND_BOX_LEAVES;
 			}
 			
+			//var drawingDebug:Boolean = world.debugDrawContext ? true : false;
+		//	var context:Graphics = world.debugDrawContext;
+			
 			for ( var i:int = 0; i < _objects.length; i++ )
 			{
 				var object:qb2Object = _objects[i];
 				object.relay_update(); // You can't call update directly because it's protected.
+				
+				/*if ( drawingDebug )
+				{
+					if ( !(object is qb2Group) )
+					{
+						if ( object.drawsDebug )
+						{
+							object.drawDebug(context);
+						}
+					}
+					
+					if ( object is qb2Tangible )
+					{
+						if ( object is qb2Tangible )
+						{
+							(object as qb2Tangible).drawDebugExtras(context);
+						}
+					}
+				}*/
 				
 				if( object is qb2Tangible )
 				{

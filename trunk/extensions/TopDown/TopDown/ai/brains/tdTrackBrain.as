@@ -68,9 +68,9 @@ package TopDown.ai.brains
 		public var minHitSpeed:Number = 5;
 		public var maxHitSpeed:Number = 50;
 		
-		public var tetherMultiplier:Number = 10;
+		public var tetherMultiplier:Number = 15;
 		public var tetherMinimum:Number = 10;
-		public var tetherMaximum:Number = 100;
+		public var tetherMaximum:Number = 150;
 		
 		public var ignoreGod:Boolean = false;
 		public var avoidUTurns:Boolean = true;
@@ -733,6 +733,14 @@ package TopDown.ai.brains
 		
 		public override function drawDebug(graphics:Graphics):void
 		{
+			if ( _antenna && (tdDebugDrawSettings.drawFlags & tdDebugDrawSettings.DRAW_ANTENNAS) )
+			{
+				graphics.lineStyle();
+				graphics.beginFill(tdDebugDrawSettings.antennaColor, qb2DebugDrawSettings.fillAlpha);
+				_antenna.draw(graphics);
+				graphics.endFill();
+			}
+			
 			if ( tdDebugDrawSettings.drawFlags & tdDebugDrawSettings.DRAW_TRACK_TETHERS )
 			{
 				if ( !_currTrack || !_currPoint )  return;
@@ -747,14 +755,6 @@ package TopDown.ai.brains
 				var tetherVec:amVector2d = _currPoint.minus(axlePos);
 				graphics.lineStyle(tdDebugDrawSettings.tetherThickness, tdDebugDrawSettings.tetherColor, tdDebugDrawSettings.tetherAlpha);
 				tetherVec.draw(graphics, axlePos, 0, 0, 1);
-			}
-			
-			if ( _antenna && (tdDebugDrawSettings.drawFlags & tdDebugDrawSettings.DRAW_ANTENNAS) )
-			{
-				graphics.lineStyle();
-				graphics.beginFill(tdDebugDrawSettings.antennaColor, qb2DebugDrawSettings.fillAlpha);
-				_antenna.draw(graphics);
-				graphics.endFill();
 			}
 		}
 	}
