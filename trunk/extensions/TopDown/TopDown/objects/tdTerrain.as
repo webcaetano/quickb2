@@ -27,6 +27,7 @@ package TopDown.objects
 	import flash.display.Graphics;
 	import QuickB2.objects.qb2Object;
 	import QuickB2.stock.qb2Terrain;
+	import TopDown.debugging.tdDebugDrawSettings;
 	import TopDown.internals.tdInternalSkidEntry;
 	
 	import TopDown.td_friend;
@@ -88,7 +89,10 @@ package TopDown.objects
 		{
 			super.drawDebug(graphics);
 			
-			drawSkids(graphics);
+			if ( tdDebugDrawSettings.DRAW_SKIDS & tdDebugDrawSettings.drawFlags )
+			{
+				drawSkids(graphics);
+			}
 		}
 		
 		public function drawSkids(graphics:Graphics):void
