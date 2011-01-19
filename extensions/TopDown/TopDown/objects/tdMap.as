@@ -83,12 +83,14 @@ package TopDown.objects
 				
 				if ( terrain.ubiquitous )
 				{
-					ubiquitousTerrain = terrain;
+					_defaultTerrain = terrain;
 				}
 			}
 		}
 		
-		td_friend var ubiquitousTerrain:tdTerrain;
+		public function get defaultTerrain():tdTerrain
+			{  return _defaultTerrain;  }
+		td_friend var _defaultTerrain:tdTerrain;
 		
 		protected override function justRemovedObject(object:qb2Object):void
 		{
@@ -106,7 +108,7 @@ package TopDown.objects
 				
 				if ( terrain.ubiquitous )
 				{
-					ubiquitousTerrain = null;
+					_defaultTerrain = null;
 				}
 			}
 		}

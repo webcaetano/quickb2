@@ -400,7 +400,7 @@ package TopDown.objects
 			var longTransfer:Number = vertDiff ? (zCenterOfMass / vertDiff) * totMass * _kinematics._longAccel : 0;
 			var latTransfer:Number  = horDiff  ? (zCenterOfMass / horDiff)  * totMass * _kinematics._latAccel  : 0;
 			
-			var ubiquitousTerrain:qb2Terrain = _map && _map.ubiquitousTerrain ? _map.ubiquitousTerrain : null;
+			var ubiquitousTerrain:qb2Terrain = _map && _map._defaultTerrain ? _map._defaultTerrain : null;
 
 			//--- Iterate through the tires, applying various forces to the body at the tires' locations.
 			var actualNumDrivenTires:int = numDrivenTires;
