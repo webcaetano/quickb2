@@ -1352,18 +1352,36 @@ package QuickB2.objects.tangibles
 			var theWorld:qb2World = qb2World.worldDict[_bodyB2.m_world];
 			var maxForce:Number = _frictionZ * theWorld.gravityZ * _mass;
 			
+			//--- Modify the fri
 			if ( maxForce )
 			{
-				maxForce *= multiplierFromTerrains; // only go through terrains if we have to.
+				var multiplier:Number = 1;
+				var globalList:Vector.<qb2Terrain> = theWorld._globalTerrainList;
+				var numGlobalTerrains:int = globalList.length;
+				
+				for (var i:int = numGlobalTerrains-1; i >= 0; i--) 
+				{
+					var ithTerrain:qb2Terrain = globalList[i];
+					
+					if ( ithTerrain.ubiquitous )
+					{
+						multiplier = ithTerrain.frictionZMultiplier;
+						break;
+					}
+					else if ( _contactTerrainDict[ithTerrain] )
+					{
+						multiplier = ithTerrain.frictionZMultiplier;
+					}
+				}
 			}
 			
 			if ( _bodyB2.GetType() != b2Body.b2_dynamicBody || !maxForce )
 			{
 				if ( frictionJoint )
 				{
-					if ( world.processingBox2DStuff )
+					if ( theWorld.processingBox2DStuff )
 					{
-						world.addDelayedCall(null, frictionJoint.m_world.DestroyJoint, frictionJoint);
+						theWorld.addDelayedCall(null, frictionJoint.m_world.DestroyJoint, frictionJoint);
 					}
 					else
 					{
@@ -1376,9 +1394,9 @@ package QuickB2.objects.tangibles
 				return;
 			}
 			
-			if ( world.processingBox2DStuff )
+			if ( theWorld.processingBox2DStuff )
 			{
-				world.addDelayedCall(null, rigid_updateFrictionJoints);
+				theWorld.addDelayedCall(null, rigid_updateFrictionJoints);
 				return;
 			}
 			
@@ -1391,7 +1409,7 @@ package QuickB2.objects.tangibles
 				frictionJoint = _bodyB2.m_world.CreateJoint(fricDef) as b2FrictionJoint;
 			}
 			
-			frictionJoint.m_maxForce = maxForce;
+			frictionJoint.m_maxForce  = maxForce;
 			frictionJoint.m_maxTorque = maxForce; // probably not right, but i don't know how otherwise to get this number, and it looks accurate enough.
 			
 			var centroid:V2 = _bodyB2.GetLocalCenter();
@@ -1569,106 +1587,35 @@ package QuickB2.objects.tangibles
 			return totalMass - this.mass;
 		}
 		
-		private function get multiplierFromTerrains():Number
+		qb2_friend function registerContactTerrain(terrain:qb2Terrain):void
 		{
-			var multiplier:Number = 1;
-			
-			if ( _terrains )
+			if ( !_contactTerrainDict )
 			{
-				for (var i:int = 0; i < _terrains.length; i++) 
-				{
-					multiplier *= _terrains[i].frictionZMultiplier;
-				}
+				_contactTerrainDict = new Dictionary(true);
+				_contactTerrainDict[NUM_TERRAINS] = 0;
 			}
 			
-			var globalTerrains:Vector.<qb2Terrain> = world._globalTerrainList;
-			if ( globalTerrains )
-			{
-				for (var j:int = 0; j < globalTerrains.length; j++) 
-				{
-					multiplier *= globalTerrains[j].frictionZMultiplier;
-				}
-			}
-			
-			return multiplier;
-		}
-		
-		protected function getHighestTerrain():qb2Terrain
-		{
-			var above:Vector.<qb2Terrain>;
-			
-			if ( _terrains )
-			{
-				for (var i:int = 0; i < _terrains.length; i++) 
-				{
-					
-				}
-			}		
-		}
-		
-		qb2_friend function registerTerrain(terrain:qb2Terrain):void
-		{
-			addTerrainToList(terrain);
-			
-			terrain.addEventListener(qb2ContainerEvent.INDEX_CHANGED, terrainIndexChanged);
+			_contactTerrainDict[terrain] = true;
+			_contactTerrainDict[NUM_TERRAINS]++;
 			
 			rigid_updateFrictionJoints();
 		}
 		
-		private function addTerrainToList(terrain:qb2Terrain):void
+		qb2_friend function unregisterContactTerrain(terrain:qb2Terrain):void
 		{
-			if ( !_terrains )
+			delete _contactTerrainDict[terrain];
+			_contactTerrainDict[NUM_TERRAINS]--;
+			
+			if ( _contactTerrainDict[NUM_TERRAINS] == 0 )
 			{
-				_terrains = new Vector.<qb2Terrain>();
-				_terrains.push(terrain);
-			}
-			else
-			{
-				var inserted:Boolean = false;
-				for (var i:int = 0; i < _terrains.length; i++) 
-				{
-					var ithTerrain:qb2Terrain = _terrains[i];
-					
-					if ( terrain.isBelow(ithTerrain) )
-					{
-						inserted = true;
-						_terrains.splice(i, 0, terrain);
-						break;
-					}
-				}
-				
-				if ( !inserted )
-				{
-					_terrains.push(terrain);
-				}
+				_contactTerrainDict = null;
 			}
 			
 			rigid_updateFrictionJoints();
 		}
 		
-		private function terrainIndexChanged(evt:qb2ContainerEvent):void
-		{
-			var terrain:qb2Terrain = evt.childObject as qb2Terrain;
-			
-			_terrains.splice(_terrains.indexOf(terrain), 1);
-			
-			addTerrainToList(terrain);
-		}
+		qb2_friend var _contactTerrainDict:Dictionary = null;
 		
-		qb2_friend function unregisterTerrain(terrain:qb2Terrain):void
-		{
-			_terrains.splice(_terrains.indexOf(terrain), 1);
-			
-			if ( _terrains.length )
-			{
-				_terrains = null;
-			}
-			
-			terrain.removeEventListener(qb2ContainerEvent.INDEX_CHANGED, terrainIndexChanged);
-			
-			rigid_updateFrictionJoints();
-		}
-		
-		qb2_friend var _terrains:Vector.<qb2Terrain> = null;
+		private static const NUM_TERRAINS:String = "NUM_TERRAINS";
 	}
 }

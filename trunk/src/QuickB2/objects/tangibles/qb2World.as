@@ -460,7 +460,104 @@ package QuickB2.objects.tangibles
 			return null;
 		}
 		
+		qb2_friend function registerGlobalTerrain(terrain:qb2Terrain):void
+		{
+			terrain.addEventListener(qb2ContainerEvent.INDEX_CHANGED, terrainIndexChanged, false, 0, true);
+			
+			addTerrainToList(terrain);
+		}
+		
+		private function terrainIndexChanged(evt:qb2ContainerEvent):void
+		{
+			var terrain:qb2Terrain = evt.childObject as qb2Terrain;
+			
+			_globalTerrainList.splice(_globalTerrainList.indexOf(terrain), 1);
+			
+			addTerrainToList(terrain);
+		}
+		
+		private function addTerrainToList(terrain:qb2Terrain):void
+		{
+			if ( !_globalTerrainList )
+			{
+				_globalTerrainList = new Vector.<qb2Terrain>();
+				_globalTerrainList.push(terrain);
+			}
+			else
+			{
+				var inserted:Boolean = false;
+				for (var i:int = 0; i < _globalTerrainList.length; i++) 
+				{
+					var ithTerrain:qb2Terrain = _globalTerrainList[i];
+					
+					if ( terrain.isBelow(ithTerrain) )
+					{
+						inserted = true;
+						_globalTerrainList.splice(i, 0, terrain);
+						break;
+					}
+				}
+				
+				if ( !inserted )
+				{
+					_globalTerrainList.push(terrain);
+				}
+			}
+			
+			if ( terrain.ubiquitous )
+			{
+				updateFrictionJoints();
+			}
+		}
+		
+		qb2_friend function unregisterGlobalTerrain(terrain:qb2Terrain):void
+		{
+			_globalTerrainList.splice(_globalTerrainList.indexOf(terrain), 1);
+			
+			if ( _globalTerrainList.length )
+			{
+				_globalTerrainList = null;
+			}
+			
+			terrain.removeEventListener(qb2ContainerEvent.INDEX_CHANGED, terrainIndexChanged);
+			
+			if ( terrain.ubiquitous )
+			{
+				updateFrictionJoints();
+			}
+		}
+		
 		qb2_friend var _globalTerrainList:Vector.<qb2Terrain> = null;
+		
+		
+		
+		/*qb2_friend function registerObjectOverTerrain(tang:qb2Tangible):void
+		{
+			if ( !_overTerrainDict )
+			{
+				_overTerrainDict = new Dictionary(true);
+				_overTerrainDict[NUM_OBJECTS_OVER_TERRAINS] = 0;
+			}
+			
+			_overTerrainDict[tang] = true;
+			_overTerrainDict[NUM_OBJECTS_OVER_TERRAINS]++;
+		}
+		
+		qb2_friend function unregisterTerrain(tang:qb2Tangible):void
+		{
+			delete _overTerrainDict[tang];
+			_overTerrainDict[NUM_OBJECTS_OVER_TERRAINS]--;
+			
+			if ( _overTerrainDict[NUM_OBJECTS_OVER_TERRAINS] == 0 )
+			{
+				_overTerrainDict = null;
+			}
+		}
+		
+		private static const NUM_OBJECTS_OVER_TERRAINS:String = "NUM_OVER_TERRAINS";
+		
+		qb2_friend var _overTerrainDict:Dictionary = null;*/
+		
 		
 		public override function toString():String 
 			{  return qb2DebugTraceSettings.formatToString(this, "qb2World");  }

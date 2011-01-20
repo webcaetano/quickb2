@@ -172,6 +172,17 @@ package QuickB2.objects.tangibles
 			}
 		}
 		
+		qb2_friend override function updateFrictionJoints():void
+		{
+			for ( var i:int = 0; i < _objects.length; i++ )
+			{
+				if ( _objects[i] is qb2Tangible )
+				{
+					(_objects[i] as qb2Tangible).updateFrictionJoints();
+				}
+			}
+		}
+		
 		private static function arrayContainsTangible(someObjects:Vector.<qb2Object>):Boolean
 		{
 			for (var i:int = 0; i < someObjects.length; i++) 
@@ -228,7 +239,6 @@ package QuickB2.objects.tangibles
 				_objects.splice(index, 0, object);
 			
 			object._parent = this;
-			object._containerIndex = index;
 			
 			if ( object is qb2Tangible )
 			{
@@ -275,7 +285,6 @@ package QuickB2.objects.tangibles
 			
 			if( _world )  objectRemoved.destroy();
 			objectRemoved._parent = null;
-			object._containerIndex = -1;
 			
 			if ( eventFlags & REMOVED_OBJECT_BIT )
 			{
@@ -364,7 +373,7 @@ package QuickB2.objects.tangibles
 			{  return _objects.length;  }
 			
 		public function getObjectIndex(object:qb2Object):int
-			{  return object._containerIndex;  }
+			{  return _objects.indexOf(object);  }
 		
 		public function addObjects(someObjects:Vector.<qb2Object>):qb2ObjectContainer
 			{  return addMultipleObjectsToArray(someObjects, _objects.length);  }
@@ -421,19 +430,16 @@ package QuickB2.objects.tangibles
 				throw qb2_errors.WRONG_PARENT;
 			}
 			
-			if ( object._containerIndex == index )  return;
-			
 			var origIndex:int = _objects.indexOf(object);
 			_objects.splice(origIndex, 1);
 			_objects.splice(index, 0, object);
-			object._containerIndex = index;
 			
-			var eventType:String = qb2ContainerEvent.INDEX_CHANGED;
-			if ( object.shouldDispatch(eventType) )
+			if ( object._eventFlags & INDEX_CHANGED_BIT )
 			{
-				var event:qb2ContainerEvent = getCachedEvent(eventType);
+				var event:qb2ContainerEvent = getCachedEvent(qb2ContainerEvent.INDEX_CHANGED);
 				event._childObject  = object;
 				event._parentObject = this;
+				dispatchEvent(event);
 			}
 			
 			return this;

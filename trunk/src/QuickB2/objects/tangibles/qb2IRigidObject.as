@@ -187,7 +187,7 @@ package QuickB2.objects.tangibles
 		
 		
 		
-		// FUNCTIONS in qb2Object (event listener functions are pulled in by 'extends' at the top.
+		// FUNCTIONS in qb2Object/qb2EventDispatcher (EventDispatcher functions are pulled in by 'extends IEventDispatcher' at the top.
 		function get parent():qb2ObjectContainer;
 
 		function get world():qb2World;
@@ -203,6 +203,18 @@ package QuickB2.objects.tangibles
 		function isDescendantOf(possibleAncestor:qb2ObjectContainer):Boolean;
 		
 		function isDescendantOfType(possibleAncestorType:Class):Boolean;
+		
+		function getAncestorOfType(ancestorType:Class):qb2ObjectContainer;
+		
+		function getCommonAncestor(otherObject:qb2Object):qb2ObjectContainer;
+		
+		function getSeperationFromAncestor(ancestor:qb2ObjectContainer = null):int;
+		
+		function isAbove(otherObject:qb2Object):Boolean;
+		
+		function isBelow(otherObject:qb2Object):Boolean;
+		
+		function get worldPixelsPerMeter():Number;
 		
 		function toString():String;
 	}

@@ -248,17 +248,6 @@ package QuickB2.objects.tangibles
 			super.destroy();
 		}
 		
-		qb2_friend override function updateFrictionJoints():void
-		{
-			for ( var i:int = 0; i < _objects.length; i++ )
-			{
-				if ( _objects[i] is qb2Tangible )
-				{
-					(_objects[i] as qb2Tangible).updateFrictionJoints();
-				}
-			}
-		}
-		
 		public function convertToBody(registrationPoint:amPoint2d = null, preserveVelocities:Boolean = true ):qb2Body
 		{
 			registrationPoint = registrationPoint ? registrationPoint : this.centerOfMass;

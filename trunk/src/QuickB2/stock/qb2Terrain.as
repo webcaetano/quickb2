@@ -22,8 +22,10 @@
 
 package QuickB2.stock 
 {
+	import Box2DAS.Common.b2Def;
 	import flash.utils.Dictionary;
 	import QuickB2.events.qb2ContactEvent;
+	import QuickB2.events.qb2ContainerEvent;
 	import QuickB2.objects.qb2Object;
 	import QuickB2.objects.tangibles.qb2Body;
 	import QuickB2.objects.tangibles.qb2Shape;
@@ -38,14 +40,49 @@ package QuickB2.stock
 	 */
 	public class qb2Terrain extends qb2Body
 	{
-		public function qb2Terrain() 
+		public function qb2Terrain(ubiquitous:Boolean = false) 
 		{
+			_ubiquitous = ubiquitous;
+			
 			isGhost = true;
 			
-			addEventListener(qb2ContactEvent.CONTACT_STARTED, contact, false, 0, true);
-			addEventListener(qb2ContactEvent.CONTACT_ENDED, contact, false, 0, true);
+			if ( !_ubiquitous )
+			{
+				addContactListeners();
+			}
+			
+			addEventListener(qb2ContainerEvent.ADDED_TO_WORLD,     addedOrRemoved, false, 0, true);
+			addEventListener(qb2ContainerEvent.REMOVED_FROM_WORLD, addedOrRemoved, false, 0, true);
 		}
 		
+		private function addContactListeners():void
+		{
+			addEventListener(qb2ContactEvent.CONTACT_STARTED, contact, false, 0, true);
+			addEventListener(qb2ContactEvent.CONTACT_ENDED,   contact, false, 0, true);
+		}
+		
+		private function removeContactListeners():void
+		{
+			removeEventListener(qb2ContactEvent.CONTACT_STARTED, contact);
+			removeEventListener(qb2ContactEvent.CONTACT_ENDED,   contact);
+		}
+		
+		public function get ubiquitous():Boolean
+			{  return _ubiquitous;  }
+		private var _ubiquitous:Boolean = false;
+		
+		//--- Terrain is organized z-wise with other terrains globally whenever one is added to the world.
+		private function addedOrRemoved(evt:qb2ContainerEvent):void
+		{
+			if ( evt.type == qb2ContainerEvent.ADDED_TO_WORLD )
+			{
+				world.registerGlobalTerrain(this);
+			}
+			else
+			{
+				world.unregisterGlobalTerrain(this);
+			}
+		}
 		
 		public function get frictionZMultiplier():Number
 			{  return _frictionZMultiplier;  }
@@ -86,16 +123,19 @@ package QuickB2.stock
 				{
 					bodyDict[realBody] = new Dictionary(true);
 					bodyDict[realBody][NUM_SHAPES] = 0;
-					realBody.registerTerrain(this);
+					
+					realBody.registerContactTerrain(this);
 				}
 				
 				var shapeDict:Dictionary = bodyDict[realBody];
 				
 				if ( !shapeDict[otherShape] )
 				{
-					shapeDict[otherShape] = otherShape;
 					shapeDict[NUM_SHAPES]++;
+					shapeDict[otherShape] = 0;
 				}
+				
+				shapeDict[otherShape]++;
 			}
 			else
 			{
@@ -105,13 +145,18 @@ package QuickB2.stock
 				{
 					if ( shapeDict[otherShape] )
 					{
-						delete shapeDict[otherShape];
-						shapeDict[NUM_SHAPES]--;
+						shapeDict[otherShape]--;
 						
-						if ( shapeDict[NUM_SHAPES] == 0 )
+						if ( shapeDict[otherShape] == 0 )
 						{
-							delete bodyDict[realBody];
-							realBody.unregisterTerrain(this);
+							delete shapeDict[otherShape];
+							shapeDict[NUM_SHAPES]--;
+							
+							if ( shapeDict[NUM_SHAPES] == 0 )
+							{
+								delete bodyDict[realBody];
+								realBody.unregisterContactTerrain(this);
+							}
 						}
 					}
 					else
@@ -131,6 +176,12 @@ package QuickB2.stock
 			var cloned:qb2Terrain = super.clone() as qb2Terrain;
 			
 			cloned.frictionZMultiplier = this.frictionZMultiplier;
+			cloned._ubiquitous = this._ubiquitous;
+			
+			if ( cloned._ubiquitous )
+			{
+				cloned.removeContactListeners();
+			}
 			
 			return cloned;
 		}
