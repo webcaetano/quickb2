@@ -26,7 +26,7 @@ package TopDown.objects
 	import flash.display.Graphics;
 	import flash.events.Event;
 	import flash.utils.*;
-	import QuickB2.events.qb2AddRemoveEvent;
+	import QuickB2.events.qb2ContainerEvent;
 	import QuickB2.objects.qb2Object;
 	import QuickB2.objects.tangibles.*;
 	import TopDown.ai.*;

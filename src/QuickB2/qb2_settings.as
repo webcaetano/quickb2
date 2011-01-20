@@ -30,8 +30,8 @@ package QuickB2
 	public class qb2_settings
 	{
 		/** Determines whether any event listeners attached to qb2Object's are by default set to weak.
-		 * If true, a call like myObject.addEventListener(qb2AddRemoveEvent.ADDED_TO_WORLD, handler) is actually
-		 * ammended to myObject.addEventListener(qb2AddRemoveEvent.ADDED_TO_WORLD, handler, false, 0, true) internally.
+		 * If true, a call like myObject.addEventListener(qb2ContainerEvent.ADDED_TO_WORLD, handler) is actually
+		 * ammended to myObject.addEventListener(qb2ContainerEvent.ADDED_TO_WORLD, handler, false, 0, true) internally.
 		 * 
 		 * @default true
 		 */

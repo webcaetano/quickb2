@@ -112,9 +112,9 @@ package demos
 			}
 		}
 		
-		protected override function addedOrRemoved(evt:qb2AddRemoveEvent):void
+		protected override function addedOrRemoved(evt:qb2ContainerEvent):void
 		{
-			if ( evt.type == qb2AddRemoveEvent.ADDED_TO_WORLD )
+			if ( evt.type == qb2ContainerEvent.ADDED_TO_WORLD )
 				car.addEventListener(qb2UpdateEvent.POST_UPDATE, updateCar);
 			else
 				car.removeEventListener(qb2UpdateEvent.POST_UPDATE, updateCar);

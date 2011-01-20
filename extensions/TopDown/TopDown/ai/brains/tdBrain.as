@@ -23,7 +23,7 @@
 package TopDown.ai.brains
 {
 	import flash.display.Graphics;
-	import QuickB2.events.qb2AddRemoveEvent;
+	import QuickB2.events.qb2ContainerEvent;
 	import QuickB2.qb2_errors;
 	import TopDown.*;
 	import TopDown.objects.*;
@@ -52,8 +52,8 @@ package TopDown.ai.brains
 				_host.brainPort.clear();
 				removedFromHost();
 				
-				_host.removeEventListener(qb2AddRemoveEvent.ADDED_TO_WORLD,     hostAddedOrRemoved);
-				_host.removeEventListener(qb2AddRemoveEvent.REMOVED_FROM_WORLD, hostAddedOrRemoved);
+				_host.removeEventListener(qb2ContainerEvent.ADDED_TO_WORLD,     hostAddedOrRemoved);
+				_host.removeEventListener(qb2ContainerEvent.REMOVED_FROM_WORLD, hostAddedOrRemoved);
 				
 				if ( _host.world )
 				{
@@ -67,8 +67,8 @@ package TopDown.ai.brains
 			{
 				addedToHost();
 				
-				_host.addEventListener(qb2AddRemoveEvent.ADDED_TO_WORLD,     hostAddedOrRemoved);
-				_host.addEventListener(qb2AddRemoveEvent.REMOVED_FROM_WORLD, hostAddedOrRemoved);
+				_host.addEventListener(qb2ContainerEvent.ADDED_TO_WORLD,     hostAddedOrRemoved);
+				_host.addEventListener(qb2ContainerEvent.REMOVED_FROM_WORLD, hostAddedOrRemoved);
 				
 				if ( _host.world )
 				{
@@ -77,9 +77,9 @@ package TopDown.ai.brains
 			}
 		}
 		
-		private function hostAddedOrRemoved(evt:qb2AddRemoveEvent):void
+		private function hostAddedOrRemoved(evt:qb2ContainerEvent):void
 		{
-			if ( evt.type == qb2AddRemoveEvent.ADDED_TO_WORLD )
+			if ( evt.type == qb2ContainerEvent.ADDED_TO_WORLD )
 			{
 				addedToWorld();
 			}

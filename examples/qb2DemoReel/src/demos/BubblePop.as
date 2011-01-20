@@ -49,9 +49,9 @@ package demos
 			evt.localShape.removeFromParent(); // slowly chop away at the object.
 		}
 		
-		protected override function addedOrRemoved(evt:qb2AddRemoveEvent):void
+		protected override function addedOrRemoved(evt:qb2ContainerEvent):void
 		{
-			if ( evt.type == qb2AddRemoveEvent.ADDED_TO_WORLD )
+			if ( evt.type == qb2ContainerEvent.ADDED_TO_WORLD )
 				bubbleBody.addEventListener(qb2ContactEvent.CONTACT_STARTED, contactStarted);
 			else
 				bubbleBody.removeEventListener(qb2ContactEvent.CONTACT_STARTED, contactStarted);

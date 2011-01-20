@@ -8,7 +8,7 @@ package demos
 	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.events.MouseEvent;
-	import QuickB2.events.qb2AddRemoveEvent;
+	import QuickB2.events.qb2ContainerEvent;
 	import QuickB2.events.qb2UpdateEvent;
 	import QuickB2.objects.tangibles.qb2PolygonShape;
 	import QuickB2.stock.qb2Stock;
@@ -122,9 +122,9 @@ package demos
 		}
 		
 		/// Clean up listeners.
-		protected override function addedOrRemoved(evt:qb2AddRemoveEvent):void
+		protected override function addedOrRemoved(evt:qb2ContainerEvent):void
 		{
-			if ( evt.type == qb2AddRemoveEvent.ADDED_TO_WORLD )
+			if ( evt.type == qb2ContainerEvent.ADDED_TO_WORLD )
 			{
 				for (var i:int = 0; i < drags.length; i++) 
 				{

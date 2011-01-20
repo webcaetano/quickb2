@@ -32,10 +32,10 @@ package QuickB2.objects.tangibles
 	
 	use namespace qb2_friend;
 	
-	[Event(name="addedObject",   type="QuickB2.events.qb2AddRemoveEvent")]
-	[Event(name="removedObject", type="QuickB2.events.qb2AddRemoveEvent")]
-	[Event(name="descendantAddedObject", type="QuickB2.events.qb2AddRemoveEvent")]
-	[Event(name="descendantRemovedObject", type="QuickB2.events.qb2AddRemoveEvent")]	
+	[Event(name="addedObject",   type="QuickB2.events.qb2ContainerEvent")]
+	[Event(name="removedObject", type="QuickB2.events.qb2ContainerEvent")]
+	[Event(name="descendantAddedObject", type="QuickB2.events.qb2ContainerEvent")]
+	[Event(name="descendantRemovedObject", type="QuickB2.events.qb2ContainerEvent")]	
 	
 	/**
 	 * ...
@@ -228,6 +228,7 @@ package QuickB2.objects.tangibles
 				_objects.splice(index, 0, object);
 			
 			object._parent = this;
+			object._containerIndex = index;
 			
 			if ( object is qb2Tangible )
 			{
@@ -248,13 +249,13 @@ package QuickB2.objects.tangibles
 			
 			if ( eventFlags & ADDED_OBJECT_BIT )
 			{
-				var evt:qb2AddRemoveEvent = getCachedEvent(qb2AddRemoveEvent.ADDED_OBJECT);
+				var evt:qb2ContainerEvent = getCachedEvent(qb2ContainerEvent.ADDED_OBJECT);
 				evt._parentObject = this;
 				evt._childObject = object;
 				dispatchEvent(evt);
 			}
 			
-			processDescendantEvent(DESCENDANT_ADDED_OBJECT_BIT, getCachedEvent(qb2AddRemoveEvent.DESCENDANT_ADDED_OBJECT) , object);
+			processDescendantEvent(DESCENDANT_ADDED_OBJECT_BIT, getCachedEvent(qb2ContainerEvent.DESCENDANT_ADDED_OBJECT) , object);
 			
 			justAddedObject(object);
 		}
@@ -274,16 +275,17 @@ package QuickB2.objects.tangibles
 			
 			if( _world )  objectRemoved.destroy();
 			objectRemoved._parent = null;
+			object._containerIndex = -1;
 			
 			if ( eventFlags & REMOVED_OBJECT_BIT )
 			{
-				var evt:qb2AddRemoveEvent = getCachedEvent(qb2AddRemoveEvent.REMOVED_OBJECT);
+				var evt:qb2ContainerEvent = getCachedEvent(qb2ContainerEvent.REMOVED_OBJECT);
 				evt._parentObject = this;
 				evt._childObject  = objectRemoved;
 				dispatchEvent(evt);
 			}
 			
-			processDescendantEvent(DESCENDANT_REMOVED_OBJECT_BIT, getCachedEvent(qb2AddRemoveEvent.DESCENDANT_REMOVED_OBJECT), objectRemoved);
+			processDescendantEvent(DESCENDANT_REMOVED_OBJECT_BIT, getCachedEvent(qb2ContainerEvent.DESCENDANT_REMOVED_OBJECT), objectRemoved);
 			
 			justRemovedObject(objectRemoved);
 		
@@ -293,14 +295,14 @@ package QuickB2.objects.tangibles
 		protected virtual function justAddedObject(object:qb2Object):void   {}
 		protected virtual function justRemovedObject(object:qb2Object):void {}
 		
-		private function processDescendantEvent(bit:uint, cachedEvent:qb2AddRemoveEvent, object:qb2Object):void
+		private function processDescendantEvent(bit:uint, cachedEvent:qb2ContainerEvent, object:qb2Object):void
 		{
 			var currParent:qb2ObjectContainer = this.parent;
 			while ( currParent )
 			{
 				if ( currParent.eventFlags & bit )
 				{
-					var evt:qb2AddRemoveEvent = cachedEvent;
+					var evt:qb2ContainerEvent = cachedEvent;
 					evt._parentObject = this;
 					evt._childObject = object;
 					currParent.dispatchEvent(evt);
@@ -362,7 +364,7 @@ package QuickB2.objects.tangibles
 			{  return _objects.length;  }
 			
 		public function getObjectIndex(object:qb2Object):int
-			{  return _objects.indexOf(object);  }
+			{  return object._containerIndex;  }
 		
 		public function addObjects(someObjects:Vector.<qb2Object>):qb2ObjectContainer
 			{  return addMultipleObjectsToArray(someObjects, _objects.length);  }
@@ -411,12 +413,29 @@ package QuickB2.objects.tangibles
 			
 			return objectRemoved;
 		}
-			
+
 		public function setObjectIndex(object:qb2Object, index:uint):qb2ObjectContainer
 		{
+			if ( object._parent != this )
+			{
+				throw qb2_errors.WRONG_PARENT;
+			}
+			
+			if ( object._containerIndex == index )  return;
+			
 			var origIndex:int = _objects.indexOf(object);
 			_objects.splice(origIndex, 1);
 			_objects.splice(index, 0, object);
+			object._containerIndex = index;
+			
+			var eventType:String = qb2ContainerEvent.INDEX_CHANGED;
+			if ( object.shouldDispatch(eventType) )
+			{
+				var event:qb2ContainerEvent = getCachedEvent(eventType);
+				event._childObject  = object;
+				event._parentObject = this;
+			}
+			
 			return this;
 		}
 	
@@ -638,8 +657,6 @@ package QuickB2.objects.tangibles
 			return this;
 		}
 		
-		
-		
 		public override function draw(graphics:Graphics):void
 		{
 			for (var i:int = 0; i < _objects.length; i++) 
@@ -696,8 +713,6 @@ package QuickB2.objects.tangibles
 				(_objects[i] as qb2Tangible).rigid_flushShapes();
 			}
 		}
-		
-		
 		
 		public function getAllRigids():Vector.<qb2IRigidObject>
 		{
@@ -788,45 +803,5 @@ package QuickB2.objects.tangibles
 			
 			return toReturn;
 		}
-		
-		/*public function getClosestRigid(toPoint:amPoint2d, includeStaticObjects:Boolean = false, useCentersOfMass:Boolean = true):qb2IRigidObject
-		{
-			var closest:qb2IRigidObject = null;
-			var closestDist:Number = Number.MAX_VALUE;
-		
-			for ( var i:int = 0; i < _objects.length; i++ )
-			{
-				var object:qb2Object = _objects[i];
-				
-				if ( !(object is qb2Tangible) )  continue;
-				
-				var physObject:qb2Tangible = object as qb2Tangible;
-				var candidate:qb2IRigidObject = null;
-				
-				if ( physObject is qb2ObjectContainer )
-				{
-					var container:qb2ObjectContainer = object as qb2ObjectContainer;
-					candidate = container.getClosestRigid(toPoint, includeStaticObjects, useCentersOfMass) as qb2IRigidObject;
-					if ( !candidate )  continue;
-				}
-				else if ( physObject is qb2IRigidObject )
-				{
-					var rigid:qb2IRigidObject = physObject as qb2IRigidObject;
-					if ( !includeStaticObjects && physObject.mass == 0 )  continue;
-					
-					candidate = rigid;
-				}
-				
-				var tangPos:amPoint2d = useCentersOfMass && physObject.mass ? (candidate as qb2Tangible).centerOfMass : candidate.position;
-				var dist:Number = tangPos.distanceTo(toPoint);
-				if ( dist < closestDist )
-				{
-					dist = closestDist;
-					closest = candidate;
-				}
-			}
-			
-			return closest;
-		}*/
 	}
 }

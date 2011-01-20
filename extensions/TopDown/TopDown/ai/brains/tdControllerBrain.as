@@ -23,7 +23,7 @@
 package TopDown.ai.brains
 {
 	import As3Math.general.amUtils;
-	import QuickB2.events.qb2AddRemoveEvent;
+	import QuickB2.events.qb2ContainerEvent;
 	import TopDown.ai.controllers.tdController;
 	import TopDown.ai.tdBrainPort;
 	import TopDown.objects.*;

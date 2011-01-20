@@ -62,8 +62,8 @@ package demos
 			var tireRadius:Number = 10;
 			playerCar.addObject
 			(
-				new tdTire(new amPoint2d(-carWidth/2, -carHeight/3), tireWidth, tireRadius, true /*driven*/,  true /*turns*/,  false /*brakes*/, tireFriction, tireRollingFriction),
-				new tdTire(new amPoint2d( carWidth/2, -carHeight/3), tireWidth, tireRadius, true /*driven*/,  true /*turns*/,  false /*brakes*/, tireFriction, tireRollingFriction),
+				new tdTire(new amPoint2d(-carWidth/2, -carHeight/3), tireWidth, tireRadius, true /*driven*/,  true /*turns*/, false /*brakes*/, tireFriction, tireRollingFriction),
+				new tdTire(new amPoint2d( carWidth/2, -carHeight/3), tireWidth, tireRadius, true /*driven*/,  true /*turns*/, false /*brakes*/, tireFriction, tireRollingFriction),
 				new tdTire(new amPoint2d( carWidth/2,  carHeight/3), tireWidth, tireRadius, true /*driven*/, false /*turns*/, true  /*brakes*/, tireFriction, tireRollingFriction),
 				new tdTire(new amPoint2d(-carWidth/2,  carHeight/3), tireWidth, tireRadius, true /*driven*/, false /*turns*/, true  /*brakes*/, tireFriction, tireRollingFriction)
 			);
@@ -147,9 +147,9 @@ package demos
 		private var saveGravity:amVector2d = new amVector2d();
 		
 		//--- Have to change some things around when this demo is added to the world, such as gravity and collisions, and return it normal after.
-		protected override function addedOrRemoved(evt:qb2AddRemoveEvent):void
+		protected override function addedOrRemoved(evt:qb2ContainerEvent):void
 		{
-			if ( evt.type == qb2AddRemoveEvent.ADDED_TO_WORLD )
+			if ( evt.type == qb2ContainerEvent.ADDED_TO_WORLD )
 			{
 				//--- Set realistic z gravity and zero x/y gravity.
 				saveGravity.copy(this.world.gravity);

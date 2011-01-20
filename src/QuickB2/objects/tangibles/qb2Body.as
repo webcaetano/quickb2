@@ -135,7 +135,7 @@ package QuickB2.objects.tangibles
 				rigid_recomputeBodyB2Mass();
 			}
 			
-			super.make(theWorld); // just fires qb2AddRemoveEvents
+			super.make(theWorld); // just fires qb2ContainerEvents
 		}
 		
 		qb2_friend override function destroy():void

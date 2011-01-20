@@ -2,7 +2,7 @@ package demos
 {
 	import As3Math.consts.RAD_10;
 	import As3Math.geo2d.amPoint2d;
-	import QuickB2.events.qb2AddRemoveEvent;
+	import QuickB2.events.qb2ContainerEvent;
 	import QuickB2.events.qb2UpdateEvent;
 	import QuickB2.misc.qb2Mouse;
 	import QuickB2.objects.joints.qb2DistanceJoint;
@@ -128,9 +128,9 @@ package demos
 			mouseJointTarget.rotateBy(RAD_10, mouseJointCenter);
 		}
 		
-		protected override function addedOrRemoved(evt:qb2AddRemoveEvent):void
+		protected override function addedOrRemoved(evt:qb2ContainerEvent):void
 		{
-			if ( evt.type == qb2AddRemoveEvent.ADDED_TO_WORLD )
+			if ( evt.type == qb2ContainerEvent.ADDED_TO_WORLD )
 				this.addEventListener(qb2UpdateEvent.POST_UPDATE, updateMouseTarget);
 			else
 				this.removeEventListener(qb2UpdateEvent.POST_UPDATE, updateMouseTarget);

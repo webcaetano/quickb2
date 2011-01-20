@@ -28,7 +28,7 @@ package TopDown.carparts
 	import flash.display.*;
 	import flash.events.Event;
 	import QuickB2.debugging.*;
-	import QuickB2.events.qb2AddRemoveEvent;
+	import QuickB2.events.qb2ContainerEvent;
 	import QuickB2.misc.*;
 	import QuickB2.objects.*;
 	import TopDown.*;
@@ -99,7 +99,7 @@ package TopDown.carparts
 			width = initWidth;
 			radius = initRadius;
 			
-			addEventListener(qb2AddRemoveEvent.REMOVED_FROM_WORLD, addedOrRemoved, false, 0, true);
+			addEventListener(qb2ContainerEvent.REMOVED_FROM_WORLD, addedOrRemoved, false, 0, true);
 		}
 		
 		private function addedOrRemoved(evt:Event):void

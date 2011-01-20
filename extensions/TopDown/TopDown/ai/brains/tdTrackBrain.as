@@ -499,7 +499,7 @@ package TopDown.ai.brains
 			history.unshift(track);
 			
 			track.addEventListener(tdTrackEvent.TRACK_MOVED, trackChanged, false, 0, true);
-			track.addEventListener(qb2AddRemoveEvent.REMOVED_FROM_WORLD, trackChanged, false, 0, true);
+			track.addEventListener(qb2ContainerEvent.REMOVED_FROM_WORLD, trackChanged, false, 0, true);
 			
 			if ( history.length > historyDepth )
 			{
@@ -521,10 +521,10 @@ package TopDown.ai.brains
 		private function stopListening(track:tdTrack):void
 		{
 			track.removeEventListener(tdTrackEvent.TRACK_MOVED, trackChanged);
-			track.removeEventListener(qb2AddRemoveEvent.REMOVED_FROM_WORLD, trackChanged);
+			track.removeEventListener(qb2ContainerEvent.REMOVED_FROM_WORLD, trackChanged);
 		}
 		
-		private function trackChanged(evt:qb2AddRemoveEvent):void
+		private function trackChanged(evt:qb2ContainerEvent):void
 		{
 			var track:tdTrack = evt.childObject as tdTrack;
 			

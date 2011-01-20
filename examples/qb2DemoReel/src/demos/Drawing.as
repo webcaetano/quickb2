@@ -3,7 +3,7 @@ package demos
 	import As3Math.geo2d.amPoint2d;
 	import flash.display.InteractiveObject;
 	import flash.events.MouseEvent;
-	import QuickB2.events.qb2AddRemoveEvent;
+	import QuickB2.events.qb2ContainerEvent;
 	import QuickB2.events.qb2UpdateEvent;
 	import QuickB2.objects.qb2Object;
 	import QuickB2.objects.tangibles.qb2Body;
@@ -131,9 +131,9 @@ package demos
 			}
 		}
 		
-		protected override function addedOrRemoved(evt:qb2AddRemoveEvent):void
+		protected override function addedOrRemoved(evt:qb2ContainerEvent):void
 		{
-			if ( evt.type == qb2AddRemoveEvent.ADDED_TO_WORLD )
+			if ( evt.type == qb2ContainerEvent.ADDED_TO_WORLD )
 			{
 				addEventListener(qb2UpdateEvent.POST_UPDATE, updateLines);
 				stage.addEventListener(MouseEvent.MOUSE_DOWN, toggleDragging);

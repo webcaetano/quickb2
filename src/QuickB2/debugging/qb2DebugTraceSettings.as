@@ -54,6 +54,8 @@ package QuickB2.debugging
 			qb2SoftPoly:         ["mass", "numVertices", "subdivision", "isCircle"],
 			qb2SoftRod:          ["mass", "numSegments", "length", "width"],
 			qb2TripSensor:       ["position", "tripTime", "numVisitors", "numTrippedVisitors"],
+			qb2Terrain:      	 ["position", "frictionZMultiplier"],
+			qb2SoundField:     	 ["position", "frictionZMultiplier"],
 			qb2StageWalls:       null,
 			
 			qb2Joint:            ["collideConnected", "isActive"],
@@ -71,7 +73,7 @@ package QuickB2.debugging
 			qb2Wind:             [],
 			
 			qb2Event:            ["type"],
-			qb2AddRemoveEvent:   ["type", "parentObject", "childObject"],
+			qb2ContainerEvent:   ["type", "parentObject", "childObject"],
 			qb2ContactEvent:     ["type", "localObject", "otherObject", "contactPoint", "contactNormal"],
 			qb2MassEvent:        ["type", "affectedObject", "massChange", "densityChange", "areaChange"],
 			qb2RayCastEvent:     ["type"],

@@ -25,6 +25,7 @@ package TopDown.objects
 	import As3Math.geo2d.amPoint2d;
 	import flash.display.CapsStyle;
 	import flash.display.Graphics;
+	import flash.utils.Dictionary;
 	import QuickB2.objects.qb2Object;
 	import QuickB2.stock.qb2Terrain;
 	import TopDown.debugging.tdDebugDrawSettings;
@@ -57,12 +58,8 @@ package TopDown.objects
 		
 		public function tdTerrain(ubiquitous:Boolean = false) 
 		{
-			_ubiquitous = ubiquitous;
+			super(ubiquitous);
 		}
-		
-		public function get ubiquitous():Boolean
-			{  return _ubiquitous;  }
-		private var _ubiquitous:Boolean;
 		
 		public function addSkid(start:amPoint2d, end:amPoint2d, thickness:Number, type:uint):void
 		{
@@ -73,10 +70,10 @@ package TopDown.objects
 			entry.startTime = world.clock;
 			entry.type = type;
 			
-			skidEntries.push(entry);
+			skidEntries[entry] = true;
 		}
 		
-		private var skidEntries:Vector.<tdInternalSkidEntry> = new Vector.<tdInternalSkidEntry>();
+		private var skidEntries:Dictionary = new Dictionary(false);
 		
 		public override function draw(graphics:Graphics):void
 		{
@@ -99,15 +96,15 @@ package TopDown.objects
 		{
 			var time:Number = world.clock;
 			
-			for ( var i:int = 0; i < skidEntries.length; i++ )
+			for ( var key:* in skidEntries )
 			{
-				var entry:tdInternalSkidEntry = skidEntries[i];
+				var entry:tdInternalSkidEntry = key as tdInternalSkidEntry;
 				var startAlpha:Number = entry.type == SKID_TYPE_SLIDING ? slidingSkidAlpha : rollingSkidAlpha;
 				var color:uint = entry.type == SKID_TYPE_SLIDING ? slidingSkidColor : rollingSkidColor;
 				
 				if ( time - entry.startTime > skidDuration )
 				{
-					skidEntries.splice(i--, 1);
+					delete skidEntries[key];
 				}
 				else
 				{
@@ -125,12 +122,11 @@ package TopDown.objects
 			var cloned:tdTerrain = super.clone() as tdTerrain;
 			
 			cloned.rollingFrictionZMultiplier = this.rollingFrictionZMultiplier;
-			cloned.rollingSkidColor = this.rollingSkidColor;
-			cloned.slidingSkidColor = this.slidingSkidColor;
-			cloned.slidingSkidAlpha = this.slidingSkidAlpha;
-			cloned.rollingSkidAlpha = this.rollingSkidAlpha;
-			cloned.skidDuration     = this.skidDuration;
-			cloned._ubiquitous      = this._ubiquitous;
+			cloned.rollingSkidColor           = this.rollingSkidColor;
+			cloned.slidingSkidColor           = this.slidingSkidColor;
+			cloned.slidingSkidAlpha           = this.slidingSkidAlpha;
+			cloned.rollingSkidAlpha           = this.rollingSkidAlpha;
+			cloned.skidDuration               = this.skidDuration;
 			
 			return cloned;
 		}

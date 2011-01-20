@@ -28,7 +28,7 @@ package TopDown.objects
 	import flash.display.Graphics;
 	import flash.utils.Dictionary;
 	import QuickB2.*;
-	import QuickB2.events.qb2AddRemoveEvent;
+	import QuickB2.events.qb2ContainerEvent;
 	import QuickB2.events.qb2MassEvent;
 	import QuickB2.objects.*;
 	import QuickB2.objects.tangibles.qb2Tangible;
@@ -86,16 +86,16 @@ package TopDown.objects
 
 		public function tdCarBody()
 		{
-			addEventListener(qb2AddRemoveEvent.ADDED_TO_WORLD,     addedOrRemoved, false, 0, true);
-			addEventListener(qb2AddRemoveEvent.REMOVED_FROM_WORLD, addedOrRemoved, false, 0, true);
+			addEventListener(qb2ContainerEvent.ADDED_TO_WORLD,     addedOrRemoved, false, 0, true);
+			addEventListener(qb2ContainerEvent.REMOVED_FROM_WORLD, addedOrRemoved, false, 0, true);
 			addEventListener(qb2MassEvent.MASS_PROPS_CHANGED,      massPropsUpdated, false, 0, true);
 		}
 		
-		private function addedOrRemoved(evt:qb2AddRemoveEvent):void
+		private function addedOrRemoved(evt:qb2ContainerEvent):void
 		{
 			invalidateTireMetrics();
 			
-			if ( evt.type == qb2AddRemoveEvent.ADDED_TO_WORLD )
+			if ( evt.type == qb2ContainerEvent.ADDED_TO_WORLD )
 			{
 				_map = getAncestor(tdMap) as tdMap;
 			}
@@ -400,7 +400,7 @@ package TopDown.objects
 			var longTransfer:Number = vertDiff ? (zCenterOfMass / vertDiff) * totMass * _kinematics._longAccel : 0;
 			var latTransfer:Number  = horDiff  ? (zCenterOfMass / horDiff)  * totMass * _kinematics._latAccel  : 0;
 			
-			var ubiquitousTerrain:qb2Terrain = _map && _map._defaultTerrain ? _map._defaultTerrain : null;
+			var globalTerrains:Vector.<qb2Terrain> = world._globalTerrainList;
 
 			//--- Iterate through the tires, applying various forces to the body at the tires' locations.
 			var actualNumDrivenTires:int = numDrivenTires;
@@ -453,8 +453,9 @@ package TopDown.objects
 				
 				if ( this.isSleeping && !pedal && !tire._extraRadsPerSec )  continue;  // skip sleeping bodies to boost performance.
 				
-				var highestTerrain:qb2Terrain = ubiquitousTerrain;
+				var highestTerrain:qb2Terrain = null;
 				
+				var frictionMultiplier:Number = 1, rollingFrictionMultiplier:Number = 1;
 				if ( _terrains )
 				{
 					for ( var j:uint = 0; j < _terrains.length; j++ )
@@ -472,7 +473,23 @@ package TopDown.objects
 					}
 				}
 				
-				var frictionMultiplier:Number = 1, rollingFrictionMultiplier:Number = 1;
+				if ( globalTerrains )
+				{
+					for ( j = 0; j < globalTerrains.length; j++ )
+					{
+						jthTerrain = globalTerrains[j];
+						
+						if ( !testTiresIndividuallyAgainstTerrains )
+						{
+							highestTerrain = jthTerrain;
+						}
+						else if ( jthTerrain.testPoint(worldTirePos) )
+						{
+							highestTerrain = jthTerrain;
+						}
+					}
+				}
+				
 				if ( highestTerrain )
 				{
 					frictionMultiplier *= highestTerrain.frictionZMultiplier;
