@@ -44,6 +44,8 @@ package QuickB2
 		/// Thrown when a subclass of qb2EventDispatcher attempts to retrieve either an event bit or a cached event that doesn't exist.
 		public static const EVENT_NOT_FOUND:Error = new Error("The event type was not found in the event map.");
 		
+		public static const WRONG_PARENT:Error = new Error("Object's parent doesn't match up.");
+		
 		/// Thrown when qb2EventDispatcher has no room left in its event cache.  There are 32 slots available.
 		public static const EVENT_CACHE_FULL:Error = new Error("qb2EventDispatcher's event cache is full.");
 		

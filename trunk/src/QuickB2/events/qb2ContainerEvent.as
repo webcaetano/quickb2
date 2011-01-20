@@ -33,7 +33,7 @@ package QuickB2.events
 	 * ...
 	 * @author Doug Koellmer
 	 */
-	public class qb2AddRemoveEvent extends qb2Event
+	public class qb2ContainerEvent extends qb2Event
 	{
 		public static const ADDED_OBJECT:String              = "addedObject";
 		public static const REMOVED_OBJECT:String            = "removedObject";
@@ -41,18 +41,19 @@ package QuickB2.events
 		public static const DESCENDANT_REMOVED_OBJECT:String = "descendantRemovedObject";
 		public static const ADDED_TO_WORLD:String            = "addedToWorld";
 		public static const REMOVED_FROM_WORLD:String        = "removedFromWorld";
+		public static const INDEX_CHANGED:String             = "indexChanged";
 		
 		qb2_friend var _childObject:qb2Object;
 		qb2_friend var _parentObject:qb2ObjectContainer;
 		
-		public function qb2AddRemoveEvent(type:String) 
+		public function qb2ContainerEvent(type:String) 
 		{
 			super(type);
 		}
 		
 		public override function clone():Event
 		{
-			var evt:qb2AddRemoveEvent = new qb2AddRemoveEvent(type);
+			var evt:qb2ContainerEvent = new qb2ContainerEvent(type);
 			evt._childObject  = _childObject;
 			evt._parentObject = _parentObject;
 			return evt;
@@ -69,6 +70,6 @@ package QuickB2.events
 		}
 		
 		public override function toString():String 
-			{  return qb2DebugTraceSettings.formatToString(this, "qb2AddRemoveEvent");  }
+			{  return qb2DebugTraceSettings.formatToString(this, "qb2ContainerEvent");  }
 	}
 }

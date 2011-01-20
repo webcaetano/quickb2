@@ -2,7 +2,7 @@ package QuickB2.stock
 {
 	import As3Math.general.amUtils;
 	import flash.utils.Dictionary;
-	import QuickB2.events.qb2AddRemoveEvent;
+	import QuickB2.events.qb2ContainerEvent;
 	import QuickB2.events.qb2ContactEvent;
 	import QuickB2.objects.qb2Object;
 	import QuickB2.objects.tangibles.qb2Body;
@@ -17,15 +17,15 @@ package QuickB2.stock
 		
 		public function qb2SoundField() 
 		{
-			addEventListener(qb2AddRemoveEvent.ADDED_TO_WORLD, addedOrRemoved, false, 0, true);
-			addEventListener(qb2AddRemoveEvent.REMOVED_FROM_WORLD, addedOrRemoved, false, 0, true);
+			addEventListener(qb2ContainerEvent.ADDED_TO_WORLD, addedOrRemoved, false, 0, true);
+			addEventListener(qb2ContainerEvent.REMOVED_FROM_WORLD, addedOrRemoved, false, 0, true);
 			addEventListener(qb2ContactEvent.CONTACT_STARTED, contact, false, 0, true);
 			addEventListener(qb2ContactEvent.CONTACT_ENDED, contact, false, 0, true);
 		}
 		
-		private function addedOrRemoved(evt:qb2AddRemoveEvent):void
+		private function addedOrRemoved(evt:qb2ContainerEvent):void
 		{
-			if ( evt.type == qb2AddRemoveEvent.ADDED_TO_WORLD )
+			if ( evt.type == qb2ContainerEvent.ADDED_TO_WORLD )
 			{
 				soundFieldList.unshift(evt.childObject);
 				shapeContactList = new Dictionary(true);

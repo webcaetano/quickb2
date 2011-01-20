@@ -39,6 +39,7 @@ package QuickB2.objects.tangibles
 	import QuickB2.internals.*;
 	import QuickB2.objects.*;
 	import QuickB2.objects.joints.*;
+	import QuickB2.stock.qb2Terrain;
 	
 	use namespace qb2_friend;
 	
@@ -458,6 +459,8 @@ package QuickB2.objects.tangibles
 			throw new Error("A qb2World cannot be cloned.");
 			return null;
 		}
+		
+		qb2_friend var _globalTerrainList:Vector.<qb2Terrain> = null;
 		
 		public override function toString():String 
 			{  return qb2DebugTraceSettings.formatToString(this, "qb2World");  }

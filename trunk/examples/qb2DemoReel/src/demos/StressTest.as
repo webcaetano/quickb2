@@ -6,7 +6,7 @@ package demos
 	import flash.display.Graphics;
 	import flash.display.PixelSnapping;
 	import flash.display.Sprite;
-	import QuickB2.events.qb2AddRemoveEvent;
+	import QuickB2.events.qb2ContainerEvent;
 	import QuickB2.misc.qb2Keyboard;
 	import QuickB2.objects.tangibles.qb2Body;
 	import QuickB2.objects.tangibles.qb2PolygonShape;
@@ -66,10 +66,10 @@ package demos
 		}
 		
 		private var saveContext:Graphics = null;
-		protected override function addedOrRemoved(evt:qb2AddRemoveEvent):void
+		protected override function addedOrRemoved(evt:qb2ContainerEvent):void
 		{
 			//--- Since we're really want low overhead, don't make the world even attempt to draw anything for debug.
-			if ( evt.type == qb2AddRemoveEvent.ADDED_TO_WORLD )
+			if ( evt.type == qb2ContainerEvent.ADDED_TO_WORLD )
 			{
 				saveContext = world.debugDrawContext;
 				saveContext.clear();

@@ -30,7 +30,7 @@ package QuickB2.objects.joints
 	import QuickB2.*;
 	import QuickB2.debugging.qb2DebugDrawSettings;
 	import QuickB2.debugging.qb2DebugTraceSettings;
-	import QuickB2.events.qb2AddRemoveEvent;
+	import QuickB2.events.qb2ContainerEvent;
 	import QuickB2.objects.*;
 	import QuickB2.objects.tangibles.*;
 	
@@ -93,8 +93,8 @@ package QuickB2.objects.joints
 		{
 			if ( !object._attachedJoints )  object._attachedJoints = new Vector.<qb2Joint>();
 			object._attachedJoints.push(this);
-			object.addEventListener(qb2AddRemoveEvent.ADDED_TO_WORLD,     addedOrRemoved, false, 0, true);
-			object.addEventListener(qb2AddRemoveEvent.REMOVED_FROM_WORLD, addedOrRemoved, false, 0, true);
+			object.addEventListener(qb2ContainerEvent.ADDED_TO_WORLD,     addedOrRemoved, false, 0, true);
+			object.addEventListener(qb2ContainerEvent.REMOVED_FROM_WORLD, addedOrRemoved, false, 0, true);
 			
 			makeJointB2(_world);
 		}
@@ -104,15 +104,15 @@ package QuickB2.objects.joints
 			var index:int = object._attachedJoints.indexOf(this);
 			object._attachedJoints.splice(index, 1);
 			if ( object._attachedJoints.length == 0 )  object._attachedJoints = null;
-			object.removeEventListener(qb2AddRemoveEvent.ADDED_TO_WORLD,     addedOrRemoved);
-			object.removeEventListener(qb2AddRemoveEvent.REMOVED_FROM_WORLD, addedOrRemoved);
+			object.removeEventListener(qb2ContainerEvent.ADDED_TO_WORLD,     addedOrRemoved);
+			object.removeEventListener(qb2ContainerEvent.REMOVED_FROM_WORLD, addedOrRemoved);
 			
 			destroyJointB2();
 		}
 		
-		private function addedOrRemoved(evt:qb2AddRemoveEvent):void
+		private function addedOrRemoved(evt:qb2ContainerEvent):void
 		{
-			if ( evt.type == qb2AddRemoveEvent.ADDED_TO_WORLD )
+			if ( evt.type == qb2ContainerEvent.ADDED_TO_WORLD )
 			{
 				makeJointB2(_world);
 			}

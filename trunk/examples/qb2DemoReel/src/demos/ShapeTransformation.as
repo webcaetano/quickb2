@@ -52,9 +52,9 @@ package demos
 			}
 		}
 		
-		protected override function addedOrRemoved(evt:qb2AddRemoveEvent):void
+		protected override function addedOrRemoved(evt:qb2ContainerEvent):void
 		{
-			if ( evt.type == qb2AddRemoveEvent.ADDED_TO_WORLD )
+			if ( evt.type == qb2ContainerEvent.ADDED_TO_WORLD )
 				aBody.addEventListener(qb2UpdateEvent.POST_UPDATE, updateShapes);
 			else
 				aBody.removeEventListener(qb2UpdateEvent.POST_UPDATE, updateShapes);

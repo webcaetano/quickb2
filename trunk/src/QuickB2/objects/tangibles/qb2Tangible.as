@@ -1392,10 +1392,7 @@ package QuickB2.objects.tangibles
 			}
 			
 			frictionJoint.m_maxForce = maxForce;
-			
-			//--- NOTE: this isn't correct, but i can't figure out how to get the units to match up to get torque.
-		//	frictionJoint.m_maxTorque = _frictionZ * theWorld.gravityZ * _bodyB2.GetInertia();
-			frictionJoint.m_maxTorque = maxForce;
+			frictionJoint.m_maxTorque = maxForce; // probably not right, but i don't know how otherwise to get this number, and it looks accurate enough.
 			
 			var centroid:V2 = _bodyB2.GetLocalCenter();
 			frictionJoint.m_localAnchorA.x = centroid.x;
@@ -1576,27 +1573,86 @@ package QuickB2.objects.tangibles
 		{
 			var multiplier:Number = 1;
 			
-			if ( !_terrains )  return multiplier;
-			
-			for (var i:int = 0; i < _terrains.length; i++) 
+			if ( _terrains )
 			{
-				multiplier *= _terrains[i].frictionZMultiplier;
+				for (var i:int = 0; i < _terrains.length; i++) 
+				{
+					multiplier *= _terrains[i].frictionZMultiplier;
+				}
+			}
+			
+			var globalTerrains:Vector.<qb2Terrain> = world._globalTerrainList;
+			if ( globalTerrains )
+			{
+				for (var j:int = 0; j < globalTerrains.length; j++) 
+				{
+					multiplier *= globalTerrains[j].frictionZMultiplier;
+				}
 			}
 			
 			return multiplier;
 		}
 		
+		protected function getHighestTerrain():qb2Terrain
+		{
+			var above:Vector.<qb2Terrain>;
+			
+			if ( _terrains )
+			{
+				for (var i:int = 0; i < _terrains.length; i++) 
+				{
+					
+				}
+			}		
+		}
+		
 		qb2_friend function registerTerrain(terrain:qb2Terrain):void
+		{
+			addTerrainToList(terrain);
+			
+			terrain.addEventListener(qb2ContainerEvent.INDEX_CHANGED, terrainIndexChanged);
+			
+			rigid_updateFrictionJoints();
+		}
+		
+		private function addTerrainToList(terrain:qb2Terrain):void
 		{
 			if ( !_terrains )
 			{
 				_terrains = new Vector.<qb2Terrain>();
+				_terrains.push(terrain);
+			}
+			else
+			{
+				var inserted:Boolean = false;
+				for (var i:int = 0; i < _terrains.length; i++) 
+				{
+					var ithTerrain:qb2Terrain = _terrains[i];
+					
+					if ( terrain.isBelow(ithTerrain) )
+					{
+						inserted = true;
+						_terrains.splice(i, 0, terrain);
+						break;
+					}
+				}
+				
+				if ( !inserted )
+				{
+					_terrains.push(terrain);
+				}
 			}
 			
-			_terrains.push(terrain);
-			
 			rigid_updateFrictionJoints();
-			// TODO sort terrains.
+		}
+		
+		private function terrainIndexChanged(evt:qb2ContainerEvent):void
+		{
+			var terrain:qb2Terrain = evt.childObject as qb2Terrain;
+			
+			_terrains.splice(_terrains.indexOf(terrain), 1);
+			
+			addTerrainToList(terrain);
 		}
 		
 		qb2_friend function unregisterTerrain(terrain:qb2Terrain):void
@@ -1607,6 +1663,8 @@ package QuickB2.objects.tangibles
 			{
 				_terrains = null;
 			}
+			
+			terrain.removeEventListener(qb2ContainerEvent.INDEX_CHANGED, terrainIndexChanged);
 			
 			rigid_updateFrictionJoints();
 		}

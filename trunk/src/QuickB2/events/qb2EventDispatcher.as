@@ -50,6 +50,7 @@ package QuickB2.events
 			{  return _currEventBit;  }
 		private static var _currEventBit:uint = 0x00000001;
 		
+		/// Returns the cached event for a given event type, or null if it doesn't exist.
 		protected static function getCachedEvent(eventType:String):*
 		{
 			var event:* = eventMap[eventType];
@@ -62,11 +63,14 @@ package QuickB2.events
 			return event;
 		}
 		
+		/// Gets the event bit for a given event type, or 0 if it doesn't exist.
 		protected static function getCachedEventBit(eventType:String):uint
 		{
 			return eventBitMap[eventType];
 		}
 		
+		/// Registers a cached event and returns the event's bit, which will be compared against an object's
+		/// eventFlags in the future to decide if the event needs to be thrown in the first place.
 		protected static function registerCachedEvent(event:Event):uint
 		{
 			if ( !_currEventBit )

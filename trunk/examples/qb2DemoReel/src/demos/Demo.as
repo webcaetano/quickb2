@@ -15,12 +15,12 @@ package demos
 		{
 			this.actor = new Sprite();
 			
-			this.addEventListener(qb2AddRemoveEvent.ADDED_TO_WORLD, addedOrRemoved, false, 0, true);
-			this.addEventListener(qb2AddRemoveEvent.REMOVED_FROM_WORLD, addedOrRemoved, false, 0, true);
+			this.addEventListener(qb2ContainerEvent.ADDED_TO_WORLD, addedOrRemoved, false, 0, true);
+			this.addEventListener(qb2ContainerEvent.REMOVED_FROM_WORLD, addedOrRemoved, false, 0, true);
 		}
 		
 		/// Lets a demo know when it should clean stuff up.
-		protected function addedOrRemoved(evt:qb2AddRemoveEvent):void
+		protected function addedOrRemoved(evt:qb2ContainerEvent):void
 		{
 			
 		}

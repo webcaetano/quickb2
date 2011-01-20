@@ -30,7 +30,7 @@ package TopDown.ai
 	import flash.system.ApplicationDomain;
 	import flash.utils.Dictionary;
 	import flash.utils.getDefinitionByName;
-	import QuickB2.events.qb2AddRemoveEvent;
+	import QuickB2.events.qb2ContainerEvent;
 	import QuickB2.events.qb2EventDispatcher;
 	import QuickB2.objects.qb2Object;
 	import QuickB2.objects.tangibles.qb2Group;
@@ -83,10 +83,10 @@ package TopDown.ai
 			
 			if ( _map )
 			{
-				_map.removeEventListener(qb2AddRemoveEvent.ADDED_OBJECT,              mapAddedOrRemovedSomething);
-				_map.removeEventListener(qb2AddRemoveEvent.REMOVED_OBJECT,            mapAddedOrRemovedSomething);
-				_map.removeEventListener(qb2AddRemoveEvent.DESCENDANT_ADDED_OBJECT,   mapAddedOrRemovedSomething);
-				_map.removeEventListener(qb2AddRemoveEvent.DESCENDANT_REMOVED_OBJECT, mapAddedOrRemovedSomething);
+				_map.removeEventListener(qb2ContainerEvent.ADDED_OBJECT,              mapAddedOrRemovedSomething);
+				_map.removeEventListener(qb2ContainerEvent.REMOVED_OBJECT,            mapAddedOrRemovedSomething);
+				_map.removeEventListener(qb2ContainerEvent.DESCENDANT_ADDED_OBJECT,   mapAddedOrRemovedSomething);
+				_map.removeEventListener(qb2ContainerEvent.DESCENDANT_REMOVED_OBJECT, mapAddedOrRemovedSomething);
 			}
 			
 			_map = aMap;
@@ -97,10 +97,10 @@ package TopDown.ai
 				
 				loadUpCarDict(_map);
 				
-				_map.addEventListener(qb2AddRemoveEvent.ADDED_OBJECT,              mapAddedOrRemovedSomething);
-				_map.addEventListener(qb2AddRemoveEvent.REMOVED_OBJECT,            mapAddedOrRemovedSomething);
-				_map.addEventListener(qb2AddRemoveEvent.DESCENDANT_ADDED_OBJECT,   mapAddedOrRemovedSomething);
-				_map.addEventListener(qb2AddRemoveEvent.DESCENDANT_REMOVED_OBJECT, mapAddedOrRemovedSomething);
+				_map.addEventListener(qb2ContainerEvent.ADDED_OBJECT,              mapAddedOrRemovedSomething);
+				_map.addEventListener(qb2ContainerEvent.REMOVED_OBJECT,            mapAddedOrRemovedSomething);
+				_map.addEventListener(qb2ContainerEvent.DESCENDANT_ADDED_OBJECT,   mapAddedOrRemovedSomething);
+				_map.addEventListener(qb2ContainerEvent.DESCENDANT_REMOVED_OBJECT, mapAddedOrRemovedSomething);
 			}
 		}
 		
@@ -138,12 +138,12 @@ package TopDown.ai
 			{  return _map;  }
 		td_friend var _map:tdMap;
 		
-		private function mapAddedOrRemovedSomething(evt:qb2AddRemoveEvent):void
+		private function mapAddedOrRemovedSomething(evt:qb2ContainerEvent):void
 		{
 			var object:qb2Object = evt.childObject;
 			if ( object is tdCarBody )
 			{
-				if( evt.type == qb2AddRemoveEvent.ADDED_OBJECT || evt.type == qb2AddRemoveEvent.DESCENDANT_ADDED_OBJECT )
+				if( evt.type == qb2ContainerEvent.ADDED_OBJECT || evt.type == qb2ContainerEvent.DESCENDANT_ADDED_OBJECT )
 					cars[object] = true;
 				else
 					delete cars[object];

@@ -22,6 +22,8 @@
 
 package QuickB2.objects 
 {
+	import As3Math.geo2d.amBoundArea2d;
+	import As3Math.geo2d.amBoundBox2d;
 	import flash.display.*;
 	import flash.events.*;
 	import QuickB2.*;
@@ -34,8 +36,8 @@ package QuickB2.objects
 	[Event(name="preUpdate",  type="QuickB2.events.qb2UpdateEvent")]
 	[Event(name="postUpdate", type="QuickB2.events.qb2UpdateEvent")]
 	
-	[Event(name="addedToWorld",     type="QuickB2.events.qb2AddRemoveEvent")]
-	[Event(name="removedFromWorld", type="QuickB2.events.qb2AddRemoveEvent")]
+	[Event(name="addedToWorld",     type="QuickB2.events.qb2ContainerEvent")]
+	[Event(name="removedFromWorld", type="QuickB2.events.qb2ContainerEvent")]
 	
 	/**
 	 * ...
@@ -72,6 +74,7 @@ package QuickB2.objects
 		qb2_friend static var REMOVED_FROM_WORLD_BIT:uint;
 		qb2_friend static var ADDED_OBJECT_BIT:uint;
 		qb2_friend static var REMOVED_OBJECT_BIT:uint;
+		qb2_friend static var INDEX_CHANGED_BIT:uint;
 		
 		qb2_friend static var DESCENDANT_ADDED_OBJECT_BIT:uint;
 		qb2_friend static var DESCENDANT_REMOVED_OBJECT_BIT:uint;
@@ -95,13 +98,14 @@ package QuickB2.objects
 			SUB_PRE_SOLVE_BIT             = registerCachedEvent(new qb2SubContactEvent( qb2SubContactEvent.SUB_PRE_SOLVE            ));
 			SUB_POST_SOLVE_BIT            = registerCachedEvent(new qb2SubContactEvent( qb2SubContactEvent.SUB_POST_SOLVE           ));
 			
-			ADDED_TO_WORLD_BIT            = registerCachedEvent(new qb2AddRemoveEvent(  qb2AddRemoveEvent.ADDED_TO_WORLD            ));
-			REMOVED_FROM_WORLD_BIT        = registerCachedEvent(new qb2AddRemoveEvent(  qb2AddRemoveEvent.REMOVED_FROM_WORLD        ));
-			ADDED_OBJECT_BIT              = registerCachedEvent(new qb2AddRemoveEvent(  qb2AddRemoveEvent.ADDED_OBJECT              ));
-			REMOVED_OBJECT_BIT            = registerCachedEvent(new qb2AddRemoveEvent(  qb2AddRemoveEvent.REMOVED_OBJECT            ));
+			ADDED_TO_WORLD_BIT            = registerCachedEvent(new qb2ContainerEvent(  qb2ContainerEvent.ADDED_TO_WORLD            ));
+			REMOVED_FROM_WORLD_BIT        = registerCachedEvent(new qb2ContainerEvent(  qb2ContainerEvent.REMOVED_FROM_WORLD        ));
+			ADDED_OBJECT_BIT              = registerCachedEvent(new qb2ContainerEvent(  qb2ContainerEvent.ADDED_OBJECT              ));
+			REMOVED_OBJECT_BIT            = registerCachedEvent(new qb2ContainerEvent(  qb2ContainerEvent.REMOVED_OBJECT            ));
+			INDEX_CHANGED_BIT             = registerCachedEvent(new qb2ContainerEvent(  qb2ContainerEvent.INDEX_CHANGED             ));
 			
-			DESCENDANT_ADDED_OBJECT_BIT   = registerCachedEvent(new qb2AddRemoveEvent(  qb2AddRemoveEvent.DESCENDANT_ADDED_OBJECT   ));
-			DESCENDANT_REMOVED_OBJECT_BIT = registerCachedEvent(new qb2AddRemoveEvent(  qb2AddRemoveEvent.DESCENDANT_REMOVED_OBJECT ));
+			DESCENDANT_ADDED_OBJECT_BIT   = registerCachedEvent(new qb2ContainerEvent(  qb2ContainerEvent.DESCENDANT_ADDED_OBJECT   ));
+			DESCENDANT_REMOVED_OBJECT_BIT = registerCachedEvent(new qb2ContainerEvent(  qb2ContainerEvent.DESCENDANT_REMOVED_OBJECT ));
 			
 			PRE_UPDATE_BIT                = registerCachedEvent(new qb2UpdateEvent(     qb2UpdateEvent.PRE_UPDATE                   ));       
 			POST_UPDATE_BIT               = registerCachedEvent(new qb2UpdateEvent(     qb2UpdateEvent.POST_UPDATE                  ));                     
@@ -164,7 +168,117 @@ package QuickB2.objects
 			
 			return null;
 		}
+		
+		public function getCommonAncestor(otherObject:qb2Object):qb2ObjectContainer
+		{
+			setAncestorPair(this, otherObject);
 			
+			var currentLocalObject:qb2Object = setAncestorPair_local;
+			
+			setAncestorPair_local = null;
+			setAncestorPair_other = null;
+			
+			return currentLocalObject._parent;
+		}
+		
+		//--- These three members act in place of "passing by reference".
+		private static function setAncestorPair(local:qb2Object, other:qb2Object):void
+		{
+			var localDistToWorld:int = local.getSeperationFromAncestor(local._world);
+			var otherDistToWorld:int = other.getSeperationFromAncestor(other._world);
+			
+			while ( localDistToWorld > otherDistToWorld )
+			{
+				local = local._parent;
+				localDistToWorld--;
+			}
+			
+			while ( otherDistToWorld > localDistToWorld )
+			{
+				other = other._parent;
+				otherDistToWorld--;
+			}
+			
+			if ( !currentLocalObject._parent || !currentOtherObject._parent )
+			{
+				return;
+			}
+			
+			while ( currentLocalObject._parent != currentOtherObject._parent )
+			{
+				currentLocalObject = currentLocalObject._parent;
+				currentOtherObject = currentOtherObject._parent;
+			}
+			
+			setAncestorPair_local = local;
+			setAncestorPair_other = other;
+		}
+		private static var setAncestorPair_local:qb2Object = null;
+		private static var setAncestorPair_other:qb2Object = null;
+		
+		public function getSeperationFromAncestor(ancestor:qb2ObjectContainer = null):int
+		{
+			var count:int = 0;
+			var currParent:qb2Object = this;
+			var foundAncestor:Boolean = false;
+			while ( currParent )
+			{
+				if ( currParent == ancestor )
+				{
+					foundAncestor = true;
+					break;
+				}
+				
+				currParent = currParent._parent;
+				count++;
+			}
+			
+			return foundAncestor ? count : count-1;
+		}
+		
+		public function isAbove(otherObject:qb2Object):Boolean
+		{
+			setAncestorPair(this, otherObject);
+			
+			var currentLocalObject:qb2Object = setAncestorPair_local;
+			var currentOtherObject:qb2Object = setAncestorPair_other;
+			
+			setAncestorPair_local = null;
+			setAncestorPair_other = null;
+			
+			var common:qb2ObjectContainer = currentLocalObject._parent;
+			
+			if ( !common )
+			{
+				throw new Error("Objects don't share a common ancestor!");
+			}
+			
+			var array:Vector.<qb2Object> = common._objects;
+			var numObjects:int = array.length;
+			for (var i:int = 0; i < numObjects; i++) 
+			{
+				var item:qb2Object = array[i];
+				
+				if ( item == currentLocalObject )
+				{
+					return false;
+				}
+				else if ( item == currentOtherObject )
+				{
+					return true;
+				}
+			}
+			
+			return false;
+		}
+		
+		public function isBelow(otherObject:qb2Object):Boolean
+		{
+			return !isAbove(otherObject);
+		}
+		
+		
+
 		protected function update():void { }
 		
 		//--- Need this relay function because qb2ObjectContainer can't call protected functions like this directly.
@@ -276,7 +390,7 @@ package QuickB2.objects
 			
 			if ( eventFlags & ADDED_TO_WORLD_BIT )
 			{
-				var evt:qb2AddRemoveEvent = getCachedEvent(qb2AddRemoveEvent.ADDED_TO_WORLD);
+				var evt:qb2ContainerEvent = getCachedEvent(qb2ContainerEvent.ADDED_TO_WORLD);
 				evt._parentObject = this._parent;
 				evt._childObject  = this;
 				dispatchEvent(evt);
@@ -295,7 +409,7 @@ package QuickB2.objects
 			
 			if ( eventFlags & REMOVED_FROM_WORLD_BIT )
 			{
-				var evt:qb2AddRemoveEvent = getCachedEvent(qb2AddRemoveEvent.REMOVED_FROM_WORLD);
+				var evt:qb2ContainerEvent = getCachedEvent(qb2ContainerEvent.REMOVED_FROM_WORLD);
 				evt._parentObject = this._parent;
 				evt._childObject  = this;
 				dispatchEvent(evt);
@@ -311,7 +425,7 @@ package QuickB2.objects
 		public virtual function clone():qb2Object {  return null;  }
 		
 		/// A convenience function for getting the world's pixelPerMeter property.  If the object isn't in a world, function returns 1.
-		protected function get worldPixelsPerMeter():Number
+		public function get worldPixelsPerMeter():Number
 			{  return _world ? _world.pixelsPerMeter : 1  }
 			
 		public override function toString():String
