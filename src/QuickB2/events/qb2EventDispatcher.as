@@ -24,6 +24,7 @@ package QuickB2.events
 {
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
+	import QuickB2.debugging.qb2DebugTraceSettings;
 	import QuickB2.qb2_errors;
 	import QuickB2.qb2_friend;
 	import QuickB2.qb2_settings;
@@ -121,5 +122,8 @@ package QuickB2.events
 			
 			return super.hasEventListener(type);
 		}
+		
+		public override function toString():String
+			{  return qb2DebugTraceSettings.formatToString(this, "qb2EventDispatcher");  }
 	}
 }

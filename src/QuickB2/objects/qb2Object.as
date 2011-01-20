@@ -24,6 +24,7 @@ package QuickB2.objects
 {
 	import As3Math.geo2d.amBoundArea2d;
 	import As3Math.geo2d.amBoundBox2d;
+	import Box2DAS.Common.V2;
 	import flash.display.*;
 	import flash.events.*;
 	import QuickB2.*;
@@ -156,7 +157,7 @@ package QuickB2.objects
 			return false;
 		}
 		
-		public function getAncestor(ancestorType:Class):qb2ObjectContainer
+		public function getAncestorOfType(ancestorType:Class):qb2ObjectContainer
 		{
 			var object:qb2ObjectContainer = this._parent;
 			while ( object )
@@ -199,15 +200,15 @@ package QuickB2.objects
 				otherDistToWorld--;
 			}
 			
-			if ( !currentLocalObject._parent || !currentOtherObject._parent )
+			if ( !local._parent || !other._parent )
 			{
 				return;
 			}
 			
-			while ( currentLocalObject._parent != currentOtherObject._parent )
+			while ( local._parent != other._parent )
 			{
-				currentLocalObject = currentLocalObject._parent;
-				currentOtherObject = currentOtherObject._parent;
+				local = local._parent;
+				other = other._parent;
 			}
 			
 			setAncestorPair_local = local;
@@ -359,6 +360,8 @@ package QuickB2.objects
 			}
 		}
 		
+		protected static var reusableV2:V2 = new V2();
+		
 		private function collectAncestorBits():uint
 		{
 			var currParent:qb2Object = this;
@@ -427,8 +430,5 @@ package QuickB2.objects
 		/// A convenience function for getting the world's pixelPerMeter property.  If the object isn't in a world, function returns 1.
 		public function get worldPixelsPerMeter():Number
 			{  return _world ? _world.pixelsPerMeter : 1  }
-			
-		public override function toString():String
-			{  return qb2DebugTraceSettings.formatToString(this, "qb2Object");  }
 	}
 }

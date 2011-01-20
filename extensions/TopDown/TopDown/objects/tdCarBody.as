@@ -97,7 +97,7 @@ package TopDown.objects
 			
 			if ( evt.type == qb2ContainerEvent.ADDED_TO_WORLD )
 			{
-				_map = getAncestor(tdMap) as tdMap;
+				_map = getAncestorOfType(tdMap) as tdMap;
 			}
 			else
 			{
@@ -456,7 +456,7 @@ package TopDown.objects
 				var highestTerrain:qb2Terrain = null;
 				
 				var frictionMultiplier:Number = 1, rollingFrictionMultiplier:Number = 1;
-				if ( _terrains )
+				/*if ( _terrains )
 				{
 					for ( var j:uint = 0; j < _terrains.length; j++ )
 					{
@@ -498,7 +498,7 @@ package TopDown.objects
 					{
 						rollingFrictionMultiplier *= (highestTerrain as tdTerrain).rollingFrictionZMultiplier;
 					}
-				}
+				}*/
 				
 				//--- Some helpers...
 				var force:Number = 0;
