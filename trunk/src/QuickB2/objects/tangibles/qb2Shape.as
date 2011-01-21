@@ -29,10 +29,13 @@ package QuickB2.objects.tangibles
 	import Box2DAS.Collision.Shapes.*;
 	import Box2DAS.Common.*;
 	import Box2DAS.Dynamics.*;
+	import Box2DAS.Dynamics.Joints.b2FrictionJoint;
+	import Box2DAS.Dynamics.Joints.b2FrictionJointDef;
 	import flash.utils.Dictionary;
 	import QuickB2.*;
 	import QuickB2.misc.*;
 	import QuickB2.objects.joints.*;
+	import QuickB2.stock.qb2Terrain;
 	
 	use namespace qb2_friend;
 	
@@ -97,6 +100,7 @@ package QuickB2.objects.tangibles
 		{
 			updateMassProps(value * _surfaceArea - _mass, 0);
 			updateFixtureDensities();
+			
 		}
 
 		public override function set mass(value:Number):void
@@ -159,6 +163,10 @@ package QuickB2.objects.tangibles
 					for ( i = 0; i < this.fixtures.length; i++ )
 						this.fixtures[i].SetSensor(value ? true : false);
 				}
+				else if ( propName == "frictionZ" )
+				{
+					updateFrictionJoints();
+				}
 			}
 		}
 	
@@ -215,7 +223,116 @@ package QuickB2.objects.tangibles
 		
 		qb2_friend override function updateFrictionJoints():void
 		{
-			rigid_updateFrictionJoints();
+			var needJoints:Boolean = true;
+			
+			if ( !_world || !_world.gravityZ || !_frictionZ || !_mass || _isKinematic )
+			{
+				needJoints = false;
+			}
+			
+			if ( !needJoints )
+			{
+				destroyFrictionJoints();
+				return;
+			}
+			
+			if ( _world.processingBox2DStuff )
+			{
+				_world.addDelayedCall(null, updateFrictionJoints);
+				return;
+			}
+
+			var maxForce:Number = _frictionZ * _world.gravityZ * _mass;
+			
+			var multiplier:Number = 1;
+			var globalList:Vector.<qb2Terrain> = _world._globalTerrainList;
+			var terrainsBelowThisShape:Vector.<qb2Terrain>;
+			
+			if ( globalList )
+			{
+				var numGlobalTerrains:int = globalList.length;
+			
+				for (var i:int = numGlobalTerrains-1; i >= 0; i-- ) 
+				{
+					var ithTerrain:qb2Terrain = globalList[i];
+					
+					if ( this.isAbove(ithTerrain) )
+					{
+						if ( !terrainsBelowThisShape )
+						{
+							terrainsBelowThisShape = new Vector.<qb2Terrain>();
+						}
+						
+						terrainsBelowThisShape.unshift(ithTerrain);
+						
+						if ( ithTerrain.ubiquitous )
+						{
+							break; // ubiquitous terrains cover up all other terrains beneath them, so we can move on.
+						}
+					}
+					else
+					{
+						break; // all subsequent terrains will be over this shape, so we can move on.
+					}
+				}
+			}
+			
+			makeFrictionJoints(maxForce, terrainsBelowThisShape);
+		}
+		
+		qb2_friend var frictionJoints:Vector.<b2FrictionJoint>;
+		
+		qb2_friend final function populateFrictionJointArray(numPoints:int):void
+		{
+			if ( frictionJoints )  return;
+			
+			var theBodyB2:b2Body = _bodyB2 ? _bodyB2 : _ancestorBody._bodyB2;
+			var fricDef:b2FrictionJointDef = b2Def.frictionJoint;
+			fricDef.bodyA = theBodyB2;
+			fricDef.bodyB = theBodyB2.m_world.m_groundBody;
+			fricDef.userData = this;
+			
+			frictionJoints = new Vector.<b2FrictionJoint>();
+			
+			for (var j:int = 0; j < numPoints; j++) 
+			{
+				frictionJoints.push(_world._worldB2.CreateJoint(fricDef));
+			}
+		}
+		
+		qb2_friend virtual function makeFrictionJoints(maxForce:Number, terrainsBelowThisShape:Vector.<qb2Terrain>):void
+		{
+			
+		}
+		
+		qb2_friend final function getMultiplier():Number
+		{
+			
+		}
+		
+		qb2_friend final function destroyFrictionJoints():void
+		{
+			if ( frictionJoints )
+			{
+				for (var j:int = 0; j < frictionJoints.length; j++) 
+				{
+					var jthFrictionJoint:b2FrictionJoint = frictionJoints[j];
+					
+					var theWorld:qb2World = qb2World.worldDict[jthFrictionJoint.m_world] as qb2World;
+					
+					if ( theWorld.processingBox2DStuff )
+					{
+						theWorld.addDelayedCall(null, jthFrictionJoint.m_world.DestroyJoint, jthFrictionJoint);
+					}
+					else
+					{
+						jthFrictionJoint.m_world.DestroyJoint(jthFrictionJoint);
+					}
+				}
+				
+				frictionJoints.length = 0;
+				frictionJoints = null;
+			}
 		}
 		
 		qb2_friend override function make(theWorld:qb2World):void
@@ -234,6 +351,8 @@ package QuickB2.objects.tangibles
 			}
 			
 			super.make(theWorld); // fire added to world events
+			
+			updateFrictionJoints();
 		}
 		
 		qb2_friend function makeShapeB2(theWorld:qb2World):void
@@ -302,6 +421,8 @@ package QuickB2.objects.tangibles
 			}
 			
 			destroyShapeB2();
+			
+			updateFrictionJoints();
 			
 			super.destroy();
 		}
@@ -424,5 +545,36 @@ package QuickB2.objects.tangibles
 		
 		public function asTangible():qb2Tangible
 			{  return this as qb2Tangible;  }
+	
+		qb2_friend function registerContactTerrain(terrain:qb2Terrain):void
+		{
+			if ( !_contactTerrainDict )
+			{
+				_contactTerrainDict = new Dictionary(true);
+				_contactTerrainDict[NUM_TERRAINS] = 0;
+			}
+			
+			_contactTerrainDict[terrain] = true;
+			_contactTerrainDict[NUM_TERRAINS]++;
+			
+			updateFrictionJoints();
+		}
+		
+		qb2_friend function unregisterContactTerrain(terrain:qb2Terrain):void
+		{
+			delete _contactTerrainDict[terrain];
+			_contactTerrainDict[NUM_TERRAINS]--;
+			
+			if ( _contactTerrainDict[NUM_TERRAINS] == 0 )
+			{
+				_contactTerrainDict = null;
+			}
+			
+			updateFrictionJoints();
+		}
+		
+		qb2_friend var _contactTerrainDict:Dictionary = null;
+		
+		private static const NUM_TERRAINS:String = "NUM_TERRAINS";
 	}
 }

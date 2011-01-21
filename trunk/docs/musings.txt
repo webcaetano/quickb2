@@ -1,0 +1,24 @@
+just a place to keep some random thoughts
+
+
+
+friction joints to simulate z friction have to be updated when...
+====================================
+
+- a shape is added to the world
+
+- a shape is removed from the world
+
+- the world's gravityZ is changed
+
+- a ubiquitous terrain is added, removed, or its z index changes
+
+- there's contact or end contact with a non-ubiquitous terrain
+
+- frictionZ of a shape changes
+
+- shape mass/geometry changes
+
+- a shape's body changes to/from kinematic
+
+- a shapes frictionZ optimization mode changes (not yet implemented).

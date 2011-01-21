@@ -43,12 +43,26 @@ package QuickB2.internals
 		
 		public override function SayGoodbyeJoint(j:b2Joint):void
 		{
+			var userData:* = j.m_userData;
+			
 			if ( j is b2FrictionJoint )
 			{
-				j.m_userData.frictionJoint = null;
+				if ( userData is qb2Shape )
+				{
+					var asShape:qb2Shape = userData as qb2Shape;
+					
+					asShape.frictionJoints.splice(asShape.frictionJoints.indexOf(j), 1);
+					
+					if ( asShape.frictionJoints.length == 0 )
+					{
+						asShape.frictionJoints = null;
+					}
+					
+					return;
+				}
 			}
 			
-			var joint:qb2Joint = j.m_userData as qb2Joint;
+			var joint:qb2Joint = userData as qb2Joint;
 			
 			j.SetUserData(JOINT_DESTROYED_IMPLICITLY);
 			if ( joint )

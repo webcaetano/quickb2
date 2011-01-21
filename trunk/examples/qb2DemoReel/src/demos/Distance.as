@@ -19,7 +19,7 @@ package demos
 	 */
 	public class Distance extends Demo
 	{
-		private var jello:qb2SoftPoly = qb2Stock.newSoftPolyCircle(new amPoint2d(stageWidth / 3, stageHeight / 2), 50);
+		private var jello:qb2SoftPoly = qb2Stock.newCircleSoftPoly(new amPoint2d(stageWidth / 3, stageHeight / 2), 50);
 		private var rect:qb2Body      = qb2Stock.newRoundedRectBody(new amPoint2d(stageWidth * (2 / 3), stageHeight / 2), 100, 50, 10, 1, RAD_15);
 		
 		public function Distance() 

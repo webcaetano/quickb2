@@ -26,7 +26,10 @@ package QuickB2.objects.tangibles
 	import As3Math.consts.*;
 	import As3Math.geo2d.*;
 	import Box2DAS.Collision.Shapes.*;
+	import Box2DAS.Common.V2;
 	import Box2DAS.Dynamics.*;
+	import Box2DAS.Dynamics.Joints.b2FrictionJoint;
+	import Box2DAS.Dynamics.Joints.b2FrictionJointDef;
 	import flash.display.*;
 	import QuickB2.*;
 	import QuickB2.debugging.*;
@@ -176,6 +179,52 @@ package QuickB2.objects.tangibles
 			super.makeShapeB2(theWorld); // actually creates the shape from the definition(s) created here, and recomputes mass.
 			
 			theWorld._totalNumCircles++;
+		}
+		
+		qb2_friend override function makeFrictionJoints(maxForce:Number, terrainsBelowThisShape:Vector.<qb2Terrain>):void
+		{
+			var numPoints:int = 4;
+			maxForce /= (numPoints as Number);
+			
+			populateFrictionJointArray(numPoints);
+			
+			var incAngle:Number = (AM_PI * 2) / (numPoints as Number);
+			var reusable:amPoint2d = amPoint2d.reusable;
+			var circleShape:b2CircleShape = shapeB2s[0] as b2CircleShape;
+			var orig:amPoint2d = new amPoint2d(circleShape.m_p.x, circleShape.m_p.y);
+			reusable.copy(orig).incY( -circleShape.m_radius);
+			
+			for (var i:int = 0; i < frictionJoints.length; i++) 
+			{
+				var ithFrictionJoint:b2FrictionJoint = frictionJoints[i];
+				
+				var multiplier:Number = 1;
+				
+				if ( terrainsBelowThisShape )
+				{
+					for (var j:int = terrainsBelowThisShape-1; j >= 0; j--) 
+					{
+						var jthTerrain:qb2Terrain = terrainsBelowThisShape[j];
+						
+						if ( jthTerrain.ubiquitous )
+						{
+							multiplier *= jthTerrain.frictionZMultiplier;
+						}
+						else
+						{
+							//if( 
+						}
+					}
+				}
+				
+				ithFrictionJoint.m_maxForce  = maxForce;
+				ithFrictionJoint.m_maxTorque = 0;
+				
+				ithFrictionJoint.m_localAnchorA.x = reusable.x;
+				ithFrictionJoint.m_localAnchorA.y = reusable.y;
+				
+				reusable.rotateBy(incAngle, orig);
+			}
 		}
 		
 		public override function testPoint(point:amPoint2d):Boolean

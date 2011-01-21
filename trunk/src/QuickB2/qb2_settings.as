@@ -39,7 +39,7 @@ package QuickB2
 		
 		/** Set this to false if you'd like more optimized handling of polygons.  The caveat is that all your polygons must be
 		 * 8 or less vertices, convex, counter-clockwise, and non-self-intersecting if you want them to work correctly.
-		 * This specifically makes the adding of polygons to the world more efficient, not how they perform while in the world.
+		 * This specifically makes the adding of polygons to the world more efficient, not so much how they perform while in the world.
 		 * 
 		 * @default true
 		 */

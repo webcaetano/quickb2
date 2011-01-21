@@ -26,6 +26,7 @@ package QuickB2.stock
 	import flash.utils.Dictionary;
 	import QuickB2.events.qb2ContactEvent;
 	import QuickB2.events.qb2ContainerEvent;
+	import QuickB2.misc.qb2TreeIterator;
 	import QuickB2.objects.qb2Object;
 	import QuickB2.objects.tangibles.qb2Body;
 	import QuickB2.objects.tangibles.qb2Shape;
@@ -90,83 +91,45 @@ package QuickB2.stock
 		{
 			_frictionZMultiplier = value;
 			
-			for (var key:* in bodyDict )
+			if ( _ubiquitous )
 			{
-				(key as qb2Tangible).rigid_updateFrictionJoints();
+				if ( world )
+				{
+					world.updateFrictionJoints();
+				}
+			}
+			else
+			{
+				for (var key:* in shapeContactDict )
+				{
+					(key as qb2Tangible).updateFrictionJoints();
+				}
 			}
 		}
 		private var _frictionZMultiplier:Number = 1;
 		
-		private var bodyDict:Dictionary = new Dictionary(true);
-		private static const NUM_SHAPES:String = "NUM_SHAPES";
+		private var shapeContactDict:Dictionary = new Dictionary(true);
 		
 		private function contact(evt:qb2ContactEvent):void
 		{
 			var otherShape:qb2Shape = evt.otherShape;
-			var realBody:qb2Tangible = otherShape;
-			
-			while ( realBody )
-			{
-				if ( realBody._bodyB2 )
-				{
-					break;
-				}
-				
-				realBody = realBody.parent;
-			}
-			
-			if ( !realBody )  return;
 			
 			if ( evt.type == qb2ContactEvent.CONTACT_STARTED )
 			{
-				if ( !bodyDict[realBody] )
+				if ( !shapeContactDict[otherShape] )
 				{
-					bodyDict[realBody] = new Dictionary(true);
-					bodyDict[realBody][NUM_SHAPES] = 0;
-					
-					realBody.registerContactTerrain(this);
+					shapeContactDict[otherShape] = 0 as int;
 				}
 				
-				var shapeDict:Dictionary = bodyDict[realBody];
-				
-				if ( !shapeDict[otherShape] )
-				{
-					shapeDict[NUM_SHAPES]++;
-					shapeDict[otherShape] = 0;
-				}
-				
-				shapeDict[otherShape]++;
+				shapeContactDict[otherShape]++;
 			}
 			else
 			{
-				shapeDict = bodyDict[realBody];
+				shapeContactDict[otherShape]--;
 				
-				if ( shapeDict )
+				if ( shapeContactDict[otherShape] == 0 ) 
 				{
-					if ( shapeDict[otherShape] )
-					{
-						shapeDict[otherShape]--;
-						
-						if ( shapeDict[otherShape] == 0 )
-						{
-							delete shapeDict[otherShape];
-							shapeDict[NUM_SHAPES]--;
-							
-							if ( shapeDict[NUM_SHAPES] == 0 )
-							{
-								delete bodyDict[realBody];
-								realBody.unregisterContactTerrain(this);
-							}
-						}
-					}
-					else
-					{
-						throw new Error("huh?");
-					}
-				}
-				else
-				{
-					throw new Error("huh?");
+					delete shapeContactDict[otherShape];
 				}
 			}
 		}

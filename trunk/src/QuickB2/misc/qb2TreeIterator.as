@@ -33,34 +33,46 @@ package QuickB2.misc
 	 */
 	public class qb2TreeIterator 
 	{
-		public function qb2TreeIterator(initRoot:qb2ObjectContainer) 
+		public function qb2TreeIterator(initRoot:qb2ObjectContainer = null) 
 		{
-			if ( !_singleton )
-				_singleton = this;
-				
 			root = initRoot;
 		}
 		
-		public static function get singleton():qb2TreeIterator
-			{  return _singleton ? _singleton : _singleton = new qb2TreeIterator();  }
+		public static function getSingleton(initRoot:qb2ObjectContainer = null):qb2TreeIterator
+		{
+			if ( _singleton )
+			{
+				_singleton.root = initRoot;
+			}
+			else
+			{
+				_singleton = new qb2TreeIterator(initRoot);
+			}
+			
+			return _singleton;
+		}
 		private static var _singleton:qb2TreeIterator = null;
 		
 		public function get root():qb2ObjectContainer
 			{  return _root;  }
 		public function set root(aContainer:qb2ObjectContainer):void
 		{
-			reset();
+			clear();
 			_root = aContainer;
 			
-			if( _root )
+			if ( _root )
+			{
 				queue.unshift(_root);
+			}
 		}
 		private var _root:qb2ObjectContainer;
 		
 		public function hasNext():Boolean
-			{  return _queue.length > 0;  }
+		{
+			return _queue.length > 0;
+		}
 		
-		public function next(... types):qb2Object
+		public function next():qb2Object
 		{
 			if ( !_root )  return null;
 			
@@ -68,35 +80,7 @@ package QuickB2.misc
 			
 			_currObject = step();
 			
-			if ( !types.length )
-			{
-				return _currObject;
-			}
-			else
-			{
-				for (var j:int = 0; j < types.length; j++) 
-				{
-					if ( _currObject is types[j] )
-					{
-						return _currObject;
-					}
-				}
-				
-				while ( _queue.length )
-				{
-					_currObject = step();
-					
-					for ( j = 0; j < types.length; j++) 
-					{
-						if ( _currObject is types[j] )
-						{
-							return _currObject;
-						}
-					}
-				}
-			}
-			
-			return null;
+			return _currObject;
 		}
 		
 		private function step():qb2Object
@@ -116,6 +100,17 @@ package QuickB2.misc
 		}
 		
 		public function reset():void
+		{
+			_currObject = null;
+			_queue.length = 0;
+			
+			if ( _root )
+			{
+				queue.unshift(_root);
+			}
+		}
+		
+		public function clear():void
 		{
 			_root = _currObject = null;
 			_queue.length = 0;

@@ -27,19 +27,17 @@ package QuickB2.stock
 		{
 			if ( evt.type == qb2ContainerEvent.ADDED_TO_WORLD )
 			{
-				soundFieldList.unshift(evt.childObject);
-				shapeContactList = new Dictionary(true);
+				globalSoundFieldList.unshift(evt.childObject);
 			}
 			else
 			{
-				soundFieldList.splice(soundFieldList.indexOf(this), 1);
-				shapeContactList = null;
+				globalSoundFieldList.splice(globalSoundFieldList.indexOf(this), 1);
 			}
 		}
 		
 		public static var ear:qb2Tangible = null;
 		
-		private static var soundFieldList:Vector.<qb2SoundField> = new Vector.<qb2SoundField>();
+		private static var globalSoundFieldList:Vector.<qb2SoundField> = new Vector.<qb2SoundField>();
 		private static var soundDict:Dictionary = new Dictionary(true);
 		
 		public function get sound():stSoundObject
@@ -78,7 +76,7 @@ package QuickB2.stock
 			if ( !ear )  return;
 			
 			//--- We can only update sound volumes when the last sound field is updated.
-			if ( this == soundFieldList[soundFieldList.length - 1] )
+			if ( this == globalSoundFieldList[globalSoundFieldList.length - 1] )
 			{
 				updateVolumes();
 			}
@@ -89,9 +87,9 @@ package QuickB2.stock
 			var soundVolumeDict:Dictionary = new Dictionary(true);
 			var soundNumDict:Dictionary = new Dictionary(true);
 			
-			for (var i:int = 0; i < soundFieldList.length; i++) 
+			for (var i:int = 0; i < globalSoundFieldList.length; i++) 
 			{
-				var soundField:qb2SoundField = soundFieldList[i];
+				var soundField:qb2SoundField = globalSoundFieldList[i];
 				
 				if ( !soundField._sound )  continue;
 				
@@ -104,12 +102,12 @@ package QuickB2.stock
 					if ( ignore is Class )
 					{
 						var asClass:Class = ignore as Class;
-						if ( key is asClass )
+						if ( ear is asClass )
 						{
 							continueToNext = true;
 						}
 					}
-					else if ( ignore == key )
+					else if ( ignore == ear )
 					{
 						continueToNext = true;
 					}
@@ -188,16 +186,28 @@ package QuickB2.stock
 		
 		private function contact(evt:qb2ContactEvent):void
 		{
+			var otherShape:qb2Shape = evt.otherShape;
+			
 			if ( evt.type == qb2ContactEvent.CONTACT_STARTED )
 			{
-				shapeContactList[evt.otherShape] = true;
+				if ( !shapeContactList[otherShape] )
+				{
+					shapeContactList[otherShape] = 0 as int;
+				}
+				
+				shapeContactList[otherShape]++;
 			}
 			else
 			{
-				delete shapeContactList[evt.otherShape];
+				shapeContactList[otherShape]--;
+				
+				if ( shapeContactList[otherShape] == 0 ) 
+				{
+					delete shapeContactList[otherShape];
+				}
 			}
 		}
-		private var shapeContactList:Dictionary = null;
+		private var shapeContactList:Dictionary = new Dictionary(true);
 		
 		public function get horizon():Number
 			{  return _horizon;  }

@@ -133,32 +133,10 @@ package QuickB2.internals
 					event._localShape = shape1;
 					event._otherShape = shape2;
 					event._localObject = currParent;
-					
-					//--- Find 'otherObject'.  First find a common level in the world's hierarchy.
-					//--- Only one (or neither) of the following two while loops will actually run.
-					var localDistToWorld:int = getDistToWorld(currParent);
-					var otherDistToWorld:int = getDistToWorld(shape2);
-					var currentLocalObject:qb2Tangible = currParent;
-					var currentOtherObject:qb2Tangible = shape2;
-					while ( localDistToWorld > otherDistToWorld )
-					{
-						currentLocalObject = currentLocalObject.parent;
-						localDistToWorld--;
-					}
-					while ( otherDistToWorld > localDistToWorld )
-					{
-						currentOtherObject = currentOtherObject.parent;
-						otherDistToWorld--;
-					}
-					
-					//--- Now that we have objects at the same level, go up through the tree until a common parent is found.
-					while ( currentLocalObject._parent != currentOtherObject._parent )
-					{
-						currentLocalObject = currentLocalObject._parent;
-						currentOtherObject = currentOtherObject._parent;
-					}
-					
-					event._otherObject = currentOtherObject // TADA!!!
+					qb2Object.setAncestorPair(currParent, shape2);
+					event._otherObject = qb2Object.setAncestorPair_other as qb2Tangible; // TADA!!!
+					qb2Object.setAncestorPair_local = null;
+					qb2Object.setAncestorPair_other = null;
 					event._contactB2 = contact;
 					
 					setContactPoints(event, contact, shape1.world.pixelsPerMeter);
