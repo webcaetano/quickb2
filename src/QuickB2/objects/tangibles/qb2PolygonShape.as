@@ -28,10 +28,13 @@ package QuickB2.objects.tangibles
 	import Box2DAS.Collision.Shapes.*;
 	import Box2DAS.Common.*;
 	import Box2DAS.Dynamics.*;
+	import Box2DAS.Dynamics.Joints.b2FrictionJoint;
+	import Box2DAS.Dynamics.Joints.b2FrictionJointDef;
 	import flash.display.*;
 	import flash.events.Event;
 	import QuickB2.*;
 	import QuickB2.debugging.*;
+	import QuickB2.stock.qb2Terrain;
 	
 	use namespace qb2_friend;
 	
@@ -302,6 +305,8 @@ package QuickB2.objects.tangibles
 				return new amPoint2d(vec.x * worldPixelsPerMeter, vec.y * worldPixelsPerMeter);
 			}
 		}
+		
+		private const b2Verts:Vector.<V2> = new Vector.<V2>();
 
 		public override function get perimeter():Number
 			{  return polygon.perimeter }
@@ -319,7 +324,7 @@ package QuickB2.objects.tangibles
 			const reusable:amPoint2d = new amPoint2d();
 			
 			var numVerts:int = this.numVertices;
-			var b2Verts:Vector.<V2> = new Vector.<V2>(numVerts, true);
+			b2Verts.length = 0;
 				
 			for ( var i:int = 0; i < numVerts; i++ )
 			{
@@ -335,7 +340,7 @@ package QuickB2.objects.tangibles
 				
 				var inverse:Number = 1 / conversion;
 				pnt.scaleBy(inverse, inverse);
-				b2Verts[i] = new V2(pnt.x, pnt.y);
+				b2Verts.push(new V2(pnt.x, pnt.y));
 			}
 			
 			if ( numVerts > 2 )
@@ -420,6 +425,25 @@ package QuickB2.objects.tangibles
 			super.makeShapeB2(theWorld); // actually creates the shape from the definition(s) created here, and recomputes mass.
 			
 			theWorld._totalNumPolygons++;
+		}
+		
+		qb2_friend override function makeFrictionJoints(maxForce:Number, terrainsBelowThisShape:Vector.<qb2Terrain>):void
+		{
+			var numPoints:int = b2Verts.length;
+			maxForce /= (numPoints as Number);
+			
+			populateFrictionJointArray(numPoints);
+			
+			for (var i:int = 0; i < frictionJoints.length; i++) 
+			{
+				var ithFrictionJoint:b2FrictionJoint = frictionJoints[i];
+				
+				ithFrictionJoint.m_maxForce  = maxForce;
+				ithFrictionJoint.m_maxTorque = 0;
+				
+				ithFrictionJoint.m_localAnchorA.x = b2Verts[i].x;
+				ithFrictionJoint.m_localAnchorA.y = b2Verts[i].y;
+			}
 		}
 		
 		public override function testPoint(point:amPoint2d):Boolean

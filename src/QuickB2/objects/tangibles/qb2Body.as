@@ -153,11 +153,6 @@ package QuickB2.objects.tangibles
 			super.destroy();
 		}
 		
-		qb2_friend override function updateFrictionJoints():void
-		{
-			rigid_updateFrictionJoints();
-		}
-		
 		protected override function setPropertyImplicitly(propName:String, value:*):void
 		{
 			super.setPropertyImplicitly(propName, value);

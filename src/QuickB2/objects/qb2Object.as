@@ -27,6 +27,7 @@ package QuickB2.objects
 	import Box2DAS.Common.V2;
 	import flash.display.*;
 	import flash.events.*;
+	import flash.utils.Dictionary;
 	import QuickB2.*;
 	import QuickB2.debugging.qb2DebugTraceSettings;
 	import QuickB2.events.*;
@@ -183,39 +184,37 @@ package QuickB2.objects
 		}
 		
 		//--- These three members act in place of "passing by reference".
-		private static function setAncestorPair(local:qb2Object, other:qb2Object):void
+		qb2_friend static function setAncestorPair(local:qb2Object, other:qb2Object):void
 		{
-			var localDistToWorld:int = local.getSeperationFromAncestor(local._world);
-			var otherDistToWorld:int = other.getSeperationFromAncestor(other._world);
+			var currLocal:qb2Object = local;
 			
-			while ( localDistToWorld > otherDistToWorld )
+			if ( local._parent != other._parent )
 			{
-				local = local._parent;
-				localDistToWorld--;
+				var localParentPath:Dictionary = new Dictionary(true);
+				
+				while ( local._parent )
+				{
+					localParentPath[local.parent] = true;
+					currLocal = local;
+					local = local._parent;
+				}
+				
+				while ( other._parent )
+				{
+					if ( localParentPath[other._parent] )
+					{
+						break;
+					}
+					
+					other = other._parent;
+				}
 			}
 			
-			while ( otherDistToWorld > localDistToWorld )
-			{
-				other = other._parent;
-				otherDistToWorld--;
-			}
-			
-			if ( !local._parent || !other._parent )
-			{
-				return;
-			}
-			
-			while ( local._parent != other._parent )
-			{
-				local = local._parent;
-				other = other._parent;
-			}
-			
-			setAncestorPair_local = local;
+			setAncestorPair_local = currLocal;
 			setAncestorPair_other = other;
 		}
-		private static var setAncestorPair_local:qb2Object = null;
-		private static var setAncestorPair_other:qb2Object = null;
+		qb2_friend static var setAncestorPair_local:qb2Object = null;
+		qb2_friend static var setAncestorPair_other:qb2Object = null;
 		
 		public function getSeperationFromAncestor(ancestor:qb2ObjectContainer = null):int
 		{

@@ -420,7 +420,7 @@ package QuickB2.stock
 			return world;
 		}
 		
-		public static function newSoftPolyCircle(center:amPoint2d, radius:Number, numSegments:uint = 12, mass:Number = 1, groupIndex:int = -1 ):qb2SoftPoly
+		public static function newCircleSoftPoly(center:amPoint2d, radius:Number, numSegments:uint = 12, mass:Number = 1, groupIndex:int = -1 ):qb2SoftPoly
 		{
 			var poly:qb2SoftPoly = new qb2SoftPoly();
 			poly.setAsCircle(center, radius, numSegments, mass, groupIndex);

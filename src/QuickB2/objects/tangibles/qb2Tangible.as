@@ -240,6 +240,7 @@ package QuickB2.objects.tangibles
 				if ( propName == "isKinematic" )
 				{
 					this._bodyB2.SetType( value ? b2Body.b2_kinematicBody : (this._mass ? b2Body.b2_dynamicBody : b2Body.b2_staticBody) );  // b2Body checks for redundant case, so we don't have to worry about redundant processing.
+					updateFrictionJoints();
 				}
 				else if ( propName == "linearDamping" )
 				{
@@ -262,10 +263,6 @@ package QuickB2.objects.tangibles
 				else if ( propName == "allowSleeping" )
 				{
 					this._bodyB2.SetSleepingAllowed(value ? true : false);
-				}
-				else if ( propName == "frictionZ" )
-				{
-					rigid_updateFrictionJoints();
 				}
 			}
 		}
@@ -385,9 +382,9 @@ package QuickB2.objects.tangibles
 					}
 				}
 				
-				if ( currParent.world && currParent._bodyB2 )
+				if ( currParent is qb2Shape )
 				{
-					currParent.rigid_updateFrictionJoints();
+					currParent.updateFrictionJoints();
 				}
 				
 				currParent = currParent._parent;
@@ -1347,78 +1344,6 @@ package QuickB2.objects.tangibles
 		{
 		}
 		
-		qb2_friend function rigid_updateFrictionJoints():void
-		{
-			var theWorld:qb2World = qb2World.worldDict[_bodyB2.m_world];
-			var maxForce:Number = _frictionZ * theWorld.gravityZ * _mass;
-			
-			//--- Modify the fri
-			if ( maxForce )
-			{
-				var multiplier:Number = 1;
-				var globalList:Vector.<qb2Terrain> = theWorld._globalTerrainList;
-				var numGlobalTerrains:int = globalList.length;
-				
-				for (var i:int = numGlobalTerrains-1; i >= 0; i--) 
-				{
-					var ithTerrain:qb2Terrain = globalList[i];
-					
-					if ( ithTerrain.ubiquitous )
-					{
-						multiplier = ithTerrain.frictionZMultiplier;
-						break;
-					}
-					else if ( _contactTerrainDict[ithTerrain] )
-					{
-						multiplier = ithTerrain.frictionZMultiplier;
-					}
-				}
-			}
-			
-			if ( _bodyB2.GetType() != b2Body.b2_dynamicBody || !maxForce )
-			{
-				if ( frictionJoint )
-				{
-					if ( theWorld.processingBox2DStuff )
-					{
-						theWorld.addDelayedCall(null, frictionJoint.m_world.DestroyJoint, frictionJoint);
-					}
-					else
-					{
-						frictionJoint.m_world.DestroyJoint(frictionJoint);
-					}
-					
-					frictionJoint = null;
-				}
-				
-				return;
-			}
-			
-			if ( theWorld.processingBox2DStuff )
-			{
-				theWorld.addDelayedCall(null, rigid_updateFrictionJoints);
-				return;
-			}
-			
-			if ( !frictionJoint )
-			{
-				var fricDef:b2FrictionJointDef = b2Def.frictionJoint;
-				fricDef.bodyA = _bodyB2;
-				fricDef.bodyB = _bodyB2.m_world.m_groundBody;
-				fricDef.userData = this;
-				frictionJoint = _bodyB2.m_world.CreateJoint(fricDef) as b2FrictionJoint;
-			}
-			
-			frictionJoint.m_maxForce  = maxForce;
-			frictionJoint.m_maxTorque = maxForce; // probably not right, but i don't know how otherwise to get this number, and it looks accurate enough.
-			
-			var centroid:V2 = _bodyB2.GetLocalCenter();
-			frictionJoint.m_localAnchorA.x = centroid.x;
-			frictionJoint.m_localAnchorA.y = centroid.y;
-		}
-		
-		qb2_friend var frictionJoint:b2FrictionJoint = null;
-		
 		qb2_friend function rigid_recomputeBodyB2Mass():void
 		{
 			//--- Box2D gets pissed sometimes if you change a body from dynamic to static/kinematic within a contact callback.
@@ -1442,8 +1367,6 @@ package QuickB2.objects.tangibles
 				_bodyB2.m_linearVelocity.y = _linearVelocity._y;
 				_bodyB2.m_angularVelocity  = _angularVelocity;
 			}
-			
-			rigid_updateFrictionJoints();
 		}
 		
 		qb2_friend virtual function rigid_flushShapes():void  {}
@@ -1586,36 +1509,5 @@ package QuickB2.objects.tangibles
 			
 			return totalMass - this.mass;
 		}
-		
-		qb2_friend function registerContactTerrain(terrain:qb2Terrain):void
-		{
-			if ( !_contactTerrainDict )
-			{
-				_contactTerrainDict = new Dictionary(true);
-				_contactTerrainDict[NUM_TERRAINS] = 0;
-			}
-			
-			_contactTerrainDict[terrain] = true;
-			_contactTerrainDict[NUM_TERRAINS]++;
-			
-			rigid_updateFrictionJoints();
-		}
-		
-		qb2_friend function unregisterContactTerrain(terrain:qb2Terrain):void
-		{
-			delete _contactTerrainDict[terrain];
-			_contactTerrainDict[NUM_TERRAINS]--;
-			
-			if ( _contactTerrainDict[NUM_TERRAINS] == 0 )
-			{
-				_contactTerrainDict = null;
-			}
-			
-			rigid_updateFrictionJoints();
-		}
-		
-		qb2_friend var _contactTerrainDict:Dictionary = null;
-		
-		private static const NUM_TERRAINS:String = "NUM_TERRAINS";
 	}
 }

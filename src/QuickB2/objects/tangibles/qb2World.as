@@ -70,7 +70,7 @@ package QuickB2.objects.tangibles
 		
 		/** Number of iterations to use for each update. A higher number will produce a slower but more accurate simulation.  Lower, vice
 		 * versa. The default of 10 is suitable for most real time physics simulations.  Rarely will you have to change this.
-		 * @default 10
+		 * @default 3
 		 */
 		public var defaultPositionIterations:uint = 3;
 		public var defaultVelocityIterations:uint = 8;
@@ -528,35 +528,6 @@ package QuickB2.objects.tangibles
 		}
 		
 		qb2_friend var _globalTerrainList:Vector.<qb2Terrain> = null;
-		
-		
-		
-		/*qb2_friend function registerObjectOverTerrain(tang:qb2Tangible):void
-		{
-			if ( !_overTerrainDict )
-			{
-				_overTerrainDict = new Dictionary(true);
-				_overTerrainDict[NUM_OBJECTS_OVER_TERRAINS] = 0;
-			}
-			
-			_overTerrainDict[tang] = true;
-			_overTerrainDict[NUM_OBJECTS_OVER_TERRAINS]++;
-		}
-		
-		qb2_friend function unregisterTerrain(tang:qb2Tangible):void
-		{
-			delete _overTerrainDict[tang];
-			_overTerrainDict[NUM_OBJECTS_OVER_TERRAINS]--;
-			
-			if ( _overTerrainDict[NUM_OBJECTS_OVER_TERRAINS] == 0 )
-			{
-				_overTerrainDict = null;
-			}
-		}
-		
-		private static const NUM_OBJECTS_OVER_TERRAINS:String = "NUM_OVER_TERRAINS";
-		
-		qb2_friend var _overTerrainDict:Dictionary = null;*/
 		
 		
 		public override function toString():String 
