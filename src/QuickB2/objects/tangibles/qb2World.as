@@ -128,7 +128,8 @@ package QuickB2.objects.tangibles
 		public function set gravityZ(value:Number):void 
 		{
 			_gravityZ = value;
-			updateFrictionJoints();
+			
+			_globalFrictionZRevision++;
 		}
 		private var _gravityZ:Number = 0;
 		
@@ -506,7 +507,7 @@ package QuickB2.objects.tangibles
 			
 			if ( terrain.ubiquitous )
 			{
-				updateFrictionJoints();
+				_globalFrictionZRevision++;
 			}
 		}
 		
@@ -514,7 +515,7 @@ package QuickB2.objects.tangibles
 		{
 			_globalTerrainList.splice(_globalTerrainList.indexOf(terrain), 1);
 			
-			if ( _globalTerrainList.length )
+			if ( !_globalTerrainList.length )
 			{
 				_globalTerrainList = null;
 			}
@@ -523,11 +524,15 @@ package QuickB2.objects.tangibles
 			
 			if ( terrain.ubiquitous )
 			{
-				updateFrictionJoints();
+				_globalFrictionZRevision++;
 			}
 		}
 		
 		qb2_friend var _globalTerrainList:Vector.<qb2Terrain> = null;
+		
+		qb2_friend var _globalFrictionZRevision:int = 0;
+		
+		qb2_friend var _frictionZRevisionDict:Dictionary = new Dictionary(true);
 		
 		
 		public override function toString():String 

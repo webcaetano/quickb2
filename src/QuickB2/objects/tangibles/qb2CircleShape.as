@@ -181,7 +181,7 @@ package QuickB2.objects.tangibles
 			theWorld._totalNumCircles++;
 		}
 		
-		qb2_friend override function makeFrictionJoints(maxForce:Number, terrainsBelowThisShape:Vector.<qb2Terrain>):void
+		qb2_friend override function makeFrictionJoints(maxForce:Number):void
 		{
 			var numPoints:int = 4;
 			maxForce /= (numPoints as Number);
@@ -198,27 +198,8 @@ package QuickB2.objects.tangibles
 			{
 				var ithFrictionJoint:b2FrictionJoint = frictionJoints[i];
 				
-				var multiplier:Number = 1;
-				
-				if ( terrainsBelowThisShape )
-				{
-					for (var j:int = terrainsBelowThisShape-1; j >= 0; j--) 
-					{
-						var jthTerrain:qb2Terrain = terrainsBelowThisShape[j];
-						
-						if ( jthTerrain.ubiquitous )
-						{
-							multiplier *= jthTerrain.frictionZMultiplier;
-						}
-						else
-						{
-							//if( 
-						}
-					}
-				}
-				
 				ithFrictionJoint.m_maxForce  = maxForce;
-				ithFrictionJoint.m_maxTorque = 0;
+				ithFrictionJoint.m_maxTorque = maxForce;
 				
 				ithFrictionJoint.m_localAnchorA.x = reusable.x;
 				ithFrictionJoint.m_localAnchorA.y = reusable.y;

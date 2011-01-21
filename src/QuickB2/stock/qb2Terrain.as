@@ -119,6 +119,8 @@ package QuickB2.stock
 				if ( !shapeContactDict[otherShape] )
 				{
 					shapeContactDict[otherShape] = 0 as int;
+					
+					otherShape.registerContactTerrain(this);
 				}
 				
 				shapeContactDict[otherShape]++;
@@ -130,6 +132,7 @@ package QuickB2.stock
 				if ( shapeContactDict[otherShape] == 0 ) 
 				{
 					delete shapeContactDict[otherShape];
+					otherShape.unregisterContactTerrain(this);
 				}
 			}
 		}
