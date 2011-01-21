@@ -38,6 +38,10 @@
 
 - added a distanceTo function to qb2Tangible...finds the shortest distance between two tangibles' geometry and optionally outputs the closest points and the vector seperating them
 
-- optimized debug drawing by putting it in the main update iteration, instead of having its own seperate iteration aterwards.
+- various inlining to squeeze out little bits of performance here and there
 
-- added a qb2TreeIterator to make it easy to do a level-order traversal of any qb2ObjectContainer hieararchy.
+- added a qb2TreeIterator to make it easy to do a level-order traversal of a qb2ObjectContainer hieararchy.
+
+- changed qb2AddRemoveEvent into qb2ContainerEvent with the advent of the INDEX_CHANGED event type, which listens for when an object gets it relative z-order in a container changed
+
+- added a logo

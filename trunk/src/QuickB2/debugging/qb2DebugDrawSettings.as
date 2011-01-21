@@ -28,45 +28,48 @@ package QuickB2.debugging
 	 */
 	public class qb2DebugDrawSettings
 	{
-		public static const DRAW_OUTLINES:uint       = 0x00000001;
-		public static const DRAW_FILLS:uint          = 0x00000002;
-		public static const DRAW_CIRCLE_SPOKE_1:uint = 0x00000004;
-		public static const DRAW_CIRCLE_SPOKE_2:uint = 0x00000008;
-		public static const DRAW_CIRCLE_SPOKE_3:uint = 0x00000010;
-		public static const DRAW_CIRCLE_SPOKE_4:uint = 0x00000020;
-		public static const DRAW_CENTROIDS:uint      = 0x00000040;
-		public static const DRAW_BOUND_BOXES:uint    = 0x00000080;
-		public static const DRAW_BOUND_CIRCLES:uint  = 0x00000100;
-		public static const DRAW_JOINTS:uint         = 0x00000200;
-		public static const DRAW_POSITIONS:uint      = 0x00000400;
-		public static const DRAW_VERTICES:uint       = 0x00000800;
-		public static const DRAW_CIRCLE_SPOKES:uint  = DRAW_CIRCLE_SPOKE_1 | DRAW_CIRCLE_SPOKE_2 | DRAW_CIRCLE_SPOKE_3 | DRAW_CIRCLE_SPOKE_4;
+		public static const DRAW_OUTLINES:uint        = 0x00000001;
+		public static const DRAW_FILLS:uint           = 0x00000002;
+		public static const DRAW_CIRCLE_SPOKE_1:uint  = 0x00000004;
+		public static const DRAW_CIRCLE_SPOKE_2:uint  = 0x00000008;
+		public static const DRAW_CIRCLE_SPOKE_3:uint  = 0x00000010;
+		public static const DRAW_CIRCLE_SPOKE_4:uint  = 0x00000020;
+		public static const DRAW_CENTROIDS:uint       = 0x00000040;
+		public static const DRAW_BOUND_BOXES:uint     = 0x00000080;
+		public static const DRAW_BOUND_CIRCLES:uint   = 0x00000100;
+		public static const DRAW_JOINTS:uint          = 0x00000200;
+		public static const DRAW_POSITIONS:uint       = 0x00000400;
+		public static const DRAW_VERTICES:uint        = 0x00000800;
+		public static const DRAW_FRICTION_POINTS:uint = 0x00001000;
+		public static const DRAW_CIRCLE_SPOKES:uint   = DRAW_CIRCLE_SPOKE_1 | DRAW_CIRCLE_SPOKE_2 | DRAW_CIRCLE_SPOKE_3 | DRAW_CIRCLE_SPOKE_4;
 		
 		public static var drawFlags:uint = DRAW_OUTLINES | DRAW_FILLS | DRAW_CIRCLE_SPOKES | DRAW_JOINTS;
 		
-		public static var dynamicFillColor:uint = 0x0000ff;
+		private static const DEFAULT_ALPHA:Number = .75;
+		
+		public static var dynamicFillColor:uint    = 0x0000ff;
 		public static var dynamicOutlineColor:uint = 0xffffff;
 		
-		public static var staticFillColor:uint = 0x666666;
+		public static var staticFillColor:uint    = 0x666666;
 		public static var staticOutlineColor:uint = 0xffffff;
 		
-		public static var kinematicFillColor:uint = 0xff0000;
+		public static var kinematicFillColor:uint    = 0xff0000;
 		public static var kinematicOutlineColor:uint = 0xffffff;
 		
-		public static var jointFillColor:uint = 0xff9900;
+		public static var jointFillColor:uint    = 0xff9900;
 		public static var jointOutlineColor:uint = 0xff9900;
 		
-		public static var fillAlpha:Number = .75;
-		public static var outlineAlpha:Number = .75;
+		public static var fillAlpha:Number    = DEFAULT_ALPHA;
+		public static var outlineAlpha:Number = DEFAULT_ALPHA;
 		
-		public static var boundBoxColor:uint = 0x006633;
-		public static var boundBoxAlpha:Number = .75;
+		public static var boundBoxColor:uint    = 0x006633;
+		public static var boundBoxAlpha:Number = DEFAULT_ALPHA;
 		
 		public static var boundCircleColor:uint = 0x006633;
-		public static var boundCircleAlpha:Number = .75;
+		public static var boundCircleAlpha:Number = DEFAULT_ALPHA;
 		
 		public static var centroidColor:uint   = 0x00ffff;
-		public static var centroidAlpha:Number = .75;
+		public static var centroidAlpha:Number = DEFAULT_ALPHA;
 		
 		public static var lineThickness:Number = 1;
 		public static var pointRadius:Number   = 3;
@@ -81,5 +84,8 @@ package QuickB2.debugging
 		public static var centroidEndDepth:uint = 1;
 		
 		public static var jointLineThickness:Number = 2;
+		
+		public static var frictionPointColor:Number = 0xff0000;
+		public static var frictionPointAlpha:Number = DEFAULT_ALPHA;
 	}
 }

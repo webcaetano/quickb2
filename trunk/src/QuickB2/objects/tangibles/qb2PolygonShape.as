@@ -427,7 +427,7 @@ package QuickB2.objects.tangibles
 			theWorld._totalNumPolygons++;
 		}
 		
-		qb2_friend override function makeFrictionJoints(maxForce:Number, terrainsBelowThisShape:Vector.<qb2Terrain>):void
+		qb2_friend override function makeFrictionJoints(maxForce:Number):void
 		{
 			var numPoints:int = b2Verts.length;
 			maxForce /= (numPoints as Number);
@@ -439,7 +439,7 @@ package QuickB2.objects.tangibles
 				var ithFrictionJoint:b2FrictionJoint = frictionJoints[i];
 				
 				ithFrictionJoint.m_maxForce  = maxForce;
-				ithFrictionJoint.m_maxTorque = 0;
+				ithFrictionJoint.m_maxTorque = maxForce;
 				
 				ithFrictionJoint.m_localAnchorA.x = b2Verts[i].x;
 				ithFrictionJoint.m_localAnchorA.y = b2Verts[i].y;
@@ -460,20 +460,60 @@ package QuickB2.objects.tangibles
 		
 		public override function draw(graphics:Graphics):void
 		{
-			var numVerts:uint = polygon.numVertices;
-			
-			if ( numVerts == 0 ) return;
-			
-			var firstVertex:amPoint2d = (_parent is qb2Body ) ? (_parent as qb2Body ).getWorldPoint(getVertexAt(0)) : getVertexAt(0);
-			graphics.moveTo(firstVertex.x, firstVertex.y);
-			
-			for (var i:int = 1; i < numVerts; i++)
+			if ( !_world )
 			{
-				var vertex:amPoint2d = (_parent is qb2Body ) ? (_parent as qb2Body ).getWorldPoint(getVertexAt(i)) : getVertexAt(i);
-				graphics.lineTo(vertex.x, vertex.y);
+				var numVerts:uint = polygon.numVertices;
+				
+				if ( numVerts == 0 )  return;
+				
+				var firstVertex:amPoint2d = (_parent is qb2Body ) ? (_parent as qb2Body ).getWorldPoint(getVertexAt(0)) : getVertexAt(0);
+				graphics.moveTo(firstVertex.x, firstVertex.y);
+				
+				for (var i:int = 1; i < numVerts; i++)
+				{
+					var vertex:amPoint2d = (_parent is qb2Body ) ? (_parent as qb2Body ).getWorldPoint(getVertexAt(i)) : getVertexAt(i);
+					graphics.lineTo(vertex.x, vertex.y);
+				}
+				
+				if ( _closed )  graphics.lineTo(firstVertex.x, firstVertex.y);
 			}
-			
-			if( _closed )  graphics.lineTo(firstVertex.x, firstVertex.y);
+			else
+			{
+				numVerts = b2Verts.length;
+				
+				if ( numVerts == 0 || !fixtures.length )  return;
+				
+				var theBodyB2:b2Body = fixtures[0].m_body;
+				var transform:b2Transform = theBodyB2.m_xf;
+				var p:b2Vec2 = transform.position;
+				var r:b2Mat22 = transform.R;
+				var col1:b2Vec2 = r.col1;
+				var col2:b2Vec2 = r.col2;
+				var pixPerMeter:Number = worldPixelsPerMeter;
+				
+				for ( i = 0; i < numVerts; i++)
+				{
+					var v:V2 = b2Verts[i];
+					
+					var x:Number = col1.x * v.x + col2.x * v.y;
+					var y:Number = col1.y * v.x + col2.y * v.y;
+					
+					x += p.x;
+					y += p.y;
+					
+					x *= pixPerMeter;
+					y *= pixPerMeter;
+					
+					if ( i )
+					{
+						graphics.lineTo(x, y);
+					}
+					else
+					{
+						graphics.moveTo(x, y);
+					}
+				}
+			}
 		}
 		
 		public override function drawDebug(graphics:Graphics):void
@@ -499,7 +539,6 @@ package QuickB2.objects.tangibles
 				draw(graphics);
 			
 			graphics.endFill();
-			
 			
 			if ( drawVertices )
 			{

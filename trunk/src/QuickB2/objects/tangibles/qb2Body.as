@@ -165,7 +165,11 @@ package QuickB2.objects.tangibles
 		
 		
 		protected override function update():void
-			{  rigid_update();  }
+		{
+			super.update();
+			
+			rigid_update();
+		}
 
 		public override function translateBy(vector:amVector2d):qb2Tangible
 			{  _position.translateBy(vector);  return this;  }
