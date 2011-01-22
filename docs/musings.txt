@@ -9,6 +9,8 @@ friction joints to simulate z friction have to be updated when...
 
 - a shape is removed from the world
 
+- a shape's z index is changed
+
 - the world's gravityZ is changed
 
 - a ubiquitous terrain is added, removed, or its z index changes

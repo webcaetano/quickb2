@@ -129,7 +129,7 @@ package QuickB2.objects.tangibles
 		{
 			_gravityZ = value;
 			
-			_globalFrictionZRevision++;
+			_globalGravityZRevision++;
 		}
 		private var _gravityZ:Number = 0;
 		
@@ -505,10 +505,7 @@ package QuickB2.objects.tangibles
 				}
 			}
 			
-			if ( terrain.ubiquitous )
-			{
-				_globalFrictionZRevision++;
-			}
+			_globalTerrainRevision++;
 		}
 		
 		qb2_friend function unregisterGlobalTerrain(terrain:qb2Terrain):void
@@ -522,17 +519,16 @@ package QuickB2.objects.tangibles
 			
 			terrain.removeEventListener(qb2ContainerEvent.INDEX_CHANGED, terrainIndexChanged);
 			
-			if ( terrain.ubiquitous )
-			{
-				_globalFrictionZRevision++;
-			}
+			_globalTerrainRevision++;
 		}
 		
 		qb2_friend var _globalTerrainList:Vector.<qb2Terrain> = null;
 		
-		qb2_friend var _globalFrictionZRevision:int = 0;
+		qb2_friend var _globalGravityZRevision:int = 0;
+		qb2_friend var _globalTerrainRevision:int = 0;
 		
-		qb2_friend var _frictionZRevisionDict:Dictionary = new Dictionary(true);
+		qb2_friend var _terrainRevisionDict:Dictionary = new Dictionary(true);
+		qb2_friend var _gravityZRevisionDict:Dictionary = new Dictionary(true);
 		
 		
 		public override function toString():String 

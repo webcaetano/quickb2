@@ -2,6 +2,7 @@ package QuickB2.stock
 {
 	import As3Math.general.amUtils;
 	import flash.utils.Dictionary;
+	import QuickB2.debugging.qb2DebugDrawSettings;
 	import QuickB2.events.qb2ContainerEvent;
 	import QuickB2.events.qb2ContactEvent;
 	import QuickB2.objects.qb2Object;
@@ -145,7 +146,7 @@ package QuickB2.stock
 				if ( soundField._horizonTang )
 				{
 					var distance:Number = soundField.distanceTo(ear, null, null, null, soundField._horizonTang);
-					volume = 1-amUtils.constrain(distance / horizon, 0, 1);
+					volume = 1-amUtils.constrain(distance / soundField._horizon, 0, 1);
 				}
 				
 				if ( !soundVolumeDict[soundField._sound] )
@@ -240,6 +241,13 @@ package QuickB2.stock
 			return null;
 		}
 		
+		public override function drawDebug(graphics:Graphics):void
+		{
+			debugFillColorStack.unshift(qb2DebugDrawSettings.soundFieldFillColor);
+				super.drawDebug(graphics);
+			debugFillColorStack.shift();
+		}
+		
 		public override function clone():qb2Object
 		{
 			var clone:qb2SoundField = super.clone() as qb2SoundField;
@@ -247,7 +255,7 @@ package QuickB2.stock
 			clone._horizon = this._horizon; // don't use setter, cause horizonTang gets made through the clone.
 			clone.sound = this.sound;
 			
-			if ( !ignoreList )  return;
+			if ( !ignoreList )  return clone;
 			
 			clone.ignoreList = [];
 			
@@ -255,6 +263,8 @@ package QuickB2.stock
 			{
 				clone.ignoreList.push(ignoreList[i]);
 			}
+			
+			return clone;
 		}
 	}
 }

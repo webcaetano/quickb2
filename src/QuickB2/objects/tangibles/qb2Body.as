@@ -112,6 +112,8 @@ package QuickB2.objects.tangibles
 		
 		qb2_friend override function make(theWorld:qb2World):void
 		{
+			_world = theWorld;
+			
 			//--- Only bodies owned by non-rigid containers (i.e. qb2Groups) have bodies.
 			if ( !_ancestorBody )
 			{

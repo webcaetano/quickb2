@@ -186,16 +186,14 @@ package QuickB2.objects
 		//--- These three members act in place of "passing by reference".
 		qb2_friend static function setAncestorPair(local:qb2Object, other:qb2Object):void
 		{
-			var currLocal:qb2Object = local;
-			
 			if ( local._parent != other._parent )
 			{
 				var localParentPath:Dictionary = new Dictionary(true);
+				localParentPath
 				
 				while ( local._parent )
 				{
-					localParentPath[local.parent] = true;
-					currLocal = local;
+					localParentPath[local.parent] = local;
 					local = local._parent;
 				}
 				
@@ -203,6 +201,7 @@ package QuickB2.objects
 				{
 					if ( localParentPath[other._parent] )
 					{
+						local = localParentPath[other._parent];
 						break;
 					}
 					
@@ -210,7 +209,7 @@ package QuickB2.objects
 				}
 			}
 			
-			setAncestorPair_local = currLocal;
+			setAncestorPair_local = local;
 			setAncestorPair_other = other;
 		}
 		qb2_friend static var setAncestorPair_local:qb2Object = null;
@@ -277,11 +276,9 @@ package QuickB2.objects
 			return !isAbove(otherObject);
 		}
 		
-		
-
 		protected function update():void { }
 		
-		//--- Need this relay function because qb2ObjectContainer can't call protected functions like this directly.
+		//--- Need this relay function because qb2ObjectContainer can't call protected functions directly.
 		qb2_friend function relay_update():void
 			{  update();  }
 		
