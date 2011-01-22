@@ -1125,8 +1125,6 @@ package QuickB2.objects.tangibles
 				}
 			}
 			
-			
-			
 			return circle;
 		}
 		
@@ -1198,6 +1196,48 @@ package QuickB2.objects.tangibles
 			
 			return new amVector2d();
 		}
+		
+		qb2_friend function populateTerrainsBelowThisTang():void
+		{
+			var globalList:Vector.<qb2Terrain> = _world._globalTerrainList;
+			
+			_terrainsBelowThisTang = null;
+			
+			if ( globalList )
+			{
+				var numGlobalTerrains:int = globalList.length;
+			
+				for (var i:int = numGlobalTerrains-1; i >= 0; i-- ) 
+				{
+					var ithTerrain:qb2Terrain = globalList[i];
+					
+					if ( this.isAbove(ithTerrain) )
+					{
+						if ( !_terrainsBelowThisTang )
+						{
+							_terrainsBelowThisTang = new Vector.<qb2Terrain>();
+						}
+						
+						_terrainsBelowThisTang.unshift(ithTerrain);
+						
+						if ( ithTerrain.ubiquitous )
+						{
+							break; // ubiquitous terrains cover up all other terrains beneath them, so we can move on.
+						}
+					}
+					else
+					{
+						break; // all subsequent terrains will be over this shape, so we can move on.
+					}
+				}
+			}
+			
+			if ( _world._terrainRevisionDict[this] )
+			{
+				_world._terrainRevisionDict[this] = _world._globalTerrainRevision;
+			}
+		}
+		qb2_friend var _terrainsBelowThisTang:Vector.<qb2Terrain>;
 		
 		/*public virtual function shatterRadial(focalPoint:amPoint2d, numRadialFractures:uint = 10, numRandomFractures:uint = 5, randomRadials:Boolean = true):Vector.<qb2Tangible>  {  return null;  }
 		
@@ -1281,11 +1321,20 @@ package QuickB2.objects.tangibles
 		
 		protected function get debugFillColor():uint
 		{
-			if ( isKinematic )
-				return qb2DebugDrawSettings.kinematicFillColor;
+			if ( debugFillColorStack.length )
+			{
+				return debugFillColorStack[0];
+			}
 			else
-				return mass == 0 ? qb2DebugDrawSettings.staticFillColor : qb2DebugDrawSettings.dynamicFillColor;
+			{
+				if ( isKinematic )
+					return qb2DebugDrawSettings.kinematicFillColor;
+				else
+					return mass == 0 ? qb2DebugDrawSettings.staticFillColor : qb2DebugDrawSettings.dynamicFillColor;
+			}
 		}
+		
+		protected static const debugFillColorStack:Vector.<uint> = new Vector.<uint>;
 		
 		private static function rigid_shouldTransform(oldPos:amPoint2d, newPos:amPoint2d, oldRot:Number, newRot:Number):Boolean
 		{

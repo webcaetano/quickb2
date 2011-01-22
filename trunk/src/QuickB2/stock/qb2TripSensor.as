@@ -24,7 +24,9 @@ package QuickB2.stock
 {
 	import adobe.utils.CustomActions;
 	import As3Math.geo2d.*;
+	import flash.display.Graphics;
 	import flash.utils.*;
+	import QuickB2.debugging.qb2DebugDrawSettings;
 	import QuickB2.debugging.qb2DebugTraceSettings;
 	import QuickB2.events.*;
 	import QuickB2.internals.*;
@@ -250,6 +252,13 @@ package QuickB2.stock
 		public function get numTrippedVisitors():uint
 		{
 			return _numTrippedVisitors;
+		}
+		
+		public override function drawDebug(graphics:Graphics):void
+		{
+			debugFillColorStack.unshift(qb2DebugDrawSettings.tripSensorFillColor);
+				super.drawDebug(graphics);
+			debugFillColorStack.shift();
 		}
 		
 		public override function toString():String 

@@ -4,6 +4,7 @@ package demos
 	import As3Math.general.*;
 	import As3Math.geo2d.*;
 	import QuickB2.events.*;
+	import QuickB2.misc.qb2Keyboard;
 	import QuickB2.objects.tangibles.*;
 	import QuickB2.stock.*;
 	import TopDown.ai.*;
@@ -42,7 +43,7 @@ package demos
 			icyPatch.slidingSkidColor = 0x00ff00;
 			icyPatch.position.set(stageWidth * 1.5, stageHeight * 1.5);
 			icyPatch.addObject(qb2Stock.newCircleShape(new amPoint2d(), 200, 0));
-			map.addObject(icyPatch);
+			
 			
 			//--- Give the car geometry and mass.  Provide junk in the trunk so that the car has oversteer and can do handbrake turns more easily.
 			var carWidth:Number = 60;
@@ -105,15 +106,24 @@ package demos
 			addObject(map);
 			
 			trafficManager.carSeeds = [playerCar];  // manager will clone() an instance of the player's car to make new cars.
-			trafficManager.maxNumCars = 1;
+			trafficManager.maxNumCars = 0;
 			map.trafficManager = trafficManager;
 			
 			var box:qb2PolygonShape = qb2Stock.newRectShape(icyPatch.position.clone(), 50, 200, 300, RAD_15);
 			box.frictionZ = 1;
-			addObject(box);
+			map.addObject(box);
+			
+			map.addObject(icyPatch);
+			
+			qb2Keyboard.singleton.anyKeyDown = fired;
 			
 			this.addEventListener(qb2UpdateEvent.PRE_UPDATE,  updateManager);
 			this.addEventListener(qb2UpdateEvent.POST_UPDATE, updateCamera);
+		}
+		
+		private function fired():void
+		{trace(map.lastObject());
+			map.setObjectIndex(map.lastObject(), 1);
 		}
 		
 		private function updateManager(evt:qb2UpdateEvent):void

@@ -62,7 +62,7 @@ package QuickB2.misc
 			
 			if ( _root )
 			{
-				queue.unshift(_root);
+				_queue.unshift(_root);
 			}
 		}
 		private var _root:qb2ObjectContainer;
@@ -106,13 +106,14 @@ package QuickB2.misc
 			
 			if ( _root )
 			{
-				queue.unshift(_root);
+				_queue.unshift(_root);
 			}
 		}
 		
 		public function clear():void
 		{
-			_root = _currObject = null;
+			_root = null;
+			_currObject = null;
 			_queue.length = 0;
 		}
 		

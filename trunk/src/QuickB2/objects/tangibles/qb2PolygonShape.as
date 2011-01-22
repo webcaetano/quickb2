@@ -221,6 +221,9 @@ package QuickB2.objects.tangibles
 			
 			if ( rotDiff && (vecX || vecY) )  // rotate and translate
 			{
+				var cos_rotDiff:Number = Math.cos(rotDiff);
+				var sin_rotDiff:Number = Math.sin(rotDiff);
+				
 				for ( var i:int = 0; i < numVerts; i++ )
 				{
 					var oldVert:amPoint2d = polygon.verts[i];
@@ -228,8 +231,8 @@ package QuickB2.objects.tangibles
 					oldVert._x += vecX;
 					oldVert._y += vecY;
 
-					var newVertX:Number = newPos._x + Math.cos(rotDiff) * (oldVert._x - newPos._x) - Math.sin(rotDiff) * (oldVert._y - newPos._y);
-					var newVertY:Number = newPos._y + Math.sin(rotDiff) * (oldVert._x - newPos._x) + Math.cos(rotDiff) * (oldVert._y - newPos._y);
+					var newVertX:Number = newPos._x + cos_rotDiff * (oldVert._x - newPos._x) - sin_rotDiff * (oldVert._y - newPos._y);
+					var newVertY:Number = newPos._y + sin_rotDiff * (oldVert._x - newPos._x) + cos_rotDiff * (oldVert._y - newPos._y);
 					
 					oldVert._x = newVertX;
 					oldVert._y = newVertY;				
@@ -238,27 +241,30 @@ package QuickB2.objects.tangibles
 				//--- Update center of mass.
 				polygon._centerOfMass._x += vecX;
 				polygon._centerOfMass._y += vecY;
-				var newCenterX:Number = newPos._x + Math.cos(rotDiff) * (polygon._centerOfMass._x - newPos._x) - Math.sin(rotDiff) * (polygon._centerOfMass._y - newPos._y);
-				var newCenterY:Number = newPos._y + Math.sin(rotDiff) * (polygon._centerOfMass._x - newPos._x) + Math.cos(rotDiff) * (polygon._centerOfMass._y - newPos._y);
+				var newCenterX:Number = newPos._x + cos_rotDiff * (polygon._centerOfMass._x - newPos._x) - sin_rotDiff * (polygon._centerOfMass._y - newPos._y);
+				var newCenterY:Number = newPos._y + sin_rotDiff * (polygon._centerOfMass._x - newPos._x) + cos_rotDiff * (polygon._centerOfMass._y - newPos._y);
 				polygon._centerOfMass._x = newCenterX;
 				polygon._centerOfMass._y = newCenterX;
 			}
 			else if ( rotDiff ) // only rotate
 			{
+				cos_rotDiff = Math.cos(rotDiff);
+				sin_rotDiff = Math.sin(rotDiff);
+				
 				for ( i = 0; i < numVerts; i++ )
 				{
 					oldVert = polygon.verts[i];
 
-					newVertX = newPos._x + Math.cos(rotDiff) * (oldVert._x - newPos._x) - Math.sin(rotDiff) * (oldVert._y - newPos._y);
-					newVertY = newPos._y + Math.sin(rotDiff) * (oldVert._x - newPos._x) + Math.cos(rotDiff) * (oldVert._y - newPos._y);
+					newVertX = newPos._x + cos_rotDiff * (oldVert._x - newPos._x) - sin_rotDiff * (oldVert._y - newPos._y);
+					newVertY = newPos._y + sin_rotDiff * (oldVert._x - newPos._x) + cos_rotDiff * (oldVert._y - newPos._y);
 					
 					oldVert._x = newVertX;
 					oldVert._y = newVertY;
 				}
 				
 				//--- Update center of mass.
-				newCenterX = newPos._x + Math.cos(rotDiff) * (polygon._centerOfMass._x - newPos._x) - Math.sin(rotDiff) * (polygon._centerOfMass._y - newPos._y);
-				newCenterY = newPos._y + Math.sin(rotDiff) * (polygon._centerOfMass._x - newPos._x) + Math.cos(rotDiff) * (polygon._centerOfMass._y - newPos._y);
+				newCenterX = newPos._x + cos_rotDiff * (polygon._centerOfMass._x - newPos._x) - sin_rotDiff * (polygon._centerOfMass._y - newPos._y);
+				newCenterY = newPos._y + sin_rotDiff * (polygon._centerOfMass._x - newPos._x) + cos_rotDiff * (polygon._centerOfMass._y - newPos._y);
 				polygon._centerOfMass._x = newCenterX;
 				polygon._centerOfMass._y = newCenterX;
 			}
@@ -280,7 +286,6 @@ package QuickB2.objects.tangibles
 			lagPoint._x = newPos._x;
 			lagPoint._y = newPos._y;
 			lagRot = newRot;
-			
 			
 			//--- This is how things would be done through the As3Math API...much neater but also too slow for our purposes.
 			/*var vec:amVector2d = newPos.minus(lagPoint);
@@ -427,10 +432,10 @@ package QuickB2.objects.tangibles
 			theWorld._totalNumPolygons++;
 		}
 		
-		qb2_friend override function makeFrictionJoints(maxForce:Number):void
+		qb2_friend override function makeFrictionJoints():void
 		{
 			var numPoints:int = b2Verts.length;
-			maxForce /= (numPoints as Number);
+			var maxForce:Number = (_frictionZ * _world.gravityZ * _mass) / (numPoints as Number);
 			
 			populateFrictionJointArray(numPoints);
 			
@@ -439,7 +444,7 @@ package QuickB2.objects.tangibles
 				var ithFrictionJoint:b2FrictionJoint = frictionJoints[i];
 				
 				ithFrictionJoint.m_maxForce  = maxForce;
-				ithFrictionJoint.m_maxTorque = maxForce;
+				ithFrictionJoint.m_maxTorque = 0;// maxForce / 2;
 				
 				ithFrictionJoint.m_localAnchorA.x = b2Verts[i].x;
 				ithFrictionJoint.m_localAnchorA.y = b2Verts[i].y;
@@ -523,7 +528,11 @@ package QuickB2.objects.tangibles
 			var drawFill:Boolean     = drawFlags & qb2DebugDrawSettings.DRAW_FILLS ?    true : false;
 			var drawVertices:Boolean = drawFlags & qb2DebugDrawSettings.DRAW_VERTICES ? true : false;
 			
-			if ( !drawOutlines && !drawFill && !drawVertices )  return;
+			if ( !drawOutlines && !drawFill && !drawVertices )
+			{
+				super.drawDebug(graphics);
+				return;
+			}
 			
 			var staticShape:Boolean = _mass == 0;
 	
@@ -540,12 +549,10 @@ package QuickB2.objects.tangibles
 			
 			graphics.endFill();
 			
-			if ( drawVertices )
+			var numVerts:uint = polygon.numVertices;
+			
+			if ( drawVertices && numVerts )
 			{
-				var numVerts:uint = polygon.numVertices;
-				
-				if ( numVerts == 0 ) return;
-				
 				///graphics.lineStyle(qb2DebugDrawSettings.lineThickness, debugOutlineColor, qb2DebugDrawSettings.outlineAlpha);
 				
 				for (var i:int = 0; i < numVerts; i++) 
@@ -554,6 +561,8 @@ package QuickB2.objects.tangibles
 					vertex.draw(graphics, qb2DebugDrawSettings.pointRadius, true);
 				}
 			}
+			
+			super.drawDebug(graphics);
 		}
 		
 		public override function toString():String 

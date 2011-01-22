@@ -23,7 +23,9 @@
 package QuickB2.stock 
 {
 	import Box2DAS.Common.b2Def;
+	import flash.display.Graphics;
 	import flash.utils.Dictionary;
+	import QuickB2.debugging.qb2DebugDrawSettings;
 	import QuickB2.events.qb2ContactEvent;
 	import QuickB2.events.qb2ContainerEvent;
 	import QuickB2.misc.qb2TreeIterator;
@@ -135,6 +137,13 @@ package QuickB2.stock
 					otherShape.unregisterContactTerrain(this);
 				}
 			}
+		}
+		
+		public override function drawDebug(graphics:Graphics):void
+		{
+			debugFillColorStack.unshift(qb2DebugDrawSettings.terrainFillColor);
+				super.drawDebug(graphics);
+			debugFillColorStack.shift();
 		}
 		
 		public override function clone():qb2Object

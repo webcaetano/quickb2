@@ -31,10 +31,13 @@ package QuickB2.objects.tangibles
 	import Box2DAS.Dynamics.*;
 	import Box2DAS.Dynamics.Joints.b2FrictionJoint;
 	import Box2DAS.Dynamics.Joints.b2FrictionJointDef;
+	import flash.display.Graphics;
 	import flash.utils.Dictionary;
 	import QuickB2.*;
+	import QuickB2.debugging.qb2DebugDrawSettings;
 	import QuickB2.misc.*;
 	import QuickB2.objects.joints.*;
+	import QuickB2.objects.qb2Object;
 	import QuickB2.stock.qb2Terrain;
 	
 	use namespace qb2_friend;
@@ -228,7 +231,7 @@ package QuickB2.objects.tangibles
 			if ( !_world || !_world.gravityZ || !_frictionZ || !_mass || _isKinematic )
 			{
 				destroyFrictionJoints();
-				updateToFrictionZRevision();
+				updateToGravityZRevision();
 				
 				return;
 			}
@@ -238,53 +241,18 @@ package QuickB2.objects.tangibles
 				_world.addDelayedCall(null, updateFrictionJoints);
 				return;
 			}
-
-			var maxForce:Number = _frictionZ * _world.gravityZ * _mass;
 			
-			var multiplier:Number = 1;
-			var globalList:Vector.<qb2Terrain> = _world._globalTerrainList;
-			
-			if ( terrainsBelowThisShape )
+			if ( _world._terrainRevisionDict[this] != _world._globalTerrainRevision )
 			{
-				terrainsBelowThisShape.length = 0;
+				populateTerrainsBelowThisTang();
 			}
 			
-			if ( globalList )
-			{
-				var numGlobalTerrains:int = globalList.length;
+			makeFrictionJoints();
 			
-				for (var i:int = numGlobalTerrains-1; i >= 0; i-- ) 
-				{
-					var ithTerrain:qb2Terrain = globalList[i];
-					
-					if ( this.isAbove(ithTerrain) )
-					{
-						if ( !terrainsBelowThisShape )
-						{
-							terrainsBelowThisShape = new Vector.<qb2Terrain>();
-						}
-						
-						terrainsBelowThisShape.unshift(ithTerrain);
-						
-						if ( ithTerrain.ubiquitous )
-						{
-							break; // ubiquitous terrains cover up all other terrains beneath them, so we can move on.
-						}
-					}
-					else
-					{
-						break; // all subsequent terrains will be over this shape, so we can move on.
-					}
-				}
-			}
-			
-			makeFrictionJoints(maxForce);
-			
-			updateToFrictionZRevision();
+			updateToGravityZRevision();
 		}
 		
 		qb2_friend var frictionJoints:Vector.<b2FrictionJoint>;
-		qb2_friend var terrainsBelowThisShape:Vector.<qb2Terrain>;
 		
 		qb2_friend final function populateFrictionJointArray(numPoints:int):void
 		{
@@ -304,15 +272,15 @@ package QuickB2.objects.tangibles
 			}
 		}
 		
-		private function updateToFrictionZRevision():void
+		private function updateToGravityZRevision():void
 		{
 			if ( _world )
 			{
-				_world._frictionZRevisionDict[this] = _world._globalFrictionZRevision;
+				_world._gravityZRevisionDict[this] = _world._globalGravityZRevision;
 			}
 		}
 		
-		qb2_friend virtual function makeFrictionJoints(maxForce:Number):void
+		qb2_friend virtual function makeFrictionJoints():void
 		{
 			
 		}
@@ -341,15 +309,17 @@ package QuickB2.objects.tangibles
 				frictionJoints = null;
 			}
 			
-			if ( terrainsBelowThisShape )
+			if ( _terrainsBelowThisTang )
 			{
-				terrainsBelowThisShape.length = 0;
-				terrainsBelowThisShape = null;
+				_terrainsBelowThisTang.length = 0;
+				_terrainsBelowThisTang = null;
 			}
 		}
 		
 		qb2_friend override function make(theWorld:qb2World):void
 		{
+			_world = theWorld;
+			
 			//--- If this is a lone shape being added to the world, internally it must have its own body.
 			if ( !_ancestorBody )
 			{
@@ -363,7 +333,8 @@ package QuickB2.objects.tangibles
 				rigid_recomputeBodyB2Mass();
 			}
 			
-			theWorld._frictionZRevisionDict[this] = 0 as int;
+			theWorld._terrainRevisionDict[this]  = 0 as int;
+			theWorld._gravityZRevisionDict[this] = 0 as int;
 			
 			super.make(theWorld); // fire added to world events
 			
@@ -437,7 +408,8 @@ package QuickB2.objects.tangibles
 			
 			destroyShapeB2();
 			
-			delete _world._frictionZRevisionDict[this];
+			delete _world._terrainRevisionDict[this];
+			delete _world._gravityZRevisionDict[this];
 		
 			super.destroy();
 			
@@ -486,21 +458,26 @@ package QuickB2.objects.tangibles
 		
 		qb2_friend const doNotDestroyList:Dictionary = new Dictionary(true);
 		
-		
-		
-		
 		protected override function update():void
 		{
 			rigid_update();
 			
-			if ( _world._frictionZRevisionDict[this] != _world._globalFrictionZRevision )
+			if ( _world._gravityZRevisionDict[this] != _world._globalGravityZRevision || frictionJoints && _world._terrainRevisionDict[this] != _world._globalTerrainRevision )
 			{
 				updateFrictionJoints();
 			}
 			
 			//--- Update friction joint max force based on which terrains each friction point is touching.
-			if ( frictionJoints && terrainsBelowThisShape )
+			if ( frictionJoints && _terrainsBelowThisTang )
 			{
+				var frictionJointBodyB2:b2Body = frictionJoints[0].m_bodyA;
+				var transform:b2Transform = frictionJointBodyB2.m_xf;
+				var p:b2Vec2 = transform.position;
+				var r:b2Mat22 = transform.R;
+				var col1:b2Vec2 = r.col1;
+				var col2:b2Vec2 = r.col2;
+				var frictionJointWorldV2:V2 = new V2();
+				
 				var maxForce:Number = (_world.gravityZ * _frictionZ * _mass) / frictionJoints.length;
 				var numFrictionJoints:int = frictionJoints.length;
 				for (var i:int = 0; i < numFrictionJoints; i++) 
@@ -508,27 +485,64 @@ package QuickB2.objects.tangibles
 					var ithFricJoint:b2FrictionJoint = frictionJoints[i];
 					var force:Number = maxForce;
 					
-					for (var j:int = terrainsBelowThisShape.length - 1; j >= 0; j--) 
+					var v:b2Vec2 = ithFricJoint.m_localAnchorA;
+					frictionJointWorldV2.x = col1.x * v.x + col2.x * v.y + p.x;
+					frictionJointWorldV2.y = col1.y * v.x + col2.y * v.y + p.y;
+					
+					for (var j:int = _terrainsBelowThisTang.length - 1; j >= 0; j--) 
 					{
-						var jthTerrain:qb2Terrain = terrainsBelowThisShape[j];
+						var jthTerrain:qb2Terrain = _terrainsBelowThisTang[j];
+						
+						var terrainBodyB2:b2Body = jthTerrain._bodyB2 ? jthTerrain._bodyB2 : jthTerrain._ancestorBody._bodyB2;
+						var xf:XF = terrainBodyB2.GetTransform();
 						
 						if ( jthTerrain.ubiquitous )
 						{
 							force *= jthTerrain.frictionZMultiplier;
 							break;
 						}
-						else if ( !jthTerrain.ubiquitous && _contactTerrainDict[jthTerrain] )
+						else if ( !jthTerrain.ubiquitous && _contactTerrainDict && _contactTerrainDict[jthTerrain] )
 						{
-							var world
-							jthTerrain.testPoint
+							terrainIterator.root = jthTerrain;
+							
+							while ( terrainIterator.hasNext() )
+							{
+								var object:qb2Object = terrainIterator.next();
+								
+								if ( object is qb2Shape )
+								{
+									var asShape:qb2Shape = object as qb2Shape;
+									
+									if ( !asShape.shapeB2s.length )
+									{
+										break;
+									}
+									
+									var numTerrainShapeB2s:int = asShape.shapeB2s.length;
+									
+									for (var k:int = 0; k < numTerrainShapeB2s; k++)
+									{
+										var kthTerrainShapeB2:b2Shape = asShape.shapeB2s[k];
+										
+										if ( kthTerrainShapeB2.TestPoint(xf, frictionJointWorldV2) )
+										{
+											force *= jthTerrain.frictionZMultiplier;
+											terrainIterator.clear();
+											break;
+										}
+									}
+								}
+							}
 						}
 					}
 					
 					ithFricJoint.m_maxForce  = force;
-					ithFricJoint.m_maxTorque = force;
+					ithFricJoint.m_maxTorque = 0;
 				}
 			}
 		}
+		
+		private static var terrainIterator:qb2TreeIterator = new qb2TreeIterator();
 
 		public override function translateBy(vector:amVector2d):qb2Tangible
 			{  _position.translateBy(vector);  return this;  }
@@ -595,6 +609,47 @@ package QuickB2.objects.tangibles
 			{
 				_bodyB2.m_angularVelocity = radsPerSec;
 				_bodyB2.SetAwake(true);
+			}
+		}
+		
+		public override function drawDebug(graphics:Graphics):void
+		{
+			if ( frictionJoints && fixtures.length )
+			{
+				if ( qb2DebugDrawSettings.drawFlags & qb2DebugDrawSettings.DRAW_FRICTION_POINTS )
+				{
+					graphics.lineStyle();
+					graphics.beginFill(qb2DebugDrawSettings.frictionPointColor, qb2DebugDrawSettings.frictionPointAlpha);
+					var frictionPointRadius:Number = qb2DebugDrawSettings.frictionPointRadius
+					
+					var theBodyB2:b2Body = fixtures[0].m_body;
+					var transform:b2Transform = theBodyB2.m_xf;
+					var p:b2Vec2 = transform.position;
+					var r:b2Mat22 = transform.R;
+					var col1:b2Vec2 = r.col1;
+					var col2:b2Vec2 = r.col2;
+					var pixPerMeter:Number = worldPixelsPerMeter;
+					
+					var numFrictionJoints:int = frictionJoints.length;
+					for ( var i:int = 0; i < numFrictionJoints; i++)
+					{
+						var ithJoint:b2FrictionJoint = frictionJoints[i];
+						var v:b2Vec2 = ithJoint.m_localAnchorA;
+						
+						var x:Number = col1.x * v.x + col2.x * v.y;
+						var y:Number = col1.y * v.x + col2.y * v.y;
+						
+						x += p.x;
+						y += p.y;
+						
+						x *= pixPerMeter;
+						y *= pixPerMeter;
+						
+						graphics.drawCircle(x, y, frictionPointRadius);
+					}
+					
+					graphics.endFill();
+				}
 			}
 		}
 		

@@ -87,5 +87,10 @@ package QuickB2.debugging
 		
 		public static var frictionPointColor:Number = 0xff0000;
 		public static var frictionPointAlpha:Number = DEFAULT_ALPHA;
+		public static var frictionPointRadius:Number = 5;
+		
+		public static var terrainFillColor:uint    = 0x006600;
+		public static var tripSensorFillColor:uint = 0x990099;
+		public static var soundFieldFillColor:uint = 0xFFFF66;
 	}
 }

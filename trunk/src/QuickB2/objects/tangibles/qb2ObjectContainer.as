@@ -26,9 +26,13 @@ package QuickB2.objects.tangibles
 	import flash.display.*;
 	import flash.utils.Dictionary;
 	import QuickB2.*;
+	import QuickB2.debugging.qb2DebugDrawSettings;
 	import QuickB2.events.*;
 	import QuickB2.objects.*;
 	import QuickB2.objects.joints.*;
+	import QuickB2.stock.qb2SoundField;
+	import QuickB2.stock.qb2Terrain;
+	import QuickB2.stock.qb2TripSensor;
 	
 	use namespace qb2_friend;
 	
@@ -434,12 +438,23 @@ package QuickB2.objects.tangibles
 			_objects.splice(origIndex, 1);
 			_objects.splice(index, 0, object);
 			
+			//--- Update the terrains that are below this shape if it's simulating z friction.
+			if ( object is qb2Shape )
+			{
+				var asShape:qb2Shape = object as qb2Shape;
+				if ( asShape.frictionJoints )
+				{
+					asShape.populateTerrainsBelowThisTang();
+					updateFrictionJoints();
+				}
+			}
+			
 			if ( object._eventFlags & INDEX_CHANGED_BIT )
 			{
 				var event:qb2ContainerEvent = getCachedEvent(qb2ContainerEvent.INDEX_CHANGED);
 				event._childObject  = object;
 				event._parentObject = this;
-				dispatchEvent(event);
+				object.dispatchEvent(event);
 			}
 			
 			return this;

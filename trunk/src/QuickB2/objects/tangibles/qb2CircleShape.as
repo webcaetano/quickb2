@@ -181,10 +181,10 @@ package QuickB2.objects.tangibles
 			theWorld._totalNumCircles++;
 		}
 		
-		qb2_friend override function makeFrictionJoints(maxForce:Number):void
+		qb2_friend override function makeFrictionJoints():void
 		{
 			var numPoints:int = 4;
-			maxForce /= (numPoints as Number);
+			var maxForce:Number = (_frictionZ * _world.gravityZ * _mass) / (numPoints as Number);
 			
 			populateFrictionJointArray(numPoints);
 			
@@ -199,7 +199,7 @@ package QuickB2.objects.tangibles
 				var ithFrictionJoint:b2FrictionJoint = frictionJoints[i];
 				
 				ithFrictionJoint.m_maxForce  = maxForce;
-				ithFrictionJoint.m_maxTorque = maxForce;
+				ithFrictionJoint.m_maxTorque = 0;// maxForce;
 				
 				ithFrictionJoint.m_localAnchorA.x = reusable.x;
 				ithFrictionJoint.m_localAnchorA.y = reusable.y;
@@ -275,6 +275,8 @@ package QuickB2.objects.tangibles
 					inc += RAD_90;
 				}
 			}
+			
+			super.drawDebug(graphics);
 		}
 		
 		public override function toString():String 
