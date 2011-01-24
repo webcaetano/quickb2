@@ -231,7 +231,11 @@ package QuickB2.objects.tangibles
 			if ( !_world || !_world.gravityZ || !_frictionZ || !_mass || _isKinematic )
 			{
 				destroyFrictionJoints();
-				updateToGravityZRevision();
+				
+				if ( _world )
+				{
+					_world._gravityZRevisionDict[this] = _world._globalGravityZRevision;
+				}
 				
 				return;
 			}
@@ -249,7 +253,7 @@ package QuickB2.objects.tangibles
 			
 			makeFrictionJoints();
 			
-			updateToGravityZRevision();
+			_world._gravityZRevisionDict[this] = _world._globalGravityZRevision;
 		}
 		
 		qb2_friend var frictionJoints:Vector.<b2FrictionJoint>;
@@ -269,14 +273,6 @@ package QuickB2.objects.tangibles
 			for (var j:int = 0; j < numPoints; j++) 
 			{
 				frictionJoints.push(_world._worldB2.CreateJoint(fricDef));
-			}
-		}
-		
-		private function updateToGravityZRevision():void
-		{
-			if ( _world )
-			{
-				_world._gravityZRevisionDict[this] = _world._globalGravityZRevision;
 			}
 		}
 		
@@ -489,17 +485,18 @@ package QuickB2.objects.tangibles
 					frictionJointWorldV2.x = col1.x * v.x + col2.x * v.y + p.x;
 					frictionJointWorldV2.y = col1.y * v.x + col2.y * v.y + p.y;
 					
-					for (var j:int = _terrainsBelowThisTang.length - 1; j >= 0; j--) 
+					for (var j:int = _terrainsBelowThisTang.length - 1; j >= 0; j-- ) 
 					{
 						var jthTerrain:qb2Terrain = _terrainsBelowThisTang[j];
 						
 						var terrainBodyB2:b2Body = jthTerrain._bodyB2 ? jthTerrain._bodyB2 : jthTerrain._ancestorBody._bodyB2;
 						var xf:XF = terrainBodyB2.GetTransform();
+						var pointTouchingTerrain:Boolean = false;
 						
 						if ( jthTerrain.ubiquitous )
 						{
 							force *= jthTerrain.frictionZMultiplier;
-							break;
+							pointTouchingTerrain = true;
 						}
 						else if ( !jthTerrain.ubiquitous && _contactTerrainDict && _contactTerrainDict[jthTerrain] )
 						{
@@ -528,11 +525,17 @@ package QuickB2.objects.tangibles
 										{
 											force *= jthTerrain.frictionZMultiplier;
 											terrainIterator.clear();
+											pointTouchingTerrain = true;
 											break;
 										}
 									}
 								}
 							}
+						}
+						
+						if ( pointTouchingTerrain )
+						{
+							break;
 						}
 					}
 					
@@ -666,8 +669,6 @@ package QuickB2.objects.tangibles
 			
 			_contactTerrainDict[terrain] = true;
 			_contactTerrainDict[NUM_TERRAINS]++;
-			
-			updateFrictionJoints();
 		}
 		
 		qb2_friend function unregisterContactTerrain(terrain:qb2Terrain):void
@@ -679,8 +680,6 @@ package QuickB2.objects.tangibles
 			{
 				_contactTerrainDict = null;
 			}
-			
-			updateFrictionJoints();
 		}
 		
 		qb2_friend var _contactTerrainDict:Dictionary = null;

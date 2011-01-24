@@ -260,7 +260,7 @@ package QuickB2.objects.joints
 			
 		public override function clone():qb2Object
 		{
-			var distJoint:qb2DistanceJoint = new qb2DistanceJoint();
+			var distJoint:qb2DistanceJoint = super.clone() as qb2DistanceJoint;
 			
 			distJoint._localAnchor1._x = this._localAnchor1._x;
 			distJoint._localAnchor1._y = this._localAnchor1._y;

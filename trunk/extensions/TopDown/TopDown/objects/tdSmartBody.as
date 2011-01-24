@@ -24,6 +24,7 @@ package TopDown.objects
 {
 	import As3Math.geo2d.amPoint2d;
 	import flash.display.Graphics;
+	import QuickB2.objects.qb2Object;
 	import QuickB2.objects.tangibles.qb2Body;
 	import QuickB2.qb2_errors;
 	import TopDown.*;
@@ -49,17 +50,33 @@ package TopDown.objects
 			}
 		}
 		
-		public function set brain(newBrain:tdBrain):void
+		protected override function justAddedObject(object:qb2Object):void
+		{
+			if ( object is tdBrain )
+			{
+				setBrain(object as tdBrain);
+			}
+		}
+		
+		protected override function justRemovedObject(object:qb2Object):void
+		{
+			if ( object is tdBrain )
+			{
+				setBrain(null);
+			}
+		}
+		
+		private function setBrain(newBrain:tdBrain):void
 		{
 			if ( newBrain && newBrain.host )  throw td_errors.BRAIN_ALREADY_HAS_HOST_ERROR;
-			
+		
 			if ( newBrain == _brain )  return;
 			
 			if ( _brain )  _brain.setHost(null);
 
 			_brain = newBrain;
 			
-			if( _brain )   _brain.setHost(this);
+			if ( _brain )   _brain.setHost(this);
 		}
 		
 		public function get brain():tdBrain
@@ -70,43 +87,25 @@ package TopDown.objects
 		{
 			var otherBrain:tdBrain = otherSmartBody.brain;
 			var thisBrain:tdBrain = this.brain;
-			otherSmartBody.brain = this.brain = null;
-			otherSmartBody.brain = thisBrain;
-			this.brain = otherBrain;
+			otherSmartBody.removeObject(otherBrain);
+			this.removeObject(thisBrain);
+			
+			otherSmartBody.addObject(thisBrain);
+			this.addObject(otherBrain);
 		}
 		
 		public function transferBrainTo(smartBody:tdSmartBody):void
 		{
 			var thisBrain:tdBrain = this.brain;
-			this.brain = null;
-			smartBody.brain = thisBrain;
+			this.removeObject(thisBrain);
+			smartBody.addObject(thisBrain);
 		}
 		
 		public function transferBrainFrom(smartBody:tdSmartBody):void
 		{
 			var otherBrain:tdBrain = smartBody.brain;
-			smartBody.brain = null;
-			this.brain = otherBrain;
-		}
-			
-		protected override function update():void
-		{
-			super.update();
-			
-			if ( _brain )
-			{
-				_brain.relay_update();
-			}
-		}
-		
-		public override function drawDebug(graphics:Graphics):void
-		{
-			super.drawDebug(graphics);
-			
-			if ( _brain )
-			{
-				_brain.drawDebug(graphics);
-			}
+			smartBody.removeObject(otherBrain);
+			this.addObject(otherBrain);
 		}
 	}
 }

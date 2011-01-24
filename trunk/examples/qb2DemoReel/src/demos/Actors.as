@@ -33,7 +33,7 @@ package demos
 				addObject(pic);
 			}
 			
-			this.drawsDebug = false;
+			this.participatesInDebugDrawing = false;
 		}
 		
 		private static function makePic():qb2Body
@@ -44,7 +44,7 @@ package demos
 			body.actor = img;
 			body.addObject(qb2Stock.newRectShape(new amPoint2d(img.width / 2, img.height / 2), img.width, img.height));
 			body.mass = 1;
-			body.drawsDebug = false;
+			body.participatesInDebugDrawing = false;
 			return body;
 		}
 	}

@@ -78,7 +78,7 @@ package QuickB2.stock
 				_stage.scaleMode = StageScaleMode.NO_SCALE;
 			}
 			
-			this.drawsDebug = false;
+			this.participatesInDebugDrawing = false;
 			
 			stageEvent(null);
 		}

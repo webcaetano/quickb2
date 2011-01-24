@@ -61,8 +61,6 @@ TESTING
 
 - have getLinearVel at pnt type functions be available when an object isn't in the world
 
-- add api for numJoints, numRigids, numPhysicsObjects, numShapes, numBodies, numGroups, and get*At() for each??
-
 - component icons
 
 - shatter-type functions
@@ -84,8 +82,6 @@ TESTING
 - expose other joints (?)
 
 - deal with flushShape case for sensors...when a shape is just being flushed, it shouldn't fire sensor events if it doesn't have to.
-
-- have an option to add different debug draw layers with different draw rules to the world
 
 - validate/invalidate for various intensive property queries like centerOfMass and bounding reps, so they can be queried multiple times in a single frame without penalty.
 

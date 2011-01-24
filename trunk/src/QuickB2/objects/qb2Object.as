@@ -40,6 +40,7 @@ package QuickB2.objects
 	
 	[Event(name="addedToWorld",     type="QuickB2.events.qb2ContainerEvent")]
 	[Event(name="removedFromWorld", type="QuickB2.events.qb2ContainerEvent")]
+	[Event(name="indexChanged",     type="QuickB2.events.qb2ContainerEvent")]
 	
 	/**
 	 * ...
@@ -49,8 +50,12 @@ package QuickB2.objects
 	{
 		public var identifier:String = "";
 		
+		public var participatesInDeepCloning:Boolean  = true;
+		
 		/// Whether or not this object will draw itself if the world has debugDrawContext defined.
-		public var drawsDebug:Boolean = true;
+		public var participatesInDebugDrawing:Boolean = true;
+		
+		public var participatesInUpdateLoop:Boolean = true;
 		
 		public function qb2Object()
 		{
@@ -421,7 +426,16 @@ package QuickB2.objects
 		
 		public virtual function drawDebug(graphics:Graphics):void { }
 		
-		public virtual function clone():qb2Object {  return null;  }
+		public function clone():qb2Object
+		{
+			var cloned:qb2Object = new (this as Object).constructor;
+			
+			cloned.participatesInDebugDrawing = this.participatesInDebugDrawing;
+			cloned.participatesInDeepCloning  = this.participatesInDeepCloning;
+			cloned.participatesInUpdateLoop   = this.participatesInUpdateLoop;
+			
+			return cloned;
+		}
 		
 		/// A convenience function for getting the world's pixelPerMeter property.  If the object isn't in a world, function returns 1.
 		public function get worldPixelsPerMeter():Number

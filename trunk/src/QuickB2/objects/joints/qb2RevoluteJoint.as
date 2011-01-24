@@ -316,7 +316,7 @@ package QuickB2.objects.joints
 			
 		public override function clone():qb2Object
 		{
-			var revJoint:qb2RevoluteJoint = new qb2RevoluteJoint();
+			var revJoint:qb2RevoluteJoint = super.clone() as qb2RevoluteJoint;
 			
 			revJoint._localAnchor1._x = this._localAnchor1._x;
 			revJoint._localAnchor1._y = this._localAnchor1._y;

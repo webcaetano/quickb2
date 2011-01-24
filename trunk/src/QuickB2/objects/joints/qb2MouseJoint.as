@@ -30,6 +30,7 @@ package QuickB2.objects.joints
 	import flash.display.*;
 	import QuickB2.*;
 	import QuickB2.debugging.*;
+	import QuickB2.misc.qb2Mouse;
 	import QuickB2.objects.*;
 	import QuickB2.objects.tangibles.*;
 	
@@ -191,7 +192,7 @@ package QuickB2.objects.joints
 			
 		public override function clone():qb2Object
 		{
-			var mouseJoint:qb2MouseJoint = new qb2MouseJoint();
+			var mouseJoint:qb2MouseJoint = super.clone() as qb2MouseJoint;
 			
 			mouseJoint._localAnchor2._x = this._localAnchor2._x;
 			mouseJoint._localAnchor2._y = this._localAnchor2._y;

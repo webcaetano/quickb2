@@ -35,7 +35,8 @@ package demos
 			var center:amPoint2d = new amPoint2d(stage.stageWidth / 2, stage.stageHeight / 2);
 			
 			//--- Make a terrain that encompasses the whole map, basically so skids are drawn everywhere.
-			var defaultTerrain:tdTerrain = new tdTerrain(true);
+			var defaultTerrain:tdTerrain = new tdTerrain(true /*ubiquitous*/ );
+			defaultTerrain.frictionZMultiplier = 1.5;
 			map.addObject(defaultTerrain);
 			
 			var icyPatch:tdTerrain = new tdTerrain();
@@ -43,7 +44,19 @@ package demos
 			icyPatch.slidingSkidColor = 0x00ff00;
 			icyPatch.position.set(stageWidth * 1.5, stageHeight * 1.5);
 			icyPatch.addObject(qb2Stock.newCircleShape(new amPoint2d(), 200, 0));
+			map.addObject(icyPatch);
 			
+			//--- Set up some properties for the tracks, the "roads" that traffic will drive on.
+			var roadWid:Number = 100;
+			var rectWidth:Number = stageWidth*2;
+			var rectHeight:Number = stageHeight*2;
+			var speedLimit:Number = 10;
+			
+			//--- Tracks can only be meaningfully added to a special subclass of qb2Group, called tdMap.
+			map.addObjects(tdTrackStock.newTrackRect(center, roadWid, roadWid, rectWidth / 2+roadWid, rectHeight / 2+roadWid, false, speedLimit));
+			map.addObjects(tdTrackStock.newTrackRect(center, rectWidth - roadWid, rectHeight-roadWid, roadWid*2, roadWid*2, true, speedLimit));
+			map.addObjects(tdTrackStock.newTrackRect(center, rectWidth + roadWid, rectHeight+roadWid, roadWid, roadWid, false, speedLimit));
+			addObject(map);
 			
 			//--- Give the car geometry and mass.  Provide junk in the trunk so that the car has oversteer and can do handbrake turns more easily.
 			var carWidth:Number = 60;
@@ -72,7 +85,7 @@ package demos
 			//--- Set up keyboard controls for the car.
 			var playerBrain:tdControllerBrain = new tdControllerBrain();
 			playerBrain.addController(new tdKeyboardCarController(Main.singleton.stage));
-			playerCar.brain = playerBrain;
+			playerCar.addObject(playerBrain);
 			
 			//--- Give the car an engine and transmission...both optional, but needed if you want the car to move under its own power.
 			playerCar.addObject(new tdEngine(), new tdTransmission());
@@ -93,37 +106,50 @@ package demos
 			//--- Add the car to the map.
 			map.addObject(playerCar);
 			
-			//--- Set up some properties for the tracks, the "roads" that traffic will drive on.
-			var roadWid:Number = 100;
-			var rectWidth:Number = stageWidth*2;
-			var rectHeight:Number = stageHeight*2;
-			var speedLimit:Number = 10;
+			//--- Make a plow looking car-thing.
+			var plowCar:tdCarBody = playerCar.clone() as tdCarBody;
+			var boundBox:amBoundBox2d = plowCar.getBoundBox(plowCar);
+			var plowHead:qb2PolygonShape = qb2Stock.newRectShape(new amPoint2d(0, -boundBox.height / 2), boundBox.width * 1.5, 10, 1);
+			plowHead.insertVertexAt(1, new amPoint2d(0, -boundBox.height / 2 - 5));
+			plowHead.getVertexAt(0).y -= 10;
+			plowHead.getVertexAt(2).y -= 10;
+			plowCar.addObject(plowHead);
 			
-			//--- Tracks can only be meaningfully added to a special subclass of qb2Group, called tdMap.
-			map.addObjects(tdTrackStock.newTrackRect(center, roadWid, roadWid, rectWidth / 2+roadWid, rectHeight / 2+roadWid, false, speedLimit));
-			map.addObjects(tdTrackStock.newTrackRect(center, rectWidth - roadWid, rectHeight-roadWid, roadWid*2, roadWid*2, true, speedLimit));
-			map.addObjects(tdTrackStock.newTrackRect(center, rectWidth + roadWid, rectHeight+roadWid, roadWid, roadWid, false, speedLimit));
-			addObject(map);
+			//--- Make a peanut looking car.
+			var peanutCar:tdCarBody = playerCar.clone() as tdCarBody;
+			peanutCar.removeObjectAt(0);
+			peanutCar.addObjectAt((peanutCar.getObjectAt(0).clone() as qb2Shape), 0);
+			(peanutCar.getObjectAt(0) as qb2Shape).position.y = -(peanutCar.getObjectAt(0) as qb2Shape).position.y;
 			
-			trafficManager.carSeeds = [playerCar];  // manager will clone() an instance of the player's car to make new cars.
-			trafficManager.maxNumCars = 0;
+			//--- Make some kind of weird hoop car with rear-wheel turning.
+			var hoopCar:tdCarBody = playerCar.clone() as tdCarBody;
+			hoopCar.removeObjectAt(0);
+			hoopCar.removeObjectAt(0);
+			hoopCar.addObjectAt(qb2Stock.newEllipticalArcBody(new amPoint2d(), new amVector2d(0, -70), 30, 12, 0, AM_PI * 2, 10, 1000), 0);
+			(hoopCar.lastObject(2) as tdTire).flippedTurning = true;
+			(hoopCar.lastObject(3) as tdTire).flippedTurning = true;
+			(hoopCar.lastObject(2) as tdTire).canTurn = true;
+			(hoopCar.lastObject(3) as tdTire).canTurn = true;
+			hoopCar.maxTurnAngle /= 2;
+			
+			//--- Configure the traffic manager.
+			trafficManager.carSeeds = [playerCar, plowCar, peanutCar, hoopCar];  // manager will clone() instances of these cars to create traffic.
+			trafficManager.maxNumCars = 3;          // can only be 3 traffic cars in the scene at any given time.
 			map.trafficManager = trafficManager;
+			
+			//--- Make a prototype brain that the traffic manager will clone to provide intelligence to the traffic cars.
+			var prototypeTrafficBrain:tdTrackBrain = new tdTrackBrain();
+			prototypeTrafficBrain.antennaLength = 100;
+			trafficManager.brainSeeds = [prototypeTrafficBrain];
 			
 			var box:qb2PolygonShape = qb2Stock.newRectShape(icyPatch.position.clone(), 50, 200, 300, RAD_15);
 			box.frictionZ = 1;
 			map.addObject(box);
 			
-			map.addObject(icyPatch);
-			
-			qb2Keyboard.singleton.anyKeyDown = fired;
+			var fence:qb2Group = new qb2Group();
 			
 			this.addEventListener(qb2UpdateEvent.PRE_UPDATE,  updateManager);
 			this.addEventListener(qb2UpdateEvent.POST_UPDATE, updateCamera);
-		}
-		
-		private function fired():void
-		{trace(map.lastObject());
-			map.setObjectIndex(map.lastObject(), 1);
 		}
 		
 		private function updateManager(evt:qb2UpdateEvent):void

@@ -76,9 +76,16 @@ package TopDown.ai.brains
 		public var avoidUTurns:Boolean = true;
 		public var uTurnDistance:Number = 100;
 		
-		private var history:Vector.<tdTrack> = new Vector.<tdTrack>();
+		public var turnChance:Number = .5;
+		
+		public var parallelTolerance:Number = 1 * (Math.PI / 180.0);
+		
+		public var autoSearchForTrack:Boolean = true;
 		
 		public var historyDepth:uint = 4;
+		
+		
+		private var history:Vector.<tdTrack> = new Vector.<tdTrack>();
 		
 		private var justGotHit:Boolean = false;
 		
@@ -97,15 +104,42 @@ package TopDown.ai.brains
 		public var currDistance:Number = 0;
 		private var _currPoint:amPoint2d;
 		
-		public var turnChance:Number = .5;
-		
-		public var parallelTolerance:Number = 1 * (Math.PI / 180.0);
-		
-		public var autoSearchForTrack:Boolean = true;
-		
 		private var _hasHost:Boolean = false;
 		
 		private static const antennaDict:Dictionary = new Dictionary(true);
+		
+		public override function clone():qb2Object
+		{
+			var clone:tdTrackBrain = super.clone() as tdTrackBrain;
+			
+			clone._temper = this._temper;
+		
+			clone._cooldownRate = this._cooldownRate;
+				
+			clone.minHitSpeed = this.minHitSpeed;
+			clone.maxHitSpeed = this.maxHitSpeed;
+			
+			clone.tetherMultiplier = this.tetherMultiplier;
+			clone.tetherMinimum = this.tetherMinimum;
+			clone.tetherMaximum = this.tetherMaximum
+			
+			clone.ignoreGod = this.ignoreGod;
+			clone.avoidUTurns = this.avoidUTurns;
+			clone.uTurnDistance = this.uTurnDistance;
+			
+			clone.turnChance = this.turnChance;
+			
+			clone.parallelTolerance = this.parallelTolerance;
+			
+			clone.autoSearchForTrack = this.autoSearchForTrack;
+			
+			clone.historyDepth = this.historyDepth;
+			
+			clone.useAntenna = this.useAntenna;
+			clone.antennaLength = this.antennaLength;
+			
+			return clone;
+		}
 		
 		protected override function addedToHost():void
 		{
@@ -255,7 +289,7 @@ package TopDown.ai.brains
 			var brake:Number = 0;// tdCar(theHost).getLatSpeed() / (tdCar(theHost).getLatSpeed() + tdCar(theHost).getLongSpeed());
 
 			host.brainPort.NUMBER_PORT_1 = pedal;
-			host.brainPort.NUMBER_PORT_2 = angleRatio;
+			host.brainPort.NUMBER_PORT_2 = angleRatio * maxTurnAngle;
 			host.brainPort.NUMBER_PORT_3 = brakes; 
 			
 			//trace(_aggression, angleRatio);
@@ -608,7 +642,7 @@ package TopDown.ai.brains
 			var wid:Number = bbWid < _minAntennaWidth ? _minAntennaWidth : bbWid;
 			
 			var tri:qb2Shape = qb2Stock.newIsoTriShape(bb.topCenter, wid, _antennaLength, 0, 0);
-			tri.drawsDebug = false;
+			tri.participatesInDebugDrawing = false;
 			
 			return tri;
 		}

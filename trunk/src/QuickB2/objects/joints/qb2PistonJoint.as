@@ -529,7 +529,7 @@ package QuickB2.objects.joints
 			
 		public override function clone():qb2Object
 		{
-			var pistJoint:qb2PistonJoint = new qb2PistonJoint();
+			var pistJoint:qb2PistonJoint = super.clone() as qb2PistonJoint;
 			
 			pistJoint._localAnchor1._x = this._localAnchor1._x;
 			pistJoint._localAnchor1._y = this._localAnchor1._y;

@@ -112,7 +112,7 @@ package QuickB2.stock
 		
 		private var shapeContactDict:Dictionary = new Dictionary(true);
 		
-		private function contact(evt:qb2ContactEvent):void
+		protected function contact(evt:qb2ContactEvent):void
 		{
 			var otherShape:qb2Shape = evt.otherShape;
 			

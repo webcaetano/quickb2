@@ -44,5 +44,20 @@ package demos
 			jelloStar.restitution = .5;
 			addObject(jelloStar);
 		}
+		
+		//--- Jello stuff can tweak out if it doesn't have a small enough timestep.
+		private var saveMaxTimeStep:Number;
+		protected override function addedOrRemoved(evt:qb2ContainerEvent):void
+		{
+			if ( evt.type == qb2ContainerEvent.ADDED_TO_WORLD )
+			{
+				saveMaxTimeStep = world.maximumRealtimeStep;
+				world.maximumRealtimeStep = 1.0 / 50.0;
+			}
+			else
+			{
+				world.maximumRealtimeStep = saveMaxTimeStep;
+			}
+		}
 	}
 }
