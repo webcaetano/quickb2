@@ -36,10 +36,10 @@ package QuickB2.objects.tangibles
 	
 	use namespace qb2_friend;
 	
-	[Event(name="addedObject",   type="QuickB2.events.qb2ContainerEvent")]
-	[Event(name="removedObject", type="QuickB2.events.qb2ContainerEvent")]
-	[Event(name="descendantAddedObject", type="QuickB2.events.qb2ContainerEvent")]
-	[Event(name="descendantRemovedObject", type="QuickB2.events.qb2ContainerEvent")]	
+	[Event(name="addedObject",             type="QuickB2.events.qb2ContainerEvent")]
+	[Event(name="removedObject",           type="QuickB2.events.qb2ContainerEvent")]
+	[Event(name="descendantAddedObject",   type="QuickB2.events.qb2ContainerEvent")]
+	[Event(name="descendantRemovedObject", type="QuickB2.events.qb2ContainerEvent")]
 	
 	/**
 	 * ...
@@ -89,6 +89,9 @@ package QuickB2.objects.tangibles
 						for (var i:int = 0; i < _objects.length; i++) 
 						{
 							var object:qb2Object = _objects[i];
+							
+							if ( !object.participatesInDeepCloning )  continue;
+							
 							if ( object is qb2Tangible )
 							{
 								var physObject:qb2Tangible = object as qb2Tangible;
@@ -438,14 +441,13 @@ package QuickB2.objects.tangibles
 			_objects.splice(origIndex, 1);
 			_objects.splice(index, 0, object);
 			
-			//--- Update the terrains that are below this shape if it's simulating z friction.
 			if ( object is qb2Shape )
 			{
+				//--- Let this shape know that it needs to update its list of terrains that are beneath it.
 				var asShape:qb2Shape = object as qb2Shape;
 				if ( asShape.frictionJoints )
 				{
-					asShape.populateTerrainsBelowThisTang();
-					updateFrictionJoints();
+					world._terrainRevisionDict[asShape] = -1;
 				}
 			}
 			
@@ -690,7 +692,7 @@ package QuickB2.objects.tangibles
 		{
 			for (var i:int = 0; i < _objects.length; i++) 
 			{
-				if ( _objects[i].drawsDebug )
+				if ( _objects[i].participatesInDebugDrawing )
 				{
 					_objects[i].drawDebug(graphics);
 				}

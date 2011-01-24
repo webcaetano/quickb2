@@ -13,7 +13,7 @@ package demos
 	import QuickB2.stock.qb2Stock;
 	
 	/**
-	 * Stressing the engine.
+	 * Stressing the engine.  Debug draw is ignored for this one demo, using bitmaps instead to maximize performance.
 	 * 
 	 * @author Doug Koellmer
 	 */
@@ -37,15 +37,7 @@ package demos
 					var y:Number = center.y + pyramidBase * (squareSize / 2)  - i * squareSize;
 					addObject(makeRedSquare(utilPoint.set(x, y))); 
 				}
-				
 			}
-			
-			qb2Keyboard.makeSingleton(stage).anyKeyDown = fire;
-		}
-		
-		private function fire():void
-		{
-			this.scaleBy( -1, 1, this.centerOfMass);
 		}
 		
 		private static function makeRedSquare(position:amPoint2d):qb2Body

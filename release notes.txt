@@ -18,19 +18,17 @@
 
 - made qb2DebugPanel remember your settings locally and cleaned up a lot of code there...also added Step button and RAM usage
 
-- added car example to qb2DemoReel
+- added car example, stress test, and distanceTo demos to qb2DemoReel
 
 - got rid of qb2IDrawable and the interfaces package, moved qb2IRigidObject to tangibles package
 
 - added qb2Preloader...just a generic preloader that you extend from to define your "main" class...useful for just rapid prototypes until you implement a fancier one
 
-- added class hierarchy to docs folder
-
-- added event types to qb2AddRemoveEvent that allow you to listen for when a descendant of a container adds/removes an object.
+- added class hierarchy to docs folder.
 
 - added qb2EventDispatcher to QuickB2.events in order to make QuickB2's optimized event dispatching system more easily available to subclasses and extensions, especially those not in the qb2Object class hierarchy...previously qb2Object did all the work
 
-- implemented frictionZ...interface was there, but didn't do anything
+- first full version of top-down friction z implemented, along with terrains for differential friction...still some customizability, realism, and efficiency to add
 
 - added qb2Terrain to QuickB2.stock.  Adding a terrain to your world is a way for frictionZ to be modified automatically, like you can create a lake that sets an object's frictionZ be much lower whenever it's over the lake.
 
@@ -42,6 +40,6 @@
 
 - added a qb2TreeIterator to make it easy to do a level-order traversal of a qb2ObjectContainer hieararchy.
 
-- changed qb2AddRemoveEvent into qb2ContainerEvent with the advent of the INDEX_CHANGED event type, which listens for when an object gets it relative z-order in a container changed
+- changed qb2AddRemoveEvent into qb2ContainerEvent with the advent of the INDEX_CHANGED event type, which listens for when an object gets it relative z-order in a container changed...also added event types that allow you to listen for when a descendant of a container adds/removes an object.
 
 - added a logo

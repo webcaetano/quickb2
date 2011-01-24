@@ -13,10 +13,7 @@ package
 	{
 		public function Main():void 
 		{
-			var world:qb2World = new qb2World();
-			world.gravity.y = 10;
-			world.debugDragSource = stage;
-			world.debugDrawContext = this.graphics;
+			var world:qb2World = qb2Stock.newDebugWorld(new amVector2d(0, 10), this.graphics, stage);
 			world.start();
 			
 			var circle:qb2CircleShape = qb2Stock.newCircleShape(new amPoint2d(100, 100), 50, 1);

@@ -23,9 +23,13 @@
 package QuickB2.debugging 
 {
 	import com.bit101.components.*;
+	import flash.display.Bitmap;
 	import flash.display.DisplayObject;
+	import flash.display.Sprite;
 	import flash.events.*;
+	import flash.net.navigateToURL;
 	import flash.net.SharedObject;
+	import flash.net.URLRequest;
 	import flash.system.System;
 	import flash.utils.Dictionary;
 	import flash.utils.getTimer;
@@ -79,6 +83,11 @@ package QuickB2.debugging
 		private var polyStart:String  = "  POLYGONS";
 		private var circStart:String  = "  CIRCLES";
 		private var jointStart:String = "  JOINTS";
+		
+		[Embed(source = 'qb2Logo_tiny.png')]
+		private static const LogoClass:Class;
+		private var logoBitmap:Bitmap = new LogoClass;
+		private var logo:Sprite = new Sprite();
 		
 		public function qb2DebugPanel()
 		{			
@@ -169,9 +178,22 @@ package QuickB2.debugging
 			stepButton.x = pausePlay.x;
 			stepButton.y = pausePlay.y - stepButton.height - 5;
 			
+			logo.addChild(logoBitmap);
+			logo.x = stepButton.x + stepButton.width / 2 - logo.width / 2;
+			logo.y = stepButton.y - logo.height - 10;
+			addChild(logo);
+			logo.buttonMode = true;
+			logo.mouseChildren = false;
+			logo.addEventListener(MouseEvent.CLICK, goToOpenSourcePage, false, 0, true);
+			
 			addEventListener(Event.ADDED_TO_STAGE, added); // to start fps
 			
 			initSettings();
+		}
+		
+		private function goToOpenSourcePage(evt:MouseEvent):void
+		{
+			navigateToURL(new URLRequest("http://code.google.com/p/quickb2"), "_blank");
 		}
 		
 		private function update(evt:Event):void

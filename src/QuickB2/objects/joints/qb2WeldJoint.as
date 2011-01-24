@@ -154,7 +154,7 @@ package QuickB2.objects.joints
 			
 		public override function clone():qb2Object
 		{
-			var weldJoint:qb2WeldJoint = new qb2WeldJoint();
+			var weldJoint:qb2WeldJoint = super.clone() as qb2WeldJoint;
 			
 			weldJoint._localAnchor1._x = this._localAnchor1._x;
 			weldJoint._localAnchor1._y = this._localAnchor1._y;

@@ -25,11 +25,13 @@ package TopDown.objects
 	import As3Math.consts.TO_DEG;
 	import As3Math.general.*;
 	import As3Math.geo2d.*;
+	import Box2DAS.Dynamics.b2Body;
 	import flash.display.Graphics;
 	import flash.utils.Dictionary;
 	import QuickB2.*;
 	import QuickB2.events.qb2ContainerEvent;
 	import QuickB2.events.qb2MassEvent;
+	import QuickB2.misc.qb2TreeIterator;
 	import QuickB2.objects.*;
 	import QuickB2.objects.tangibles.qb2Tangible;
 	import QuickB2.stock.qb2Terrain;
@@ -151,6 +153,8 @@ package TopDown.objects
 			
 		protected override function justAddedObject(object:qb2Object):void
 		{
+			super.justAddedObject(object);
+			
 			if ( object is tdTire )
 			{
 				var tire:tdTire = object as tdTire;
@@ -178,6 +182,8 @@ package TopDown.objects
 		
 		protected override function justRemovedObject(object:qb2Object):void
 		{
+			super.justRemovedObject(object);
+			
 			if ( object is tdTire )
 			{
 				var tire:tdTire = object as tdTire;
@@ -295,6 +301,8 @@ package TopDown.objects
 				axle.numRight = centroid.x - (axle.avgLeft - centroid.x);
 			}
 			
+			turnAxis = axle.avgTop;
+			
 			
 			
 			//--- Calculate mass share. The mass share of a tire times the world's
@@ -339,9 +347,19 @@ package TopDown.objects
 			}
 		}
 		
+		private static var reusableTerrainList:Vector.<qb2Terrain> = new Vector.<qb2Terrain>();
+		private static var terrainIterator:qb2TreeIterator = new qb2TreeIterator();
+		
 		protected override function update():void
 		{
 			super.update();
+			
+			if ( !axle )  return;
+			
+			if( !_world._terrainRevisionDict || _world._terrainRevisionDict[this] != _world._globalTerrainRevision )
+			{
+				populateTerrainsBelowThisTang();
+			}
 			
 			var pedal:Number = brainPort.NUMBER_PORT_1;
 			var turn:Number  = brainPort.NUMBER_PORT_2;
@@ -400,7 +418,23 @@ package TopDown.objects
 			var longTransfer:Number = vertDiff ? (zCenterOfMass / vertDiff) * totMass * _kinematics._longAccel : 0;
 			var latTransfer:Number  = horDiff  ? (zCenterOfMass / horDiff)  * totMass * _kinematics._latAccel  : 0;
 			
-			var globalTerrains:Vector.<qb2Terrain> = world._globalTerrainList;
+			reusableTerrainList.length = 0;
+			if ( _terrainsBelowThisTang )
+			{
+				var globalTerrains:Vector.<qb2Terrain> = _terrainsBelowThisTang;
+				for (var j:int = globalTerrains.length-1; j >= 0; j--) 
+				{
+					var jthTerrain:qb2Terrain = globalTerrains[j];
+					if ( jthTerrain.ubiquitous )
+					{
+						reusableTerrainList.unshift(jthTerrain);
+					}
+					else if( _contactTerrainDict && _contactTerrainDict[jthTerrain] )
+					{
+						reusableTerrainList.unshift(jthTerrain);
+					}
+				}
+			}
 
 			//--- Iterate through the tires, applying various forces to the body at the tires' locations.
 			var actualNumDrivenTires:int = numDrivenTires;
@@ -456,36 +490,21 @@ package TopDown.objects
 				var highestTerrain:qb2Terrain = null;
 				
 				var frictionMultiplier:Number = 1, rollingFrictionMultiplier:Number = 1;
-				/*if ( _terrains )
+				if ( reusableTerrainList.length )
 				{
-					for ( var j:uint = 0; j < _terrains.length; j++ )
+					for ( j = reusableTerrainList.length-1; j >= 0; j-- )
 					{
-						var jthTerrain:qb2Terrain = _terrains[j];
+						jthTerrain = reusableTerrainList[j];
 						
-						if ( !testTiresIndividuallyAgainstTerrains )
+						if ( jthTerrain.ubiquitous || !testTiresIndividuallyAgainstTerrains )
 						{
 							highestTerrain = jthTerrain;
+							break;
 						}
-						else if ( jthTerrain.testPoint(worldTirePos) )
+						else if( jthTerrain.testPoint(worldTirePos) )
 						{
 							highestTerrain = jthTerrain;
-						}
-					}
-				}
-				
-				if ( globalTerrains )
-				{
-					for ( j = 0; j < globalTerrains.length; j++ )
-					{
-						jthTerrain = globalTerrains[j];
-						
-						if ( !testTiresIndividuallyAgainstTerrains )
-						{
-							highestTerrain = jthTerrain;
-						}
-						else if ( jthTerrain.testPoint(worldTirePos) )
-						{
-							highestTerrain = jthTerrain;
+							break;
 						}
 					}
 				}
@@ -498,7 +517,7 @@ package TopDown.objects
 					{
 						rollingFrictionMultiplier *= (highestTerrain as tdTerrain).rollingFrictionZMultiplier;
 					}
-				}*/
+				}
 				
 				//--- Some helpers...
 				var force:Number = 0;
@@ -571,10 +590,12 @@ package TopDown.objects
 					tire.rotation += (tire.radsPerSec * _world.lastTimeStep);
 				}
 				
+				//--- Handle rolling friction.
 				if ( (rollingFrictionWithThrottle || pedal == 0) && (rollingFrictionWithBrakes || brake == 0) )
 				{
 					var rollingFriction:Number = tire.rollingFriction * rollingFrictionMultiplier;
 					var rollingFrictionForce:Number = tire.massShare * (rollingFriction * -tireSpeedLong);
+					rollingFrictionForce *= 1 - amUtils.constrain(turn / maxTurnAngle, 0, 1);
 					if ( rollingFrictionForce )
 					{
 						this.applyForce(worldTirePos, tireOrientation.scaledBy(rollingFrictionForce));
@@ -652,6 +673,33 @@ package TopDown.objects
 			
 			return super.scaleBy(xValue, yValue, origin, scaleMass, scaleJointAnchors);
 		}
+		
+		td_friend function registerContactTerrain(terrain:qb2Terrain):void
+		{
+			if ( !_contactTerrainDict )
+			{
+				_contactTerrainDict = new Dictionary(false);
+				_contactTerrainDict[NUM_TERRAINS] = 0;
+			}
+			
+			_contactTerrainDict[terrain] = true;
+			_contactTerrainDict[NUM_TERRAINS]++;
+		}
+		
+		td_friend function unregisterContactTerrain(terrain:qb2Terrain):void
+		{
+			delete _contactTerrainDict[terrain];
+			_contactTerrainDict[NUM_TERRAINS]--;
+			
+			if ( _contactTerrainDict[NUM_TERRAINS] == 0 )
+			{
+				_contactTerrainDict = null;
+			}
+		}
+		
+		private static const NUM_TERRAINS:String = "numTerrains";
+		
+		private var _contactTerrainDict:Dictionary = null;
 
 		public override function toString():String
 		{

@@ -115,7 +115,9 @@ package TopDown.carparts
 		
 		public override function clone():qb2Object
 		{
-			var tire:tdTire = new tdTire(_position.clone());
+			var tire:tdTire = super.clone() as tdTire;
+			
+			tire.position.copy(this.position);
 			tire.canBrake = this.canBrake;
 			tire.isDriven = this.isDriven;
 			tire.canTurn  = this.canTurn;

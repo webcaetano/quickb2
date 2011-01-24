@@ -412,7 +412,7 @@ package QuickB2.objects.tangibles
 		qb2_friend var _actor:DisplayObject;
 		
 		public override function clone():qb2Object
-			{  return baseClone(new ((this as Object).constructor), true, true);  }
+			{  return baseClone(super.clone() as qb2Tangible, true, true);  }
 			
 		qb2_friend function copyProps(source:qb2Tangible, massPropsToo:Boolean = true ):void
 		{
@@ -1211,6 +1211,8 @@ package QuickB2.objects.tangibles
 				{
 					var ithTerrain:qb2Terrain = globalList[i];
 					
+					if ( this == ithTerrain || this.isDescendantOf(ithTerrain) )  continue;
+					
 					if ( this.isAbove(ithTerrain) )
 					{
 						if ( !_terrainsBelowThisTang )
@@ -1232,10 +1234,7 @@ package QuickB2.objects.tangibles
 				}
 			}
 			
-			if ( _world._terrainRevisionDict[this] )
-			{
-				_world._terrainRevisionDict[this] = _world._globalTerrainRevision;
-			}
+			_world._terrainRevisionDict[this] = _world._globalTerrainRevision;
 		}
 		qb2_friend var _terrainsBelowThisTang:Vector.<qb2Terrain>;
 		
@@ -1452,9 +1451,9 @@ package QuickB2.objects.tangibles
 				_linearVelocity._x = _bodyB2.m_linearVelocity.x;
 				_linearVelocity._y = _bodyB2.m_linearVelocity.y;
 				_angularVelocity   = _bodyB2.m_angularVelocity;
+				
+				(this as qb2IRigidObject).updateActor();
 			}
-			
-			(this as qb2IRigidObject).updateActor();
 			
 			super.update();
 		}

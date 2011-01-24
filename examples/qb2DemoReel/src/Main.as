@@ -77,6 +77,7 @@
 			world.actor = addChild(new Sprite());
 			world.debugDrawContext = (addChild(new Sprite()) as Sprite).graphics;
 			world.realtimeUpdate = true;
+			world.maximumRealtimeStep = 1.0 / 10.0 // make it so a simulation step is never longer than this.
 			world.gravity.y = 10;
 			world.defaultPositionIterations = 10;
 			world.defaultVelocityIterations = 10;
@@ -91,7 +92,7 @@
 			
 			//--- Add some walls that will dynamically adjust to window size.
 			world.addObject(_stageWalls = new qb2StageWalls(stage));
-			world.lastObject().drawsDebug = false;  // the walls can be distracting on window resizes, so don't draw 'em.
+			world.lastObject().participatesInDebugDrawing = false;  // the walls can be distracting on window resizes, so don't draw 'em.
 			
 			//--- Layout the gui and stage, load the first demo, and listen for future stage changes.
 			buildGui();

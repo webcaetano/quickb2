@@ -24,6 +24,7 @@ package TopDown.ai.brains
 {
 	import flash.display.Graphics;
 	import QuickB2.events.qb2ContainerEvent;
+	import QuickB2.objects.qb2Object;
 	import QuickB2.qb2_errors;
 	import TopDown.*;
 	import TopDown.objects.*;
@@ -34,16 +35,15 @@ package TopDown.ai.brains
 	 * ...
 	 * @author Doug Koellmer
 	 */
-	public class tdBrain
+	public class tdBrain extends qb2Object
 	{	
 		public function tdBrain()
 		{
 			if ( Object(this).constructor == tdBrain )
 					throw qb2_errors.ABSTRACT_CLASS_ERROR;
+
+			participatesInDeepCloning = false;
 		}
-		
-		td_friend function relay_update():void
-			{  update();  }
 		
 		td_friend function setHost(aSmartBody:tdSmartBody):void
 		{
@@ -97,8 +97,5 @@ package TopDown.ai.brains
 		protected virtual function removedFromHost():void { }
 		protected virtual function addedToWorld():void {}
 		protected virtual function removedFromWorld():void {}
-		protected virtual function update():void  { }
-		
-		public virtual function drawDebug(graphics:Graphics):void { };
 	}
 }

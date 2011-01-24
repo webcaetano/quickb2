@@ -1,9 +1,3 @@
 - rebuild with bound circles implemented
 
-- make sure antenna contact bug is fixed
-
-- add trailor
-
 - make environment and random circles and stuff
-
-- special skid layer for tdMap

@@ -149,6 +149,9 @@ package QuickB2.objects.tangibles
 			for ( var i:int = 0; i < _objects.length; i++ )
 			{
 				var object:qb2Object = _objects[i];
+				
+				if ( !object.participatesInUpdateLoop )  continue;
+				
 				object.relay_update(); // You can't call update directly because it's protected.
 				
 				/*if ( drawingDebug )

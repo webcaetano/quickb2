@@ -22,6 +22,7 @@
 
 package TopDown.ai 
 {
+	import adobe.utils.CustomActions;
 	import As3Math.general.amUtils;
 	import As3Math.geo2d.amBoundBox2d;
 	import As3Math.geo2d.amLine2d;
@@ -35,6 +36,7 @@ package TopDown.ai
 	import QuickB2.objects.qb2Object;
 	import QuickB2.objects.tangibles.qb2Group;
 	import QuickB2.objects.tangibles.qb2Tangible;
+	import TopDown.ai.brains.tdBrain;
 	import TopDown.ai.brains.tdTrackBrain;
 	import TopDown.loaders.proxies.tdProxyCarBody;
 	import TopDown.loaders.tdFlashLoader;
@@ -61,6 +63,7 @@ package TopDown.ai
 		public var startCarsAtSpeedLimit:Boolean = true;
 		
 		public var carSeeds:Array = null;
+		public var brainSeeds:Array = null;
 		
 		public var flashLoader:tdFlashLoader = null;
 		
@@ -247,9 +250,33 @@ package TopDown.ai
 		
 		protected function makeTrackBrain():tdTrackBrain
 		{
+			if ( brainSeeds && brainSeeds.length )
+			{
+				var index:int = amUtils.getRandInt(0, brainSeeds.length - 1);
+				
+				var prototype:Object = brainSeeds[index];
+				
+				if ( prototype is Class )
+				{
+					return new (prototype as Class);
+				}
+				else if( prototype is tdBrain )
+				{
+					return (prototype as tdBrain).clone() as tdTrackBrain;
+				}
+			}
+			else
+			{
+				return makeDefaultTrackBrain();
+			}
+			
+			return null;
+		}
+		
+		protected function makeDefaultTrackBrain():tdTrackBrain
+		{
 			var brain:tdTrackBrain = new tdTrackBrain();
 			brain.aggression = 0;
-			
 			return brain;
 		}
 		
@@ -346,7 +373,7 @@ package TopDown.ai
 				//currDistanceOnTrack = amUtils.constrain(currDistanceOnTrack, 0, track.length);
 				
 				trackBrain.currDistance = currDistanceOnTrack;
-				newCar.brain = trackBrain;
+				newCar.addObject(trackBrain);
 				
 				newCar.position = intPoint;
 				newCar.rotation = trackDir.angle;

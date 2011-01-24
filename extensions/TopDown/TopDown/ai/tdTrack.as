@@ -159,7 +159,9 @@ package TopDown.ai
 		
 		public override function clone():qb2Object
 		{
-			var newTrack:tdTrack = new tdTrack(start.clone(), end.clone());
+			var newTrack:tdTrack = super.clone() as tdTrack;
+			newTrack.start.copy(this.start);
+			newTrack.end.copy(this.end);
 			newTrack.speedLimit = this.speedLimit;
 			newTrack.width = this.width;
 			

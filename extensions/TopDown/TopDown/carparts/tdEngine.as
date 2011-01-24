@@ -23,6 +23,7 @@
 package TopDown.carparts
 {
 	import As3Math.general.amUtils;
+	import QuickB2.debugging.qb2DebugDrawSettings;
 	import QuickB2.misc.qb2UnitConverter;
 	import QuickB2.objects.qb2Object;
 	import TopDown.objects.tdCarBody;
@@ -53,7 +54,7 @@ package TopDown.carparts
 		
 		public override function clone():qb2Object
 		{
-			var engine:tdEngine = new tdEngine();
+			var engine:tdEngine = super.clone() as tdEngine;
 			engine.cancelThrottleWhenShifting = this.cancelThrottleWhenShifting;
 			engine.torqueCurve = this.torqueCurve;
 			engine.constrainRPMs = this.constrainRPMs;

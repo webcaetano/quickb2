@@ -62,7 +62,7 @@ package TopDown.carparts
 		
 		public override function clone():qb2Object
 		{
-			var tranny:tdTransmission = new tdTransmission();
+			var tranny:tdTransmission = super.clone() as tdTransmission;
 			tranny.torqueConversion = torqueConversion;
 			tranny.differential = differential;
 			tranny.gearRatios = gearRatios.slice(0, gearRatios.length);

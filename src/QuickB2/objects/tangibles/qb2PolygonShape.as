@@ -496,6 +496,7 @@ package QuickB2.objects.tangibles
 				var col2:b2Vec2 = r.col2;
 				var pixPerMeter:Number = worldPixelsPerMeter;
 				
+				var firstX:Number, firstY:Number;
 				for ( i = 0; i < numVerts; i++)
 				{
 					var v:V2 = b2Verts[i];
@@ -515,9 +516,11 @@ package QuickB2.objects.tangibles
 					}
 					else
 					{
-						graphics.moveTo(x, y);
+						graphics.moveTo(firstX = x, firstY = y);
 					}
 				}
+				
+				if ( _closed )  graphics.lineTo(firstX, firstY);
 			}
 		}
 		

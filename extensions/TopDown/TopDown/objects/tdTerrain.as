@@ -26,7 +26,9 @@ package TopDown.objects
 	import flash.display.CapsStyle;
 	import flash.display.Graphics;
 	import flash.utils.Dictionary;
+	import QuickB2.events.qb2ContactEvent;
 	import QuickB2.objects.qb2Object;
+	import QuickB2.objects.tangibles.qb2Shape;
 	import QuickB2.stock.qb2Terrain;
 	import TopDown.debugging.tdDebugDrawSettings;
 	import TopDown.internals.tdInternalSkidEntry;
@@ -113,6 +115,40 @@ package TopDown.objects
 					//trace(entry.thickness, entry.color, alpha, entry.start, entry.end);
 					graphics.moveTo(entry.start.x, entry.start.y);
 					graphics.lineTo(entry.end.x, entry.end.y);
+				}
+			}
+		}
+		
+		private var carContactDict:Dictionary = new Dictionary(true);
+		
+		protected override function contact(evt:qb2ContactEvent):void
+		{
+			super.contact(evt);
+			
+			var otherShape:qb2Shape = evt.otherShape;
+			var carBody:tdCarBody = otherShape.getAncestorOfType(tdCarBody) as tdCarBody;
+			
+			if ( !carBody )  return;
+			
+			if ( evt.type == qb2ContactEvent.CONTACT_STARTED )
+			{
+				if ( !carContactDict[carBody] )
+				{
+					carContactDict[carBody] = 0 as int;
+					
+					carBody.registerContactTerrain(this);
+				}
+				
+				carContactDict[carBody]++;
+			}
+			else
+			{
+				carContactDict[carBody]--;
+				
+				if ( carContactDict[carBody] == 0 ) 
+				{
+					delete carContactDict[carBody];
+					carBody.unregisterContactTerrain(this);
 				}
 			}
 		}
