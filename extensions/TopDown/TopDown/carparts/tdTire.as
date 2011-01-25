@@ -318,11 +318,11 @@ package TopDown.carparts
 			
 		public override function drawDebug(graphics:Graphics):void
 		{
-			var drawFlags:uint = tdDebugDrawSettings.drawFlags;
+			var drawFlags:uint = td_debugDrawSettings.flags;
 			
-			if ( drawFlags & tdDebugDrawSettings.DRAW_TIRES || drawFlags & tdDebugDrawSettings.DRAW_TIRE_LOADS )
+			if ( drawFlags & td_debugDrawSettings.TIRES || drawFlags & td_debugDrawSettings.TIRE_LOADS )
 			{
-				var tireScale:Number = tdDebugDrawSettings.tireScale;
+				var tireScale:Number = td_debugDrawSettings.tireScale;
 				var pixPerMeter:Number = this.worldPixelsPerMeter;
 				var realRadius:Number = _radius * tireScale;
 				var realWidth:Number = _width * tireScale;
@@ -336,13 +336,13 @@ package TopDown.carparts
 				sideVec.negate().scaleBy(2);
 				worldVec.negate().scaleBy(2);
 				
-				var drawTires:Boolean = drawFlags & tdDebugDrawSettings.DRAW_TIRES ? true : false;
-				var drawLoads:Boolean = drawFlags & tdDebugDrawSettings.DRAW_TIRE_LOADS ? true : false;
+				var drawTires:Boolean = drawFlags & td_debugDrawSettings.TIRES ? true : false;
+				var drawLoads:Boolean = drawFlags & td_debugDrawSettings.TIRE_LOADS ? true : false;
 				
 				if ( drawTires )
 				{
-					graphics.beginFill(tdDebugDrawSettings.tireFillColor, qb2DebugDrawSettings.fillAlpha);
-					graphics.lineStyle(qb2DebugDrawSettings.lineThickness, tdDebugDrawSettings.tireOutlineColor, qb2DebugDrawSettings.outlineAlpha);
+					graphics.beginFill(td_debugDrawSettings.tireFillColor, qb2_debugDrawSettings.fillAlpha);
+					graphics.lineStyle(qb2_debugDrawSettings.lineThickness, td_debugDrawSettings.tireOutlineColor, qb2_debugDrawSettings.outlineAlpha);
 					
 					graphics.moveTo(worldPoint.x, worldPoint.y);
 					
@@ -373,7 +373,7 @@ package TopDown.carparts
 					avgAlpha /= _carBody.tires.length;
 					
 					var loadAlpha:Number = this._load / carLoad;
-					loadAlpha += (loadAlpha - avgAlpha) * tdDebugDrawSettings.tireLoadAlphaScale;
+					loadAlpha += (loadAlpha - avgAlpha) * td_debugDrawSettings.tireLoadAlphaScale;
 					
 					if ( drawTires )
 					{
@@ -381,7 +381,7 @@ package TopDown.carparts
 						worldVec.negate();
 					}
 					
-					graphics.beginFill(tdDebugDrawSettings.tireLoadColor, loadAlpha);
+					graphics.beginFill(td_debugDrawSettings.tireLoadColor, loadAlpha);
 					graphics.lineStyle();
 					
 					graphics.moveTo(worldPoint.x, worldPoint.y);
@@ -402,13 +402,13 @@ package TopDown.carparts
 				}
 				
 				
-				if ( drawFlags & tdDebugDrawSettings.DRAW_TIRES ) // this block draws the tire rotation lines.
+				if ( drawFlags & td_debugDrawSettings.TIRES ) // this block draws the tire rotation lines.
 				{
-					const numRotLines:int = tdDebugDrawSettings.tireNumRotLines;
+					const numRotLines:int = td_debugDrawSettings.tireNumRotLines;
 					
 					if ( !numRotLines )  return;
 					
-					graphics.lineStyle(qb2DebugDrawSettings.lineThickness, tdDebugDrawSettings.tireOutlineColor, qb2DebugDrawSettings.outlineAlpha);
+					graphics.lineStyle(qb2_debugDrawSettings.lineThickness, td_debugDrawSettings.tireOutlineColor, qb2_debugDrawSettings.outlineAlpha);
 					
 					sideVec.negate();
 					worldPoint.translateBy(sideVec).translateBy(worldVec.negated().scaleBy(.5));

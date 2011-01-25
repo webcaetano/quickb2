@@ -26,7 +26,7 @@ package QuickB2.stock
 	import As3Math.geo2d.*;
 	import flash.display.Graphics;
 	import flash.utils.*;
-	import QuickB2.debugging.qb2DebugDrawSettings;
+	import QuickB2.debugging.qb2_debugDrawSettings;
 	import QuickB2.debugging.qb2DebugTraceSettings;
 	import QuickB2.events.*;
 	import QuickB2.internals.*;
@@ -256,7 +256,7 @@ package QuickB2.stock
 		
 		public override function drawDebug(graphics:Graphics):void
 		{
-			debugFillColorStack.unshift(qb2DebugDrawSettings.tripSensorFillColor);
+			debugFillColorStack.unshift(qb2_debugDrawSettings.tripSensorFillColor);
 				super.drawDebug(graphics);
 			debugFillColorStack.shift();
 		}

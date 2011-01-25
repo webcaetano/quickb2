@@ -26,11 +26,11 @@ package TopDown.ai
 	import As3Math.geo2d.*;
 	import flash.display.Graphics;
 	import flash.events.EventDispatcher;
-	import QuickB2.debugging.qb2DebugDrawSettings;
+	import QuickB2.debugging.qb2_debugDrawSettings;
 	import QuickB2.events.qb2EventDispatcher;
 	import QuickB2.objects.qb2Object;
 	import TopDown.*;
-	import TopDown.debugging.tdDebugDrawSettings;
+	import TopDown.debugging.td_debugDrawSettings;
 	import TopDown.events.tdTrackEvent;
 	import TopDown.internals.*;
 	import TopDown.objects.*;
@@ -275,15 +275,15 @@ package TopDown.ai
 		
 		public override function draw(graphics:Graphics):void
 		{
-			lineRep.asVector().draw(graphics, lineRep.getStartPoint(), 0, tdDebugDrawSettings.trackArrowSize, 1);
+			lineRep.asVector().draw(graphics, lineRep.getStartPoint(), 0, td_debugDrawSettings.trackArrowSize, 1);
 		}
 		
 		public override function drawDebug(graphics:Graphics):void
 		{
-			if ( !(tdDebugDrawSettings.drawFlags & tdDebugDrawSettings.DRAW_TRACKS) )
+			if ( !(td_debugDrawSettings.flags & td_debugDrawSettings.TRACKS) )
 				return;
 				
-			graphics.lineStyle(tdDebugDrawSettings.trackThickness, tdDebugDrawSettings.trackColor, qb2DebugDrawSettings.outlineAlpha);
+			graphics.lineStyle(td_debugDrawSettings.trackThickness, td_debugDrawSettings.trackColor, qb2_debugDrawSettings.outlineAlpha);
 			draw(graphics);
 		}
 	}

@@ -30,6 +30,7 @@ package TopDown.ai.brains
 	import QuickB2.debugging.*;
 	import QuickB2.events.*;
 	import QuickB2.misc.qb2_behaviorFlags;
+	import QuickB2.misc.qb2_flags;
 	import QuickB2.objects.*;
 	import QuickB2.objects.tangibles.*;
 	import QuickB2.stock.*;
@@ -643,8 +644,7 @@ package TopDown.ai.brains
 			var wid:Number = bbWid < _minAntennaWidth ? _minAntennaWidth : bbWid;
 			
 			var tri:qb2Shape = qb2Stock.newIsoTriShape(bb.topCenter, wid, _antennaLength, 0, 0);
-			tri.turnBehaviorFlagOff(qb2_behaviorFlags.PARTICIPATES_IN_DEBUG_DRAWING);
-			tri.turnBehaviorFlagOff(qb2_behaviorFlags.PARTICIPATES_IN_DEBUG_MOUSE_DRAG);
+			tri.turnFlagOff(qb2_flags.O_JOINS_IN_DEBUG_DRAWING | qb2_flags.T_IS_DEBUG_DRAGGABLE );
 			
 			return tri;
 		}
@@ -769,15 +769,15 @@ package TopDown.ai.brains
 		
 		public override function drawDebug(graphics:Graphics):void
 		{
-			if ( _antenna && (tdDebugDrawSettings.drawFlags & tdDebugDrawSettings.DRAW_ANTENNAS) )
+			if ( _antenna && (td_debugDrawSettings.flags & td_debugDrawSettings.ANTENNAS) )
 			{
 				graphics.lineStyle();
-				graphics.beginFill(tdDebugDrawSettings.antennaColor, qb2DebugDrawSettings.fillAlpha);
+				graphics.beginFill(td_debugDrawSettings.antennaColor, qb2_debugDrawSettings.fillAlpha);
 				_antenna.draw(graphics);
 				graphics.endFill();
 			}
 			
-			if ( tdDebugDrawSettings.drawFlags & tdDebugDrawSettings.DRAW_TRACK_TETHERS )
+			if ( td_debugDrawSettings.flags & td_debugDrawSettings.TRACK_TETHERS )
 			{
 				if ( !_currTrack || !_currPoint )  return;
 			
@@ -789,7 +789,7 @@ package TopDown.ai.brains
 				
 				var axlePos:amPoint2d = turnAxis;
 				var tetherVec:amVector2d = _currPoint.minus(axlePos);
-				graphics.lineStyle(tdDebugDrawSettings.tetherThickness, tdDebugDrawSettings.tetherColor, tdDebugDrawSettings.tetherAlpha);
+				graphics.lineStyle(td_debugDrawSettings.tetherThickness, td_debugDrawSettings.tetherColor, td_debugDrawSettings.tetherAlpha);
 				tetherVec.draw(graphics, axlePos, 0, 0, 1);
 			}
 		}

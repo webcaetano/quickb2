@@ -22,6 +22,7 @@
 
 package QuickB2 
 {
+	import QuickB2.misc.qb2_flags;
 	/**
 	 * Global settings controlling various preferences and optimizations.
 	 * 

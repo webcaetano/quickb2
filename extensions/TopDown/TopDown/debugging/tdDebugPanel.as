@@ -45,12 +45,12 @@ package TopDown.debugging
 		
 		private var checkboxMap:Object =
 		{
-			tires            : tdDebugDrawSettings.DRAW_TIRES, 
-			tireLoads        : tdDebugDrawSettings.DRAW_TIRE_LOADS,
-			skids            : tdDebugDrawSettings.DRAW_SKIDS,
-			tracks           : tdDebugDrawSettings.DRAW_TRACKS,
-			tethers          : tdDebugDrawSettings.DRAW_TRACK_TETHERS,
-			antennas         : tdDebugDrawSettings.DRAW_ANTENNAS
+			tires            : td_debugDrawFlags.TIRES, 
+			tireLoads        : td_debugDrawFlags.TIRE_LOADS,
+			skids            : td_debugDrawFlags.SKIDS,
+			tracks           : td_debugDrawFlags.TRACKS,
+			tethers          : td_debugDrawFlags.TRACK_TETHERS,
+			antennas         : td_debugDrawFlags.ANTENNAS
 		};
 		
 		public function tdDebugPanel()
@@ -100,7 +100,7 @@ package TopDown.debugging
 				{
 					for ( var key:String in checkboxMap)
 					{
-						data[key] = tdDebugDrawSettings.drawFlags & checkboxMap[key] ? true : false
+						data[key] = td_debugDrawSettings.flags & checkboxMap[key] ? true : false
 					}
 					
 					data.windowMinimized = false;
@@ -120,7 +120,7 @@ package TopDown.debugging
 			{
 				for ( key in checkboxMap)
 				{
-					this[key].selected = tdDebugDrawSettings.drawFlags & checkboxMap[key] ? true : false;
+					this[key].selected = td_debugDrawSettings.flags & checkboxMap[key] ? true : false;
 				}
 			}
 		}
@@ -129,9 +129,9 @@ package TopDown.debugging
 		{
 			checkBox.selected = flag;
 			if ( flag )
-				tdDebugDrawSettings.drawFlags |= bit;
+				td_debugDrawSettings.flags |= bit;
 			else
-				tdDebugDrawSettings.drawFlags &= ~bit;
+				td_debugDrawSettings.flags &= ~bit;
 		}
 		
 		private static function get sharedData():Object
@@ -190,9 +190,9 @@ package TopDown.debugging
 					setSharedData(key, flag);
 					
 					if ( flag )
-						tdDebugDrawSettings.drawFlags |= drawFlag;
+						td_debugDrawSettings.flags |= drawFlag;
 					else
-						tdDebugDrawSettings.drawFlags &= ~drawFlag;
+						td_debugDrawSettings.flags &= ~drawFlag;
 					
 					break;
 				}

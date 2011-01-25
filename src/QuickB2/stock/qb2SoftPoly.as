@@ -322,18 +322,18 @@ package QuickB2.stock
 		{
 			if ( !revJoints.length )  return;
 			
-			var drawFlags:uint = qb2DebugDrawSettings.drawFlags;
+			var drawFlags:uint = qb2_debugDrawSettings.drawFlags;
 			
-			if ( !(drawFlags & qb2DebugDrawSettings.DRAW_OUTLINES) && !(drawFlags & qb2DebugDrawSettings.DRAW_FILLS))  return;
+			if ( !(drawFlags & qb2_debugDrawSettings.OUTLINES) && !(drawFlags & qb2_debugDrawSettings.FILLS))  return;
 			
 			var staticShape:Boolean = mass == 0;
 			
-			if ( drawFlags & qb2DebugDrawSettings.DRAW_OUTLINES )
-				graphics.lineStyle(qb2DebugDrawSettings.lineThickness, debugOutlineColor, qb2DebugDrawSettings.outlineAlpha);
+			if ( drawFlags & qb2_debugDrawSettings.OUTLINES )
+				graphics.lineStyle(qb2_debugDrawSettings.lineThickness, debugOutlineColor, qb2_debugDrawSettings.outlineAlpha);
 			else
 				graphics.lineStyle();
-			if ( drawFlags & qb2DebugDrawSettings.DRAW_FILLS )
-				graphics.beginFill(debugFillColor, qb2DebugDrawSettings.fillAlpha);
+			if ( drawFlags & qb2_debugDrawSettings.FILLS )
+				graphics.beginFill(debugFillColor, qb2_debugDrawSettings.fillAlpha);
 				
 			draw(graphics);
 			
@@ -341,9 +341,9 @@ package QuickB2.stock
 			
 			if ( _isCircle )
 			{
-				if ( (drawFlags & qb2DebugDrawSettings.DRAW_OUTLINES) && (drawFlags & qb2DebugDrawSettings.DRAW_CIRCLE_SPOKES) )
+				if ( (drawFlags & qb2_debugDrawSettings.OUTLINES) && (drawFlags & qb2_debugDrawSettings.CIRCLE_SPOKES) )
 				{
-					//graphics.lineStyle(qb2DebugDrawSettings.lineThickness, staticShape ? qb2DebugDrawSettings.staticOutlineColor : qb2DebugDrawSettings.dynamicOutlineColor, qb2DebugDrawSettings.outlineAlpha);
+					//graphics.lineStyle(qb2_debugDrawSettings.lineThickness, staticShape ? qb2_debugDrawSettings.staticOutlineColor : qb2_debugDrawSettings.dynamicOutlineColor, qb2_debugDrawSettings.outlineAlpha);
 					
 					var center:amPoint2d = centerOfMass;
 					
@@ -351,8 +351,8 @@ package QuickB2.stock
 					
 					var spokeFlags:Array =
 					[
-						qb2DebugDrawSettings.DRAW_CIRCLE_SPOKE_1, qb2DebugDrawSettings.DRAW_CIRCLE_SPOKE_2,
-						qb2DebugDrawSettings.DRAW_CIRCLE_SPOKE_3, qb2DebugDrawSettings.DRAW_CIRCLE_SPOKE_4
+						qb2_debugDrawSettings.CIRCLE_SPOKE_1, qb2_debugDrawSettings.CIRCLE_SPOKE_2,
+						qb2_debugDrawSettings.CIRCLE_SPOKE_3, qb2_debugDrawSettings.CIRCLE_SPOKE_4
 					];
 					
 					var fourth:int = revJoints.length / 4;

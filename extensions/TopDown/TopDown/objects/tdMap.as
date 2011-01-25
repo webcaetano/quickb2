@@ -30,7 +30,7 @@ package TopDown.objects
 	import QuickB2.objects.qb2Object;
 	import QuickB2.objects.tangibles.*;
 	import TopDown.ai.*;
-	import TopDown.debugging.tdDebugDrawSettings;
+	import TopDown.debugging.td_debugDrawSettings;
 	import TopDown.events.tdTrackEvent;
 	import TopDown.internals.*;
 	

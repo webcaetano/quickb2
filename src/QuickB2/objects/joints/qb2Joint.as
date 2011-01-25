@@ -28,9 +28,10 @@ package QuickB2.objects.joints
 	import Box2DAS.Dynamics.Joints.*;
 	import flash.display.Graphics;
 	import QuickB2.*;
-	import QuickB2.debugging.qb2DebugDrawSettings;
+	import QuickB2.debugging.qb2_debugDrawSettings;
 	import QuickB2.debugging.qb2DebugTraceSettings;
 	import QuickB2.events.qb2ContainerEvent;
+	import QuickB2.misc.qb2_flags;
 	import QuickB2.objects.*;
 	import QuickB2.objects.tangibles.*;
 	
@@ -48,8 +49,6 @@ package QuickB2.objects.joints
 		qb2_friend var jointB2:b2Joint;
 		
 		qb2_friend var _object1:qb2Tangible, _object2:qb2Tangible;
-		
-		qb2_friend var _collideConnected:Boolean = false;
 		
 		qb2_friend var requiresTwoRigids:Boolean = true;
 		qb2_friend var hasOneWorldPoint:Boolean = false;
@@ -77,14 +76,7 @@ package QuickB2.objects.joints
 		}
 		
 		public function get reactionTorque():Number
-		{
-			if ( jointB2 )
-			{
-				return jointB2.GetReactionTorque(1 / _world.lastTimeStep);
-			}
-			
-			return 0;
-		}
+			{  return jointB2 ? jointB2.GetReactionTorque(1 / _world.lastTimeStep) : 0;  }
 		
 		public function get isActive():Boolean
 			{  return jointB2 ? true : false;  }
@@ -199,20 +191,19 @@ package QuickB2.objects.joints
 			return requiresTwoRigids && _object1 && _object2 || !requiresTwoRigids && _object2;
 		}
 		
-		
 		qb2_friend virtual function objectsUpdated():void { }
 		
 		qb2_friend virtual function anchorUpdated(anchor:amPoint2d):void  {}
 		
 		public function get collideConnected():Boolean
-			{  return _collideConnected;  }
+			{  return _flags & qb2_flags.J_COLLIDE_CONNECTED ? true : false;  }
 		public function set collideConnected(bool:Boolean):void
 		{
-			_collideConnected = bool;
-			if ( jointB2 )
-				jointB2.m_collideConnected = bool;
+			if ( bool )
+				turnFlagOn(qb2_flags.J_COLLIDE_CONNECTED);
+			else
+				turnFlagOff(qb2_flags.J_COLLIDE_CONNECTED);
 		}
-
 		
 		qb2_friend var jointDef:b2JointDef = null; // this is assigned in make() in subclasses, then nullified again in the base make() function.
 		
@@ -351,12 +342,12 @@ package QuickB2.objects.joints
 		
 		public override function drawDebug(graphics:Graphics):void
 		{
-			var flags:uint = qb2DebugDrawSettings.drawFlags;
-			if ( flags & qb2DebugDrawSettings.DRAW_JOINTS )
+			var flags:uint = qb2_debugDrawSettings.drawFlags;
+			if ( flags & qb2_debugDrawSettings.JOINTS )
 			{
-				graphics.lineStyle(qb2DebugDrawSettings.jointLineThickness, qb2DebugDrawSettings.jointOutlineColor, qb2DebugDrawSettings.outlineAlpha);
+				graphics.lineStyle(qb2_debugDrawSettings.jointLineThickness, qb2_debugDrawSettings.jointOutlineColor, qb2_debugDrawSettings.outlineAlpha);
 					
-				graphics.beginFill(qb2DebugDrawSettings.jointFillColor, qb2DebugDrawSettings.fillAlpha);
+				graphics.beginFill(qb2_debugDrawSettings.jointFillColor, qb2_debugDrawSettings.fillAlpha);
 				draw(graphics);
 				graphics.endFill();
 			}

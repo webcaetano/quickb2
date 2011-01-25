@@ -34,7 +34,7 @@ package QuickB2.objects.tangibles
 	import flash.display.Graphics;
 	import flash.utils.Dictionary;
 	import QuickB2.*;
-	import QuickB2.debugging.qb2DebugDrawSettings;
+	import QuickB2.debugging.qb2_debugDrawSettings;
 	import QuickB2.misc.*;
 	import QuickB2.objects.joints.*;
 	import QuickB2.objects.qb2Object;
@@ -161,11 +161,11 @@ package QuickB2.objects.tangibles
 					for ( i = 0; i < this.fixtures.length; i++ )
 						this.fixtures[i].SetFriction(value as Number);
 				}
-				else if ( propName == "isGhost" )
+				/*else if ( propName == "isGhost" )
 				{
 					for ( i = 0; i < this.fixtures.length; i++ )
 						this.fixtures[i].SetSensor(value ? true : false);
-				}
+				}*/
 				else if ( propName == "frictionZ" )
 				{
 					updateFrictionJoints();
@@ -619,11 +619,11 @@ package QuickB2.objects.tangibles
 		{
 			if ( frictionJoints && fixtures.length )
 			{
-				if ( qb2DebugDrawSettings.drawFlags & qb2DebugDrawSettings.DRAW_FRICTION_POINTS )
+				if ( qb2_debugDrawSettings.drawFlags & qb2_debugDrawSettings.FRICTION_POINTS )
 				{
 					graphics.lineStyle();
-					graphics.beginFill(qb2DebugDrawSettings.frictionPointColor, qb2DebugDrawSettings.frictionPointAlpha);
-					var frictionPointRadius:Number = qb2DebugDrawSettings.frictionPointRadius
+					graphics.beginFill(qb2_debugDrawSettings.frictionPointColor, qb2_debugDrawSettings.frictionPointAlpha);
+					var frictionPointRadius:Number = qb2_debugDrawSettings.frictionPointRadius
 					
 					var theBodyB2:b2Body = fixtures[0].m_body;
 					var transform:b2Transform = theBodyB2.m_xf;

@@ -20,34 +20,27 @@
  * THE SOFTWARE.
  */
 
-package QuickB2.misc 
+package QuickB2.debugging 
 {
 	/**
 	 * ...
 	 * @author Doug Koellmer
 	 */
-	public class qb2_flags
+	public class qb2_debugDrawFlags 
 	{
-		// for all objects
-		public static const O_JOINS_IN_DEEP_CLONING:uint  = 0x00000001;
-		public static const O_JOINS_IN_DEBUG_DRAWING:uint = 0x00000002;
-		public static const O_JOINS_IN_UPDATE_CHAIN:uint  = 0x00000004;
-		
-		// for tangibles
-		public static const T_IS_KINEMATIC:uint           = 0x00000008;
-		public static const T_IS_BULLET:uint              = 0x00000010;
-		public static const T_IS_GHOST:uint               = 0x00000020;
-		public static const T_ALLOW_SLEEPING:uint         = 0x00000040;
-		public static const T_SLEEPING_WHEN_ADDED:uint    = 0x00000080;
-		public static const T_IS_DEBUG_DRAGGABLE:uint     = 0x00000100;
-		public static const T_HAS_FIXED_ROTATION:uint     = 0x00000200;
-		
-		// for joints
-		public static const J_COLLIDE_CONNECTED:uint      = 0x00000400;
-		public static const J_OPTIMIZED_SPRING:uint       = 0x00000800;
-		public static const J_DAMPEN_SPRING_JITTER:uint   = 0x00001000;
-		public static const J_SPRING_CAN_FLIP:uint        = 0x00002000;
-		public static const J_IS_ROPE:uint                = 0x00004000;
-		public static const J_AUTO_SET_LENGTH:uint        = 0x00008000;
+		public static const OUTLINES:uint        = 0x00000001;
+		public static const FILLS:uint           = 0x00000002;
+		public static const CIRCLE_SPOKE_1:uint  = 0x00000004;
+		public static const CIRCLE_SPOKE_2:uint  = 0x00000008;
+		public static const CIRCLE_SPOKE_3:uint  = 0x00000010;
+		public static const CIRCLE_SPOKE_4:uint  = 0x00000020;
+		public static const CENTROIDS:uint       = 0x00000040;
+		public static const BOUND_BOXES:uint     = 0x00000080;
+		public static const BOUND_CIRCLES:uint   = 0x00000100;
+		public static const JOINTS:uint          = 0x00000200;
+		public static const POSITIONS:uint       = 0x00000400;
+		public static const VERTICES:uint        = 0x00000800;
+		public static const FRICTION_POINTS:uint = 0x00001000;
+		public static const CIRCLE_SPOKES:uint   = CIRCLE_SPOKE_1 | CIRCLE_SPOKE_2 | CIRCLE_SPOKE_3 | CIRCLE_SPOKE_4;
 	}
 }

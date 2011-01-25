@@ -526,10 +526,10 @@ package QuickB2.objects.tangibles
 		
 		public override function drawDebug(graphics:Graphics):void
 		{
-			const drawFlags:uint = qb2DebugDrawSettings.drawFlags;
-			var drawOutlines:Boolean = drawFlags & qb2DebugDrawSettings.DRAW_OUTLINES ? true : false;
-			var drawFill:Boolean     = drawFlags & qb2DebugDrawSettings.DRAW_FILLS ?    true : false;
-			var drawVertices:Boolean = drawFlags & qb2DebugDrawSettings.DRAW_VERTICES ? true : false;
+			const drawFlags:uint = qb2_debugDrawSettings.drawFlags;
+			var drawOutlines:Boolean = drawFlags & qb2_debugDrawSettings.OUTLINES ? true : false;
+			var drawFill:Boolean     = drawFlags & qb2_debugDrawSettings.FILLS ?    true : false;
+			var drawVertices:Boolean = drawFlags & qb2_debugDrawSettings.VERTICES ? true : false;
 			
 			if ( !drawOutlines && !drawFill && !drawVertices )
 			{
@@ -540,12 +540,12 @@ package QuickB2.objects.tangibles
 			var staticShape:Boolean = _mass == 0;
 	
 			if ( drawOutlines )
-				graphics.lineStyle(qb2DebugDrawSettings.lineThickness, debugOutlineColor, qb2DebugDrawSettings.outlineAlpha);
+				graphics.lineStyle(qb2_debugDrawSettings.lineThickness, debugOutlineColor, qb2_debugDrawSettings.outlineAlpha);
 			else
 				graphics.lineStyle();
 				
 			if ( _closed && drawFill )
-				graphics.beginFill(debugFillColor, qb2DebugDrawSettings.fillAlpha);
+				graphics.beginFill(debugFillColor, qb2_debugDrawSettings.fillAlpha);
 				
 			if( drawFill || drawOutlines )
 				draw(graphics);
@@ -556,12 +556,12 @@ package QuickB2.objects.tangibles
 			
 			if ( drawVertices && numVerts )
 			{
-				///graphics.lineStyle(qb2DebugDrawSettings.lineThickness, debugOutlineColor, qb2DebugDrawSettings.outlineAlpha);
+				///graphics.lineStyle(qb2_debugDrawSettings.lineThickness, debugOutlineColor, qb2_debugDrawSettings.outlineAlpha);
 				
 				for (var i:int = 0; i < numVerts; i++) 
 				{
 					var vertex:amPoint2d = (_parent is qb2Body ) ? (_parent as qb2Body ).getWorldPoint(getVertexAt(i)) : getVertexAt(i);
-					vertex.draw(graphics, qb2DebugDrawSettings.pointRadius, true);
+					vertex.draw(graphics, qb2_debugDrawSettings.pointRadius, true);
 				}
 			}
 			

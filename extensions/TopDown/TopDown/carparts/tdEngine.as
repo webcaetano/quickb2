@@ -23,7 +23,7 @@
 package TopDown.carparts
 {
 	import As3Math.general.amUtils;
-	import QuickB2.debugging.qb2DebugDrawSettings;
+	import QuickB2.debugging.qb2_debugDrawSettings;
 	import QuickB2.misc.qb2UnitConverter;
 	import QuickB2.objects.qb2Object;
 	import TopDown.objects.tdCarBody;
