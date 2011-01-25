@@ -40,7 +40,7 @@ package QuickB2.misc
 		
 		public function qb2TreeIterator(initRoot:qb2ObjectContainer = null, initDirection:uint = LEFT_TO_RIGHT) 
 		{
-			direction = LEFT_TO_RIGHT;
+			direction = initDirection;
 			root = initRoot;
 		}
 		

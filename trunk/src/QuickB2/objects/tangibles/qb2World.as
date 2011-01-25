@@ -40,6 +40,7 @@ package QuickB2.objects.tangibles
 	import QuickB2.events.*;
 	import QuickB2.internals.*;
 	import QuickB2.misc.qb2_behaviorFlags;
+	import QuickB2.misc.qb2_flags;
 	import QuickB2.misc.qb2TreeIterator;
 	import QuickB2.objects.*;
 	import QuickB2.objects.joints.*;
@@ -276,7 +277,7 @@ package QuickB2.objects.tangibles
 				mouseDrag_iterator.direction = qb2TreeIterator.RIGHT_TO_LEFT;
 				mouseDrag_iterator.root = this;
 				
-				var mouseBit:uint = qb2_behaviorFlags.PARTICIPATES_IN_DEBUG_MOUSE_DRAG;
+				var mouseBit:uint = qb2_flags.T_IS_DEBUG_DRAGGABLE;
 				while ( mouseDrag_iterator.hasNext() )
 				{
 					var object:qb2Object = mouseDrag_iterator.currentObject;

@@ -40,6 +40,7 @@ package QuickB2.objects.tangibles
 	import QuickB2.effects.*;
 	import QuickB2.events.*;
 	import QuickB2.loaders.proxies.*;
+	import QuickB2.misc.qb2_flags;
 	import QuickB2.objects.*;
 	import QuickB2.objects.joints.*;
 	import QuickB2.stock.*;
@@ -65,6 +66,8 @@ package QuickB2.objects.tangibles
 		qb2_friend static const diffTol:Number = .0000000001;
 		qb2_friend static const rotTol:Number = .0000001;
 		
+		public function get ancestorBody():qb2Body
+			{  return _ancestorBody;  }
 		qb2_friend function setAncestorBody(aBody:qb2Body):void
 			{  _ancestorBody = aBody;  }
 		qb2_friend var _ancestorBody:qb2Body;
@@ -95,6 +98,8 @@ package QuickB2.objects.tangibles
 			}
 			
 			if ( (this as Object).constructor == qb2Tangible )  throw qb2_errors.ABSTRACT_CLASS_ERROR;
+			
+			flags |= qb2_flags.PARTICIPATES_IN_DEBUG_MOUSE_DRAG;
 		}
 		
 		qb2_friend virtual function baseClone(newObject:qb2Tangible, actorToo:Boolean, deep:Boolean):qb2Tangible {  return null;  }
