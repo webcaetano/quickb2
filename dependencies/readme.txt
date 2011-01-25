@@ -1,4 +1,4 @@
-This folder contains both pre-compiled .swc's and the source code of a few open-source libraries on which QuickB2 depends.  They are usually pretty up-to-date, but for guaranteed up-to-datedness, it's of course best to update from the open-source projects' websites.  I'll leave it to google for the links thereto.
+This folder contains both pre-compiled .swc's and the source code of a few open-source libraries on which QuickB2 depends.  The source code is pulled automatically using svn:externals, while the .swc's are built manually
 
 As3Math is required and provides some geometry classes and math utilities that didn't make sense to rewrite for exclusive QuickB2 use.
 

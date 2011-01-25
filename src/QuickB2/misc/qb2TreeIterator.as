@@ -31,10 +31,16 @@ package QuickB2.misc
 	 * 
 	 * @author Doug Koellmer
 	 */
-	public class qb2TreeIterator 
+	public class qb2TreeIterator
 	{
-		public function qb2TreeIterator(initRoot:qb2ObjectContainer = null) 
+		public static const LEFT_TO_RIGHT:uint = 1;
+		public static const RIGHT_TO_LEFT:uint = 2;
+		
+		public var direction:uint = LEFT_TO_RIGHT;
+		
+		public function qb2TreeIterator(initRoot:qb2ObjectContainer = null, initDirection:uint = LEFT_TO_RIGHT) 
 		{
+			direction = LEFT_TO_RIGHT;
 			root = initRoot;
 		}
 		
@@ -51,7 +57,7 @@ package QuickB2.misc
 			
 			return _singleton;
 		}
-		private static var _singleton:qb2TreeIterator = null;
+		private static var _singleton:qb2TreeIterator;
 		
 		public function get root():qb2ObjectContainer
 			{  return _root;  }
@@ -62,7 +68,7 @@ package QuickB2.misc
 			
 			if ( _root )
 			{
-				_queue.unshift(_root);
+				_queue.push(_root);
 			}
 		}
 		private var _root:qb2ObjectContainer;
@@ -72,31 +78,42 @@ package QuickB2.misc
 			return _queue.length > 0;
 		}
 		
-		public function next():qb2Object
+		public function get currentObject():qb2Object
+			{  return _queue.length ? _queue[0] : null;  }
+		
+		public function next(proceedDownBranch:Boolean = true):qb2Object
 		{
 			if ( !_root )  return null;
 			
 			if ( !_queue.length )  return null;
 			
-			_currObject = step();
+			_currObject = _queue.shift();
 			
-			return _currObject;
-		}
-		
-		private function step():qb2Object
-		{
-			var object:qb2Object = _queue.shift();
-			
-			if ( object is qb2ObjectContainer )
+			if ( proceedDownBranch )
 			{
-				var asContainer:qb2ObjectContainer = object as qb2ObjectContainer;
-				for (var i:int = 0; i < asContainer.numObjects; i++) 
+				if ( _currObject is qb2ObjectContainer )
 				{
-					_queue.unshift(asContainer.getObjectAt(i));
+					var asContainer:qb2ObjectContainer = _currObject as qb2ObjectContainer;
+					var numObjects:int = asContainer.numObjects;
+					
+					if ( direction == RIGHT_TO_LEFT )
+					{
+						for (var i:int = numObjects-1; i >= 0; i--) 
+						{
+							_queue.push(asContainer.getObjectAt(i));
+						}
+					}
+					else
+					{
+						for ( i = 0; i < numObjects; i++)
+						{
+							_queue.push(asContainer.getObjectAt(i));
+						}
+					}
 				}
 			}
 			
-			return object;
+			return _currObject;
 		}
 		
 		public function reset():void

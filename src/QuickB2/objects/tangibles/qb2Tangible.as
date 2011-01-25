@@ -105,7 +105,7 @@ package QuickB2.objects.tangibles
 		{
 			friction:       0x00000001,  contactCategory:     0x00000020,  fixedRotation:    0x00000800,
 			restitution:    0x00000002,  contactCollidesWith: 0x00000040,  isBullet:         0x00001000,
-			frictionZ:      0x00000004,  contactGroupIndex:   0x00000080,  debugMouseActive: 0x00002000,
+			frictionZ:      0x00000004,  contactGroupIndex:   0x00000080,  //debugMouseActive: 0x00002000,
 			linearDamping:  0x00000008,  allowSleeping:       0x00000200,  isGhost:          0x00004000,
 			angularDamping: 0x00000010,  sleepingWhenAdded:   0x00000400,  isKinematic:      0x00008000
 		}
@@ -764,13 +764,14 @@ package QuickB2.objects.tangibles
 			{  cascadeProperty(this, "sleepingWhenAdded", bool);  }
 		qb2_friend var _sleepingWhenAdded:Boolean = false;
 
-		public function get debugMouseActive():Boolean
+		// NOTE: handled now by qb2Object::behaviorFlags
+		/*public function get debugMouseActive():Boolean
 			{  return _debugMouseActive;  }
 		public function set debugMouseActive(bool:Boolean):void
 		{
 			cascadeProperty(this, "debugMouseActive", bool);  // this is just queried in qb2World, so no b2 objects need to be aware of the change.
 		}
-		qb2_friend var _debugMouseActive:Boolean = true;
+		qb2_friend var _debugMouseActive:Boolean = true;*/
 		
 		public function get isSleeping():Boolean
 		{

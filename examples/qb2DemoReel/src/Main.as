@@ -12,6 +12,7 @@
 	import QuickB2.debugging.*;
 	import QuickB2.events.qb2UpdateEvent;
 	import QuickB2.loaders.proxies.qb2ProxyBody;
+	import QuickB2.misc.qb2_behaviorFlags;
 	import QuickB2.objects.*;
 	import QuickB2.objects.tangibles.*;
 	import QuickB2.stock.*;
@@ -92,7 +93,7 @@
 			
 			//--- Add some walls that will dynamically adjust to window size.
 			world.addObject(_stageWalls = new qb2StageWalls(stage));
-			world.lastObject().participatesInDebugDrawing = false;  // the walls can be distracting on window resizes, so don't draw 'em.
+			world.lastObject().turnBehaviorFlagOff(qb2_behaviorFlags.PARTICIPATES_IN_DEBUG_DRAWING);  // the walls can be distracting on window resizes, so don't draw 'em.
 			
 			//--- Layout the gui and stage, load the first demo, and listen for future stage changes.
 			buildGui();

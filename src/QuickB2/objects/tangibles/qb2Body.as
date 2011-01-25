@@ -32,6 +32,7 @@ package QuickB2.objects.tangibles
 	import QuickB2.*;
 	import QuickB2.debugging.qb2DebugTraceSettings;
 	import QuickB2.events.*;
+	import QuickB2.misc.qb2_behaviorFlags;
 	import QuickB2.objects.*;
 	import QuickB2.objects.joints.*;
 	
@@ -170,11 +171,12 @@ package QuickB2.objects.tangibles
 		{
 			super.update();
 			
+			var updateLoopBit:uint = qb2_behaviorFlags.PARTICIPATES_IN_UPDATE_CHAIN;
 			for ( var i:int = 0; i < _objects.length; i++ )
 			{
 				var object:qb2Object = _objects[i];
 				
-				if ( !object.participatesInUpdateLoop )  continue;
+				if ( !(object.behaviorFlags & updateLoopBit) )  continue;
 				
 				object.relay_update(); // You can't call update directly because it's protected.
 			}

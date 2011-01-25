@@ -41,7 +41,7 @@ package demos
 			
 			var icyPatch:tdTerrain = new tdTerrain();
 			icyPatch.frictionZMultiplier = .1;
-			icyPatch.slidingSkidColor = 0x00ff00;
+			icyPatch.slidingSkidColor = 0x33ffff;
 			icyPatch.position.set(stageWidth * 1.5, stageHeight * 1.5);
 			icyPatch.addObject(qb2Stock.newCircleShape(new amPoint2d(), 200, 0));
 			map.addObject(icyPatch);
@@ -121,16 +121,15 @@ package demos
 			peanutCar.addObjectAt((peanutCar.getObjectAt(0).clone() as qb2Shape), 0);
 			(peanutCar.getObjectAt(0) as qb2Shape).position.y = -(peanutCar.getObjectAt(0) as qb2Shape).position.y;
 			
-			//--- Make some kind of weird hoop car with rear-wheel turning.
+			//--- Make some kind of weird hoop car with additional back wheels.
 			var hoopCar:tdCarBody = playerCar.clone() as tdCarBody;
 			hoopCar.removeObjectAt(0);
 			hoopCar.removeObjectAt(0);
 			hoopCar.addObjectAt(qb2Stock.newEllipticalArcBody(new amPoint2d(), new amVector2d(0, -70), 30, 12, 0, AM_PI * 2, 10, 1000), 0);
-			(hoopCar.lastObject(2) as tdTire).flippedTurning = true;
-			(hoopCar.lastObject(3) as tdTire).flippedTurning = true;
-			(hoopCar.lastObject(2) as tdTire).canTurn = true;
-			(hoopCar.lastObject(3) as tdTire).canTurn = true;
-			hoopCar.maxTurnAngle /= 2;
+			hoopCar.addObject(hoopCar.lastObject(2).clone());
+			hoopCar.addObject(hoopCar.lastObject(4).clone());
+			(hoopCar.lastObject() as tdTire).position.y -= 25;
+			(hoopCar.lastObject(1) as tdTire).position.y -= 25;
 			
 			//--- Configure the traffic manager.
 			trafficManager.carSeeds = [playerCar, plowCar, peanutCar, hoopCar];  // manager will clone() instances of these cars to create traffic.
@@ -146,7 +145,22 @@ package demos
 			box.frictionZ = 1;
 			map.addObject(box);
 			
+			//--- Add some objects to drive into.
 			var fence:qb2Group = new qb2Group();
+			fence.frictionZ = 1.0;
+			var angleInc:Number = RAD_10;
+			var rotPoint:amPoint2d = center.clone().incY( -200);
+			var limit:int = AM_PI * 2 / angleInc;
+			var postSize:Number = 20;
+			var postMass:Number = 500;
+			for (var i:int = 0; i < limit; i++) 
+			{
+				if ( i % 2 )
+					fence.addObject(qb2Stock.newRectBody(rotPoint.rotatedBy(i * angleInc, center), postSize, postSize, postMass, i * angleInc));
+				else
+					fence.addObject(qb2Stock.newCircleBody(rotPoint.rotatedBy(i * angleInc, center), postSize/2, postMass));
+			}
+			map.addObject(fence);
 			
 			this.addEventListener(qb2UpdateEvent.PRE_UPDATE,  updateManager);
 			this.addEventListener(qb2UpdateEvent.POST_UPDATE, updateCamera);

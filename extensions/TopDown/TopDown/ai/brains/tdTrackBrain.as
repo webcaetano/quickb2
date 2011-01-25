@@ -29,6 +29,7 @@ package TopDown.ai.brains
 	import flash.utils.*;
 	import QuickB2.debugging.*;
 	import QuickB2.events.*;
+	import QuickB2.misc.qb2_behaviorFlags;
 	import QuickB2.objects.*;
 	import QuickB2.objects.tangibles.*;
 	import QuickB2.stock.*;
@@ -642,7 +643,8 @@ package TopDown.ai.brains
 			var wid:Number = bbWid < _minAntennaWidth ? _minAntennaWidth : bbWid;
 			
 			var tri:qb2Shape = qb2Stock.newIsoTriShape(bb.topCenter, wid, _antennaLength, 0, 0);
-			tri.participatesInDebugDrawing = false;
+			tri.turnBehaviorFlagOff(qb2_behaviorFlags.PARTICIPATES_IN_DEBUG_DRAWING);
+			tri.turnBehaviorFlagOff(qb2_behaviorFlags.PARTICIPATES_IN_DEBUG_MOUSE_DRAG);
 			
 			return tri;
 		}
