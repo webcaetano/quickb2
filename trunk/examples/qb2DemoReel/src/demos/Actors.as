@@ -3,6 +3,7 @@ package demos
 	import As3Math.geo2d.amPoint2d;
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
+	import QuickB2.misc.qb2_behaviorFlags;
 	import QuickB2.objects.tangibles.qb2Body;
 	import QuickB2.stock.qb2Stock;
 	
@@ -33,7 +34,7 @@ package demos
 				addObject(pic);
 			}
 			
-			this.participatesInDebugDrawing = false;
+			turnBehaviorFlagOff(qb2_behaviorFlags.PARTICIPATES_IN_DEBUG_DRAWING);
 		}
 		
 		private static function makePic():qb2Body
@@ -44,7 +45,6 @@ package demos
 			body.actor = img;
 			body.addObject(qb2Stock.newRectShape(new amPoint2d(img.width / 2, img.height / 2), img.width, img.height));
 			body.mass = 1;
-			body.participatesInDebugDrawing = false;
 			return body;
 		}
 	}

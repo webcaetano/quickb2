@@ -24,6 +24,7 @@ package TopDown.ai.brains
 {
 	import flash.display.Graphics;
 	import QuickB2.events.qb2ContainerEvent;
+	import QuickB2.misc.qb2_behaviorFlags;
 	import QuickB2.objects.qb2Object;
 	import QuickB2.qb2_errors;
 	import TopDown.*;
@@ -42,7 +43,7 @@ package TopDown.ai.brains
 			if ( Object(this).constructor == tdBrain )
 					throw qb2_errors.ABSTRACT_CLASS_ERROR;
 
-			participatesInDeepCloning = false;
+			turnBehaviorFlagOff(qb2_behaviorFlags.PARTICIPATES_IN_DEEP_CLONING);
 		}
 		
 		td_friend function setHost(aSmartBody:tdSmartBody):void

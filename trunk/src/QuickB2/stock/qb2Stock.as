@@ -126,6 +126,14 @@ package QuickB2.stock
 			return body;
 		}
 		
+		public static function newCircleBody(center:amPoint2d, radius:Number, mass:Number = 0):qb2Body
+		{
+			var body:qb2Body = new qb2Body();
+			body.position = center;
+			body.addObject(newCircleShape(new amPoint2d(), radius, mass));
+			return body;
+		}
+		
 		public static function newRectSensor(center:amPoint2d, width:Number, height:Number, initRotation:Number = 0, tripCallback:Function = null, tripTime:Number = 0):qb2TripSensor
 		{
 			var sensor:qb2TripSensor = new qb2TripSensor();

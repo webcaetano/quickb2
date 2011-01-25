@@ -145,12 +145,12 @@ package QuickB2.objects.tangibles
 			
 			//var drawingDebug:Boolean = world.debugDrawContext ? true : false;
 		//	var context:Graphics = world.debugDrawContext;
-			
+			var updateLoopBit:uint = qb2_behaviorFlags.PARTICIPATES_IN_UPDATE_CHAIN;
 			for ( var i:int = 0; i < _objects.length; i++ )
 			{
 				var object:qb2Object = _objects[i];
 				
-				if ( !object.participatesInUpdateLoop )  continue;
+				if ( !(object.behaviorFlags & updateLoopBit) )  continue;
 				
 				object.relay_update(); // You can't call update directly because it's protected.
 				

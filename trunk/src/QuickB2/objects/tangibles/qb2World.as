@@ -29,14 +29,18 @@ package QuickB2.objects.tangibles
 	import Box2DAS.Common.*;
 	import Box2DAS.Dynamics.*;
 	import Box2DAS.Dynamics.Joints.*;
+	import demos.RigidCar;
 	import flash.display.*;
 	import flash.events.*;
 	import flash.geom.*;
 	import flash.utils.*;
 	import QuickB2.*;
 	import QuickB2.debugging.*;
+	import QuickB2.effects.qb2Vortex;
 	import QuickB2.events.*;
 	import QuickB2.internals.*;
+	import QuickB2.misc.qb2_behaviorFlags;
+	import QuickB2.misc.qb2TreeIterator;
 	import QuickB2.objects.*;
 	import QuickB2.objects.joints.*;
 	import QuickB2.stock.qb2Terrain;
@@ -256,6 +260,8 @@ package QuickB2.objects.tangibles
 				_debugDragSource.stage.removeEventListener(MouseEvent.MOUSE_UP, mouseEvent);
 			}
 		}
+		
+		private static const mouseDrag_iterator:qb2TreeIterator = new qb2TreeIterator();
 
 		private function mouseDrag():void
 		{
@@ -265,27 +271,76 @@ package QuickB2.objects.tangibles
 				var rigid:qb2IRigidObject = null;
 				
 				var mousePoint:amPoint2d = new amPoint2d(_debugDragSource.mouseX, _debugDragSource.mouseY);
-				var rigids:Vector.<qb2IRigidObject> = this.getRigidsAtPoint(mousePoint, 1, -1, true);
+				var mousePointV2:V2 = new V2(mousePoint.x / _pixelsPerMeter, mousePoint.y / _pixelsPerMeter);
 				
-				if ( rigids && rigids[0].debugMouseActive )
+				mouseDrag_iterator.direction = qb2TreeIterator.RIGHT_TO_LEFT;
+				mouseDrag_iterator.root = this;
+				
+				var mouseBit:uint = qb2_behaviorFlags.PARTICIPATES_IN_DEBUG_MOUSE_DRAG;
+				while ( mouseDrag_iterator.hasNext() )
 				{
-					rigid = rigids[0];
-				}
-				else if( rigids )
-				{
-					rigids = this.getRigidsAtPoint(mousePoint, uint.MAX_VALUE, -1, true);
-					for (var i:int = 0; i < rigids.length; i++) 
+					var object:qb2Object = mouseDrag_iterator.currentObject;
+					
+					if ( !(object is qb2Tangible) )
 					{
-						if ( rigids[i].debugMouseActive )
+						mouseDrag_iterator.next(false);
+						continue;
+					}
+					
+					var asTang:qb2Tangible = object as qb2Tangible;
+					
+					if ( !(asTang.behaviorFlags & mouseBit) || asTang.mass == 0 || asTang.isKinematic )
+					{
+						mouseDrag_iterator.next(false);
+						continue;
+					}
+					
+					if ( object is qb2Shape )
+					{
+						var asShape:qb2Shape = object as qb2Shape;
+						var numShapeB2s:int = asShape.shapeB2s.length;
+						
+						if ( !numShapeB2s )  continue;
+						
+						var theBodyB2:b2Body = asShape.fixtures[0].m_body;
+						var xf:XF = theBodyB2.GetTransform();
+						
+						var hit:Boolean = false;
+						for (var i:int = 0; i < numShapeB2s; i++) 
 						{
-							rigid = rigids[i];
+							var shapeB2:b2Shape = asShape.shapeB2s[i];
+							
+							if ( shapeB2.TestPoint(xf, mousePointV2) )
+							{
+								rigid = asShape;
+								hit = true;
+								break;
+							}
+						}
+						
+						if ( hit )
+						{
 							break;
 						}
 					}
+					
+					mouseDrag_iterator.next();
 				}
 				
 				if ( rigid )
 				{
+					var massToUse:Number = 0;
+					
+					while ( rigid )
+					{
+						if ( rigid.b2_body )
+						{
+							break;
+						}
+						
+						rigid = rigid.parent as qb2IRigidObject;
+					}
+					
 					debugMouseJoint.object = rigid;
 					if ( !containsObject(debugMouseJoint) ) // a world.removeAllObjects(), for example, could remove this joint inadvertently.
 						addObject(debugMouseJoint);

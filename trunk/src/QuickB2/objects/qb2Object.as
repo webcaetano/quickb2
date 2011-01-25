@@ -31,12 +31,13 @@ package QuickB2.objects
 	import QuickB2.*;
 	import QuickB2.debugging.qb2DebugTraceSettings;
 	import QuickB2.events.*;
+	import QuickB2.misc.qb2_behaviorFlags;
 	import QuickB2.objects.joints.*;
 	import QuickB2.objects.tangibles.*;
 	use namespace qb2_friend;
 	
-	[Event(name="preUpdate",  type="QuickB2.events.qb2UpdateEvent")]
-	[Event(name="postUpdate", type="QuickB2.events.qb2UpdateEvent")]
+	[Event(name="preUpdate",        type="QuickB2.events.qb2UpdateEvent")]
+	[Event(name="postUpdate",       type="QuickB2.events.qb2UpdateEvent")]
 	
 	[Event(name="addedToWorld",     type="QuickB2.events.qb2ContainerEvent")]
 	[Event(name="removedFromWorld", type="QuickB2.events.qb2ContainerEvent")]
@@ -50,12 +51,9 @@ package QuickB2.objects
 	{
 		public var identifier:String = "";
 		
-		public var participatesInDeepCloning:Boolean  = true;
-		
-		/// Whether or not this object will draw itself if the world has debugDrawContext defined.
-		public var participatesInDebugDrawing:Boolean = true;
-		
-		public var participatesInUpdateLoop:Boolean = true;
+		public var behaviorFlags:uint =
+			qb2_behaviorFlags.PARTICIPATES_IN_DEBUG_MOUSE_DRAG | qb2_behaviorFlags.PARTICIPATES_IN_DEBUG_DRAWING |
+			qb2_behaviorFlags.PARTICIPATES_IN_DEEP_CLONING     | qb2_behaviorFlags.PARTICIPATES_IN_UPDATE_CHAIN  ;
 		
 		public function qb2Object()
 		{
@@ -65,6 +63,23 @@ package QuickB2.objects
 			{
 				initializeEvents();
 			}
+		}
+		
+		public function turnBehaviorFlagOff(flag:uint):qb2Object
+		{
+			behaviorFlags &= ~flag;
+			return this;
+		}
+		
+		public function turnBehaviorFlagOn(flag:uint):qb2Object
+		{
+			behaviorFlags |= flag;
+			return this;
+		}
+		
+		public function isBehaviorFlagOn(flag:uint):Boolean
+		{
+			return behaviorFlags & flag ? true : false;
 		}
 		
 		qb2_friend static var CONTACT_STARTED_BIT:uint;
@@ -430,9 +445,7 @@ package QuickB2.objects
 		{
 			var cloned:qb2Object = new (this as Object).constructor;
 			
-			cloned.participatesInDebugDrawing = this.participatesInDebugDrawing;
-			cloned.participatesInDeepCloning  = this.participatesInDeepCloning;
-			cloned.participatesInUpdateLoop   = this.participatesInUpdateLoop;
+			cloned.behaviorFlags = this.behaviorFlags;
 			
 			return cloned;
 		}

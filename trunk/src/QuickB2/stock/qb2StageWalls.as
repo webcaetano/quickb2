@@ -32,6 +32,7 @@ package QuickB2.stock
 	import flash.events.Event;
 	import flash.utils.setTimeout;
 	import QuickB2.debugging.qb2DebugTraceSettings;
+	import QuickB2.misc.qb2_behaviorFlags;
 	import QuickB2.objects.tangibles.qb2Group;
 	
 	/**
@@ -78,7 +79,7 @@ package QuickB2.stock
 				_stage.scaleMode = StageScaleMode.NO_SCALE;
 			}
 			
-			this.participatesInDebugDrawing = false;
+			turnBehaviorFlagOff(qb2_behaviorFlags.PARTICIPATES_IN_DEBUG_DRAWING);
 			
 			stageEvent(null);
 		}

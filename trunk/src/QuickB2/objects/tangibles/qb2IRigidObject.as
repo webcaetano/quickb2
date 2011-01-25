@@ -146,8 +146,8 @@ package QuickB2.objects.tangibles
 		function get sleepingWhenAdded():Boolean;
 		function set sleepingWhenAdded(bool:Boolean):void;
 
-		function get debugMouseActive():Boolean;
-		function set debugMouseActive(bool:Boolean):void;
+		//function get debugMouseActive():Boolean;
+		//function set debugMouseActive(bool:Boolean):void;
 		
 		function get isSleeping():Boolean;
 		
@@ -188,6 +188,13 @@ package QuickB2.objects.tangibles
 		
 		
 		// FUNCTIONS in qb2Object/qb2EventDispatcher (EventDispatcher functions are pulled in by 'extends IEventDispatcher' at the top.
+		
+		function turnBehaviorFlagOn(flag:uint):qb2Object;
+		
+		function turnBehaviorFlagOff(flag:uint):qb2Object;
+		
+		function isBehaviorFlagOn(flag:uint):Boolean;
+		
 		function get parent():qb2ObjectContainer;
 
 		function get world():qb2World;
