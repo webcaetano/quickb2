@@ -86,10 +86,10 @@
 			world.addEventListener(qb2UpdateEvent.POST_UPDATE, update);
 			
 			//--- Make various depth-specific things be drawn relative to the demo's space initially.
-			qb2DebugDrawSettings.boundBoxStartDepth = qb2DebugDrawSettings.boundBoxEndDepth = 2;
-			qb2DebugDrawSettings.centroidStartDepth = qb2DebugDrawSettings.centroidEndDepth = 2;
-			qb2DebugDrawSettings.boundCircleStartDepth = qb2DebugDrawSettings.boundCircleEndDepth = 2;
-			qb2DebugDrawSettings.dynamicOutlineColor = qb2DebugDrawSettings.staticOutlineColor = 0x000000;
+			qb2_debugDrawSettings.boundBoxStartDepth = qb2_debugDrawSettings.boundBoxEndDepth = 2;
+			qb2_debugDrawSettings.centroidStartDepth = qb2_debugDrawSettings.centroidEndDepth = 2;
+			qb2_debugDrawSettings.boundCircleStartDepth = qb2_debugDrawSettings.boundCircleEndDepth = 2;
+			qb2_debugDrawSettings.dynamicOutlineColor = qb2_debugDrawSettings.staticOutlineColor = 0x000000;
 			
 			//--- Add some walls that will dynamically adjust to window size.
 			world.addObject(_stageWalls = new qb2StageWalls(stage));

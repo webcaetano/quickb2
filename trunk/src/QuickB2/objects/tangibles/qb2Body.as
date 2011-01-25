@@ -156,11 +156,9 @@ package QuickB2.objects.tangibles
 			super.destroy();
 		}
 		
-		protected override function setPropertyImplicitly(propName:String, value:*):void
+		protected override function propertyChanged(propertyName:String, value:*):void
 		{
-			super.setPropertyImplicitly(propName, value);
-			
-			rigid_setPropertyImplicitly(propName, value); // sets body properties if this body has a b2Body
+			rigid_propertyChanged(propName, value); // sets body properties if this body has a b2Body
 		}
 		
 		

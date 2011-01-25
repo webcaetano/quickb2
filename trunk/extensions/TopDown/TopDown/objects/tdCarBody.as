@@ -37,7 +37,7 @@ package TopDown.objects
 	import QuickB2.stock.qb2Terrain;
 	import TopDown.*;
 	import TopDown.ai.*;
-	import TopDown.debugging.tdDebugDrawSettings;
+	import TopDown.debugging.td_debugDrawSettings;
 	import TopDown.internals.tdInternalAxleLayout;
 	import TopDown.carparts.*;
 	

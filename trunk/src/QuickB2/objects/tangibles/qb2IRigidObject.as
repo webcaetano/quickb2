@@ -91,7 +91,7 @@ package QuickB2.objects.tangibles
 		
 		function distanceTo(otherTangible:qb2Tangible, outputVector:amVector2d = null, outputPointThis:amPoint2d = null, outputPointOther:amPoint2d = null, ... excludes):Number
 		
-		function get ancestorBody:qb2Body;
+		function get ancestorBody():qb2Body;
 		
 		function get density():Number;
 		function set density(value:Number):void;
@@ -106,6 +106,7 @@ package QuickB2.objects.tangibles
 		function get metricDensity():Number;
 		function set metricDensity(value:Number):void;
 
+		
 		function get restitution():Number;
 		function set restitution(value:Number):void;
 		
@@ -124,20 +125,21 @@ package QuickB2.objects.tangibles
 		function get frictionZ():Number;
 		function set frictionZ(value:Number):void;
 		
-		function get isGhost():Boolean;
-		function set isGhost(bool:Boolean):void;
-		
-		function get isKinematic():Boolean;
-		function set isKinematic(bool:Boolean):void;
-		
 		function get linearDamping():Number;
 		function set linearDamping(value:Number):void;
 		
 		function get angularDamping():Number;
 		function set angularDamping(value:Number):void;
+	
 		
-		function get fixedRotation():Boolean;
-		function set fixedRotation(bool:Boolean):void;
+		function get isGhost():Boolean;
+		function set isGhost(bool:Boolean):void;
+		
+		function get isKinematic():Boolean;
+		function set isKinematic(bool:Boolean):void;
+	
+		function get hasFixedRotation():Boolean;
+		function set hasFixedRotation(bool:Boolean):void;
 		
 		function get isBullet():Boolean;
 		function set isBullet(bool:Boolean):void;
@@ -147,9 +149,10 @@ package QuickB2.objects.tangibles
 		
 		function get sleepingWhenAdded():Boolean;
 		function set sleepingWhenAdded(bool:Boolean):void;
-
-		//function get debugMouseActive():Boolean;
-		//function set debugMouseActive(bool:Boolean):void;
+		
+		function get isDebugDraggable():Boolean;
+		function set isDebugDraggable(bool:Boolean):void;
+		
 		
 		function get isSleeping():Boolean;
 		
@@ -191,14 +194,25 @@ package QuickB2.objects.tangibles
 		
 		// FUNCTIONS in qb2Object/qb2EventDispatcher (EventDispatcher functions are pulled in by 'extends IEventDispatcher' at the top.
 		
+		function getProperty(propertyName:String):*;
+		function setProperty(propertyName:String, value:*, establishOwnership:Boolean = true):void;
+		
 		function get flags():uint;
-		function set flags(bits:uint):void;
 		
 		function turnFlagOn(flag:uint):qb2Object;
 		
 		function turnFlagOff(flag:uint):qb2Object;
 		
 		function isFlagOn(flag:uint):Boolean;
+		
+		function get joinsInDeepCloning():Boolean;
+		function set joinsInDeepCloning(bool:Boolean):void;
+		
+		function get joinsInDebugDrawing():Boolean;
+		function set joinsInDebugDrawing(bool:Boolean):void;
+		
+		function get joinsInUpdateChain():Boolean;
+		function set joinsInUpdateChain(bool:Boolean):void;
 		
 		function get parent():qb2ObjectContainer;
 

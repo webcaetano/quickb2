@@ -5,7 +5,7 @@ package demos
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
 	import flash.display.Graphics;
-	import QuickB2.debugging.qb2DebugDrawSettings;
+	import QuickB2.debugging.qb2_debugDrawSettings;
 	import QuickB2.objects.tangibles.qb2Body;
 	import QuickB2.stock.qb2SoftPoly;
 	import QuickB2.stock.qb2Stock;
@@ -45,14 +45,14 @@ package demos
 			
 			var distanceColor:uint = 0xff0000;
 			graphics.lineStyle(0, 0, 0);
-			graphics.beginFill(distanceColor, qb2DebugDrawSettings.fillAlpha);
+			graphics.beginFill(distanceColor, qb2_debugDrawSettings.fillAlpha);
 			pointA.draw(graphics, 5, false);
 			pointB.draw(graphics, 5, false);
 			graphics.endFill();
 			
 			if ( vector.lengthSquared )
 			{
-				graphics.lineStyle(2, distanceColor, qb2DebugDrawSettings.outlineAlpha);
+				graphics.lineStyle(2, distanceColor, qb2_debugDrawSettings.outlineAlpha);
 				vector.draw(graphics, pointA, 0, 0);
 			}
 		}

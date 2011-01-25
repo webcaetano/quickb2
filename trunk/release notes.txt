@@ -43,3 +43,5 @@
 - changed qb2AddRemoveEvent into qb2ContainerEvent with the advent of the INDEX_CHANGED event type, which listens for when an object gets it relative z-order in a container changed...also added event types that allow you to listen for when a descendant of a container adds/removes an object.
 
 - added a logo
+
+- rehauled the whole qb2Object class hierarchy to use bitmasks in place of all boolean properties...boolean-based getters/setters are left in place so you can still have the impression of working with booleans if you're a newb.

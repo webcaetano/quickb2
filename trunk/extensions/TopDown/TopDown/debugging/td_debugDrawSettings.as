@@ -26,17 +26,9 @@ package TopDown.debugging
 	 * ...
 	 * @author Doug Koellmer
 	 */
-	public class tdDebugDrawSettings
+	public class td_debugDrawSettings
 	{
-		public static const DRAW_NOTHING:uint       = 0x00000000;
-		public static const DRAW_TIRES:uint         = 0x00000800;
-		public static const DRAW_TIRE_LOADS:uint    = 0x00001000;
-		public static const DRAW_SKIDS:uint         = 0x00002000;
-		public static const DRAW_TRACKS:uint        = 0x00004000;
-		public static const DRAW_TRACK_TETHERS:uint = 0x00008000;
-		public static const DRAW_ANTENNAS:uint      = 0x00010000;
-		
-		public static var drawFlags:uint = DRAW_TIRES | DRAW_SKIDS | DRAW_TRACKS | DRAW_TRACK_TETHERS;
+		public static var flags:uint = td_debugDrawFlags.TIRES | td_debugDrawFlags.SKIDS | td_debugDrawFlags.TRACKS | td_debugDrawFlags.TRACK_TETHERS;
 		
 		public static var tireFillColor:uint    = 0x000000;
 		public static var tireOutlineColor:uint = 0xffffff;

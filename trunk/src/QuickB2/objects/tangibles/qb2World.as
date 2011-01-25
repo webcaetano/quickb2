@@ -29,17 +29,14 @@ package QuickB2.objects.tangibles
 	import Box2DAS.Common.*;
 	import Box2DAS.Dynamics.*;
 	import Box2DAS.Dynamics.Joints.*;
-	import demos.RigidCar;
 	import flash.display.*;
 	import flash.events.*;
 	import flash.geom.*;
 	import flash.utils.*;
 	import QuickB2.*;
 	import QuickB2.debugging.*;
-	import QuickB2.effects.qb2Vortex;
 	import QuickB2.events.*;
 	import QuickB2.internals.*;
-	import QuickB2.misc.qb2_behaviorFlags;
 	import QuickB2.misc.qb2_flags;
 	import QuickB2.misc.qb2TreeIterator;
 	import QuickB2.objects.*;
@@ -171,7 +168,7 @@ package QuickB2.objects.tangibles
 			delayedCalls.push(delayedCall);
 		}
 
-		/** If set, objects in the world will be drawn to the context according to the values in qb2DebugDrawSettings.
+		/** If set, objects in the world will be drawn to the context according to the values in qb2_debugDrawSettings.
 		 * This is not meant as a polished rendering solution, but is very useful for quick debugging.
 		 * @default null
 		 */

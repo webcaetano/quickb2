@@ -2,7 +2,7 @@ package QuickB2.stock
 {
 	import As3Math.general.amUtils;
 	import flash.utils.Dictionary;
-	import QuickB2.debugging.qb2DebugDrawSettings;
+	import QuickB2.debugging.qb2_debugDrawSettings;
 	import QuickB2.events.qb2ContainerEvent;
 	import QuickB2.events.qb2ContactEvent;
 	import QuickB2.objects.qb2Object;
@@ -243,7 +243,7 @@ package QuickB2.stock
 		
 		public override function drawDebug(graphics:Graphics):void
 		{
-			debugFillColorStack.unshift(qb2DebugDrawSettings.soundFieldFillColor);
+			debugFillColorStack.unshift(qb2_debugDrawSettings.soundFieldFillColor);
 				super.drawDebug(graphics);
 			debugFillColorStack.shift();
 		}

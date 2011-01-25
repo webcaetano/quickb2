@@ -26,24 +26,9 @@ package QuickB2.debugging
 	 * ...
 	 * @author Doug Koellmer
 	 */
-	public class qb2DebugDrawSettings
+	public class qb2_debugDrawSettings
 	{
-		public static const DRAW_OUTLINES:uint        = 0x00000001;
-		public static const DRAW_FILLS:uint           = 0x00000002;
-		public static const DRAW_CIRCLE_SPOKE_1:uint  = 0x00000004;
-		public static const DRAW_CIRCLE_SPOKE_2:uint  = 0x00000008;
-		public static const DRAW_CIRCLE_SPOKE_3:uint  = 0x00000010;
-		public static const DRAW_CIRCLE_SPOKE_4:uint  = 0x00000020;
-		public static const DRAW_CENTROIDS:uint       = 0x00000040;
-		public static const DRAW_BOUND_BOXES:uint     = 0x00000080;
-		public static const DRAW_BOUND_CIRCLES:uint   = 0x00000100;
-		public static const DRAW_JOINTS:uint          = 0x00000200;
-		public static const DRAW_POSITIONS:uint       = 0x00000400;
-		public static const DRAW_VERTICES:uint        = 0x00000800;
-		public static const DRAW_FRICTION_POINTS:uint = 0x00001000;
-		public static const DRAW_CIRCLE_SPOKES:uint   = DRAW_CIRCLE_SPOKE_1 | DRAW_CIRCLE_SPOKE_2 | DRAW_CIRCLE_SPOKE_3 | DRAW_CIRCLE_SPOKE_4;
-		
-		public static var drawFlags:uint = DRAW_OUTLINES | DRAW_FILLS | DRAW_CIRCLE_SPOKES | DRAW_JOINTS;
+		public static var flags:uint = qb2_debugDrawFlags.OUTLINES | qb2_debugDrawFlags.FILLS | qb2_debugDrawFlags.CIRCLE_SPOKES | qb2_debugDrawFlags.JOINTS;
 		
 		private static const DEFAULT_ALPHA:Number = .75;
 		
@@ -62,10 +47,10 @@ package QuickB2.debugging
 		public static var fillAlpha:Number    = DEFAULT_ALPHA;
 		public static var outlineAlpha:Number = DEFAULT_ALPHA;
 		
-		public static var boundBoxColor:uint    = 0x006633;
+		public static var boundBoxColor:uint   = 0x006633;
 		public static var boundBoxAlpha:Number = DEFAULT_ALPHA;
 		
-		public static var boundCircleColor:uint = 0x006633;
+		public static var boundCircleColor:uint   = 0x006633;
 		public static var boundCircleAlpha:Number = DEFAULT_ALPHA;
 		
 		public static var centroidColor:uint   = 0x00ffff;
@@ -78,15 +63,15 @@ package QuickB2.debugging
 		public static var boundBoxEndDepth:uint = 1;
 		
 		public static var boundCircleStartDepth:uint = 1;
-		public static var boundCircleEndDepth:uint = 1;
+		public static var boundCircleEndDepth:uint   = 1;
 		
 		public static var centroidStartDepth:uint = 1;
-		public static var centroidEndDepth:uint = 1;
+		public static var centroidEndDepth:uint   = 1;
 		
 		public static var jointLineThickness:Number = 2;
 		
-		public static var frictionPointColor:Number = 0xff0000;
-		public static var frictionPointAlpha:Number = DEFAULT_ALPHA;
+		public static var frictionPointColor:Number  = 0xff0000;
+		public static var frictionPointAlpha:Number  = DEFAULT_ALPHA;
 		public static var frictionPointRadius:Number = 5;
 		
 		public static var terrainFillColor:uint    = 0x006600;

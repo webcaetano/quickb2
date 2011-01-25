@@ -54,15 +54,15 @@ package QuickB2.debugging
 		
 		private var checkboxMap:Object =
 		{
-			outlines       : qb2DebugDrawSettings.DRAW_OUTLINES, 
-			fills          : qb2DebugDrawSettings.DRAW_FILLS,
-			verts          : qb2DebugDrawSettings.DRAW_VERTICES,
-			positions      : qb2DebugDrawSettings.DRAW_POSITIONS,
-			centroids      : qb2DebugDrawSettings.DRAW_CENTROIDS,
-			bounds         : qb2DebugDrawSettings.DRAW_BOUND_BOXES,
-			boundCircles   : qb2DebugDrawSettings.DRAW_BOUND_CIRCLES,
-			joints         : qb2DebugDrawSettings.DRAW_JOINTS,
-			frictionPoints : qb2DebugDrawSettings.DRAW_FRICTION_POINTS
+			outlines       : qb2_debugDrawSettings.OUTLINES, 
+			fills          : qb2_debugDrawSettings.FILLS,
+			verts          : qb2_debugDrawSettings.VERTICES,
+			positions      : qb2_debugDrawSettings.POSITIONS,
+			centroids      : qb2_debugDrawSettings.CENTROIDS,
+			bounds         : qb2_debugDrawSettings.BOUND_BOXES,
+			boundCircles   : qb2_debugDrawSettings.BOUND_CIRCLES,
+			joints         : qb2_debugDrawSettings.JOINTS,
+			frictionPoints : qb2_debugDrawSettings.FRICTION_POINTS
 		};
 		
 		private var objToString:Dictionary = new Dictionary();
@@ -264,15 +264,15 @@ package QuickB2.debugging
 				{
 					for ( var key:String in checkboxMap)
 					{
-						data[key] = qb2DebugDrawSettings.drawFlags & checkboxMap[key] ? true : false
+						data[key] = qb2_debugDrawSettings.drawFlags & checkboxMap[key] ? true : false
 					}
 					
-					data.boundBoxRangeLow     = qb2DebugDrawSettings.boundBoxStartDepth;
-					data.boundBoxRangeHigh    = qb2DebugDrawSettings.boundBoxEndDepth;
-					data.boundCircleRangeLow  = qb2DebugDrawSettings.boundCircleStartDepth;
-					data.boundCircleRangeHigh = qb2DebugDrawSettings.boundCircleEndDepth;
-					data.centroidRangeLow     = qb2DebugDrawSettings.centroidStartDepth;
-					data.centroidRangeHigh    = qb2DebugDrawSettings.centroidEndDepth;
+					data.boundBoxRangeLow     = qb2_debugDrawSettings.boundBoxStartDepth;
+					data.boundBoxRangeHigh    = qb2_debugDrawSettings.boundBoxEndDepth;
+					data.boundCircleRangeLow  = qb2_debugDrawSettings.boundCircleStartDepth;
+					data.boundCircleRangeHigh = qb2_debugDrawSettings.boundCircleEndDepth;
+					data.centroidRangeLow     = qb2_debugDrawSettings.centroidStartDepth;
+					data.centroidRangeHigh    = qb2_debugDrawSettings.centroidEndDepth;
 					
 					data.alphaSliderValue     = .75;
 					
@@ -303,17 +303,17 @@ package QuickB2.debugging
 			{
 				for ( key in checkboxMap)
 				{
-					this[key].selected = qb2DebugDrawSettings.drawFlags & checkboxMap[key] ? true : false;
+					this[key].selected = qb2_debugDrawSettings.drawFlags & checkboxMap[key] ? true : false;
 				}
 				
-				boundBoxRange.lowValue     = qb2DebugDrawSettings.boundBoxStartDepth;
-				boundBoxRange.highValue    = qb2DebugDrawSettings.boundBoxEndDepth;
+				boundBoxRange.lowValue     = qb2_debugDrawSettings.boundBoxStartDepth;
+				boundBoxRange.highValue    = qb2_debugDrawSettings.boundBoxEndDepth;
 				
-				boundCircleRange.lowValue  = qb2DebugDrawSettings.boundCircleStartDepth;
-				boundCircleRange.highValue = qb2DebugDrawSettings.boundCircleEndDepth;
+				boundCircleRange.lowValue  = qb2_debugDrawSettings.boundCircleStartDepth;
+				boundCircleRange.highValue = qb2_debugDrawSettings.boundCircleEndDepth;
 				
-				centroidRange.lowValue  = qb2DebugDrawSettings.centroidStartDepth;
-				centroidRange.highValue = qb2DebugDrawSettings.centroidEndDepth;
+				centroidRange.lowValue  = qb2_debugDrawSettings.centroidStartDepth;
+				centroidRange.highValue = qb2_debugDrawSettings.centroidEndDepth;
 				
 				alphaSlider.value = .75;
 			}
@@ -325,9 +325,9 @@ package QuickB2.debugging
 		{
 			checkBox.selected = flag;
 			if ( flag )
-				qb2DebugDrawSettings.drawFlags |= bit;
+				qb2_debugDrawSettings.drawFlags |= bit;
 			else
-				qb2DebugDrawSettings.drawFlags &= ~bit;
+				qb2_debugDrawSettings.drawFlags &= ~bit;
 		}
 		
 		private static function get sharedData():Object
@@ -427,14 +427,14 @@ package QuickB2.debugging
 			setSharedData(key, flag);
 			
 			if ( flag )
-				qb2DebugDrawSettings.drawFlags |= drawFlag;
+				qb2_debugDrawSettings.drawFlags |= drawFlag;
 			else
-				qb2DebugDrawSettings.drawFlags &= ~drawFlag;
+				qb2_debugDrawSettings.drawFlags &= ~drawFlag;
 		}
 		
 		private function alphaChange(evt:Event):void
 		{
-			qb2DebugDrawSettings.fillAlpha = qb2DebugDrawSettings.outlineAlpha = qb2DebugDrawSettings.boundBoxAlpha = qb2DebugDrawSettings.centroidAlpha = alphaSlider.value;
+			qb2_debugDrawSettings.fillAlpha = qb2_debugDrawSettings.outlineAlpha = qb2_debugDrawSettings.boundBoxAlpha = qb2_debugDrawSettings.centroidAlpha = alphaSlider.value;
 			setSharedData("alphaSliderValue", alphaSlider.value);
 		}
 		
@@ -442,16 +442,16 @@ package QuickB2.debugging
 		{
 			if ( evt.currentTarget == boundBoxRange )
 			{
-				qb2DebugDrawSettings.boundBoxStartDepth = boundBoxRange.lowValue;
-				qb2DebugDrawSettings.boundBoxEndDepth   = boundBoxRange.highValue;
+				qb2_debugDrawSettings.boundBoxStartDepth = boundBoxRange.lowValue;
+				qb2_debugDrawSettings.boundBoxEndDepth   = boundBoxRange.highValue;
 				
 				setSharedData("boundBoxRangeLow", boundBoxRange.lowValue);
 				setSharedData("boundBoxRangeHigh", boundBoxRange.highValue);
 			}
 			else if( evt.currentTarget == centroidRange )
 			{
-				qb2DebugDrawSettings.centroidStartDepth = centroidRange.lowValue;
-				qb2DebugDrawSettings.centroidEndDepth   = centroidRange.highValue;
+				qb2_debugDrawSettings.centroidStartDepth = centroidRange.lowValue;
+				qb2_debugDrawSettings.centroidEndDepth   = centroidRange.highValue;
 				
 				setSharedData("centroidRangeLow", centroidRange.lowValue);
 				setSharedData("centroidRangeHigh", centroidRange.highValue);
@@ -459,8 +459,8 @@ package QuickB2.debugging
 			
 			else if( evt.currentTarget == boundCircleRange )
 			{
-				qb2DebugDrawSettings.boundCircleStartDepth = boundCircleRange.lowValue;
-				qb2DebugDrawSettings.boundCircleEndDepth   = boundCircleRange.highValue;
+				qb2_debugDrawSettings.boundCircleStartDepth = boundCircleRange.lowValue;
+				qb2_debugDrawSettings.boundCircleEndDepth   = boundCircleRange.highValue;
 				
 				setSharedData("boundCircleRangeLow", boundCircleRange.lowValue);
 				setSharedData("boundCircleRangeHigh", boundCircleRange.highValue);

@@ -25,7 +25,7 @@ package QuickB2.stock
 	import Box2DAS.Common.b2Def;
 	import flash.display.Graphics;
 	import flash.utils.Dictionary;
-	import QuickB2.debugging.qb2DebugDrawSettings;
+	import QuickB2.debugging.qb2_debugDrawSettings;
 	import QuickB2.events.qb2ContactEvent;
 	import QuickB2.events.qb2ContainerEvent;
 	import QuickB2.misc.qb2TreeIterator;
@@ -141,7 +141,7 @@ package QuickB2.stock
 		
 		public override function drawDebug(graphics:Graphics):void
 		{
-			debugFillColorStack.unshift(qb2DebugDrawSettings.terrainFillColor);
+			debugFillColorStack.unshift(qb2_debugDrawSettings.terrainFillColor);
 				super.drawDebug(graphics);
 			debugFillColorStack.shift();
 		}

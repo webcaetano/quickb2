@@ -26,9 +26,9 @@ package QuickB2.objects.tangibles
 	import flash.display.*;
 	import flash.utils.Dictionary;
 	import QuickB2.*;
-	import QuickB2.debugging.qb2DebugDrawSettings;
+	import QuickB2.debugging.qb2_debugDrawSettings;
 	import QuickB2.events.*;
-	import QuickB2.misc.qb2_behaviorFlags;
+	import QuickB2.misc.qb2_flags;
 	import QuickB2.objects.*;
 	import QuickB2.objects.joints.*;
 	import QuickB2.stock.qb2SoundField;
@@ -72,7 +72,7 @@ package QuickB2.objects.tangibles
 				(newObject as qb2Body).setTransform(_position.clone(), _rotation);
 			newContainer.copyProps(this);
 			
-			var deepCloneBit:uint = qb2_behaviorFlags.PARTICIPATES_IN_DEEP_CLONING;
+			var deepCloneBit:uint = qb2_flags.PARTICIPATES_IN_DEEP_CLONING;
 			
 			if ( deep )
 			{
@@ -93,7 +93,7 @@ package QuickB2.objects.tangibles
 						{
 							var object:qb2Object = _objects[i];
 							
-							if ( !(object.behaviorFlags & deepCloneBit) )  continue;
+							if ( !(object._flags & deepCloneBit) )  continue;
 							
 							if ( object is qb2Tangible )
 							{
@@ -693,11 +693,11 @@ package QuickB2.objects.tangibles
 		
 		public override function drawDebug(graphics:Graphics):void
 		{
-			var debugDrawBit:uint = qb2_behaviorFlags.PARTICIPATES_IN_DEBUG_DRAWING;
+			var debugDrawBit:uint = qb2_flags.JOINS_IN_DEBUG_DRAWING;
 			
 			for (var i:int = 0; i < _objects.length; i++) 
 			{
-				if ( _objects[i].behaviorFlags & debugDrawBit )
+				if ( _objects[i]._flags & debugDrawBit )
 				{
 					_objects[i].drawDebug(graphics);
 				}

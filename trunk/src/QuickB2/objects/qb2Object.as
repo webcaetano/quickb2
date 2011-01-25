@@ -51,17 +51,13 @@ package QuickB2.objects
 	 */
 	public class qb2Object extends qb2EventDispatcher
 	{
-		private static var passiveFlags:uint = 
-			qb2_flags.PARTICIPATES_IN_DEBUG_DRAWING | qb2_flags.PARTICIPATES_IN_DEEP_CLONING     |
-			qb2_flags.PARTICIPATES_IN_UPDATE_CHAIN  | qb2_flags.PARTICIPATES_IN_DEBUG_MOUSE_DRAG ;
-	
 		public var identifier:String = "";
 		
 		public function qb2Object()
 		{
 			if ( (this as Object).constructor == qb2Object )  throw qb2_errors.ABSTRACT_CLASS_ERROR;
 			
-			_flags |= qb2_flags.PARTICIPATES_IN_DEBUG_DRAWING | qb2_flags.PARTICIPATES_IN_DEEP_CLONING | qb2_flags.PARTICIPATES_IN_UPDATE_CHAIN;
+			turnFlagOn(qb2_flags.O_JOINS_IN_DEBUG_DRAWING | qb2_flags.O_JOINS_IN_DEEP_CLONING | qb2_flags.O_JOINS_IN_UPDATE_CHAIN);
 			
 			if ( !eventsInitialized )
 			{
@@ -69,29 +65,181 @@ package QuickB2.objects
 			}
 		}
 		
+		qb2_friend var _ownershipFlagsForProperties:uint  = 0;
+		qb2_friend var _ownershipFlagsForBooleans:uint    = 0;
+		
 		public function get flags():uint
 			{  return _flags;  }
-		public function set flags(bits:uint):void
-		{
-			_flags = bits;
-		}
 		qb2_friend var _flags:uint = 0;
 		
 		public function turnFlagOff(flag:uint):qb2Object
 		{
-			flags &= ~flag;
+			_flags &= ~flag;
+			cascadeFlags(this, flag);
+			
 			return this;
 		}
 		
 		public function turnFlagOn(flag:uint):qb2Object
 		{
-			flags |= flag;
+			_flags |= flag;
+			cascadeFlags(this, flag);
+			
 			return this;
 		}
 		
 		public function isFlagOn(flag:uint):Boolean
 		{
 			return _flags & flag ? true : false;
+		}
+		
+		public function getProperty(propertyName:String):*
+		{
+			return _propertyMap[propertyName];
+		}
+		
+		public function setProperty(propertyName:String, value:*, establishOwnership:Boolean = true):void
+		{
+			//--- Check if this property has been registered yet by any object.
+			if ( !_propertyBits[propertyName] )
+			{
+				if ( !_currPropertyBit )
+				{
+					throw qb2_errors.NUMBER_PROPERTY_SLOTS_FULL;
+				}
+				
+				_propertyBits[propertyName] = _currPropertyBit;
+				_currPropertyBit = _currPropertyBit << 1;
+			}
+			
+			if ( establishOwnership )
+			{
+				cascadeProperty(this, propertyName, value);
+			}
+			else
+			{
+				_propertyMap[propertyName] = value;
+				propertyChanged(propertyName, value);
+			}
+		}
+		
+		private var _propertyMap:Object = { };
+		
+		private static var _propertyBits:Object = { };
+		private static var _currPropertyBit:uint = 0x00000001;
+		
+		public function get joinsInDeepCloning():Boolean
+			{  return _flags & qb2_flags.O_JOINS_IN_DEEP_CLONING ? true : false;  }
+		public function set joinsInDeepCloning(bool:Boolean):void
+		{
+			if ( bool )
+				turnFlagOn(qb2_flags.O_JOINS_IN_DEEP_CLONING);
+			else
+				turnFlagOff(qb2_flags.O_JOINS_IN_DEEP_CLONING);
+		}
+		
+		public function get joinsInDebugDrawing():Boolean
+			{  return _flags & qb2_flags.O_JOINS_IN_DEBUG_DRAWING ? true : false;  }
+		public function set joinsInDebugDrawing(bool:Boolean):void
+		{
+			if ( bool )
+				turnFlagOn(qb2_flags.O_JOINS_IN_DEBUG_DRAWING);
+			else
+				turnFlagOff(qb2_flags.O_JOINS_IN_DEBUG_DRAWING);
+		}
+		
+		public function get joinsInUpdateChain():Boolean
+			{  return _flags & qb2_flags.O_JOINS_IN_UPDATE_CHAIN ? true : false;  }
+		public function set joinsInUpdateChain(bool:Boolean):void
+		{
+			if ( bool )
+				turnFlagOn(qb2_flags.O_JOINS_IN_UPDATE_CHAIN);
+			else
+				turnFlagOff(qb2_flags.O_JOINS_IN_UPDATE_CHAIN);
+		}
+		
+		private static function cascadeProperty(root:qb2Object, propertyName:String, value:*):void
+		{
+			var queue:Vector.<qb2Object> = new Vector.<qb2Object>();
+			queue.push(root);
+			
+			while ( queue.length )
+			{
+				var subObject:qb2Object = queue.shift();
+				
+				if ( subObject != root )
+				{
+					//--- This sub-object loses ownership of this property...it is now considered "inherited" from the root.
+					subObject._ownershipFlagsForProperties &= ~_propertyBits[propertyName];
+				}
+				else
+				{
+					subObject._ownershipFlagsForProperties |= _propertyBits[propertyName];
+				}
+				
+				_propertyMap[propertyName] = value;
+				subObject.propertyChanged(propName, value);
+				
+				if ( subObject is qb2ObjectContainer )
+				{
+					var asContainer:qb2ObjectContainer = subTang as qb2ObjectContainer;
+					var numObjects:int = asContainer.numObjects;
+					
+					for ( var i:int = 0; i < numObjects; i++) 
+					{
+						queue.push(asContainer._objects[i]);
+					}
+				}
+			}
+		}
+		
+		private static function cascadeFlags(root:qb2Object, affectedFlags:uint):void
+		{
+			var rootFlags:uint = root._flags;
+			
+			var queue:Vector.<qb2Object> = new Vector.<qb2Object>();
+			queue.push(root);
+			
+			while ( queue.length )
+			{
+				var subObject:qb2Object = queue.shift();
+				
+				if ( subObject != root )
+				{
+					//--- This sub-object loses ownership of this property...it is now considered "inherited" from the root.
+					subObject._ownershipFlagsForBooleans &= ~affectedFlags;
+					
+					subObject._flags &= ~affectedFlags;
+					subObject._flags |= affectedFlags & rootFlags;
+				}
+				else
+				{
+					subObject._ownershipFlagsForBooleans |= affectedFlags;
+				}
+				
+				subObject.flagsChanged(affectedFlags);
+				
+				if ( subObject is qb2ObjectContainer )
+				{
+					var asContainer:qb2ObjectContainer = subTang as qb2ObjectContainer;
+					var numObjects:int = asContainer.numObjects;
+					
+					for ( var i:int = 0; i < numObjects; i++) 
+					{
+						queue.push(asContainer._objects[i]);
+					}
+				}
+			}
+		}
+		
+		protected virtual function propertyChanged(propertyName:String, value:*):void
+		{
+			
+		}
+		
+		protected virtual function flagsChanged(affectedFlags:uint):void
+		{
+			
 		}
 		
 		qb2_friend static var CONTACT_STARTED_BIT:uint;
@@ -449,15 +597,22 @@ package QuickB2.objects
 			_world = null;
 		}
 		
-		public virtual function draw(graphics:Graphics):void {}
+		public virtual function draw(graphics:Graphics):void      {}
 		
-		public virtual function drawDebug(graphics:Graphics):void { }
+		public virtual function drawDebug(graphics:Graphics):void {}
 		
 		public function clone():qb2Object
 		{
 			var cloned:qb2Object = new (this as Object).constructor;
 			
 			cloned._flags = this._flags;
+			cloned._ownershipFlagsForBooleans   = this._ownershipFlagsForBooleans;
+			cloned._ownershipFlagsForProperties = this._ownershipFlagsForProperties;
+			
+			for ( var key:String in _propertyMap )
+			{
+				cloned._propertyMap[key] = this._propertyMap[key];
+			}
 			
 			return cloned;
 		}

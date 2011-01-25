@@ -52,5 +52,7 @@ package QuickB2
 		public static const LOAD_IN_PROGRESS:Error = new Error("qb2FlashLoader is already loading something.");
 		
 		public static const BAD_DISTANCE_QUERY:Error = new Error("Illegal distance query...both objects must be in the world and not descendants of each other.");
+	
+		public static const NUMBER_PROPERTY_SLOTS_FULL:Error = new Error("No more inheritable number properties can be made.");
 	}
 }

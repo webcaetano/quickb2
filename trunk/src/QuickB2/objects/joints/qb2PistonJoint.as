@@ -56,11 +56,13 @@ package QuickB2.objects.joints
 		public var springK:Number = 0;
 		public var springDamping:Number = 0;
 		public var springLength:Number = 0;
+		
+		
 		public var springCanFlip:Boolean = false;
 		public var dampenSpringJitter:Boolean = false;
 		public var optimizedSpring:Boolean = true;
-		
 		private var _syncedObjectRotation:Boolean = true;
+		
 		private var _lowerLimit:Number = -Infinity
 		private var _upperLimit:Number = Infinity;
 		private var _maxPistonForce:Number = 0;
