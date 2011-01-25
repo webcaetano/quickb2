@@ -91,6 +91,8 @@ package QuickB2.objects.tangibles
 		
 		function distanceTo(otherTangible:qb2Tangible, outputVector:amVector2d = null, outputPointThis:amPoint2d = null, outputPointOther:amPoint2d = null, ... excludes):Number
 		
+		function get ancestorBody:qb2Body;
+		
 		function get density():Number;
 		function set density(value:Number):void;
 
@@ -189,11 +191,14 @@ package QuickB2.objects.tangibles
 		
 		// FUNCTIONS in qb2Object/qb2EventDispatcher (EventDispatcher functions are pulled in by 'extends IEventDispatcher' at the top.
 		
-		function turnBehaviorFlagOn(flag:uint):qb2Object;
+		function get flags():uint;
+		function set flags(bits:uint):void;
 		
-		function turnBehaviorFlagOff(flag:uint):qb2Object;
+		function turnFlagOn(flag:uint):qb2Object;
 		
-		function isBehaviorFlagOn(flag:uint):Boolean;
+		function turnFlagOff(flag:uint):qb2Object;
+		
+		function isFlagOn(flag:uint):Boolean;
 		
 		function get parent():qb2ObjectContainer;
 

@@ -32,6 +32,8 @@ package QuickB2.objects
 	import QuickB2.debugging.qb2DebugTraceSettings;
 	import QuickB2.events.*;
 	import QuickB2.misc.qb2_behaviorFlags;
+	import QuickB2.misc.qb2_bits;
+	import QuickB2.misc.qb2_flags;
 	import QuickB2.objects.joints.*;
 	import QuickB2.objects.tangibles.*;
 	use namespace qb2_friend;
@@ -49,15 +51,17 @@ package QuickB2.objects
 	 */
 	public class qb2Object extends qb2EventDispatcher
 	{
+		private static var passiveFlags:uint = 
+			qb2_flags.PARTICIPATES_IN_DEBUG_DRAWING | qb2_flags.PARTICIPATES_IN_DEEP_CLONING     |
+			qb2_flags.PARTICIPATES_IN_UPDATE_CHAIN  | qb2_flags.PARTICIPATES_IN_DEBUG_MOUSE_DRAG ;
+	
 		public var identifier:String = "";
-		
-		public var behaviorFlags:uint =
-			qb2_behaviorFlags.PARTICIPATES_IN_DEBUG_MOUSE_DRAG | qb2_behaviorFlags.PARTICIPATES_IN_DEBUG_DRAWING |
-			qb2_behaviorFlags.PARTICIPATES_IN_DEEP_CLONING     | qb2_behaviorFlags.PARTICIPATES_IN_UPDATE_CHAIN  ;
 		
 		public function qb2Object()
 		{
 			if ( (this as Object).constructor == qb2Object )  throw qb2_errors.ABSTRACT_CLASS_ERROR;
+			
+			_flags |= qb2_flags.PARTICIPATES_IN_DEBUG_DRAWING | qb2_flags.PARTICIPATES_IN_DEEP_CLONING | qb2_flags.PARTICIPATES_IN_UPDATE_CHAIN;
 			
 			if ( !eventsInitialized )
 			{
@@ -65,21 +69,29 @@ package QuickB2.objects
 			}
 		}
 		
-		public function turnBehaviorFlagOff(flag:uint):qb2Object
+		public function get flags():uint
+			{  return _flags;  }
+		public function set flags(bits:uint):void
 		{
-			behaviorFlags &= ~flag;
+			_flags = bits;
+		}
+		qb2_friend var _flags:uint = 0;
+		
+		public function turnFlagOff(flag:uint):qb2Object
+		{
+			flags &= ~flag;
 			return this;
 		}
 		
-		public function turnBehaviorFlagOn(flag:uint):qb2Object
+		public function turnFlagOn(flag:uint):qb2Object
 		{
-			behaviorFlags |= flag;
+			flags |= flag;
 			return this;
 		}
 		
-		public function isBehaviorFlagOn(flag:uint):Boolean
+		public function isFlagOn(flag:uint):Boolean
 		{
-			return behaviorFlags & flag ? true : false;
+			return _flags & flag ? true : false;
 		}
 		
 		qb2_friend static var CONTACT_STARTED_BIT:uint;
@@ -378,7 +390,7 @@ package QuickB2.objects
 		
 		protected static var reusableV2:V2 = new V2();
 		
-		private function collectAncestorBits():uint
+		private function collectAncestorEventFlags():uint
 		{
 			var currParent:qb2Object = this;
 			var flags:uint = 0;
@@ -445,7 +457,7 @@ package QuickB2.objects
 		{
 			var cloned:qb2Object = new (this as Object).constructor;
 			
-			cloned.behaviorFlags = this.behaviorFlags;
+			cloned._flags = this._flags;
 			
 			return cloned;
 		}
