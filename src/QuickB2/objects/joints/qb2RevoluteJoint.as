@@ -324,7 +324,6 @@ package QuickB2.objects.joints
 			revJoint._localAnchor2._x = this._localAnchor2._x;
 			revJoint._localAnchor2._y = this._localAnchor2._y;
 			
-			revJoint._collideConnected   = this._collideConnected;
 			revJoint._lowerAngle         = this._lowerAngle;
 			revJoint._maxMotorTorque     = this._maxMotorTorque;
 			revJoint._targetMotorSpeed   = this._targetMotorSpeed;

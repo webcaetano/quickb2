@@ -267,7 +267,6 @@ package QuickB2.objects.joints
 			distJoint._localAnchor2._x = this._localAnchor2._x;
 			distJoint._localAnchor2._y = this._localAnchor2._y;
 			
-			distJoint._collideConnected = this._collideConnected;
 			distJoint.frequencyHz = this.frequencyHz;
 			distJoint.dampingRatio = this.dampingRatio;
 			distJoint._length = this._length;

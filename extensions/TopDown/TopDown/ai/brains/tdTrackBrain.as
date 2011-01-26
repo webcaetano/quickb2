@@ -29,7 +29,6 @@ package TopDown.ai.brains
 	import flash.utils.*;
 	import QuickB2.debugging.*;
 	import QuickB2.events.*;
-	import QuickB2.misc.qb2_behaviorFlags;
 	import QuickB2.misc.qb2_flags;
 	import QuickB2.objects.*;
 	import QuickB2.objects.tangibles.*;
@@ -769,7 +768,7 @@ package TopDown.ai.brains
 		
 		public override function drawDebug(graphics:Graphics):void
 		{
-			if ( _antenna && (td_debugDrawSettings.flags & td_debugDrawSettings.ANTENNAS) )
+			if ( _antenna && (td_debugDrawSettings.flags & td_debugDrawFlags.ANTENNAS) )
 			{
 				graphics.lineStyle();
 				graphics.beginFill(td_debugDrawSettings.antennaColor, qb2_debugDrawSettings.fillAlpha);
@@ -777,7 +776,7 @@ package TopDown.ai.brains
 				graphics.endFill();
 			}
 			
-			if ( td_debugDrawSettings.flags & td_debugDrawSettings.TRACK_TETHERS )
+			if ( td_debugDrawSettings.flags & td_debugDrawFlags.TRACK_TETHERS )
 			{
 				if ( !_currTrack || !_currPoint )  return;
 			

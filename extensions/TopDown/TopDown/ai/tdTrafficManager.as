@@ -127,7 +127,7 @@ package TopDown.ai
 					var container:qb2Group = tang as qb2Group;
 					for ( var i:int = 0; i < container.numObjects; i++ )
 					{
-						queue.unshift(container.getObjectAt(i));
+						queue.push(container.getObjectAt(i));
 					}
 				}
 				else if ( tang is tdCarBody )

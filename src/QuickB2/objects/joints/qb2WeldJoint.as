@@ -162,7 +162,6 @@ package QuickB2.objects.joints
 			weldJoint._localAnchor2._x = this._localAnchor2._x;
 			weldJoint._localAnchor2._y = this._localAnchor2._y;
 			
-			weldJoint._collideConnected = this._collideConnected;
 			weldJoint._referenceAngle   = this._referenceAngle;
 			
 			return weldJoint;

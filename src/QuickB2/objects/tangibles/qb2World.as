@@ -271,7 +271,7 @@ package QuickB2.objects.tangibles
 				var mousePoint:amPoint2d = new amPoint2d(_debugDragSource.mouseX, _debugDragSource.mouseY);
 				var mousePointV2:V2 = new V2(mousePoint.x / _pixelsPerMeter, mousePoint.y / _pixelsPerMeter);
 				
-				mouseDrag_iterator.direction = qb2TreeIterator.RIGHT_TO_LEFT;
+				mouseDrag_iterator.path = qb2TreeIterator.Z_ORDER_TOP_TO_BOTTOM;
 				mouseDrag_iterator.root = this;
 				
 				var mouseBit:uint = qb2_flags.T_IS_DEBUG_DRAGGABLE;

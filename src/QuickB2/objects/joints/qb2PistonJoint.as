@@ -541,7 +541,6 @@ package QuickB2.objects.joints
 			
 			pistJoint._localDirection.copy(this._localDirection);
 			
-			pistJoint._collideConnected     = this._collideConnected;
 			pistJoint._lowerLimit           = this._lowerLimit;
 			pistJoint._maxPistonForce       = this._maxPistonForce;
 			pistJoint._targetPistonSpeed    = this._targetPistonSpeed;

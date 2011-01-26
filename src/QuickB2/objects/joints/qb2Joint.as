@@ -28,6 +28,7 @@ package QuickB2.objects.joints
 	import Box2DAS.Dynamics.Joints.*;
 	import flash.display.Graphics;
 	import QuickB2.*;
+	import QuickB2.debugging.qb2_debugDrawFlags;
 	import QuickB2.debugging.qb2_debugDrawSettings;
 	import QuickB2.debugging.qb2DebugTraceSettings;
 	import QuickB2.events.qb2ContainerEvent;
@@ -265,7 +266,7 @@ package QuickB2.objects.joints
 			
 			jointDef.bodyA = _object1._bodyB2 ? _object1._bodyB2 : _object1._ancestorBody._bodyB2;
 			jointDef.bodyB = _object2._bodyB2 ? _object2._bodyB2 : _object2._ancestorBody._bodyB2;
-			jointDef.collideConnected = _collideConnected;
+			jointDef.collideConnected = collideConnected;
 			jointB2 = theWorld._worldB2.CreateJoint(jointDef);
 			jointB2.SetUserData(this);
 			jointDef = null;
@@ -342,8 +343,8 @@ package QuickB2.objects.joints
 		
 		public override function drawDebug(graphics:Graphics):void
 		{
-			var flags:uint = qb2_debugDrawSettings.drawFlags;
-			if ( flags & qb2_debugDrawSettings.JOINTS )
+			var flags:uint = qb2_debugDrawSettings.flags;
+			if ( flags & qb2_debugDrawFlags.JOINTS )
 			{
 				graphics.lineStyle(qb2_debugDrawSettings.jointLineThickness, qb2_debugDrawSettings.jointOutlineColor, qb2_debugDrawSettings.outlineAlpha);
 					

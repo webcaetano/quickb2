@@ -72,7 +72,7 @@ package QuickB2.objects.tangibles
 				(newObject as qb2Body).setTransform(_position.clone(), _rotation);
 			newContainer.copyProps(this);
 			
-			var deepCloneBit:uint = qb2_flags.PARTICIPATES_IN_DEEP_CLONING;
+			var deepCloneBit:uint = qb2_flags.O_JOINS_IN_DEEP_CLONING;
 			
 			if ( deep )
 			{
@@ -363,7 +363,7 @@ package QuickB2.objects.tangibles
 						ithObject = objectAsGroup._objects[i];
 						
 						if ( ithObject is qb2Tangible )
-							queue.unshift(ithObject as qb2Tangible);
+							queue.push(ithObject as qb2Tangible);
 					}
 				}
 			}
@@ -693,7 +693,7 @@ package QuickB2.objects.tangibles
 		
 		public override function drawDebug(graphics:Graphics):void
 		{
-			var debugDrawBit:uint = qb2_flags.JOINS_IN_DEBUG_DRAWING;
+			var debugDrawBit:uint = qb2_flags.O_JOINS_IN_DEBUG_DRAWING;
 			
 			for (var i:int = 0; i < _objects.length; i++) 
 			{
@@ -763,7 +763,7 @@ package QuickB2.objects.tangibles
 					var container:qb2ObjectContainer = physObject as qb2ObjectContainer;
 					for ( var i:int = 0; i < container.numObjects; i++ )
 					{
-						queue.unshift(container.getObjectAt(i));
+						queue.push(container.getObjectAt(i));
 					}
 				}
 				else if ( physObject is qb2IRigidObject )
@@ -800,7 +800,7 @@ package QuickB2.objects.tangibles
 				if ( tang is qb2Group )
 				{
 					var group:qb2Group = tang as qb2Group;
-					if ( searchDirection >= 0 )
+					if ( searchDirection < 0 )
 					{
 						for ( var i:int = group.numObjects-1; i >= 0; i--)
 						{

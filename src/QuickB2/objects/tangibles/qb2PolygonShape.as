@@ -435,7 +435,7 @@ package QuickB2.objects.tangibles
 		qb2_friend override function makeFrictionJoints():void
 		{
 			var numPoints:int = b2Verts.length;
-			var maxForce:Number = (_frictionZ * _world.gravityZ * _mass) / (numPoints as Number);
+			var maxForce:Number = (frictionZ * _world.gravityZ * _mass) / (numPoints as Number);
 			
 			populateFrictionJointArray(numPoints);
 			
@@ -526,10 +526,10 @@ package QuickB2.objects.tangibles
 		
 		public override function drawDebug(graphics:Graphics):void
 		{
-			const drawFlags:uint = qb2_debugDrawSettings.drawFlags;
-			var drawOutlines:Boolean = drawFlags & qb2_debugDrawSettings.OUTLINES ? true : false;
-			var drawFill:Boolean     = drawFlags & qb2_debugDrawSettings.FILLS ?    true : false;
-			var drawVertices:Boolean = drawFlags & qb2_debugDrawSettings.VERTICES ? true : false;
+			const drawFlags:uint = qb2_debugDrawSettings.flags;
+			var drawOutlines:Boolean = drawFlags & qb2_debugDrawFlags.OUTLINES ? true : false;
+			var drawFill:Boolean     = drawFlags & qb2_debugDrawFlags.FILLS ?    true : false;
+			var drawVertices:Boolean = drawFlags & qb2_debugDrawFlags.VERTICES ? true : false;
 			
 			if ( !drawOutlines && !drawFill && !drawVertices )
 			{

@@ -34,6 +34,7 @@ package QuickB2.objects.tangibles
 	import flash.display.Graphics;
 	import flash.utils.Dictionary;
 	import QuickB2.*;
+	import QuickB2.debugging.qb2_debugDrawFlags;
 	import QuickB2.debugging.qb2_debugDrawSettings;
 	import QuickB2.misc.*;
 	import QuickB2.objects.joints.*;
@@ -115,61 +116,69 @@ package QuickB2.objects.tangibles
 		public virtual function get perimeter():Number { return NaN; }
 		public function get metricPerimeter():Number
 			{ return perimeter / worldPixelsPerMeter; }
-		
-		protected override function setPropertyImplicitly(propName:String, value:*):void
-		{
-			super.setPropertyImplicitly(propName, value);
 			
-			rigid_setPropertyImplicitly(propName, value); // sets body properties if this shape is flying solo and has a b2Body
+		//--- Various properties that have real effects on shapes that are simulating in the world.
+		qb2_friend static const PROPS_FOR_SHAPES:Object =
+		{
+			friction:true, restitution:true, contactCategory:true, contactCollidesWith:true, contactGroupIndex:true//, isGhost:true
+		}
+		
+		protected override function propertyChanged(propertyName:String, value:*):void
+		{
+			rigid_propertyChanged(propertyName, value); // sets body properties if this shape is flying solo and has a b2Body
 			
 			if ( !this.fixtures.length )  return;
+				
+			var i:int;
+			if ( propertyName == qb2_props.T_RESTITUTION )
+			{
+				for ( i = 0; i < this.fixtures.length; i++ )
+					this.fixtures[i].SetRestitution(value as Number);
+			}
+			else if ( propertyName == qb2_props.T_CONTACT_CATEGORY )
+			{
+				for ( i = 0; i < this.fixtures.length; i++ )
+				{
+					this.fixtures[i].m_filter.categoryBits = value as uint;
+					this.fixtures[i].Refilter();
+				}
+			}
+			else if ( propertyName == qb2_props.T_CONTACT_COLLIDES_WITH )
+			{
+				for ( i = 0; i < this.fixtures.length; i++ )
+				{
+					this.fixtures[i].m_filter.maskBits = value as uint;
+					this.fixtures[i].Refilter();
+				}
+			}
+			else if ( propertyName == qb2_props.T_CONTACT_GROUP_INDEX )
+			{
+				for ( i = 0; i < this.fixtures.length; i++ )
+				{
+					this.fixtures[i].m_filter.groupIndex = value as int;
+					this.fixtures[i].Refilter();
+				}
+			}
+			else if ( propertyName == qb2_props.T_FRICTION )
+			{
+				for ( i = 0; i < this.fixtures.length; i++ )
+					this.fixtures[i].SetFriction(value as Number);
+			}
+			else if ( propertyName == qb2_props.T_FRICTION_Z )
+			{
+				updateFrictionJoints();
+			}
+		}
+		
+		protected override function flagsChanged(affectedFlags:uint):void
+		{
+			if ( !this.fixtures.length )  return;
 			
-			if ( qb2Tangible.PROPS_FOR_SHAPES[propName] )
-			{				
-				var i:int;
-				if ( propName == "restitution" )
-				{
-					for ( i = 0; i < this.fixtures.length; i++ )
-						this.fixtures[i].SetRestitution(value as Number);
-				}
-				else if ( propName == "contactCategory" )
-				{
-					for ( i = 0; i < this.fixtures.length; i++ )
-					{
-						this.fixtures[i].m_filter.categoryBits = value as uint;
-						this.fixtures[i].Refilter();
-					}
-				}
-				else if ( propName == "contactCollidesWith" )
-				{
-					for ( i = 0; i < this.fixtures.length; i++ )
-					{
-						this.fixtures[i].m_filter.maskBits = value as uint;
-						this.fixtures[i].Refilter();
-					}
-				}
-				else if ( propName == "contactGroupIndex" )
-				{
-					for ( i = 0; i < this.fixtures.length; i++ )
-					{
-						this.fixtures[i].m_filter.groupIndex = value as int;
-						this.fixtures[i].Refilter();
-					}
-				}
-				else if ( propName == "friction" )
-				{
-					for ( i = 0; i < this.fixtures.length; i++ )
-						this.fixtures[i].SetFriction(value as Number);
-				}
-				/*else if ( propName == "isGhost" )
-				{
-					for ( i = 0; i < this.fixtures.length; i++ )
-						this.fixtures[i].SetSensor(value ? true : false);
-				}*/
-				else if ( propName == "frictionZ" )
-				{
-					updateFrictionJoints();
-				}
+			if ( affectedFlags & qb2_flags.T_IS_GHOST )
+			{
+				var isAGhost:Boolean = isGhost;
+				for ( var i:int = 0; i < this.fixtures.length; i++ )
+					this.fixtures[i].SetSensor(isAGhost);
 			}
 		}
 	
@@ -228,7 +237,7 @@ package QuickB2.objects.tangibles
 		{
 			var needJoints:Boolean = true;
 			
-			if ( !_world || !_world.gravityZ || !_frictionZ || !_mass || _isKinematic )
+			if ( !_world || !_world.gravityZ || !frictionZ || !_mass || isKinematic )
 			{
 				destroyFrictionJoints();
 				
@@ -346,12 +355,12 @@ package QuickB2.objects.tangibles
 			//--- Populate the fixture definition.
 			var fixtureDef:b2FixtureDef    = b2Def.fixture;
 			fixtureDef.density             =  _mass / (_surfaceArea / (conversion * conversion));
-			fixtureDef.filter.categoryBits = _contactCategory;
-			fixtureDef.filter.maskBits     = _contactCollidesWith;
-			fixtureDef.filter.groupIndex   = _contactGroupIndex;
-			fixtureDef.friction            = _friction;
-			fixtureDef.isSensor            = _isGhost;
-			fixtureDef.restitution         = _restitution;
+			fixtureDef.filter.categoryBits = contactCategory;
+			fixtureDef.filter.maskBits     = contactCollidesWith;
+			fixtureDef.filter.groupIndex   = contactGroupIndex;
+			fixtureDef.friction            = friction;
+			fixtureDef.isSensor            = isGhost;
+			fixtureDef.restitution         = restitution;
 			
 			var currParent:qb2Tangible = this;
 			var ancestorEventFlags:uint = 0;
@@ -474,7 +483,7 @@ package QuickB2.objects.tangibles
 				var col2:b2Vec2 = r.col2;
 				var frictionJointWorldV2:V2 = new V2();
 				
-				var maxForce:Number = (_world.gravityZ * _frictionZ * _mass) / frictionJoints.length;
+				var maxForce:Number = (_world.gravityZ * frictionZ * _mass) / frictionJoints.length;
 				var numFrictionJoints:int = frictionJoints.length;
 				for (var i:int = 0; i < numFrictionJoints; i++) 
 				{
@@ -619,7 +628,7 @@ package QuickB2.objects.tangibles
 		{
 			if ( frictionJoints && fixtures.length )
 			{
-				if ( qb2_debugDrawSettings.drawFlags & qb2_debugDrawSettings.FRICTION_POINTS )
+				if ( qb2_debugDrawSettings.flags & qb2_debugDrawFlags.FRICTION_POINTS )
 				{
 					graphics.lineStyle();
 					graphics.beginFill(qb2_debugDrawSettings.frictionPointColor, qb2_debugDrawSettings.frictionPointAlpha);
