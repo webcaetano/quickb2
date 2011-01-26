@@ -24,23 +24,27 @@ package QuickB2.misc
 {
 	import QuickB2.objects.qb2Object;
 	import QuickB2.objects.tangibles.qb2ObjectContainer;
+	import QuickB2.qb2_friend;
+	use namespace qb2_friend;
 	
 	/**
-	 * Provides a convenient way to traverse a qb2ObjectContainer hierarchy in level order.
+	 * Provides a convenient way to traverse a qb2ObjectContainer hierarchy in either level order or z order
 	 * Singleton is provided so you really only have to instatiate one of these and reuse it.
 	 * 
 	 * @author Doug Koellmer
 	 */
 	public class qb2TreeIterator
 	{
-		public static const LEFT_TO_RIGHT:uint = 1;
-		public static const RIGHT_TO_LEFT:uint = 2;
+		public static const LEVEL_ORDER_LEFT_TO_RIGHT:uint = 1;
+		public static const LEVEL_ORDER_RIGHT_TO_LEFT:uint = 2;
+		public static const Z_ORDER_BOTTOM_TO_TOP:uint     = 3;
+		public static const Z_ORDER_TOP_TO_BOTTOM:uint     = 4;
 		
-		public var direction:uint = LEFT_TO_RIGHT;
+		public var path:uint = LEVEL_ORDER_LEFT_TO_RIGHT;
 		
-		public function qb2TreeIterator(initRoot:qb2ObjectContainer = null, initDirection:uint = LEFT_TO_RIGHT) 
+		public function qb2TreeIterator(initRoot:qb2ObjectContainer = null, initPath:uint = LEVEL_ORDER_LEFT_TO_RIGHT) 
 		{
-			direction = initDirection;
+			path = initPath;
 			root = initRoot;
 		}
 		
@@ -95,19 +99,34 @@ package QuickB2.misc
 				{
 					var asContainer:qb2ObjectContainer = _currObject as qb2ObjectContainer;
 					var numObjects:int = asContainer.numObjects;
-					
-					if ( direction == RIGHT_TO_LEFT )
+					var objectArray:Vector.<qb2Object> = asContainer._objects;
+				
+					if ( path == LEVEL_ORDER_RIGHT_TO_LEFT )
 					{
 						for (var i:int = numObjects-1; i >= 0; i--) 
 						{
-							_queue.push(asContainer.getObjectAt(i));
+							_queue.push(objectArray[i]);
 						}
 					}
-					else
+					else if( path == Z_ORDER_TOP_TO_BOTTOM )
+					{
+						for ( i = numObjects-1; i >= 0; i--) 
+						{
+							_queue.unshift(objectArray[i]);
+						}
+					}
+					else if ( path == LEVEL_ORDER_LEFT_TO_RIGHT )
 					{
 						for ( i = 0; i < numObjects; i++)
 						{
-							_queue.push(asContainer.getObjectAt(i));
+							_queue.push(objectArray[i]);
+						}
+					}
+					else if( path == Z_ORDER_BOTTOM_TO_TOP )
+					{
+						for ( i = 0; i < numObjects; i++)
+						{
+							_queue.unshift(objectArray[i]);
 						}
 					}
 				}

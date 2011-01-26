@@ -54,15 +54,15 @@ package QuickB2.debugging
 		
 		private var checkboxMap:Object =
 		{
-			outlines       : qb2_debugDrawSettings.OUTLINES, 
-			fills          : qb2_debugDrawSettings.FILLS,
-			verts          : qb2_debugDrawSettings.VERTICES,
-			positions      : qb2_debugDrawSettings.POSITIONS,
-			centroids      : qb2_debugDrawSettings.CENTROIDS,
-			bounds         : qb2_debugDrawSettings.BOUND_BOXES,
-			boundCircles   : qb2_debugDrawSettings.BOUND_CIRCLES,
-			joints         : qb2_debugDrawSettings.JOINTS,
-			frictionPoints : qb2_debugDrawSettings.FRICTION_POINTS
+			outlines       : qb2_debugDrawFlags.OUTLINES, 
+			fills          : qb2_debugDrawFlags.FILLS,
+			verts          : qb2_debugDrawFlags.VERTICES,
+			positions      : qb2_debugDrawFlags.POSITIONS,
+			centroids      : qb2_debugDrawFlags.CENTROIDS,
+			bounds         : qb2_debugDrawFlags.BOUND_BOXES,
+			boundCircles   : qb2_debugDrawFlags.BOUND_CIRCLES,
+			joints         : qb2_debugDrawFlags.JOINTS,
+			frictionPoints : qb2_debugDrawFlags.FRICTION_POINTS
 		};
 		
 		private var objToString:Dictionary = new Dictionary();
@@ -264,7 +264,7 @@ package QuickB2.debugging
 				{
 					for ( var key:String in checkboxMap)
 					{
-						data[key] = qb2_debugDrawSettings.drawFlags & checkboxMap[key] ? true : false
+						data[key] = qb2_debugDrawSettings.flags & checkboxMap[key] ? true : false
 					}
 					
 					data.boundBoxRangeLow     = qb2_debugDrawSettings.boundBoxStartDepth;
@@ -303,7 +303,7 @@ package QuickB2.debugging
 			{
 				for ( key in checkboxMap)
 				{
-					this[key].selected = qb2_debugDrawSettings.drawFlags & checkboxMap[key] ? true : false;
+					this[key].selected = qb2_debugDrawSettings.flags & checkboxMap[key] ? true : false;
 				}
 				
 				boundBoxRange.lowValue     = qb2_debugDrawSettings.boundBoxStartDepth;
@@ -325,9 +325,9 @@ package QuickB2.debugging
 		{
 			checkBox.selected = flag;
 			if ( flag )
-				qb2_debugDrawSettings.drawFlags |= bit;
+				qb2_debugDrawSettings.flags |= bit;
 			else
-				qb2_debugDrawSettings.drawFlags &= ~bit;
+				qb2_debugDrawSettings.flags &= ~bit;
 		}
 		
 		private static function get sharedData():Object
@@ -427,9 +427,9 @@ package QuickB2.debugging
 			setSharedData(key, flag);
 			
 			if ( flag )
-				qb2_debugDrawSettings.drawFlags |= drawFlag;
+				qb2_debugDrawSettings.flags |= drawFlag;
 			else
-				qb2_debugDrawSettings.drawFlags &= ~drawFlag;
+				qb2_debugDrawSettings.flags &= ~drawFlag;
 		}
 		
 		private function alphaChange(evt:Event):void

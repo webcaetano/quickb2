@@ -319,8 +319,10 @@ package TopDown.carparts
 		public override function drawDebug(graphics:Graphics):void
 		{
 			var drawFlags:uint = td_debugDrawSettings.flags;
+			var drawTires:Boolean = drawFlags & td_debugDrawFlags.TIRES ? true : false;
+			var drawLoads:Boolean = drawFlags & td_debugDrawFlags.TIRE_LOADS ? true : false;
 			
-			if ( drawFlags & td_debugDrawSettings.TIRES || drawFlags & td_debugDrawSettings.TIRE_LOADS )
+			if ( drawTires || drawLoads )
 			{
 				var tireScale:Number = td_debugDrawSettings.tireScale;
 				var pixPerMeter:Number = this.worldPixelsPerMeter;
@@ -335,9 +337,6 @@ package TopDown.carparts
 				worldPoint.translateBy(worldVec).translateBy(sideVec);
 				sideVec.negate().scaleBy(2);
 				worldVec.negate().scaleBy(2);
-				
-				var drawTires:Boolean = drawFlags & td_debugDrawSettings.TIRES ? true : false;
-				var drawLoads:Boolean = drawFlags & td_debugDrawSettings.TIRE_LOADS ? true : false;
 				
 				if ( drawTires )
 				{
@@ -401,13 +400,10 @@ package TopDown.carparts
 					graphics.endFill();
 				}
 				
+				const numRotLines:int = td_debugDrawSettings.tireNumRotLines;
 				
-				if ( drawFlags & td_debugDrawSettings.TIRES ) // this block draws the tire rotation lines.
+				if ( numRotLines ) // this block draws the tire rotation lines.
 				{
-					const numRotLines:int = td_debugDrawSettings.tireNumRotLines;
-					
-					if ( !numRotLines )  return;
-					
 					graphics.lineStyle(qb2_debugDrawSettings.lineThickness, td_debugDrawSettings.tireOutlineColor, qb2_debugDrawSettings.outlineAlpha);
 					
 					sideVec.negate();

@@ -195,13 +195,13 @@ package QuickB2.objects.tangibles
 		// FUNCTIONS in qb2Object/qb2EventDispatcher (EventDispatcher functions are pulled in by 'extends IEventDispatcher' at the top.
 		
 		function getProperty(propertyName:String):*;
-		function setProperty(propertyName:String, value:*, establishOwnership:Boolean = true):void;
+		function setProperty(propertyName:String, value:*, passive:Boolean = false):qb2Object;
 		
 		function get flags():uint;
 		
-		function turnFlagOn(flag:uint):qb2Object;
+		function turnFlagOn(flag:uint, passive:Boolean = false):qb2Object;
 		
-		function turnFlagOff(flag:uint):qb2Object;
+		function turnFlagOff(flag:uint, passive:Boolean = false):qb2Object;
 		
 		function isFlagOn(flag:uint):Boolean;
 		

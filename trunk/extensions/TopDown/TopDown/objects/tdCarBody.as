@@ -57,7 +57,7 @@ package TopDown.objects
 		
 		td_friend static var MINIMUM_LINEAR_VELOCITY:Number = .01;
 		td_friend static var SKID_SLOP:Number = .00000001; // fixes floating point round-off errors that cause a tire to not set isSkidding to true when it sometimes should.
-		td_friend static var STOPPED_SLOP:Number = .0000001; // car speed below this just sets the car's velocities to zero...this optimization is nice because moving cars are much more expensive to simulate.
+		td_friend static var STOPPED_SLOP:Number = .0000001; // car speed below this just sets the car's velocities to zero...
 		
 		public var maxTurnAngle:Number = Math.PI / 4;
 		public var turnAxis:Number = 0;

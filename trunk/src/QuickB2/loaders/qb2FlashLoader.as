@@ -854,7 +854,7 @@ package QuickB2.loaders
 							var asContainer:qb2ObjectContainer = subObject as qb2ObjectContainer;
 							for (var i:int = 0; i < asContainer.numObjects; i++)
 							{
-								queue.unshift(asContainer.getObjectAt(i));
+								queue.push(asContainer.getObjectAt(i));
 							}
 						}
 					}

@@ -24,7 +24,6 @@ package TopDown.ai.brains
 {
 	import flash.display.Graphics;
 	import QuickB2.events.qb2ContainerEvent;
-	import QuickB2.misc.qb2_behaviorFlags;
 	import QuickB2.misc.qb2_flags;
 	import QuickB2.objects.qb2Object;
 	import QuickB2.qb2_errors;

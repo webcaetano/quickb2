@@ -31,8 +31,6 @@ package QuickB2.objects
 	import QuickB2.*;
 	import QuickB2.debugging.qb2DebugTraceSettings;
 	import QuickB2.events.*;
-	import QuickB2.misc.qb2_behaviorFlags;
-	import QuickB2.misc.qb2_bits;
 	import QuickB2.misc.qb2_flags;
 	import QuickB2.objects.joints.*;
 	import QuickB2.objects.tangibles.*;
@@ -57,7 +55,7 @@ package QuickB2.objects
 		{
 			if ( (this as Object).constructor == qb2Object )  throw qb2_errors.ABSTRACT_CLASS_ERROR;
 			
-			turnFlagOn(qb2_flags.O_JOINS_IN_DEBUG_DRAWING | qb2_flags.O_JOINS_IN_DEEP_CLONING | qb2_flags.O_JOINS_IN_UPDATE_CHAIN);
+			turnFlagOn(qb2_flags.O_JOINS_IN_DEBUG_DRAWING | qb2_flags.O_JOINS_IN_DEEP_CLONING | qb2_flags.O_JOINS_IN_UPDATE_CHAIN, true);
 			
 			if ( !eventsInitialized )
 			{
@@ -72,33 +70,51 @@ package QuickB2.objects
 			{  return _flags;  }
 		qb2_friend var _flags:uint = 0;
 		
-		public function turnFlagOff(flag:uint):qb2Object
+		public final function turnFlagOff(flag:uint, passive:Boolean = false):qb2Object
 		{
 			_flags &= ~flag;
-			cascadeFlags(this, flag);
+			
+			if ( passive )
+			{
+				_ownershipFlagsForBooleans &= ~flag;
+				flagsChanged(flag);
+			}
+			else
+			{
+				cascadeFlags(this, flag);
+			}
 			
 			return this;
 		}
 		
-		public function turnFlagOn(flag:uint):qb2Object
+		public final function turnFlagOn(flag:uint, passive:Boolean = false):qb2Object
 		{
 			_flags |= flag;
-			cascadeFlags(this, flag);
+			
+			if ( passive )
+			{
+				_ownershipFlagsForBooleans &= ~flag;
+				flagsChanged(flag);
+			}
+			else
+			{
+				cascadeFlags(this, flag);
+			}
 			
 			return this;
 		}
 		
-		public function isFlagOn(flag:uint):Boolean
+		public final function isFlagOn(flag:uint):Boolean
 		{
 			return _flags & flag ? true : false;
 		}
 		
-		public function getProperty(propertyName:String):*
+		public final function getProperty(propertyName:String):*
 		{
 			return _propertyMap[propertyName];
 		}
 		
-		public function setProperty(propertyName:String, value:*, establishOwnership:Boolean = true):void
+		public final function setProperty(propertyName:String, value:*, passive:Boolean = false):qb2Object
 		{
 			//--- Check if this property has been registered yet by any object.
 			if ( !_propertyBits[propertyName] )
@@ -112,15 +128,18 @@ package QuickB2.objects
 				_currPropertyBit = _currPropertyBit << 1;
 			}
 			
-			if ( establishOwnership )
+			if ( passive )
 			{
-				cascadeProperty(this, propertyName, value);
+				_propertyMap[propertyName] = value;
+				_ownershipFlagsForProperties &= ~_propertyBits[propertyName];
+				propertyChanged(propertyName, value);
 			}
 			else
 			{
-				_propertyMap[propertyName] = value;
-				propertyChanged(propertyName, value);
+				cascadeProperty(this, propertyName, value);
 			}
+			
+			return this;
 		}
 		
 		private var _propertyMap:Object = { };
@@ -177,12 +196,12 @@ package QuickB2.objects
 					subObject._ownershipFlagsForProperties |= _propertyBits[propertyName];
 				}
 				
-				_propertyMap[propertyName] = value;
-				subObject.propertyChanged(propName, value);
+				subObject._propertyMap[propertyName] = value;
+				subObject.propertyChanged(propertyName, value);
 				
 				if ( subObject is qb2ObjectContainer )
 				{
-					var asContainer:qb2ObjectContainer = subTang as qb2ObjectContainer;
+					var asContainer:qb2ObjectContainer = subObject as qb2ObjectContainer;
 					var numObjects:int = asContainer.numObjects;
 					
 					for ( var i:int = 0; i < numObjects; i++) 
@@ -221,7 +240,7 @@ package QuickB2.objects
 				
 				if ( subObject is qb2ObjectContainer )
 				{
-					var asContainer:qb2ObjectContainer = subTang as qb2ObjectContainer;
+					var asContainer:qb2ObjectContainer = subObject as qb2ObjectContainer;
 					var numObjects:int = asContainer.numObjects;
 					
 					for ( var i:int = 0; i < numObjects; i++) 
@@ -232,15 +251,80 @@ package QuickB2.objects
 			}
 		}
 		
-		protected virtual function propertyChanged(propertyName:String, value:*):void
+		/*qb2_friend function collectAncestorFlagsAndProperties(outputPropertyMap:Object):uint
 		{
+			var currParent:qb2ObjectContainer = object._parent;
 			
+			while ( currParent )
+			{
+				for ( var propertyName:String in _propertyMap )
+				{
+					if ( currParent.propsSetFlags & PROP_TO_MASK_DICT[propName] )
+					{
+						if ( !dict )  dict = new Object();
+						
+						if ( dict[propName] )  continue;
+						
+						dict[propName] = [currParent[getPrivateVarName(propName)]]; // Add an array with one element for this property name key.
+					}
+				}
+				currParent = currParent._parent;
+			}
+			
+			return dict;
 		}
 		
-		protected virtual function flagsChanged(affectedFlags:uint):void
+		qb2_friend static function cascadeAncestorProperties(object:qb2Tangible, propStacks:Object):void
 		{
+			if ( !propStacks )  return; // No ancestor objects have any properties explicitly defined.
+		
+			var redundantProps:Vector.<String> = null;
+			var nonRedundantPropertyFound:Boolean = false;
+			for ( var propName:String in propStacks )
+			{
+				var propStack:Array = propStacks[propName];
+				
+				if ( object.propsSetFlags & PROP_TO_MASK_DICT[propName] )
+				{
+					if ( !redundantProps )  redundantProps = new Vector.<String>();
+					propStack.push(object[getPrivateVarName(propName)]);
+				}
+				else
+				{
+					object.setPropertyImplicitly(propName, propStack[propStack.length - 1]);
+					nonRedundantPropertyFound = true;
+				}
+			}
 			
+			//--- Only continue further down the tree if a property is set by an ancestor that isn't set by 'object'.
+			if ( nonRedundantPropertyFound && (object is qb2ObjectContainer) )
+			{
+				var asContainer:qb2ObjectContainer = object as qb2ObjectContainer;
+				for (var i:int = 0; i < asContainer.numObjects; i++) 
+				{
+					var ithObject:qb2Object = asContainer.getObjectAt(i);
+					if ( ithObject is qb2Tangible )
+						cascadeAncestorProperties(ithObject as qb2Tangible, propStacks);
+					
+				}
+			}
+			
+			//--- Have to clear any properties pushed onto the stack, cause we don't want them bleeding into peers' properties.
+			if ( redundantProps )
+			{
+				for ( i = 0; i < redundantProps.length; i++ )
+				{
+					propStack = propStacks[redundantProps[i]];
+					propStack.pop();
+				}
+			}
 		}
+		
+		qb2_friend static var cancelPropertyInheritance:Boolean = false; // this is invoked by clone functions to cancel the property flow*/
+		
+		protected virtual function propertyChanged(propertyName:String, value:*):void {}
+		
+		protected virtual function flagsChanged(affectedFlags:uint):void              {}
 		
 		qb2_friend static var CONTACT_STARTED_BIT:uint;
 		qb2_friend static var CONTACT_ENDED_BIT:uint;
@@ -493,7 +577,7 @@ package QuickB2.objects
 				{
 					if ( eventFlag & CONTACT_BITS )
 					{
-						var metaBits:uint = this.collectAncestorBits();
+						var metaBits:uint = this.collectAncestorEventFlags();
 						var asTang:qb2Tangible = this as qb2Tangible;
 						asTang.updateContactReporting(metaBits);
 					}
@@ -528,7 +612,7 @@ package QuickB2.objects
 				{					
 					if ( eventFlag & CONTACT_BITS )
 					{
-						var metaBits:uint = this.collectAncestorBits();
+						var metaBits:uint = this.collectAncestorEventFlags();
 						var asTang:qb2Tangible = this as qb2Tangible;
 						asTang.updateContactReporting(metaBits);
 					}
@@ -604,17 +688,24 @@ package QuickB2.objects
 		public function clone():qb2Object
 		{
 			var cloned:qb2Object = new (this as Object).constructor;
-			
-			cloned._flags = this._flags;
-			cloned._ownershipFlagsForBooleans   = this._ownershipFlagsForBooleans;
-			cloned._ownershipFlagsForProperties = this._ownershipFlagsForProperties;
-			
-			for ( var key:String in _propertyMap )
-			{
-				cloned._propertyMap[key] = this._propertyMap[key];
-			}
+		
+			cloned.copyPropertiesAndFlags(this);
 			
 			return cloned;
+		}
+		
+		qb2_friend function copyPropertiesAndFlags(source:qb2Object):void
+		{
+			//--- Copy ownership of flags/properties.
+			this._ownershipFlagsForBooleans   = source._ownershipFlagsForBooleans;
+			this._ownershipFlagsForProperties = source._ownershipFlagsForProperties;
+			
+			//--- Copy values for flags/properties.
+			this._flags = source._flags;
+			for ( var key:String in source._propertyMap )
+			{
+				this._propertyMap[key] = source._propertyMap[key];
+			}
 		}
 		
 		/// A convenience function for getting the world's pixelPerMeter property.  If the object isn't in a world, function returns 1.

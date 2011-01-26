@@ -30,6 +30,7 @@ package TopDown.ai
 	import QuickB2.events.qb2EventDispatcher;
 	import QuickB2.objects.qb2Object;
 	import TopDown.*;
+	import TopDown.debugging.td_debugDrawFlags;
 	import TopDown.debugging.td_debugDrawSettings;
 	import TopDown.events.tdTrackEvent;
 	import TopDown.internals.*;
@@ -280,7 +281,7 @@ package TopDown.ai
 		
 		public override function drawDebug(graphics:Graphics):void
 		{
-			if ( !(td_debugDrawSettings.flags & td_debugDrawSettings.TRACKS) )
+			if ( !(td_debugDrawSettings.flags & td_debugDrawFlags.TRACKS) )
 				return;
 				
 			graphics.lineStyle(td_debugDrawSettings.trackThickness, td_debugDrawSettings.trackColor, qb2_debugDrawSettings.outlineAlpha);

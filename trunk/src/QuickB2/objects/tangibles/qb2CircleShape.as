@@ -74,6 +74,7 @@ package QuickB2.objects.tangibles
 			var poly:qb2PolygonShape = qb2Stock.newRegularPolygonShape(_position.clone(), radius, numSides, _rotation);
 			
 			poly.copyProps(this);
+			poly.copyPropertiesAndFlags(this);
 			
 			if ( _parent )
 			{
@@ -184,7 +185,7 @@ package QuickB2.objects.tangibles
 		qb2_friend override function makeFrictionJoints():void
 		{
 			var numPoints:int = 4;
-			var maxForce:Number = (_frictionZ * _world.gravityZ * _mass) / (numPoints as Number);
+			var maxForce:Number = (frictionZ * _world.gravityZ * _mass) / (numPoints as Number);
 			
 			populateFrictionJointArray(numPoints);
 			
@@ -230,20 +231,20 @@ package QuickB2.objects.tangibles
 		{
 			var staticShape:Boolean = mass == 0;
 			
-			var drawFlags:uint = qb2_debugDrawSettings.drawFlags;
+			var drawFlags:uint = qb2_debugDrawSettings.flags;
 			
-			if ( drawFlags & qb2_debugDrawSettings.OUTLINES )
+			if ( drawFlags & qb2_debugDrawFlags.OUTLINES )
 				graphics.lineStyle(qb2_debugDrawSettings.lineThickness, debugOutlineColor, qb2_debugDrawSettings.outlineAlpha);
 			else
 				graphics.lineStyle();
-			if ( drawFlags & qb2_debugDrawSettings.FILLS )
+			if ( drawFlags & qb2_debugDrawFlags.FILLS )
 				graphics.beginFill(debugFillColor, qb2_debugDrawSettings.fillAlpha);
 				
 			draw(graphics);
 			
 			graphics.endFill();
 			
-			if ( (drawFlags & qb2_debugDrawSettings.OUTLINES) && (drawFlags & qb2_debugDrawSettings.CIRCLE_SPOKES) )
+			if ( (drawFlags & qb2_debugDrawFlags.OUTLINES) && (drawFlags & qb2_debugDrawFlags.CIRCLE_SPOKES) )
 			{
 				//graphics.lineStyle(qb2_debugDrawSettings.lineThickness, staticShape ? qb2_debugDrawSettings.staticOutlineColor : qb2_debugDrawSettings.dynamicOutlineColor, qb2_debugDrawSettings.outlineAlpha);
 				var vertex:amPoint2d = _parent ? _parent.getWorldPoint(_position) : _position;
@@ -253,8 +254,8 @@ package QuickB2.objects.tangibles
 				
 				var spokeFlags:Array =
 				[
-					qb2_debugDrawSettings.CIRCLE_SPOKE_1, qb2_debugDrawSettings.CIRCLE_SPOKE_2,
-					qb2_debugDrawSettings.CIRCLE_SPOKE_3, qb2_debugDrawSettings.CIRCLE_SPOKE_4
+					qb2_debugDrawFlags.CIRCLE_SPOKE_1, qb2_debugDrawFlags.CIRCLE_SPOKE_2,
+					qb2_debugDrawFlags.CIRCLE_SPOKE_3, qb2_debugDrawFlags.CIRCLE_SPOKE_4
 				];
 				
 				for (var i:int = 0; i < spokeFlags.length; i++) 

@@ -565,7 +565,7 @@ package QuickB2.objects.tangibles
 					var container:qb2Group = physObject as qb2Group;
 					for ( var i:int = 0; i < container.numObjects; i++ )
 					{
-						queue.unshift(container.getObjectAt(i));
+						queue.push(container.getObjectAt(i));
 					}
 				}
 				else if ( physObject is qb2IRigidObject )

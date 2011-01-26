@@ -100,131 +100,42 @@ package QuickB2.objects.tangibles
 			if ( (this as Object).constructor == qb2Tangible )  throw qb2_errors.ABSTRACT_CLASS_ERROR;
 			
 			//--- Set up default values for various properties.
-			turnFlagOn(qb2_flags.T_IS_DEBUG_DRAGGABLE);
-			setProperty(qb2_props.T_CONTACT_CATEGORY,      0x0001, false);
-			setProperty(qb2_props.T_CONTACT_COLLIDES_WITH, 0xFFFF, false);
-			setProperty(qb2_props.T_FRICTION,              .2,     false);
+			turnFlagOn(qb2_flags.T_IS_DEBUG_DRAGGABLE,             true);
+			setProperty(qb2_props.T_CONTACT_CATEGORY,      0x0001, true);
+			setProperty(qb2_props.T_CONTACT_COLLIDES_WITH, 0xFFFF, true);
+			setProperty(qb2_props.T_FRICTION,              .2,     true);
 		}
 		
 		qb2_friend virtual function baseClone(newObject:qb2Tangible, actorToo:Boolean, deep:Boolean):qb2Tangible {  return null;  }
 		
 		qb2_friend virtual function updateContactReporting(bits:uint):void { }
 		
-		/*private static const PROP_TO_MASK_DICT:Object =
-		{
-			friction:       0x00000001,  contactCategory:     0x00000020,  //fixedRotation:    0x00000800,
-			restitution:    0x00000002,  contactCollidesWith: 0x00000040, // isBullet:         0x00001000,
-			frictionZ:      0x00000004,  contactGroupIndex:   0x00000080,  //debugMouseActive: 0x00002000,
-			linearDamping:  0x00000008,  //allowSleeping:       0x00000200,  //isGhost:          0x00004000,
-			angularDamping: 0x00000010,  //sleepingWhenAdded:   0x00000400, // isKinematic:      0x00008000
-		}
-		
-		private static function getPrivateVarName(publicVarName:String):String
-			{  return "_" + publicVarName;  }*/
-		
-		//--- Various properties that have real effects on shapes that are simulating in the world.
-		qb2_friend static const PROPS_FOR_SHAPES:Object =
-		{
-			friction:true, restitution:true, contactCategory:true, contactCollidesWith:true, contactGroupIndex:true//, isGhost:true
-		}
-		
-		qb2_friend static function collectAncestorProperties(object:qb2Tangible):Object
-		{
-			var dict:Object = null;
-			var currParent:qb2ObjectContainer = object._parent;
-			while ( currParent )
-			{
-				for ( var propName:String in PROP_TO_MASK_DICT )
-				{
-					if ( currParent.propsSetFlags & PROP_TO_MASK_DICT[propName] )
-					{
-						if ( !dict )  dict = new Object();
-						
-						if ( dict[propName] )  continue;
-						
-						dict[propName] = [currParent[getPrivateVarName(propName)]]; // Add an array with one element for this property name key.
-					}
-				}
-				currParent = currParent._parent;
-			}
-			
-			return dict;
-		}
-		
-		qb2_friend static function cascadeAncestorProperties(object:qb2Tangible, propStacks:Object):void
-		{
-			if ( !propStacks )  return; // No ancestor objects have any properties explicitly defined.
-		
-			var redundantProps:Vector.<String> = null;
-			var nonRedundantPropertyFound:Boolean = false;
-			for ( var propName:String in propStacks )
-			{
-				var propStack:Array = propStacks[propName];
-				
-				if ( object.propsSetFlags & PROP_TO_MASK_DICT[propName] )
-				{
-					if ( !redundantProps )  redundantProps = new Vector.<String>();
-					propStack.push(object[getPrivateVarName(propName)]);
-				}
-				else
-				{
-					object.setPropertyImplicitly(propName, propStack[propStack.length - 1]);
-					nonRedundantPropertyFound = true;
-				}
-			}
-			
-			//--- Only continue further down the tree if a property is set by an ancestor that isn't set by 'object'.
-			if ( nonRedundantPropertyFound && (object is qb2ObjectContainer) )
-			{
-				var asContainer:qb2ObjectContainer = object as qb2ObjectContainer;
-				for (var i:int = 0; i < asContainer.numObjects; i++) 
-				{
-					var ithObject:qb2Object = asContainer.getObjectAt(i);
-					if ( ithObject is qb2Tangible )
-						cascadeAncestorProperties(ithObject as qb2Tangible, propStacks);
-					
-				}
-			}
-			
-			//--- Have to clear any properties pushed onto the stack, cause we don't want them bleeding into peers' properties.
-			if ( redundantProps )
-			{
-				for ( i = 0; i < redundantProps.length; i++ )
-				{
-					propStack = propStacks[redundantProps[i]];
-					propStack.pop();
-				}
-			}
-		}
-		
-		qb2_friend static var cancelPropertyInheritance:Boolean = false; // this is invoked by clone functions to cancel the property flow
-		
 		qb2_friend function rigid_flagsChanged(affectedFlags:uint):void
 		{
 			//--- Make actual changes to a simulating body if the property has an actual effect.
 			if ( this._bodyB2 )
 			{
-				if ( changedFlags & qb2_flags.T_IS_KINEMATIC )
+				if ( affectedFlags & qb2_flags.T_IS_KINEMATIC )
 				{
 					rigid_recomputeBodyB2Mass();
 					updateFrictionJoints();
 				}
 				
-				if ( changedFlags & qb2_flags.T_HAS_FIXED_ROTATION )
+				if ( affectedFlags & qb2_flags.T_HAS_FIXED_ROTATION )
 				{
-					this._bodyB2.SetFixedRotation(value ? true : false );
+					this._bodyB2.SetFixedRotation(hasFixedRotation );
 					this._bodyB2.SetAwake(true);
 					(this as qb2IRigidObject).angularVelocity = 0; // object won't stop spinning if we don't stop it manually, because now it has infinite intertia.
 				}
 				
-				if ( changedFlags & qb2_flags.T_IS_BULLET )
+				if ( affectedFlags & qb2_flags.T_IS_BULLET )
 				{
-					this._bodyB2.SetBullet(value ? true : false);
+					this._bodyB2.SetBullet(isBullet);
 				}
 				
-				if ( changedFlags & qb2_flags.T_ALLOW_SLEEPING )
+				if ( affectedFlags & qb2_flags.T_ALLOW_SLEEPING )
 				{
-					this._bodyB2.SetSleepingAllowed(value ? true : false);
+					this._bodyB2.SetSleepingAllowed(allowSleeping);
 				}
 			}
 		}
@@ -391,7 +302,7 @@ package QuickB2.objects.tangibles
 			{  return baseClone(super.clone() as qb2Tangible, true, true);  }
 			
 		qb2_friend function copyProps(source:qb2Tangible, massPropsToo:Boolean = true ):void
-		{			
+		{
 			if ( massPropsToo ) // clones will have this true by default, while convertTo*()'s will have it false.
 			{
 				this._surfaceArea = source._surfaceArea;
@@ -597,7 +508,7 @@ package QuickB2.objects.tangibles
 						var jth:qb2Object = asContainer._objects[j];
 						if ( jth is qb2Tangible )
 						{
-							queue.unshift(jth);
+							queue.push(jth);
 							
 							hasTangChildren = true;
 						}
@@ -1113,7 +1024,7 @@ package QuickB2.objects.tangibles
 						
 						if ( ithObject is qb2Tangible )
 						{
-							queue.unshift(ithObject as qb2Tangible);
+							queue.push(ithObject as qb2Tangible);
 						}
 					}
 				}
@@ -1257,7 +1168,7 @@ package QuickB2.objects.tangibles
 		qb2_friend function drawDebugExtras(graphics:Graphics):void
 		{
 			//--- Draw positions for rigid objects.
-			if ( (this is qb2IRigidObject) && (qb2_debugDrawSettings.drawFlags & qb2_debugDrawSettings.POSITIONS) )
+			if ( (this is qb2IRigidObject) && (qb2_debugDrawSettings.flags & qb2_debugDrawFlags.POSITIONS) )
 			{
 				var rigid:qb2IRigidObject = this as qb2IRigidObject;
 				var point:amPoint2d = _parent ? _parent.getWorldPoint(rigid.position) : rigid.position;
@@ -1265,7 +1176,7 @@ package QuickB2.objects.tangibles
 				point.draw(graphics, qb2_debugDrawSettings.pointRadius, true);
 			}
 		
-			var flags:uint = qb2_debugDrawSettings.drawFlags;
+			var flags:uint = qb2_debugDrawSettings.flags;
 			var depth:uint = 0;
 			
 			var currParent:qb2Tangible = this;
@@ -1275,7 +1186,7 @@ package QuickB2.objects.tangibles
 				currParent = currParent.parent;
 			}
 			
-			if ( flags & qb2_debugDrawSettings.BOUND_BOXES )
+			if ( flags & qb2_debugDrawFlags.BOUND_BOXES )
 			{
 				if ( amUtils.isWithin(depth, qb2_debugDrawSettings.boundBoxStartDepth, qb2_debugDrawSettings.boundBoxEndDepth) )
 				{
@@ -1284,7 +1195,7 @@ package QuickB2.objects.tangibles
 				}
 			}
 			
-			if ( flags & qb2_debugDrawSettings.BOUND_CIRCLES )
+			if ( flags & qb2_debugDrawFlags.BOUND_CIRCLES )
 			{
 				if ( amUtils.isWithin(depth, qb2_debugDrawSettings.boundCircleStartDepth, qb2_debugDrawSettings.boundCircleEndDepth) )
 				{
@@ -1293,7 +1204,7 @@ package QuickB2.objects.tangibles
 				}
 			}
 			
-			if ( flags & qb2_debugDrawSettings.CENTROIDS )
+			if ( flags & qb2_debugDrawFlags.CENTROIDS )
 			{
 				if ( amUtils.isWithin(depth, qb2_debugDrawSettings.centroidStartDepth, qb2_debugDrawSettings.centroidEndDepth) )
 				{
@@ -1388,7 +1299,7 @@ package QuickB2.objects.tangibles
 		
 		qb2_friend function rigid_recomputeBodyB2Mass():void
 		{
-			var thisIsKinematic = this.isKinematic;
+			var thisIsKinematic:Boolean = this.isKinematic;
 			
 			//--- Box2D gets pissed sometimes if you change a body from dynamic to static/kinematic within a contact callback.
 			//--- So whenever this happen's the call is delayed until after the physics step, which shouldn't affect the simulation really.
