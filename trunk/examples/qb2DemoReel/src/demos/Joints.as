@@ -57,7 +57,7 @@ package demos
 			pistonJoint = pistonJoint.clone() as qb2PistonJoint;
 			pistonJoint.object1 = rect1;
 			pistonJoint.object2 = rect2;
-			pistonJoint.syncedObjectRotation = false;  // b2LineJoint with one line of code!
+			pistonJoint.freeRotation = true;  // b2LineJoint with one line of code!
 			addObject(rect1, rect2, pistonJoint);
 			
 			//--- A distance joint keeps two objects a certain distance apart.
