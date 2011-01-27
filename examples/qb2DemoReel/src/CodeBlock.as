@@ -55,8 +55,8 @@ package
 		
 		private function completed(evt:Event):void
 		{
-			selectable = false;
-			editable = false;
+			//selectable = false;
+			editable = true;
 			
 			var dataLoader:DataLoader = evt.currentTarget as DataLoader;
 			dataLoader.removeEventListener(LoaderEvent.COMPLETE, completed);

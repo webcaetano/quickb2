@@ -27,7 +27,6 @@ package QuickB2.events
 	import QuickB2.debugging.qb2DebugTraceSettings;
 	import QuickB2.qb2_errors;
 	import QuickB2.qb2_friend;
-	import QuickB2.qb2_settings;
 	
 	use namespace qb2_friend;
 	

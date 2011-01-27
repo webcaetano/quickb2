@@ -373,7 +373,7 @@ package QuickB2.objects.tangibles
 		 * @see #step()
 		 */
 		public function start():void
-			{  _running = true;  lastTime = getTimer() / 1000;  eventer.addEventListener(Event.ENTER_FRAME, enterFrame, false, 0, true);  }
+			{  _running = true;  lastTime = getTimer() / 1000.0;  eventer.addEventListener(Event.ENTER_FRAME, enterFrame, false, 0, true);  }
 		
 		/** Stops the simulation by unregistering the Event.ENTER_FRAME started with start().
 		 * @see #start()
@@ -382,11 +382,9 @@ package QuickB2.objects.tangibles
 		public function stop():void
 			{  _running = false;  eventer.removeEventListener(Event.ENTER_FRAME, enterFrame);  }
 		
-		//--- This function is used as a middle man so that the outside world only sees step() without the
-		//--- Event parameter input, which might be a little confusing if you just wanted to update manually.
 		private function enterFrame(evt:Event):void
 		{
-			var currTime:Number = getTimer() / 1000;
+			var currTime:Number = getTimer() / 1000.0;
 			var timeStep:Number = realtimeUpdate ? amUtils.constrain(currTime - lastTime, 0, maximumRealtimeStep) : defaultTimeStep;
 			
 			step(timeStep, defaultPositionIterations, defaultVelocityIterations);
@@ -416,7 +414,7 @@ package QuickB2.objects.tangibles
 		 * @see #defaultTimeStep
 		 * @see #realtimeUpdate
 		 */
-		public function step( timeStep:Number = 1/30.0, positionIterations:uint = 3, velocityIterations:uint = 8 ):void
+		public function step( timeStep:Number = 1.0/30.0, positionIterations:uint = 3, velocityIterations:uint = 8 ):void
 		{
 			for (var key:* in preEventers)
 			{

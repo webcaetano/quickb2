@@ -85,7 +85,7 @@ package QuickB2.debugging
 		private var jointStart:String = "  JOINTS";
 		
 		[Embed(source = 'qb2Logo_tiny.png')]
-		private static const LogoClass:Class;
+		private static var LogoClass:Class;
 		private var logoBitmap:Bitmap = new LogoClass;
 		private var logo:Sprite = new Sprite();
 		

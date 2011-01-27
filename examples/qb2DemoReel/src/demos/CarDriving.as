@@ -67,9 +67,11 @@ package demos
 				qb2Stock.newCircleShape(new amPoint2d(0, carHeight/4), carWidth/2)
 			);
 			playerCar.mass = 1000;  // give the car a realistic mass of 1000 kilograms.
+			playerCar.tractionControl = false; // let the tire's driven wheels spin freely
 			playerCar.position.copy(center);
 			
 			//--- Set up some variables for tire properties and add four tires.
+			//--- Here we're making a front-wheel drive car, with rear-wheel braking only (hand brakes).
 			var tireFriction:Number = 2.0; // friction coefficient...this is a bit high for everyday life (like nascar or something).
 			var tireRollingFriction:Number = 1;  // again a little high for real life, but good for games cause the car comes to a stop a lot faster.
 			var tireWidth:Number = 7;
@@ -78,8 +80,8 @@ package demos
 			(
 				new tdTire(new amPoint2d(-carWidth/2, -carHeight/3), tireWidth, tireRadius, true /*driven*/,  true /*turns*/, false /*brakes*/, tireFriction, tireRollingFriction),
 				new tdTire(new amPoint2d( carWidth/2, -carHeight/3), tireWidth, tireRadius, true /*driven*/,  true /*turns*/, false /*brakes*/, tireFriction, tireRollingFriction),
-				new tdTire(new amPoint2d( carWidth/2,  carHeight/3), tireWidth, tireRadius, true /*driven*/, false /*turns*/, true  /*brakes*/, tireFriction, tireRollingFriction),
-				new tdTire(new amPoint2d(-carWidth/2,  carHeight/3), tireWidth, tireRadius, true /*driven*/, false /*turns*/, true  /*brakes*/, tireFriction, tireRollingFriction)
+				new tdTire(new amPoint2d( carWidth/2,  carHeight/3), tireWidth, tireRadius, false /*driven*/, false /*turns*/, true  /*brakes*/, tireFriction, tireRollingFriction),
+				new tdTire(new amPoint2d(-carWidth/2,  carHeight/3), tireWidth, tireRadius, false /*driven*/, false /*turns*/, true  /*brakes*/, tireFriction, tireRollingFriction)
 			);
 			
 			//--- Set up keyboard controls for the car.
@@ -121,10 +123,13 @@ package demos
 			peanutCar.addObjectAt((peanutCar.getObjectAt(0).clone() as qb2Shape), 0);
 			(peanutCar.getObjectAt(0) as qb2Shape).position.y = -(peanutCar.getObjectAt(0) as qb2Shape).position.y;
 			
-			//--- Make some kind of weird hoop car with additional back wheels.
+			//--- Make some kind of weird hoop car with additional back wheels and one front wheel;
 			var hoopCar:tdCarBody = playerCar.clone() as tdCarBody;
 			hoopCar.removeObjectAt(0);
 			hoopCar.removeObjectAt(0);
+			hoopCar.removeObjectAt(0);
+			(hoopCar.getObjectAt(0) as tdTire).position.x = 0;
+			(hoopCar.getObjectAt(0) as tdTire).position.y -= 30;
 			hoopCar.addObjectAt(qb2Stock.newEllipticalArcBody(new amPoint2d(), new amVector2d(0, -70), 30, 12, 0, AM_PI * 2, 10, 1000), 0);
 			hoopCar.addObject(hoopCar.lastObject(2).clone());
 			hoopCar.addObject(hoopCar.lastObject(4).clone());
@@ -147,12 +152,12 @@ package demos
 			
 			//--- Add some objects to drive into.
 			var fence:qb2Group = new qb2Group();
-			fence.frictionZ = 1.0;
+			fence.frictionZ = 1.0; // make all the objects in the fence group have friction against the ground.
 			var angleInc:Number = RAD_10;
 			var rotPoint:amPoint2d = center.clone().incY( -200);
 			var limit:int = AM_PI * 2 / angleInc;
 			var postSize:Number = 20;
-			var postMass:Number = 300;
+			var postMass:Number = 200;
 			for (var i:int = 0; i < limit; i++) 
 			{
 				if ( i % 2 )
@@ -163,7 +168,6 @@ package demos
 			map.addObject(fence);
 			
 			this.addEventListener(qb2UpdateEvent.PRE_UPDATE,  updateManager);
-			this.addEventListener(qb2UpdateEvent.POST_UPDATE, updateCamera);
 		}
 		
 		private function updateManager(evt:qb2UpdateEvent):void
@@ -178,20 +182,24 @@ package demos
 		
 		private var carSpeedBase:Number = 20;
 		
-		private function updateCamera(evt:qb2UpdateEvent):void
+		protected override function update():void
 		{
+			super.update();
+			
 			var targetPos:amPoint2d = Main.singleton.cameraTargetPoint;
 			
-			//--- Establish where the "camera" should be looking.
-			var cameraLead:Number = Math.min(stageWidth, stageHeight) * .75;
+			//--- Establish where the "camera" should be looking.  ( this gets a little laggy on slow computers).
+			/*var cameraLead:Number = Math.min(stageWidth, stageHeight) * .75;
 			targetPos.copy(playerCar.position);
 			var carSpeed:Number = amUtils.constrain(playerCar.linearVelocity.length, 0, carSpeedBase);
 			var ratio:Number = carSpeed / carSpeedBase;
 			var cameraLeadVec:amVector2d = playerCar.linearVelocity.lengthSquared ? playerCar.linearVelocity.clone() : playerCar.getNormal();
 			cameraLeadVec.setLength(ratio * cameraLead);
-			targetPos.translateBy(cameraLeadVec);
+			targetPos.translateBy(cameraLeadVec);*/
 			
-			//Main.singleton.cameraTargetRotation = -playerCar.rotation;
+			//--- Just make it follow the player's position exactly, instead of leading it, which is choppy with all this gui stuff on screen.
+			targetPos.copy(playerCar.position);
+			Main.singleton.cameraPoint.copy(targetPos);
 		}
 		
 		private var saveGravity:amVector2d = new amVector2d();

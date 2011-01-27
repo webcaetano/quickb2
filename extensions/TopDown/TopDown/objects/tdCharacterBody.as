@@ -40,7 +40,7 @@ package TopDown.objects
 		
 		public function tdCharacterBody() 
 		{
-			fixedRotation = true;
+			hasFixedRotation = true;
 		}
 		
 		protected override function update():void

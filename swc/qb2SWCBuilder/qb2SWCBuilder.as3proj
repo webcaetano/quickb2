@@ -18,6 +18,7 @@
     <class path="..\..\dependencies\src\As3Math" />
     <class path="..\..\dependencies\src\Box2D" />
     <class path="..\..\extensions\TopDown" />
+    <class path="..\..\dependencies\src\SoundTree" />
   </classpaths>
   <!-- Build options -->
   <build>

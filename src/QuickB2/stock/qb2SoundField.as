@@ -1,6 +1,7 @@
 package QuickB2.stock 
 {
 	import As3Math.general.amUtils;
+	import flash.display.Graphics;
 	import flash.utils.Dictionary;
 	import QuickB2.debugging.qb2_debugDrawSettings;
 	import QuickB2.events.qb2ContainerEvent;

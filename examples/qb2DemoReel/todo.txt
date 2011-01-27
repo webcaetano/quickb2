@@ -1,3 +1,0 @@
-- rebuild with bound circles implemented
-
-- make environment and random circles and stuff

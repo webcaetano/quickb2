@@ -34,6 +34,8 @@ package QuickB2.objects.tangibles
 	import flash.events.Event;
 	import QuickB2.*;
 	import QuickB2.debugging.*;
+	import QuickB2.misc.qb2_flags;
+	import QuickB2.misc.qb2_props;
 	import QuickB2.stock.qb2Terrain;
 	
 	use namespace qb2_friend;
@@ -57,6 +59,18 @@ package QuickB2.objects.tangibles
 			super();
 			
 			polygon.addEventListener(amUpdateEvent.ENTITY_UPDATED, polygonUpdated);
+			
+			turnFlagOn(qb2_flags.P_ALLOW_NON_CONVEX, true);
+		}
+		
+		public function get allowNonConvex():Boolean
+			{  return _flags & qb2_flags.P_ALLOW_NON_CONVEX ? true : false;  }
+		public function set allowNonConvex(bool:Boolean):void
+		{
+			if ( bool )
+				turnFlagOn(qb2_flags.P_ALLOW_NON_CONVEX);
+			else
+				turnFlagOff(qb2_flags.P_ALLOW_NON_CONVEX);
 		}
 		
 		private function polygonUpdated(evt:amUpdateEvent):void
@@ -352,7 +366,7 @@ package QuickB2.objects.tangibles
 			{
 				if ( _closed )
 				{
-					if ( qb2_settings.checkForNonStandardPolygons )
+					if ( allowNonConvex )
 					{
 						if ( polygon.convex && numVerts <= 8 )
 						{
