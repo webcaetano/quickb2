@@ -30,6 +30,7 @@ package TopDown.objects
 	import QuickB2.objects.qb2Object;
 	import QuickB2.objects.tangibles.qb2Shape;
 	import QuickB2.stock.qb2Terrain;
+	import TopDown.debugging.td_debugDrawFlags;
 	import TopDown.debugging.td_debugDrawSettings;
 	import TopDown.internals.tdInternalSkidEntry;
 	
@@ -88,7 +89,7 @@ package TopDown.objects
 		{
 			super.drawDebug(graphics);
 			
-			if ( td_debugDrawSettings.SKIDS & td_debugDrawSettings.flags )
+			if ( td_debugDrawFlags.SKIDS & td_debugDrawSettings.flags )
 			{
 				drawSkids(graphics);
 			}

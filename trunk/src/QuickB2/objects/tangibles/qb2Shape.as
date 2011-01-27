@@ -123,17 +123,20 @@ package QuickB2.objects.tangibles
 			friction:true, restitution:true, contactCategory:true, contactCollidesWith:true, contactGroupIndex:true//, isGhost:true
 		}
 		
-		protected override function propertyChanged(propertyName:String, value:*):void
+		protected override function propertyChanged(propertyName:String):void
 		{
-			rigid_propertyChanged(propertyName, value); // sets body properties if this shape is flying solo and has a b2Body
+			rigid_propertyChanged(propertyName); // sets body properties if this shape is flying solo and has a b2Body
 			
 			if ( !this.fixtures.length )  return;
 				
 			var i:int;
+			var value:* = _propertyMap[propertyName];
 			if ( propertyName == qb2_props.T_RESTITUTION )
 			{
 				for ( i = 0; i < this.fixtures.length; i++ )
+				{
 					this.fixtures[i].SetRestitution(value as Number);
+				}
 			}
 			else if ( propertyName == qb2_props.T_CONTACT_CATEGORY )
 			{
@@ -162,7 +165,9 @@ package QuickB2.objects.tangibles
 			else if ( propertyName == qb2_props.T_FRICTION )
 			{
 				for ( i = 0; i < this.fixtures.length; i++ )
+				{
 					this.fixtures[i].SetFriction(value as Number);
+				}
 			}
 			else if ( propertyName == qb2_props.T_FRICTION_Z )
 			{
@@ -554,7 +559,7 @@ package QuickB2.objects.tangibles
 			}
 		}
 		
-		private static var terrainIterator:qb2TreeIterator = new qb2TreeIterator();
+		private static var terrainIterator:qb2TreeTraverser = new qb2TreeTraverser();
 
 		public override function translateBy(vector:amVector2d):qb2Tangible
 			{  _position.translateBy(vector);  return this;  }

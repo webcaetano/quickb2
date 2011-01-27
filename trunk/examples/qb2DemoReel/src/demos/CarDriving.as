@@ -152,7 +152,7 @@ package demos
 			var rotPoint:amPoint2d = center.clone().incY( -200);
 			var limit:int = AM_PI * 2 / angleInc;
 			var postSize:Number = 20;
-			var postMass:Number = 500;
+			var postMass:Number = 300;
 			for (var i:int = 0; i < limit; i++) 
 			{
 				if ( i % 2 )

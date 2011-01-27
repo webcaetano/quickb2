@@ -38,7 +38,7 @@ package QuickB2.objects.tangibles
 	import QuickB2.events.*;
 	import QuickB2.internals.*;
 	import QuickB2.misc.qb2_flags;
-	import QuickB2.misc.qb2TreeIterator;
+	import QuickB2.misc.qb2TreeTraverser;
 	import QuickB2.objects.*;
 	import QuickB2.objects.joints.*;
 	import QuickB2.stock.qb2Terrain;
@@ -259,7 +259,7 @@ package QuickB2.objects.tangibles
 			}
 		}
 		
-		private static const mouseDrag_iterator:qb2TreeIterator = new qb2TreeIterator();
+		private static const mouseDrag_iterator:qb2TreeTraverser = new qb2TreeTraverser();
 
 		private function mouseDrag():void
 		{
@@ -271,7 +271,7 @@ package QuickB2.objects.tangibles
 				var mousePoint:amPoint2d = new amPoint2d(_debugDragSource.mouseX, _debugDragSource.mouseY);
 				var mousePointV2:V2 = new V2(mousePoint.x / _pixelsPerMeter, mousePoint.y / _pixelsPerMeter);
 				
-				mouseDrag_iterator.path = qb2TreeIterator.Z_ORDER_TOP_TO_BOTTOM;
+				mouseDrag_iterator.path = qb2TreeTraverser.Z_ORDER_TOP_TO_BOTTOM;
 				mouseDrag_iterator.root = this;
 				
 				var mouseBit:uint = qb2_flags.T_IS_DEBUG_DRAGGABLE;
@@ -287,7 +287,7 @@ package QuickB2.objects.tangibles
 					
 					var asTang:qb2Tangible = object as qb2Tangible;
 					
-					if ( !(asTang.behaviorFlags & mouseBit) || asTang.mass == 0 || asTang.isKinematic )
+					if ( !(asTang._flags & mouseBit) || asTang.mass == 0 || asTang.isKinematic )
 					{
 						mouseDrag_iterator.next(false);
 						continue;

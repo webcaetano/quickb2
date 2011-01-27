@@ -322,17 +322,17 @@ package QuickB2.stock
 		{
 			if ( !revJoints.length )  return;
 			
-			var drawFlags:uint = qb2_debugDrawSettings.drawFlags;
+			var drawFlags:uint = qb2_debugDrawSettings.flags;
 			
-			if ( !(drawFlags & qb2_debugDrawSettings.OUTLINES) && !(drawFlags & qb2_debugDrawSettings.FILLS))  return;
+			if ( !(drawFlags & qb2_debugDrawFlags.OUTLINES) && !(drawFlags & qb2_debugDrawFlags.FILLS))  return;
 			
 			var staticShape:Boolean = mass == 0;
 			
-			if ( drawFlags & qb2_debugDrawSettings.OUTLINES )
+			if ( drawFlags & qb2_debugDrawFlags.OUTLINES )
 				graphics.lineStyle(qb2_debugDrawSettings.lineThickness, debugOutlineColor, qb2_debugDrawSettings.outlineAlpha);
 			else
 				graphics.lineStyle();
-			if ( drawFlags & qb2_debugDrawSettings.FILLS )
+			if ( drawFlags & qb2_debugDrawFlags.FILLS )
 				graphics.beginFill(debugFillColor, qb2_debugDrawSettings.fillAlpha);
 				
 			draw(graphics);
@@ -341,7 +341,7 @@ package QuickB2.stock
 			
 			if ( _isCircle )
 			{
-				if ( (drawFlags & qb2_debugDrawSettings.OUTLINES) && (drawFlags & qb2_debugDrawSettings.CIRCLE_SPOKES) )
+				if ( (drawFlags & qb2_debugDrawFlags.OUTLINES) && (drawFlags & qb2_debugDrawFlags.CIRCLE_SPOKES) )
 				{
 					//graphics.lineStyle(qb2_debugDrawSettings.lineThickness, staticShape ? qb2_debugDrawSettings.staticOutlineColor : qb2_debugDrawSettings.dynamicOutlineColor, qb2_debugDrawSettings.outlineAlpha);
 					
@@ -351,8 +351,8 @@ package QuickB2.stock
 					
 					var spokeFlags:Array =
 					[
-						qb2_debugDrawSettings.CIRCLE_SPOKE_1, qb2_debugDrawSettings.CIRCLE_SPOKE_2,
-						qb2_debugDrawSettings.CIRCLE_SPOKE_3, qb2_debugDrawSettings.CIRCLE_SPOKE_4
+						qb2_debugDrawFlags.CIRCLE_SPOKE_1, qb2_debugDrawFlags.CIRCLE_SPOKE_2,
+						qb2_debugDrawFlags.CIRCLE_SPOKE_3, qb2_debugDrawFlags.CIRCLE_SPOKE_4
 					];
 					
 					var fourth:int = revJoints.length / 4;

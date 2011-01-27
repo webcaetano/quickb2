@@ -31,7 +31,7 @@ package TopDown.objects
 	import QuickB2.*;
 	import QuickB2.events.qb2ContainerEvent;
 	import QuickB2.events.qb2MassEvent;
-	import QuickB2.misc.qb2TreeIterator;
+	import QuickB2.misc.qb2TreeTraverser;
 	import QuickB2.objects.*;
 	import QuickB2.objects.tangibles.qb2Tangible;
 	import QuickB2.stock.qb2Terrain;
@@ -348,7 +348,7 @@ package TopDown.objects
 		}
 		
 		private static var reusableTerrainList:Vector.<qb2Terrain> = new Vector.<qb2Terrain>();
-		private static var terrainIterator:qb2TreeIterator = new qb2TreeIterator();
+		private static var terrainIterator:qb2TreeTraverser = new qb2TreeTraverser();
 		
 		protected override function update():void
 		{

@@ -55,7 +55,7 @@ package QuickB2.debugging
 			qb2SoftRod:          ["mass", "numSegments", "length", "width"],
 			qb2TripSensor:       ["position", "tripTime", "numVisitors", "numTrippedVisitors"],
 			qb2Terrain:      	 ["position", "frictionZMultiplier"],
-			qb2SoundField:     	 ["position", "frictionZMultiplier"],
+			qb2SoundField:     	 ["position", "sound"],
 			qb2StageWalls:       null,
 			
 			qb2Joint:            ["collideConnected", "isActive"],

@@ -28,6 +28,7 @@ package QuickB2.objects.tangibles
 	import QuickB2.*;
 	import QuickB2.debugging.qb2_debugDrawSettings;
 	import QuickB2.events.*;
+	import QuickB2.internals.qb2InternalPropertyAndFlagCollection;
 	import QuickB2.misc.qb2_flags;
 	import QuickB2.objects.*;
 	import QuickB2.objects.joints.*;
@@ -193,55 +194,48 @@ package QuickB2.objects.tangibles
 			}
 		}
 		
-		private static function arrayContainsTangible(someObjects:Vector.<qb2Object>):Boolean
-		{
-			for (var i:int = 0; i < someObjects.length; i++) 
-			{
-				if ( someObjects[i] is qb2Tangible )
-					return true;
-			}
-			return false;
-		}
-		
 		private function addMultipleObjectsToArray(someObjects:Vector.<qb2Object>, startIndex:uint):qb2ObjectContainer
-		{
-			var tangibleFound:Boolean = arrayContainsTangible(someObjects);
+		{			
+			if ( !cancelPropertyInheritance ) // only happens when cloning, where properties don't have to be inherited.
+			{
+				var collection:qb2InternalPropertyAndFlagCollection = this.collectAncestorFlagsAndProperties();
+			}
 			
-			if( tangibleFound )  pushMassFreeze();
+			var tangibleFound:Boolean = false;
+			pushMassFreeze();
 			{
 				var totalArea:Number = 0, totalMass:Number = 0;
 				for ( var i:int = 0; i < someObjects.length; i++ )
 				{
 					var object:qb2Object = someObjects[i];
-					addObjectToArray(object, startIndex);
+					addObjectToArray(object, startIndex, collection);
 					
 					if ( object is qb2Tangible )
 					{
-						var physObject:qb2Tangible = object as qb2Tangible
-						totalArea += physObject._surfaceArea;
-						totalMass += physObject._mass;
+						var tang:qb2Tangible = object as qb2Tangible;
+						totalArea += tang._surfaceArea;
+						totalMass += tang._mass;
+						
+						tangibleFound = true;
 					}
 					
 					startIndex++;
 				}
 			}
-			if( tangibleFound )  popMassFreeze();
+			popMassFreeze();
 			
 			if ( tangibleFound )
+			{
 				updateMassProps(totalMass, totalArea);
+			}
 			
 			return this;
 		}
 		
-		private function checkForAddError(object:qb2Object):void
+		private function addObjectToArray(object:qb2Object, index:uint, collection:qb2InternalPropertyAndFlagCollection):void
 		{
 			if ( !object )         throw qb2_errors.ADDING_NULL_ERROR;
 			if ( object._parent )  throw qb2_errors.ALREADY_HAS_PARENT_ERROR;
-		}
-		
-		private function addObjectToArray(object:qb2Object, index:uint):void
-		{
-			checkForAddError(object);
 			
 			if ( index == _objects.length )
 				_objects.push(object);
@@ -249,20 +243,20 @@ package QuickB2.objects.tangibles
 				_objects.splice(index, 0, object);
 			
 			object._parent = this;
+		
+			if ( !cancelPropertyInheritance ) // only happens when cloning, where properties don't have to be inherited.
+			{
+				object.cascadeAncestorFlagsAndProperties(collection);
+			}
 			
 			if ( object is qb2Tangible )
 			{
-				var physObject:qb2Tangible = object as qb2Tangible;
-				if ( !cancelPropertyInheritance ) // only happens when cloning, where properties don't have to be inherited.
-				{
-					cascadeAncestorProperties(physObject, collectAncestorProperties(physObject));
-				}
-				
-				physObject.addActor();
+				var tang:qb2Tangible = object as qb2Tangible;
+				tang.addActor();
 				
 				var theAncestorBody:qb2Body = this._ancestorBody ? this._ancestorBody :  ( this is qb2Body ? this as qb2Body : null);
 				if( theAncestorBody )
-					physObject.setAncestorBody(theAncestorBody);
+					tang.setAncestorBody(theAncestorBody);
 			}
 			
 			if ( _world )  object.make(_world);

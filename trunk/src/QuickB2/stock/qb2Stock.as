@@ -416,7 +416,7 @@ package QuickB2.stock
 			return body;
 		}
 		
-		public static function newDebugWorld(gravity:amVector2d = null, debugDrawContext:Graphics = null, debugDragSource:InteractiveObject = null):qb2World
+		public static function newDebugWorld(gravity:amVector2d = null, debugDrawContext:Graphics = null, debugDragSource:InteractiveObject = null, stageToMakeWalls:Stage = null):qb2World
 		{
 			var world:qb2World = new qb2World();
 			if ( gravity )
@@ -424,6 +424,11 @@ package QuickB2.stock
 				
 			world.debugDrawContext = debugDrawContext;
 			world.debugDragSource = debugDragSource;
+			
+			if ( stageToMakeWalls )
+			{
+				world.addObject(new qb2StageWalls(stageToMakeWalls));
+			}
 			
 			return world;
 		}
