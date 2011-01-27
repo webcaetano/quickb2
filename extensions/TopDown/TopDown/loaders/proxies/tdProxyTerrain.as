@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Copyright (c) 2010 Johnson Center for Simulation at Pine Technical College
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -36,14 +36,29 @@ package TopDown.loaders.proxies
 			defaultClassName = "TopDown.objects.tdTerrain";
 		}
 
-		[Inspectable(defaultValue=1)]
-		public var rollingFrictionZMultiplier:Number = 1;
+		[Inspectable(defaultValue=1.0)]
+		public var rollingFrictionZMultiplier:Number = 1.0;
 		
-		[Inspectable(defaultValue="0xFF000000", type=Color)]
+		[Inspectable(defaultValue="0x000000", type=Color)]
 		public var slidingSkidColor:uint = 0;
 		
-		[Inspectable(defaultValue="0x00000000", type=Color)]
+		[Inspectable(defaultValue="0x000000", type=Color)]
 		public var rollingSkidColor:uint = 0;
+		
+		[Inspectable(defaultValue=.6)]
+		public var slidingSkidAlpha:Number = .6;
+		
+		[Inspectable(defaultValue=.6)]
+		public var rollingSkidAlpha:Number = .6;
+		
+		[Inspectable(defaultValue=2.0)]
+		public var skidDuration:Number = 2.0;
+		
+		[Inspectable(defaultValue=true, type=Boolean)]
+		public var drawSlidingSkids:Boolean = true;
+		
+		[Inspectable(defaultValue=false, type=Boolean)]
+		public var drawRollingSkids:Boolean = false;
 	}
 
 }

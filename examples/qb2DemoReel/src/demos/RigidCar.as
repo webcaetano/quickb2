@@ -42,7 +42,7 @@ package demos
 			var rightSpring:qb2PistonJoint = new qb2PistonJoint(carBody, wheel2, carBody.position.clone().incX( bodyLength/2), wheel2.position);
 			leftSpring.springK = rightSpring.springK = 40;
 			leftSpring.springDamping = rightSpring.springDamping = .75;
-			leftSpring.syncedObjectRotation = rightSpring.syncedObjectRotation = false; // this is like b2LineJoint, where the second object can spin freely.
+			leftSpring.freeRotation = rightSpring.freeRotation = true; // this is like b2LineJoint, where the second object can spin freely.
 			
 			//--- Construct the car.
 			car.addObject(carBody);

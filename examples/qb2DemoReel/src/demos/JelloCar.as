@@ -66,7 +66,7 @@ package demos
 			leftAxle1.springDamping = leftAxle2.springDamping = rightAxle1.springDamping = rightAxle2.springDamping = .75;
 			leftAxle1.lowerLimit = leftAxle2.lowerLimit = rightAxle1.lowerLimit = rightAxle2.lowerLimit = -limit;
 			leftAxle1.upperLimit = leftAxle2.upperLimit = rightAxle1.upperLimit = rightAxle2.upperLimit = limit;
-			leftAxle1.syncedObjectRotation = leftAxle2.syncedObjectRotation = rightAxle1.syncedObjectRotation = rightAxle2.syncedObjectRotation = false;
+			leftAxle1.freeRotation = leftAxle2.freeRotation = rightAxle1.freeRotation = rightAxle2.freeRotation = true;
 			
 			//--- Construct the car.
 			car.addObject(carBody);

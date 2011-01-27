@@ -31,6 +31,7 @@ package TopDown.internals
 	/**
 	 * ...
 	 * @author Doug Koellmer
+	 * @private
 	 */
 	public class tdInternalSkidEntry
 	{
