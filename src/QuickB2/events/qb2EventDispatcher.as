@@ -41,6 +41,14 @@ package QuickB2.events
 		qb2_friend static const eventMap:Object    = { };
 		qb2_friend static const eventBitMap:Object = { };
 		
+		/** Determines whether any event listeners attached are by default set to weak.
+		 * If true, a call like myObject.addEventListener(qb2ContainerEvent.ADDED_TO_WORLD, handler) is actually
+		 * ammended to myObject.addEventListener(qb2ContainerEvent.ADDED_TO_WORLD, handler, false, 0, true) internally.
+		 * 
+		 * @default true
+		 */
+		public var useWeakListeners:Boolean = true;
+		
 		/// This keeps track of the events assigned to an object.  When we want to know whether a certain QuickB2 event is assigned,
 		/// a simple bitwise comparison is all that's needed, as opposed to doing hasEventListener(), which has to compare strings and such.
 		protected function get eventFlags():uint
@@ -95,7 +103,7 @@ package QuickB2.events
 		
 		public override function addEventListener(type:String, listener:Function, useCapture:Boolean = false, priority:int = 0, useWeakReference:Boolean = false):void
 		{
-			super.addEventListener(type, listener, useCapture, priority, qb2_settings.useWeakListeners ? true : useWeakReference);
+			super.addEventListener(type, listener, useCapture, priority, useWeakListeners ? true : useWeakReference);
 			
 			var eventFlag:uint = getCachedEventBit(type);
 			_eventFlags |= eventFlag;

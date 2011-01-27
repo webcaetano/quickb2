@@ -28,7 +28,7 @@ package QuickB2.stock
 	import QuickB2.debugging.qb2_debugDrawSettings;
 	import QuickB2.events.qb2ContactEvent;
 	import QuickB2.events.qb2ContainerEvent;
-	import QuickB2.misc.qb2TreeIterator;
+	import QuickB2.misc.qb2TreeTraverser;
 	import QuickB2.objects.qb2Object;
 	import QuickB2.objects.tangibles.qb2Body;
 	import QuickB2.objects.tangibles.qb2Shape;

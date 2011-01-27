@@ -32,7 +32,6 @@ package QuickB2.stock
 	import flash.events.Event;
 	import flash.utils.setTimeout;
 	import QuickB2.debugging.qb2DebugTraceSettings;
-	import QuickB2.misc.qb2_behaviorFlags;
 	import QuickB2.misc.qb2_flags;
 	import QuickB2.objects.tangibles.qb2Group;
 	

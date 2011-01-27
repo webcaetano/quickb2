@@ -140,18 +140,18 @@ package QuickB2.objects.tangibles
 			}
 		}
 		
-		qb2_friend final function rigid_propertyChanged(propertyName:String, value:*):void
+		qb2_friend final function rigid_propertyChanged(propertyName:String):void
 		{
 			//--- Make actual changes to a simulating body if the property has an actual effect.
 			if ( this._bodyB2 )
 			{
 				if ( propertyName == qb2_props.T_LINEAR_DAMPING )
 				{
-					this._bodyB2.m_linearDamping = value;
+					this._bodyB2.m_linearDamping = linearDamping;
 				}
 				else if ( propertyName == qb2_props.T_ANGULAR_DAMPING )
 				{
-					this._bodyB2.m_angularDamping = value;
+					this._bodyB2.m_angularDamping = angularDamping;
 				}
 			}
 		}

@@ -31,6 +31,7 @@ package QuickB2.objects
 	import QuickB2.*;
 	import QuickB2.debugging.qb2DebugTraceSettings;
 	import QuickB2.events.*;
+	import QuickB2.internals.qb2InternalPropertyAndFlagCollection;
 	import QuickB2.misc.qb2_flags;
 	import QuickB2.objects.joints.*;
 	import QuickB2.objects.tangibles.*;
@@ -132,7 +133,7 @@ package QuickB2.objects
 			{
 				_propertyMap[propertyName] = value;
 				_ownershipFlagsForProperties &= ~_propertyBits[propertyName];
-				propertyChanged(propertyName, value);
+				propertyChanged(propertyName);
 			}
 			else
 			{
@@ -142,40 +143,10 @@ package QuickB2.objects
 			return this;
 		}
 		
-		private var _propertyMap:Object = { };
+		qb2_friend var _propertyMap:Object = { };
 		
 		private static var _propertyBits:Object = { };
 		private static var _currPropertyBit:uint = 0x00000001;
-		
-		public function get joinsInDeepCloning():Boolean
-			{  return _flags & qb2_flags.O_JOINS_IN_DEEP_CLONING ? true : false;  }
-		public function set joinsInDeepCloning(bool:Boolean):void
-		{
-			if ( bool )
-				turnFlagOn(qb2_flags.O_JOINS_IN_DEEP_CLONING);
-			else
-				turnFlagOff(qb2_flags.O_JOINS_IN_DEEP_CLONING);
-		}
-		
-		public function get joinsInDebugDrawing():Boolean
-			{  return _flags & qb2_flags.O_JOINS_IN_DEBUG_DRAWING ? true : false;  }
-		public function set joinsInDebugDrawing(bool:Boolean):void
-		{
-			if ( bool )
-				turnFlagOn(qb2_flags.O_JOINS_IN_DEBUG_DRAWING);
-			else
-				turnFlagOff(qb2_flags.O_JOINS_IN_DEBUG_DRAWING);
-		}
-		
-		public function get joinsInUpdateChain():Boolean
-			{  return _flags & qb2_flags.O_JOINS_IN_UPDATE_CHAIN ? true : false;  }
-		public function set joinsInUpdateChain(bool:Boolean):void
-		{
-			if ( bool )
-				turnFlagOn(qb2_flags.O_JOINS_IN_UPDATE_CHAIN);
-			else
-				turnFlagOff(qb2_flags.O_JOINS_IN_UPDATE_CHAIN);
-		}
 		
 		private static function cascadeProperty(root:qb2Object, propertyName:String, value:*):void
 		{
@@ -197,7 +168,7 @@ package QuickB2.objects
 				}
 				
 				subObject._propertyMap[propertyName] = value;
-				subObject.propertyChanged(propertyName, value);
+				subObject.propertyChanged(propertyName);
 				
 				if ( subObject is qb2ObjectContainer )
 				{
@@ -251,62 +222,94 @@ package QuickB2.objects
 			}
 		}
 		
-		/*qb2_friend function collectAncestorFlagsAndProperties(outputPropertyMap:Object):uint
+		qb2_friend function collectAncestorFlagsAndProperties():qb2InternalPropertyAndFlagCollection
 		{
-			var currParent:qb2ObjectContainer = object._parent;
+			var currParent:qb2Object = this;
+			var booleanFlags:uint = 0;
+			var flagsTaken:uint   = 0;
+			var ancestorPropertyMapStacks:Object = { };
 			
 			while ( currParent )
 			{
-				for ( var propertyName:String in _propertyMap )
+				//--- Fill in the property map with ancestor values.
+				for ( var propertyName:String in currParent._propertyMap )
 				{
-					if ( currParent.propsSetFlags & PROP_TO_MASK_DICT[propName] )
+					if ( currParent._ownershipFlagsForProperties & _propertyBits[propertyName] )
 					{
-						if ( !dict )  dict = new Object();
+						if ( ancestorPropertyMapStacks[propertyName] )  continue;
 						
-						if ( dict[propName] )  continue;
-						
-						dict[propName] = [currParent[getPrivateVarName(propName)]]; // Add an array with one element for this property name key.
+						ancestorPropertyMapStacks[propertyName] = [currParent._propertyMap[propertyName]];
 					}
 				}
+				
+				//--- Fill in the flags.
+				var flagsThatCouldBeTaken:uint = flagsTaken | currParent._ownershipFlagsForBooleans;
+				var flagsNotYetTaken:uint      = flagsTaken ^ flagsThatCouldBeTaken;
+				booleanFlags = flagsNotYetTaken & currParent._flags;
+				flagsTaken |= flagsNotYetTaken;
+				
 				currParent = currParent._parent;
 			}
 			
-			return dict;
+			var collection:qb2InternalPropertyAndFlagCollection = new qb2InternalPropertyAndFlagCollection();
+			collection.ancestorFlagOwnershipStack.push(flagsTaken);
+			collection.ancestorFlagStack.push(booleanFlags);
+			collection.ancestorPropertyMapStacks = ancestorPropertyMapStacks;
+			
+			return collection;
 		}
 		
-		qb2_friend static function cascadeAncestorProperties(object:qb2Tangible, propStacks:Object):void
+		qb2_friend function cascadeAncestorFlagsAndProperties(collection:qb2InternalPropertyAndFlagCollection):void
 		{
-			if ( !propStacks )  return; // No ancestor objects have any properties explicitly defined.
-		
 			var redundantProps:Vector.<String> = null;
-			var nonRedundantPropertyFound:Boolean = false;
-			for ( var propName:String in propStacks )
+			
+			var ancestorPropertyMapStacks:Object = collection.ancestorPropertyMapStacks;
+			var ancestorFlags:uint = collection.ancestorFlagStack[collection.ancestorFlagStack.length - 1];
+			var ancestorOwnershipFlags:uint = collection.ancestorFlagOwnershipStack[collection.ancestorFlagOwnershipStack.length - 1];
+			
+			for ( var propertyName:String in ancestorPropertyMapStacks )
 			{
-				var propStack:Array = propStacks[propName];
+				var propertyMapStack:Array = ancestorPropertyMapStacks[propertyName];
 				
-				if ( object.propsSetFlags & PROP_TO_MASK_DICT[propName] )
+				if ( this._ownershipFlagsForProperties & _propertyBits[propertyName] )
 				{
 					if ( !redundantProps )  redundantProps = new Vector.<String>();
-					propStack.push(object[getPrivateVarName(propName)]);
+					propertyMapStack.push( this._propertyMap[propertyName] );
 				}
 				else
 				{
-					object.setPropertyImplicitly(propName, propStack[propStack.length - 1]);
-					nonRedundantPropertyFound = true;
+					var propertyValue:Number = propertyMapStack[propertyMapStack.length - 1];
+					this._propertyMap[propertyName] = propertyValue;
+					this.propertyChanged(propertyName);
 				}
 			}
 			
-			//--- Only continue further down the tree if a property is set by an ancestor that isn't set by 'object'.
-			if ( nonRedundantPropertyFound && (object is qb2ObjectContainer) )
+			var ancestorOwnershipFlagsToBePushed:uint = ancestorOwnershipFlags & ~this._ownershipFlagsForBooleans;
+			var ancestorFlagsToBePushed:uint = this._flags & ~ancestorOwnershipFlagsToBePushed;
+			ancestorFlagsToBePushed |= ancestorOwnershipFlagsToBePushed & ancestorFlags;
+			
+			var flagsAffected:uint = ancestorFlagsToBePushed ^ this._flags;
+			if ( flagsAffected )
 			{
-				var asContainer:qb2ObjectContainer = object as qb2ObjectContainer;
+				this._flags = ancestorFlagsToBePushed;
+				this.flagsChanged(flagsAffected);
+			}
+			
+			//--- Only continue further down the tree if a property is set by an ancestor that isn't set by 'object'.
+			if ( this is qb2ObjectContainer )
+			{
+				collection.ancestorFlagStack.push(ancestorFlagsToBePushed);
+				collection.ancestorFlagOwnershipStack.push(ancestorOwnershipFlagsToBePushed);
+				
+				var asContainer:qb2ObjectContainer = this as qb2ObjectContainer;
 				for (var i:int = 0; i < asContainer.numObjects; i++) 
 				{
 					var ithObject:qb2Object = asContainer.getObjectAt(i);
-					if ( ithObject is qb2Tangible )
-						cascadeAncestorProperties(ithObject as qb2Tangible, propStacks);
-					
+					ithObject.cascadeAncestorFlagsAndProperties(collection);
 				}
+				
+				collection.ancestorFlagStack.pop();
+				collection.ancestorFlagOwnershipStack.pop();
 			}
 			
 			//--- Have to clear any properties pushed onto the stack, cause we don't want them bleeding into peers' properties.
@@ -314,15 +317,45 @@ package QuickB2.objects
 			{
 				for ( i = 0; i < redundantProps.length; i++ )
 				{
-					propStack = propStacks[redundantProps[i]];
-					propStack.pop();
+					propertyMapStack = ancestorPropertyMapStacks[redundantProps[i]];
+					propertyMapStack.pop();
 				}
 			}
 		}
 		
-		qb2_friend static var cancelPropertyInheritance:Boolean = false; // this is invoked by clone functions to cancel the property flow*/
+		public function get joinsInDeepCloning():Boolean
+			{  return _flags & qb2_flags.O_JOINS_IN_DEEP_CLONING ? true : false;  }
+		public function set joinsInDeepCloning(bool:Boolean):void
+		{
+			if ( bool )
+				turnFlagOn(qb2_flags.O_JOINS_IN_DEEP_CLONING);
+			else
+				turnFlagOff(qb2_flags.O_JOINS_IN_DEEP_CLONING);
+		}
 		
-		protected virtual function propertyChanged(propertyName:String, value:*):void {}
+		public function get joinsInDebugDrawing():Boolean
+			{  return _flags & qb2_flags.O_JOINS_IN_DEBUG_DRAWING ? true : false;  }
+		public function set joinsInDebugDrawing(bool:Boolean):void
+		{
+			if ( bool )
+				turnFlagOn(qb2_flags.O_JOINS_IN_DEBUG_DRAWING);
+			else
+				turnFlagOff(qb2_flags.O_JOINS_IN_DEBUG_DRAWING);
+		}
+		
+		public function get joinsInUpdateChain():Boolean
+			{  return _flags & qb2_flags.O_JOINS_IN_UPDATE_CHAIN ? true : false;  }
+		public function set joinsInUpdateChain(bool:Boolean):void
+		{
+			if ( bool )
+				turnFlagOn(qb2_flags.O_JOINS_IN_UPDATE_CHAIN);
+			else
+				turnFlagOff(qb2_flags.O_JOINS_IN_UPDATE_CHAIN);
+		}
+		
+		qb2_friend static var cancelPropertyInheritance:Boolean = false; // this is invoked by clone functions to cancel the property flow
+		
+		protected virtual function propertyChanged(propertyName:String):void {}
 		
 		protected virtual function flagsChanged(affectedFlags:uint):void              {}
 		
@@ -699,6 +732,8 @@ package QuickB2.objects
 			//--- Copy ownership of flags/properties.
 			this._ownershipFlagsForBooleans   = source._ownershipFlagsForBooleans;
 			this._ownershipFlagsForProperties = source._ownershipFlagsForProperties;
+			
+			this.useWeakListeners = source.useWeakListeners;
 			
 			//--- Copy values for flags/properties.
 			this._flags = source._flags;

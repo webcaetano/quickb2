@@ -32,7 +32,7 @@ package QuickB2.objects.tangibles
 	import QuickB2.*;
 	import QuickB2.debugging.qb2DebugTraceSettings;
 	import QuickB2.events.*;
-	import QuickB2.misc.qb2_behaviorFlags;
+	import QuickB2.misc.qb2_flags;
 	import QuickB2.objects.*;
 	import QuickB2.objects.joints.*;
 	
@@ -156,9 +156,9 @@ package QuickB2.objects.tangibles
 			super.destroy();
 		}
 		
-		protected override function propertyChanged(propertyName:String, value:*):void
+		protected override function propertyChanged(propertyName:String):void
 		{
-			rigid_propertyChanged(propName, value); // sets body properties if this body has a b2Body
+			rigid_propertyChanged(propertyName); // sets body properties if this body has a b2Body
 		}
 		
 		
@@ -169,12 +169,12 @@ package QuickB2.objects.tangibles
 		{
 			super.update();
 			
-			var updateLoopBit:uint = qb2_behaviorFlags.PARTICIPATES_IN_UPDATE_CHAIN;
+			var updateLoopBit:uint = qb2_flags.O_JOINS_IN_UPDATE_CHAIN;
 			for ( var i:int = 0; i < _objects.length; i++ )
 			{
 				var object:qb2Object = _objects[i];
 				
-				if ( !(object.behaviorFlags & updateLoopBit) )  continue;
+				if ( !(object._flags & updateLoopBit) )  continue;
 				
 				object.relay_update(); // You can't call update directly because it's protected.
 			}

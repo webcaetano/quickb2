@@ -20,22 +20,16 @@
  * THE SOFTWARE.
  */
 
-package QuickB2 
+package QuickB2.internals 
 {
-	import QuickB2.misc.qb2_flags;
 	/**
-	 * Global settings controlling various preferences and optimizations.
-	 * 
+	 * ...
 	 * @author Doug Koellmer
 	 */
-	public class qb2_settings
+	public class qb2InternalPropertyAndFlagCollection 
 	{
-		/** Set this to false if you'd like more optimized handling of polygons.  The caveat is that all your polygons must be
-		 * 8 or less vertices, convex, counter-clockwise, and non-self-intersecting if you want them to work correctly.
-		 * This specifically makes the adding of polygons to the world more efficient, not so much how they perform while in the world.
-		 * 
-		 * @default true
-		 */
-		public static var checkForNonStandardPolygons:Boolean = true;
+		public var ancestorFlagStack:Vector.<uint>          = new Vector.<uint>();
+		public var ancestorFlagOwnershipStack:Vector.<uint> = new Vector.<uint>();
+		public var ancestorPropertyMapStacks:Object = null;
 	}
 }

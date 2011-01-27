@@ -759,7 +759,7 @@ package QuickB2.loaders
 			else if ( !defaultValue(tangTag["mass"])                )  tang.mass                = parseFloat(tangTag["mass"]);
 			
 			if (      !defaultValue(tangTag["allowSleeping"])       )  tang.allowSleeping       = tangTag["allowSleeping"]     == trueString;
-			if (      !defaultValue(tangTag["fixedRotation"])       )  tang.fixedRotation       = tangTag["fixedRotation"]     == trueString;
+			if (      !defaultValue(tangTag["fixedRotation"])       )  tang.hasFixedRotation    = tangTag["hasFixedRotation"]  == trueString;
 			if (      !defaultValue(tangTag["isBullet"])            )  tang.isBullet            = tangTag["isBullet"]          == trueString;
 			if (      !defaultValue(tangTag["isGhost"])             )  tang.isGhost             = tangTag["isGhost"]           == trueString;
 			if (      !defaultValue(tangTag["sleepingWhenAdded"])   )  tang.sleepingWhenAdded   = tangTag["sleepingWhenAdded"] == trueString;

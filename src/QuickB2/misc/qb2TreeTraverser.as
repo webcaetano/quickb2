@@ -33,7 +33,7 @@ package QuickB2.misc
 	 * 
 	 * @author Doug Koellmer
 	 */
-	public class qb2TreeIterator
+	public class qb2TreeTraverser
 	{
 		public static const LEVEL_ORDER_LEFT_TO_RIGHT:uint = 1;
 		public static const LEVEL_ORDER_RIGHT_TO_LEFT:uint = 2;
@@ -42,13 +42,13 @@ package QuickB2.misc
 		
 		public var path:uint = LEVEL_ORDER_LEFT_TO_RIGHT;
 		
-		public function qb2TreeIterator(initRoot:qb2ObjectContainer = null, initPath:uint = LEVEL_ORDER_LEFT_TO_RIGHT) 
+		public function qb2TreeTraverser(initRoot:qb2ObjectContainer = null, initPath:uint = LEVEL_ORDER_LEFT_TO_RIGHT) 
 		{
 			path = initPath;
 			root = initRoot;
 		}
 		
-		public static function getSingleton(initRoot:qb2ObjectContainer = null):qb2TreeIterator
+		public static function getSingleton(initRoot:qb2ObjectContainer = null):qb2TreeTraverser
 		{
 			if ( _singleton )
 			{
@@ -56,12 +56,12 @@ package QuickB2.misc
 			}
 			else
 			{
-				_singleton = new qb2TreeIterator(initRoot);
+				_singleton = new qb2TreeTraverser(initRoot);
 			}
 			
 			return _singleton;
 		}
-		private static var _singleton:qb2TreeIterator;
+		private static var _singleton:qb2TreeTraverser;
 		
 		public function get root():qb2ObjectContainer
 			{  return _root;  }
@@ -110,7 +110,7 @@ package QuickB2.misc
 					}
 					else if( path == Z_ORDER_TOP_TO_BOTTOM )
 					{
-						for ( i = numObjects-1; i >= 0; i--) 
+						for ( i = 0; i < numObjects; i++)
 						{
 							_queue.unshift(objectArray[i]);
 						}
@@ -124,7 +124,7 @@ package QuickB2.misc
 					}
 					else if( path == Z_ORDER_BOTTOM_TO_TOP )
 					{
-						for ( i = 0; i < numObjects; i++)
+						for ( i = numObjects-1; i >= 0; i--) 
 						{
 							_queue.unshift(objectArray[i]);
 						}

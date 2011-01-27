@@ -179,7 +179,7 @@ package QuickB2.debugging
 			stepButton.y = pausePlay.y - stepButton.height - 5;
 			
 			logo.addChild(logoBitmap);
-			logo.scaleX = logo.scaleY = .5;
+			//logo.scaleX = logo.scaleY = .5;
 			logo.x = stepButton.x + stepButton.width / 2 - logo.width / 2;
 			logo.y = stepButton.y - logo.height - 10;
 			addChild(logo);
