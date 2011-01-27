@@ -30,6 +30,7 @@ package QuickB2.objects.joints
 	import flash.display.*;
 	import QuickB2.*;
 	import QuickB2.debugging.*;
+	import QuickB2.misc.qb2_props;
 	import QuickB2.misc.qb2Mouse;
 	import QuickB2.objects.*;
 	import QuickB2.objects.tangibles.*;
@@ -44,19 +45,17 @@ package QuickB2.objects.joints
 	public class qb2MouseJoint extends qb2Joint
 	{
 		private var _worldTarget:amPoint2d = null;
-		
-		private var _maxForce:Number = 100;
-		private var _frequencyHz:Number = 5.0;
-		private var _dampingRatio:Number = .7;
 	
 		public function qb2MouseJoint(initObject:qb2IRigidObject = null, initWorldAnchor:amPoint2d = null) 
 		{
+			setProperty(qb2_props.J_MAX_FORCE,    100.0, true);
+			setProperty(qb2_props.J_FREQUENCY_HZ,   5.0, true);
+			setProperty(qb2_props.J_DAMPING_RATIO,  0.7, true);
+			
 			requiresTwoRigids = false;
 			hasOneWorldPoint = true;
 			
 			object = initObject;
-			
-			_maxForce = 100;
 			
 			worldTarget = new amPoint2d();
 			
@@ -119,30 +118,38 @@ package QuickB2.objects.joints
 		}
 		
 		public function get frequencyHz():Number
-			{  return _frequencyHz;  }
+			{  return getProperty(qb2_props.J_FREQUENCY_HZ) as Number;  }
 		public function set frequencyHz(value:Number):void
-		{
-			_frequencyHz = value;
-			if ( jointB2 )
-				joint.SetFrequency(value);
-		}
-		
+			{  setProperty(qb2_props.J_FREQUENCY_HZ, value);  }
+			
 		public function get dampingRatio():Number
-			{  return _dampingRatio;  }
+			{  return getProperty(qb2_props.J_DAMPING_RATIO) as Number;  }
 		public function set dampingRatio(value:Number):void
-		{
-			_dampingRatio = value;
-			if ( jointB2 )
-				joint.SetDampingRatio(value);
-		}
-		
+			{  setProperty(qb2_props.J_DAMPING_RATIO, value);  }
+			
 		public function get maxForce():Number
-			{  return _maxForce;  }
+			{  return getProperty(qb2_props.J_MAX_FORCE) as Number;  }
 		public function set maxForce(value:Number):void
+			{  setProperty(qb2_props.J_MAX_FORCE, value);  }
+			
+		protected override function propertyChanged(propertyName:String):void
 		{
-			_maxForce = value;
-			if ( jointB2 )
+			if ( !jointB2 )  return;
+			
+			var value:Number = _propertyMap[propertyName];
+			
+			if ( propertyName == qb2_props.J_MAX_FORCE )
+			{
 				joint.SetMaxForce(value);
+			}
+			else if ( propertyName == qb2_props.J_DAMPING_RATIO )
+			{
+				joint.SetDampingRatio(value);
+			}
+			else if ( propertyName == qb2_props.J_FREQUENCY_HZ )
+			{
+				joint.SetFrequency(value);
+			}
 		}
 		
 		public function get object():qb2IRigidObject
@@ -166,9 +173,9 @@ package QuickB2.objects.joints
 				var worldTargetPnt:amPoint2d = _object2.getWorldPoint(_localAnchor2);
 				mouseJointDef.target.x = worldTargetPnt.x / conversion;
 				mouseJointDef.target.y = worldTargetPnt.y / conversion;
-				mouseJointDef.frequencyHz = _frequencyHz;
-				mouseJointDef.dampingRatio = _dampingRatio;
-				mouseJointDef.maxForce = _maxForce;
+				mouseJointDef.frequencyHz = frequencyHz;
+				mouseJointDef.dampingRatio = dampingRatio;
+				mouseJointDef.maxForce = maxForce;
 				
 				
 				jointDef = mouseJointDef;
@@ -196,11 +203,6 @@ package QuickB2.objects.joints
 			
 			mouseJoint._localAnchor2._x = this._localAnchor2._x;
 			mouseJoint._localAnchor2._y = this._localAnchor2._y;
-			
-			mouseJoint.collideConnected = this.collideConnected;
-			mouseJoint.frequencyHz = this.frequencyHz;
-			mouseJoint.dampingRatio = this.dampingRatio;
-			mouseJoint.maxForce = this.maxForce;
 			
 			return mouseJoint;
 		}

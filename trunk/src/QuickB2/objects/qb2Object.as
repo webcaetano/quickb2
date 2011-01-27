@@ -22,17 +22,14 @@
 
 package QuickB2.objects 
 {
-	import As3Math.geo2d.amBoundArea2d;
-	import As3Math.geo2d.amBoundBox2d;
-	import Box2DAS.Common.V2;
+	import Box2DAS.Common.*;
 	import flash.display.*;
 	import flash.events.*;
-	import flash.utils.Dictionary;
+	import flash.utils.*;
 	import QuickB2.*;
-	import QuickB2.debugging.qb2DebugTraceSettings;
 	import QuickB2.events.*;
-	import QuickB2.internals.qb2InternalPropertyAndFlagCollection;
-	import QuickB2.misc.qb2_flags;
+	import QuickB2.internals.*;
+	import QuickB2.misc.*;
 	import QuickB2.objects.joints.*;
 	import QuickB2.objects.tangibles.*;
 	use namespace qb2_friend;
@@ -64,8 +61,8 @@ package QuickB2.objects
 			}
 		}
 		
-		qb2_friend var _ownershipFlagsForProperties:uint  = 0;
-		qb2_friend var _ownershipFlagsForBooleans:uint    = 0;
+		qb2_friend var _ownershipFlagsForProperties:uint = 0;
+		qb2_friend var _ownershipFlagsForBooleans:uint   = 0;
 		
 		public function get flags():uint
 			{  return _flags;  }
@@ -100,6 +97,20 @@ package QuickB2.objects
 			else
 			{
 				cascadeFlags(this, flag);
+			}
+			
+			return this;
+		}
+		
+		public final function setFlag(bool:Boolean, flag:uint, passive:Boolean = false):qb2Object
+		{
+			if ( bool )
+			{
+				turnFlagOn(flag, passive);
+			}
+			else
+			{
+				turnFlagOff(flag, passive);
 			}
 			
 			return this;

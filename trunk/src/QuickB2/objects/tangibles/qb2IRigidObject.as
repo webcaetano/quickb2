@@ -203,6 +203,8 @@ package QuickB2.objects.tangibles
 		
 		function turnFlagOff(flag:uint, passive:Boolean = false):qb2Object;
 		
+		function setFlag(bool:Boolean, flag:uint, passive:Boolean = false):qb2Object
+		
 		function isFlagOn(flag:uint):Boolean;
 		
 		function get joinsInDeepCloning():Boolean;

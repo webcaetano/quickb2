@@ -36,5 +36,17 @@ package QuickB2.misc
 		public static const T_FRICTION_Z:String            = "frictionZ";
 		public static const T_LINEAR_DAMPING:String        = "linearDamping";
 		public static const T_ANGULAR_DAMPING:String       = "angularDamping";
+		
+		public static const J_LENGTH:String                = "jointLength";
+		public static const J_FREQUENCY_HZ:String          = "frequencyHz";
+		public static const J_DAMPING_RATIO:String         = "dampingRatio";
+		public static const J_MAX_FORCE:String             = "maxForce";
+		public static const J_MAX_TORQUE:String            = "maxTorque";
+		public static const J_SPRING_K:String              = "springK";
+		public static const J_SPRING_DAMPING:String        = "springDamping";
+		public static const J_TARGET_SPEED:String          = "targetSpeed";
+		public static const J_REFERENCE_ANGLE:String       = "referenceAngle";
+		public static const J_LOWER_LIMIT:String           = "lowerLimit";
+		public static const J_UPPER_LIMIT:String           = "upperLimit";
 	}
 }

@@ -64,7 +64,7 @@ package QuickB2.objects.tangibles
 	public class qb2Tangible extends qb2Object
 	{
 		qb2_friend static const diffTol:Number = .0000000001;
-		qb2_friend static const rotTol:Number = .0000001;
+		qb2_friend static const rotTol:Number  = .0000001;
 		
 		public function get ancestorBody():qb2Body
 			{  return _ancestorBody;  }
@@ -100,7 +100,7 @@ package QuickB2.objects.tangibles
 			if ( (this as Object).constructor == qb2Tangible )  throw qb2_errors.ABSTRACT_CLASS_ERROR;
 			
 			//--- Set up default values for various properties.
-			turnFlagOn(qb2_flags.T_IS_DEBUG_DRAGGABLE,             true);
+			turnFlagOn(qb2_flags.T_IS_DEBUG_DRAGGABLE | qb2_flags.T_ALLOW_SLEEPING, true);
 			setProperty(qb2_props.T_CONTACT_CATEGORY,      0x0001, true);
 			setProperty(qb2_props.T_CONTACT_COLLIDES_WITH, 0xFFFF, true);
 			setProperty(qb2_props.T_FRICTION,              .2,     true);

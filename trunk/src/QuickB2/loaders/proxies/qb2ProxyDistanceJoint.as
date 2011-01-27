@@ -28,6 +28,14 @@ package QuickB2.loaders.proxies
 	 */
 	public class qb2ProxyDistanceJoint extends qb2ProxyJoint
 	{
+		[Inspectable(defaultValue="default",enumeration="default,true,false", name='isRope (default=false)')]
+		public var isRope:String = "default";
+		
+		[Inspectable(defaultValue="default",enumeration="default,true,false", name='autoSetLength (default=true)')]
+		public var autoSetLength:String = "default";
+		
+		
+		
 		[Inspectable(defaultValue="default", name='length (default based on object seperation)')]
 		public var length:String = "default";
 		
@@ -37,8 +45,7 @@ package QuickB2.loaders.proxies
 		[Inspectable(defaultValue="default", name='dampingRatio (default=0.0)')]
 		public var dampingRatio:String = "default";
 		
-		[Inspectable(defaultValue="default",enumeration="default,true,false", name='isRope (default=false)')]
-		public var isRope:String = "default";
+		
 		
 		
 		[Inspectable(defaultValue="")]

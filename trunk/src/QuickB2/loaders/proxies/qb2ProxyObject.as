@@ -42,6 +42,16 @@ package QuickB2.loaders.proxies
 		[Inspectable(defaultValue="", type='String')]
 		public var _handler_postUpdate:String = "";
 		
+		
+		[Inspectable(defaultValue="default",enumeration="default,true,false", name='joinsInDeepCloning (default=true)')]
+		public var joinsInDeepCloning:String = "default";
+		
+		[Inspectable(defaultValue="default",enumeration="default,true,false", name='joinsInDebugDrawing (default=true)')]
+		public var joinsInDebugDrawing:String = "default";
+		
+		[Inspectable(defaultValue="default",enumeration="default,true,false", name='joinsInUpdateChain (default=true)')]
+		public var joinsInUpdateChain:String = "default";
+		
 		[Inspectable(defaultValue="default", type='String', name="Class Name")]
 		public var className:String = "default";
 		

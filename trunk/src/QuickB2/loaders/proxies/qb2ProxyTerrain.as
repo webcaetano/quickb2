@@ -29,8 +29,8 @@ package QuickB2.loaders.proxies
 			defaultClassName = "QuickB2.stock.qb2Terrain";
 		}
 		
-		[Inspectable(defaultValue=1)]
-		public var frictionZMultiplier:Number = 1;
+		[Inspectable(defaultValue=1.0)]
+		public var frictionZMultiplier:Number = 1.0;
 	}
 
 }

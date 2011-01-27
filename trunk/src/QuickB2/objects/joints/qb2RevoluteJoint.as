@@ -44,26 +44,110 @@ package QuickB2.objects.joints
 	 */
 	public class qb2RevoluteJoint extends qb2Joint
 	{		
-		public var springK:Number = 0;
-		public var springDamping:Number = 0;
-		public var springCanFlip:Boolean = false;
-		public var dampenSpringJitter:Boolean = false;
-		public var optimizedSpring:Boolean = true;
-		
-		private var _lowerAngle:Number = -Infinity;
-		private var _upperAngle:Number = Infinity;
-		private var _maxMotorTorque:Number = 0;
-		private var _targetMotorSpeed:Number = 0;
-		private var _referenceAngle:Number = 0;
-		
 		public function qb2RevoluteJoint(initObject1:qb2IRigidObject = null, initObject2:qb2IRigidObject = null, initWorldAnchor:amPoint2d = null) 
 		{
+			turnFlagOn(qb2_flags.J_OPTIMIZED_SPRING, true);
+			setProperty(qb2_props.J_LOWER_LIMIT, -Infinity, true);
+			setProperty(qb2_props.J_UPPER_LIMIT,  Infinity, true);
+			
 			hasOneWorldPoint = true;
 		
 			object1 = initObject1;
 			object2 = initObject2;
 			
 			setWorldAnchor(initWorldAnchor ? initWorldAnchor : initWorldPoint(object1));
+		}
+		
+		public function get springCanFlip():Boolean
+			{  return _flags & qb2_flags.J_SPRING_CAN_FLIP ? true : false;  }
+		public function set springCanFlip(bool:Boolean):void
+			{  setFlag(bool, qb2_flags.J_SPRING_CAN_FLIP, false);  }
+			
+		public function get dampenSpringJitter():Boolean
+			{  return _flags & qb2_flags.J_DAMPEN_SPRING_JITTER ? true : false;  }
+		public function set dampenSpringJitter(bool:Boolean):void
+			{  setFlag(bool, qb2_flags.J_DAMPEN_SPRING_JITTER, false);  }
+			
+		public function get optimizedSpring():Boolean
+			{  return _flags & qb2_flags.J_OPTIMIZED_SPRING ? true : false;  }
+		public function set optimizedSpring(bool:Boolean):void
+			{  setFlag(bool, qb2_flags.J_OPTIMIZED_SPRING, false);  }
+			
+			
+			
+		public function get springDamping():Number
+			{  return getProperty(qb2_props.J_SPRING_DAMPING) as Number;  }
+		public function set springDamping(value:Number):void
+			{  setProperty(qb2_props.J_SPRING_DAMPING, value);  }
+			
+		public function get springK():Number
+			{  return getProperty(qb2_props.J_SPRING_K) as Number;  }
+		public function set springK(value:Number):void
+			{  setProperty(qb2_props.J_SPRING_K, value);  }
+	
+		public function get maxTorque():Number
+			{  return getProperty(qb2_props.J_MAX_TORQUE) as Number;  }
+		public function set maxTorque(value:Number):void
+			{  setProperty(qb2_props.J_MAX_TORQUE, value);  }
+			
+		public function get targetSpeed():Number
+			{  return getProperty(qb2_props.J_TARGET_SPEED) as Number;  }
+		public function set targetSpeed(value:Number):void
+			{  setProperty(qb2_props.J_TARGET_SPEED, value);  }
+			
+		public function get referenceAngle():Number
+			{  return getProperty(qb2_props.J_REFERENCE_ANGLE) as Number;  }
+		public function set referenceAngle(value:Number):void
+			{  setProperty(qb2_props.J_REFERENCE_ANGLE, value);  }
+			
+		public function get lowerLimit():Number
+			{  return getProperty(qb2_props.J_LOWER_LIMIT) as Number;  }
+		public function set lowerLimit(value:Number):void
+			{  setProperty(qb2_props.J_LOWER_LIMIT, value);  }
+			
+		public function get upperLimit():Number
+			{  return getProperty(qb2_props.J_UPPER_LIMIT) as Number;  }
+		public function set upperLimit(value:Number):void
+			{  setProperty(qb2_props.J_UPPER_LIMIT, value);  }
+			
+		protected override function propertyChanged(propertyName:String):void
+		{
+			if ( !jointB2 )  return;
+			
+			var value:Number = _propertyMap[propertyName];
+			
+			if ( propertyName == qb2_props.J_MAX_TORQUE )
+			{
+				if ( !callingFromUpdate && optimizedSpring && springK )
+					throw qb2_errors.OPT_SPRING_ERROR;
+			
+				joint.SetMaxMotorTorque(value);
+				joint.EnableMotor(value ? true : false);
+				
+				wakeUpAttached();
+			}
+			else if ( propertyName == qb2_props.J_TARGET_SPEED )
+			{
+				if ( !callingFromUpdate && optimizedSpring && springK )
+					throw qb2_errors.OPT_SPRING_ERROR;
+				
+				joint.SetMotorSpeed(value);
+				wakeUpAttached();
+			}
+			else if ( propertyName == qb2_props.J_REFERENCE_ANGLE )
+			{
+				joint.m_referenceAngle = value;
+				wakeUpAttached();
+			}
+			else if ( propertyName == qb2_props.J_LOWER_LIMIT || propertyName == qb2_props.J_UPPER_LIMIT )
+			{
+				updateLimits();
+				wakeUpAttached();
+			}
+			else
+			{
+				wakeUpAttached();
+			}
 		}
 		
 		public function get localAnchor1():amPoint2d
@@ -110,31 +194,10 @@ package QuickB2.objects.joints
 			}
 		}
 		
-		
-		public function get lowerAngle():Number
-			{  return _lowerAngle;  }
-		public function set lowerAngle(value:Number):void
-		{
-			_lowerAngle = value;
-			
-			updateLimits();
-			wakeUpAttached();
-		}
-		
-		public function get upperAngle():Number
-			{  return _upperAngle;  }
-		public function set upperAngle(value:Number):void
-		{
-			_upperAngle = value;
-			
-			updateLimits();
-			wakeUpAttached();
-		}
-		
 		public function setLimits(lower:Number, upper:Number):void
 		{
-			lowerAngle = lower;
-			upperAngle = upper;
+			lowerLimit = lower;
+			upperLimit = upper;
 		}
 		
 		private function updateLimits():void
@@ -143,21 +206,12 @@ package QuickB2.objects.joints
 			
 			var conversion:Number = world.pixelsPerMeter;
 			
-			joint.SetLimits(_lowerAngle / conversion, _upperAngle / conversion);
+			joint.SetLimits(lowerLimit / conversion, upperLimit / conversion);
 			joint.EnableLimit(hasLimits);
 		}
 		
 		public function get hasLimits():Boolean
-			{  return isFinite(_lowerAngle) || isFinite(_upperAngle);  }
-		
-		public function get referenceAngle():Number
-			{  return _referenceAngle;  }
-		public function set referenceAngle(value:Number):void
-		{
-			_referenceAngle = value;
-			if( jointB2 )  joint.m_referenceAngle = _referenceAngle;
-			wakeUpAttached();
-		}
+			{  return isFinite(lowerLimit) || isFinite(upperLimit);  }
 		
 		public function get currJointAngle():Number
 			{  return jointB2 ? joint.GetJointAngle() : 0;  }
@@ -167,33 +221,6 @@ package QuickB2.objects.joints
 			
 		public function get currTorque():Number
 			{  return jointB2 ? joint.GetMotorTorque() : 0;  }
-			
-		public function get targetMotorSpeed():Number
-			{  return _targetMotorSpeed;  }
-		public function set targetMotorSpeed(value:Number):void
-		{
-			if ( !callingFromUpdate && optimizedSpring && springK )
-				throw qb2_errors.OPT_SPRING_ERROR;
-				
-			_targetMotorSpeed = value;
-			if ( jointB2 )
-				joint.SetMotorSpeed(value);
-		}
-		
-		public function get maxMotorTorque():Number
-			{  return _maxMotorTorque;  }
-		public function set maxMotorTorque(value:Number):void
-		{
-			if ( !callingFromUpdate && optimizedSpring && springK )
-				throw qb2_errors.OPT_SPRING_ERROR;
-			
-			_maxMotorTorque = value;
-			if ( jointB2 )
-			{
-				joint.SetMaxMotorTorque(value);
-				joint.EnableMotor(value ? true : false);
-			}
-		}
 		
 		public function get object1():qb2IRigidObject
 			{  return _object1 as qb2IRigidObject;   }
@@ -221,7 +248,7 @@ package QuickB2.objects.joints
 			
 			if ( checkForMake(theWorld) )
 			{
-				var conversion:Number = theWorld.pixelsPerMeter;
+				var conversion:Number       = theWorld.pixelsPerMeter;
 				var corrected1:amPoint2d    = getCorrectedLocal1(conversion, conversion);
 				var corrected2:amPoint2d    = getCorrectedLocal2(conversion, conversion);
 				
@@ -231,13 +258,13 @@ package QuickB2.objects.joints
 				revJointDef.localAnchorB.x   = corrected2.x;
 				revJointDef.localAnchorB.y   = corrected2.y;
 				
-				revJointDef.enableLimit = hasLimits;
-				revJointDef.enableMotor = _maxMotorTorque ? true : false;
-				revJointDef.lowerAngle = _lowerAngle;
-				revJointDef.upperAngle = _upperAngle;
-				revJointDef.maxMotorTorque = _maxMotorTorque;
-				revJointDef.motorSpeed = _targetMotorSpeed;
-				revJointDef.referenceAngle = _referenceAngle;
+				revJointDef.enableLimit    = hasLimits;
+				revJointDef.enableMotor    = maxTorque ? true : false;
+				revJointDef.lowerAngle     = lowerLimit;
+				revJointDef.upperAngle     = upperLimit;
+				revJointDef.maxMotorTorque = maxTorque;
+				revJointDef.motorSpeed     = targetSpeed;
+				revJointDef.referenceAngle = referenceAngle;
 				
 				jointDef = revJointDef;
 			}
@@ -269,8 +296,8 @@ package QuickB2.objects.joints
 			{
 				callingFromUpdate = true;
 				{
-					maxMotorTorque = Math.abs((jointAngle * springK) + (currMotorSpeed * springDamping));
-					targetMotorSpeed = jointAngle > 0 ? -MAX_SPRING_SPEED : MAX_SPRING_SPEED;
+					maxTorque = Math.abs((jointAngle * springK) + (currMotorSpeed * springDamping));
+					targetSpeed = jointAngle > 0 ? -MAX_SPRING_SPEED : MAX_SPRING_SPEED;
 				}
 				callingFromUpdate = false;
 			}
@@ -323,18 +350,6 @@ package QuickB2.objects.joints
 			
 			revJoint._localAnchor2._x = this._localAnchor2._x;
 			revJoint._localAnchor2._y = this._localAnchor2._y;
-			
-			revJoint._lowerAngle         = this._lowerAngle;
-			revJoint._maxMotorTorque     = this._maxMotorTorque;
-			revJoint._targetMotorSpeed   = this._targetMotorSpeed;
-			revJoint._upperAngle         = this._upperAngle;
-			revJoint._referenceAngle     = this._referenceAngle;
-			
-			revJoint.springK             = this.springK;
-			revJoint.springDamping       = this.springDamping;
-			revJoint.springCanFlip       = this.springCanFlip;
-			revJoint.dampenSpringJitter  = this.dampenSpringJitter;
-			revJoint.optimizedSpring     = this.optimizedSpring;
 			
 			return revJoint;
 		}
