@@ -5,6 +5,6 @@
   <sourcesList />
   <outputDirectory>guts/</outputDirectory>
   <activeCompiler>1</activeCompiler>
-  <extraOptions>-library-path "..\..\dependencies\swc\box2das.swc" "..\..\dependencies\swc\minimalcomps.swc" -package-description-file=qb2PackageDescriptions.xml
+  <extraOptions>-library-path "..\..\dependencies\swc\soundtree.swc" "..\..\dependencies\swc\box2das.swc" "..\..\dependencies\swc\minimalcomps.swc" -package-description-file=qb2PackageDescriptions.xml
 </extraOptions>
 </docProject>
