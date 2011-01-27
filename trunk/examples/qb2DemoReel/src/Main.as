@@ -130,7 +130,7 @@
 		
 		private function update(evt:qb2UpdateEvent):void
 		{
-			//--- Move the camera asymtotically closer to the target point until a certain snap tolerance is reached.
+			//--- Move the camera asymptotically closer to the target point until a certain snap tolerance is reached.
 			if ( cameraPoint.distanceTo(cameraTargetPoint) <= snapDistance )
 			{
 				cameraPoint.copy(cameraTargetPoint);
