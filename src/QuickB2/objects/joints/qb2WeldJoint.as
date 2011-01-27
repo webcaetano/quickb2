@@ -29,6 +29,7 @@ package QuickB2.objects.joints
 	import flash.display.*;
 	import QuickB2.*;
 	import QuickB2.debugging.*;
+	import QuickB2.misc.qb2_props;
 	import QuickB2.objects.*;
 	import QuickB2.objects.tangibles.*;
 	
@@ -51,6 +52,24 @@ package QuickB2.objects.joints
 			object2 = initObject2;
 			
 			setWorldAnchor(initWorldAnchor ? initWorldAnchor : initWorldPoint(object1));
+		}
+		
+		public function get referenceAngle():Number
+			{  return getProperty(qb2_props.J_REFERENCE_ANGLE) as Number;  }
+		public function set referenceAngle(value:Number):void
+			{  setProperty(qb2_props.J_REFERENCE_ANGLE, value);  }
+			
+		protected override function propertyChanged(propertyName:String):void
+		{
+			if ( !jointB2 )  return;
+			
+			var value:Number = _propertyMap[propertyName];
+			
+			if ( propertyName == qb2_props.J_REFERENCE_ANGLE )
+			{
+				joint.m_referenceAngle = _referenceAngle;
+				wakeUpAttached();
+			}
 		}
 		
 		public function get localAnchor1():amPoint2d
@@ -95,15 +114,6 @@ package QuickB2.objects.joints
 				joint.m_localAnchorB.x = corrected2.x;
 				joint.m_localAnchorB.y = corrected2.y;
 			}
-		}
-		
-		public function get referenceAngle():Number
-			{  return _referenceAngle;  }
-		public function set referenceAngle(value:Number):void
-		{
-			_referenceAngle = value;
-			if( jointB2 )  joint.m_referenceAngle = _referenceAngle;
-			wakeUpAttached();
 		}
 		
 		public function get object1():qb2IRigidObject
@@ -161,8 +171,6 @@ package QuickB2.objects.joints
 			
 			weldJoint._localAnchor2._x = this._localAnchor2._x;
 			weldJoint._localAnchor2._y = this._localAnchor2._y;
-			
-			weldJoint._referenceAngle   = this._referenceAngle;
 			
 			return weldJoint;
 		}

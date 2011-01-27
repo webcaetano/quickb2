@@ -24,17 +24,13 @@ package QuickB2.objects.tangibles
 {
 	import As3Math.geo2d.*;
 	import flash.display.*;
-	import flash.utils.Dictionary;
+	import flash.utils.*;
 	import QuickB2.*;
-	import QuickB2.debugging.qb2_debugDrawSettings;
 	import QuickB2.events.*;
-	import QuickB2.internals.qb2InternalPropertyAndFlagCollection;
-	import QuickB2.misc.qb2_flags;
+	import QuickB2.internals.*;
+	import QuickB2.misc.*;
 	import QuickB2.objects.*;
 	import QuickB2.objects.joints.*;
-	import QuickB2.stock.qb2SoundField;
-	import QuickB2.stock.qb2Terrain;
-	import QuickB2.stock.qb2TripSensor;
 	
 	use namespace qb2_friend;
 	

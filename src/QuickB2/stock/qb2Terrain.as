@@ -22,18 +22,13 @@
 
 package QuickB2.stock 
 {
-	import Box2DAS.Common.b2Def;
-	import flash.display.Graphics;
-	import flash.utils.Dictionary;
-	import QuickB2.debugging.qb2_debugDrawSettings;
-	import QuickB2.events.qb2ContactEvent;
-	import QuickB2.events.qb2ContainerEvent;
-	import QuickB2.misc.qb2TreeTraverser;
-	import QuickB2.objects.qb2Object;
-	import QuickB2.objects.tangibles.qb2Body;
-	import QuickB2.objects.tangibles.qb2Shape;
-	import QuickB2.objects.tangibles.qb2Tangible;
-	import QuickB2.qb2_friend;
+	import flash.display.*;
+	import flash.utils.*;
+	import QuickB2.debugging.*;
+	import QuickB2.events.*;
+	import QuickB2.objects.*;
+	import QuickB2.objects.tangibles.*;
+	import QuickB2.*;
 	
 	use namespace qb2_friend;
 	

@@ -47,31 +47,13 @@ package QuickB2.objects.joints
 		//--- It seems that if you set the lower and upper translations equal on a piston or line joint, it makes the joint get stuck at 0.
 		//--- It seems that they need to be offset by *just* over a centimeter for this not to happen, so this number fixes that.
 		private static const IDENTICAL_LIMIT_CORRECTION:Number = .01001; // (in meters)
-		
-		public var autoSetDirection:Boolean    = true;
-		public var autoSetSpringLength:Boolean = true;
-		
-		private var _localDirection:amVector2d = new amVector2d();
-		
-		public var springK:Number = 0;
-		public var springDamping:Number = 0;
-		public var springLength:Number = 0;
-		
-		
-		public var springCanFlip:Boolean = false;
-		public var dampenSpringJitter:Boolean = false;
-		public var optimizedSpring:Boolean = true;
-		private var _syncedObjectRotation:Boolean = true;
-		
-		private var _lowerLimit:Number = -Infinity
-		private var _upperLimit:Number = Infinity;
-		private var _maxPistonForce:Number = 0;
-		private var _targetPistonSpeed:Number = 0;
-		
-		private var _referenceAngle:Number = 0;
 	
 		public function qb2PistonJoint(initObject1:qb2IRigidObject = null, initObject2:qb2IRigidObject = null, initWorldAnchor1:amPoint2d = null, initWorldAnchor2:amPoint2d = null)
-		{		
+		{
+			turnFlagOn(qb2_flags.J_OPTIMIZED_SPRING | qb2_flags.J_AUTO_SET_LENGTH | qb2_flags.J_AUTO_SET_DIRECTION, true);
+			setProperty(qb2_props.J_LOWER_LIMIT, -Infinity, true);
+			setProperty(qb2_props.J_UPPER_LIMIT,  Infinity, true);
+			
 			object1 = initObject1;
 			object2 = initObject2;
 			
@@ -81,6 +63,150 @@ package QuickB2.objects.joints
 			setWorldAnchor2(initWorldAnchor2 ? initWorldAnchor2 : initWorldPoint(object2));
 		}
 		
+		public function get springCanFlip():Boolean
+			{  return _flags & qb2_flags.J_SPRING_CAN_FLIP ? true : false;  }
+		public function set springCanFlip(bool:Boolean):void
+			{  setFlag(bool, qb2_flags.J_SPRING_CAN_FLIP, false);  }
+			
+		public function get dampenSpringJitter():Boolean
+			{  return _flags & qb2_flags.J_DAMPEN_SPRING_JITTER ? true : false;  }
+		public function set dampenSpringJitter(bool:Boolean):void
+			{  setFlag(bool, qb2_flags.J_DAMPEN_SPRING_JITTER, false);  }
+			
+		public function get optimizedSpring():Boolean
+			{  return _flags & qb2_flags.J_OPTIMIZED_SPRING ? true : false;  }
+		public function set optimizedSpring(bool:Boolean):void
+			{  setFlag(bool, qb2_flags.J_OPTIMIZED_SPRING, false);  }
+			
+		public function get freeRotation():Boolean
+			{  return _flags & qb2_flags.J_FREE_ROTATION ? true : false;  }
+		public function set freeRotation(bool:Boolean):void
+			{  setFlag(bool, qb2_flags.J_FREE_ROTATION, false);  }
+			
+		public function get autoSetLength():Boolean
+			{  return _flags & qb2_flags.J_AUTO_SET_LENGTH ? true : false;  }
+		public function set autoSetLength(bool:Boolean):void
+			{  setFlag(bool, qb2_flags.J_AUTO_SET_LENGTH, false);  }
+			
+		public function get autoSetDirection():Boolean
+			{  return _flags & qb2_flags.J_AUTO_SET_DIRECTION ? true : false;  }
+		public function set autoSetDirection(bool:Boolean):void
+			{  setFlag(bool, qb2_flags.J_AUTO_SET_DIRECTION, false);  }
+			
+		protected override function flagsChanged(affectedFlags:uint):void
+		{
+			if ( flags & qb2_flags.J_FREE_ROTATION )
+			{
+				if ( jointB2 )
+				{
+					flush();
+				}
+				
+				//--- This has to be called so that when going from non-synced to synced, the reference angle is refreshed.
+				objectsUpdated();
+			}
+		}
+		
+		public function get springLength():Number
+			{  return getProperty(qb2_props.J_LENGTH) as Number;  }
+		public function set springLength(value:Number):void
+			{  setProperty(qb2_props.J_LENGTH, value);  }
+
+		public function get springDamping():Number
+			{  return getProperty(qb2_props.J_SPRING_DAMPING) as Number;  }
+		public function set springDamping(value:Number):void
+			{  setProperty(qb2_props.J_SPRING_DAMPING, value);  }
+			
+		public function get springK():Number
+			{  return getProperty(qb2_props.J_SPRING_K) as Number;  }
+		public function set springK(value:Number):void
+			{  setProperty(qb2_props.J_SPRING_K, value);  }
+			
+		public function get maxForce():Number
+			{  return getProperty(qb2_props.J_MAX_FORCE) as Number;  }
+		public function set maxForce(value:Number):void
+			{  setProperty(qb2_props.J_MAX_FORCE, value);  }
+			
+		public function get targetSpeed():Number
+			{  return getProperty(qb2_props.J_TARGET_SPEED) as Number;  }
+		public function set targetSpeed(value:Number):void
+			{  setProperty(qb2_props.J_TARGET_SPEED, value);  }
+			
+		public function get referenceAngle():Number
+			{  return getProperty(qb2_props.J_REFERENCE_ANGLE) as Number;  }
+		public function set referenceAngle(value:Number):void
+			{  setProperty(qb2_props.J_REFERENCE_ANGLE, value);  }
+			
+		public function get lowerLimit():Number
+			{  return getProperty(qb2_props.J_LOWER_LIMIT) as Number;  }
+		public function set lowerLimit(value:Number):void
+			{  setProperty(qb2_props.J_LOWER_LIMIT, value);  }
+			
+		public function get upperLimit():Number
+			{  return getProperty(qb2_props.J_UPPER_LIMIT) as Number;  }
+		public function set upperLimit(value:Number):void
+			{  setProperty(qb2_props.J_UPPER_LIMIT, value);  }
+			
+		protected override function propertyChanged(propertyName:String):void
+		{
+			if ( !jointB2 )  return;
+			
+			var value:Number = _propertyMap[propertyName];
+			
+			if ( propertyName == qb2_props.J_MAX_FORCE )
+			{
+				if ( !callingFromUpdate && optimizedSpring && springK )
+					throw qb2_errors.OPT_SPRING_ERROR;
+				
+				if ( jointB2 is b2PrismaticJoint )
+				{
+					prisJoint.SetMaxMotorForce(value);
+					prisJoint.EnableMotor(value ? true : false);
+				}
+				else if ( jointB2 is b2LineJoint )
+				{
+					lineJoint.SetMaxMotorForce(value);
+					lineJoint.EnableMotor(value ? true : false);
+				}
+				
+				wakeUpAttached();
+			}
+			else if ( propertyName == qb2_props.J_TARGET_SPEED )
+			{
+				if ( !callingFromUpdate && optimizedSpring && springK )
+					throw qb2_errors.OPT_SPRING_ERROR;
+					
+				if ( jointB2 is b2PrismaticJoint )
+				{
+					prisJoint.SetMotorSpeed(value);
+				}
+				else if ( jointB2 is b2LineJoint )
+				{
+					lineJoint.SetMotorSpeed(value);
+				}
+						
+				wakeUpAttached();
+			}
+			else if ( propertyName == qb2_props.J_REFERENCE_ANGLE )
+			{
+				if ( jointB2 is b2PrismaticJoint )
+				{
+					prisJoint.m_refAngle = value;
+				}
+				
+				wakeUpAttached();
+			}
+			else if ( propertyName == qb2_props.J_LOWER_LIMIT || propertyName == qb2_props.J_UPPER_LIMIT )
+			{
+				updateLimits();
+				wakeUpAttached();
+			}
+			else
+			{
+				wakeUpAttached();
+			}
+		}
+
 		public function get localAnchor1():amPoint2d
 			{  return _localAnchor1;  }
 		public function set localAnchor1(newPoint:amPoint2d):void
@@ -120,6 +246,7 @@ package QuickB2.objects.joints
 			_localDirection.addEventListener(amUpdateEvent.ENTITY_UPDATED, vectorUpdated, false, 0, true);
 			vectorUpdated(null);
 		}
+		private var _localDirection:amVector2d = new amVector2d();
 		
 		qb2_friend override function anchorUpdated(point:amPoint2d):void
 		{
@@ -219,21 +346,21 @@ package QuickB2.objects.joints
 				{
 					var modDiffLen:Number = springCanFlip ? Math.abs(diffLen) : diffLen;
 					var dampingForce:Number = springCanFlip && diffLen < 0 ? -currPistonSpeed * springDamping : currPistonSpeed * springDamping;
-					maxPistonForce = Math.abs((((modDiffLen - springLength) / conversion) * springK) + dampingForce);
+					maxForce = Math.abs((((modDiffLen - springLength) / conversion) * springK) + dampingForce);
 					
 					if ( springCanFlip && diffLen < 0 )
 					{
-						targetPistonSpeed = diffLen + springLength > 0 ? -MAX_SPRING_SPEED : MAX_SPRING_SPEED;
+						targetSpeed = diffLen + springLength > 0 ? -MAX_SPRING_SPEED : MAX_SPRING_SPEED;
 					}
 					else
 					{
-						targetPistonSpeed = diffLen - springLength < 0 ? MAX_SPRING_SPEED : -MAX_SPRING_SPEED;
+						targetSpeed = diffLen - springLength < 0 ? MAX_SPRING_SPEED : -MAX_SPRING_SPEED;
 					}
 				}
 				callingFromUpdate = false;
 			}
 			else
-			{		
+			{
 				var world1:amPoint2d = getWorldAnchor1();
 				var world2:amPoint2d = getWorldAnchor2();
 				var transVec:amVector2d = world2.minus(world1);
@@ -303,26 +430,6 @@ package QuickB2.objects.joints
 			return 0;
 		}
 		
-		public function get lowerLimit():Number
-			{  return _lowerLimit;  }
-		public function set lowerLimit(value:Number):void
-		{
-			_lowerLimit = value;
-			
-			updateLimits();
-			wakeUpAttached();
-		}
-		
-		public function get upperLimit():Number
-			{  return _upperLimit;  }
-		public function set upperLimit(value:Number):void
-		{
-			_upperLimit = value;
-			
-			updateLimits();
-			wakeUpAttached();
-		}
-		
 		public function setLimits(lower:Number, upper:Number):void
 		{
 			lowerLimit = lower;
@@ -348,12 +455,12 @@ package QuickB2.objects.joints
 		}
 		
 		public function get hasLimits():Boolean
-			{  return isFinite(_lowerLimit) || isFinite(_upperLimit);  }
+			{  return isFinite(lowerLimit) || isFinite(upperLimit);  }
 			
 		private function getMetricLimits(scale:Number):Array
 		{
-			var lower:Number = _lowerLimit / scale;
-			var upper:Number = _upperLimit / scale;
+			var lower:Number = lowerLimit / scale;
+			var upper:Number = upperLimit / scale;
 
 			//--- "Fix" the limits if they are within 1 centimeter of each other, cause otherwise the joint will get tweaked out and set itself to zero limit.
 			if ( Math.abs(upper-lower) < IDENTICAL_LIMIT_CORRECTION )
@@ -362,76 +469,6 @@ package QuickB2.objects.joints
 			}
 			
 			return [lower, upper];
-		}
-			
-		
-		public function get referenceAngle():Number
-			{  return _referenceAngle;  }
-		public function set referenceAngle(value:Number):void
-		{
-			_referenceAngle = value
-			if ( jointB2 )
-			{
-				if ( jointB2 is b2PrismaticJoint )
-					prisJoint.m_refAngle = value;
-			}
-			wakeUpAttached();
-		}
-		
-		public function get targetPistonSpeed():Number
-			{  return _targetPistonSpeed;  }
-		public function set targetPistonSpeed(value:Number):void
-		{
-			if ( !callingFromUpdate && optimizedSpring && springK )
-				throw qb2_errors.OPT_SPRING_ERROR;
-				
-			_targetPistonSpeed = value;
-			if ( jointB2 )
-			{
-				if ( jointB2 is b2PrismaticJoint )
-					prisJoint.SetMotorSpeed(value);
-				else if ( jointB2 is b2LineJoint )
-					lineJoint.SetMotorSpeed(value);
-					
-				wakeUpAttached();
-			}
-		}
-		
-		public function get maxPistonForce():Number
-			{  return _maxPistonForce;  }
-		public function set maxPistonForce(value:Number):void
-		{
-			if ( !callingFromUpdate && optimizedSpring && springK )
-				throw qb2_errors.OPT_SPRING_ERROR;
-				
-			_maxPistonForce = value;
-			if ( jointB2 )
-			{
-				if ( jointB2 is b2PrismaticJoint )
-				{
-					prisJoint.SetMaxMotorForce(value);
-					prisJoint.EnableMotor(value ? true : false);
-				}
-				else if ( jointB2 is b2LineJoint )
-				{
-					lineJoint.SetMaxMotorForce(value);
-					lineJoint.EnableMotor(value ? true : false);
-				}				
-			}
-		}
-		
-		public function get syncedObjectRotation():Boolean
-			{  return _syncedObjectRotation;  }
-		public function set syncedObjectRotation(bool:Boolean):void
-		{
-			_syncedObjectRotation = bool;
-			if ( jointB2 )
-			{
-				flush();
-			}
-			
-			//--- This has to be called so that when going from non-synced to synced, the reference angle is refreshed.
-			objectsUpdated();
 		}
 		
 		public function get object1():qb2IRigidObject
@@ -459,8 +496,10 @@ package QuickB2.objects.joints
 					var worldVector:amVector2d = _object2.getWorldPoint(_localAnchor2).minus(_object1.getWorldPoint(_localAnchor1));
 					localDirection = _object1.getLocalVector(worldVector.lengthSquared ? worldVector : worldVector.set(0, -1));
 				}
-				if ( autoSetSpringLength )
+				if ( autoSetLength )
+				{
 					springLength = _object1.getWorldPoint(_localAnchor1).distanceTo(_object2.getWorldPoint(_localAnchor2));
+				}
 			}
 		}
 		
@@ -483,7 +522,7 @@ package QuickB2.objects.joints
 				var corrected2:amPoint2d    = getCorrectedLocal2(conversion, conversion);
 				var correctedVec:amVector2d = getCorrectedLocalVec();
 				
-				if ( _syncedObjectRotation )
+				if ( !freeRotation )
 				{
 					var prisJointDef:b2PrismaticJointDef = b2Def.prismaticJoint;
 					prisJointDef.localAnchorA.x   = corrected1.x;
@@ -493,12 +532,13 @@ package QuickB2.objects.joints
 					prisJointDef.localAxis1.x     = correctedVec.x;
 					prisJointDef.localAxis1.y     = correctedVec.y;
 					prisJointDef.enableLimit      = hasLimits;
-					prisJointDef.enableMotor      = _maxPistonForce ? true : false;
+					prisJointDef.enableMotor      = maxForce ? true : false;
 					prisJointDef.lowerTranslation = limits[0];
 					prisJointDef.upperTranslation = limits[1];
-					prisJointDef.maxMotorForce    = _maxPistonForce;
-					prisJointDef.motorSpeed       = _targetPistonSpeed;
-					prisJointDef.referenceAngle   = _referenceAngle;
+					prisJointDef.maxMotorForce    = maxForce;
+					prisJointDef.motorSpeed       = targetSpeed;
+					prisJointDef.referenceAngle   = referenceAngle;
+					
 					jointDef = prisJointDef;
 				}
 				else
@@ -511,11 +551,12 @@ package QuickB2.objects.joints
 					lineJointDef.localAxisA.x     = correctedVec.x;
 					lineJointDef.localAxisA.y     = correctedVec.y;
 					lineJointDef.enableLimit      = hasLimits
-					lineJointDef.enableMotor      = _maxPistonForce ? true : false;
+					lineJointDef.enableMotor      = maxForce ? true : false;
 					lineJointDef.lowerTranslation = limits[0];
 					lineJointDef.upperTranslation = limits[1];
-					lineJointDef.maxMotorForce    = _maxPistonForce;
-					lineJointDef.motorSpeed       = _targetPistonSpeed;
+					lineJointDef.maxMotorForce    = maxForce;
+					lineJointDef.motorSpeed       = targetSpeed;
+					
 					jointDef = lineJointDef;
 				}
 			}
@@ -540,24 +581,6 @@ package QuickB2.objects.joints
 			pistJoint._localAnchor2._y = this._localAnchor2._y;
 			
 			pistJoint._localDirection.copy(this._localDirection);
-			
-			pistJoint._lowerLimit           = this._lowerLimit;
-			pistJoint._maxPistonForce       = this._maxPistonForce;
-			pistJoint._targetPistonSpeed    = this._targetPistonSpeed;
-			pistJoint._upperLimit           = this._upperLimit;
-			pistJoint._referenceAngle       = this._referenceAngle;
-			
-			pistJoint.springK              = this.springK;
-			pistJoint.springLength         = this.springLength;
-			pistJoint.springDamping        = this.springDamping;
-			pistJoint.springCanFlip        = this.springCanFlip;
-			pistJoint.dampenSpringJitter   = this.dampenSpringJitter;
-			pistJoint.optimizedSpring      = this.optimizedSpring;
-			
-			pistJoint.autoSetDirection     = this.autoSetDirection;
-			pistJoint.autoSetSpringLength  = this.autoSetSpringLength;
-			
-			pistJoint._syncedObjectRotation = this._syncedObjectRotation;
 			
 			return pistJoint;
 		}

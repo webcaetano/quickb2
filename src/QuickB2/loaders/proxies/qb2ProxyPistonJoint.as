@@ -28,14 +28,6 @@ package QuickB2.loaders.proxies
 	 */
 	public class qb2ProxyPistonJoint extends qb2ProxyJoint
 	{
-		[Inspectable(defaultValue="default", name='springK (default=0.0)')]
-		public var springK:String = "default";
-		
-		[Inspectable(defaultValue="default", name='springDamping (default=0.0)')]
-		public var springDamping:String = "default";
-		
-		[Inspectable(defaultValue = "default", name = 'springLength (default based on object seperation')]
-		public var springLength:String = "default";
 		
 		[Inspectable(defaultValue="default",enumeration="default,true,false", name='springCanFlip (default=false)')]
 		public var springCanFlip:String = "default";
@@ -46,10 +38,26 @@ package QuickB2.loaders.proxies
 		[Inspectable(defaultValue="default",enumeration="default,true,false", name='optimizedSpring (default=true)')]
 		public var optimizedSpring:String = "default";
 		
+		[Inspectable(defaultValue="default",enumeration="default,true,false", name='autoSetLength (default=true)')]
+		public var autoSetLength:String = "default";
+		
+		[Inspectable(defaultValue="default",enumeration="default,true,false", name='autoSetDirection (default=true)')]
+		public var autoSetDirection:String = "default";
+		
+		[Inspectable(defaultValue="default",enumeration="default,true,false", name='freeRotation (default=false)')]
+		public var freeRotation:String = "default";
 		
 		
-		[Inspectable(defaultValue="default",enumeration="default,true,false", name='syncedObjectRotation (default=false)')]
-		public var syncedObjectRotation:String = "default";
+		
+		
+		[Inspectable(defaultValue="default", name='springK (default=0.0)')]
+		public var springK:String = "default";
+		
+		[Inspectable(defaultValue="default", name='springDamping (default=0.0)')]
+		public var springDamping:String = "default";
+		
+		[Inspectable(defaultValue = "default", name = 'springLength (default based on object seperation')]
+		public var springLength:String = "default";
 		
 		[Inspectable(defaultValue="default", name='lowerLimit (default=-Infinity)')]
 		public var lowerLimit:String        = "default";
@@ -57,11 +65,11 @@ package QuickB2.loaders.proxies
 		[Inspectable(defaultValue="default", name='upperLimit (default=Infinity)')]
 		public var upperLimit:String        = "default";
 		
-		[Inspectable(defaultValue="default", name='maxPistonForce (default=0.0)')]
-		public var maxPistonForce:String    = "default";
+		[Inspectable(defaultValue="default", name='maxForce (default=0.0 N)')]
+		public var maxForce:String    = "default";
 		
-		[Inspectable(defaultValue="default", name='targetPistonSpeed (default=0.0)')]
-		public var targetPistonSpeed:String = "default";
+		[Inspectable(defaultValue="default", name='targetSpeed (default=0.0 m/s)')]
+		public var targetSpeed:String = "default";
 		
 		
 		

@@ -49,8 +49,10 @@ package QuickB2.misc
 		public static const J_SPRING_CAN_FLIP:uint        = 0x00002000;
 		public static const J_IS_ROPE:uint                = 0x00004000;
 		public static const J_AUTO_SET_LENGTH:uint        = 0x00008000;
+		public static const J_AUTO_SET_DIRECTION:uint     = 0x00010000;
+		public static const J_FREE_ROTATION:uint          = 0x00020000;
 		
 		// for polygons
-		public static const P_ALLOW_NON_CONVEX:uint       = 0x00010000;
+		public static const P_ALLOW_NON_CONVEX:uint       = 0x00040000;
 	}
 }

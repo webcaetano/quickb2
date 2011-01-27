@@ -661,55 +661,66 @@ package QuickB2.loaders
 			return null;
 		}
 		
-		private static function applyJointTag(joint:qb2Joint, jointTag:DisplayObject):void
+		private static function applyJointTag(joint:qb2Joint, jointTag:qb2ProxyJoint):void
 		{
-			joint.collideConnected = jointTag["collideConnected"];
+			if ( !defaultValue(jointTag.collideConnected) )  joint.collideConnected = jointTag.collideConnected == TRUE_STRING;
 			
 			if ( joint is qb2DistanceJoint )
 			{
-				var distJoint:qb2DistanceJoint = joint as qb2DistanceJoint;
+				var distJoint:qb2DistanceJoint         = joint    as qb2DistanceJoint;
+				var distJointTag:qb2ProxyDistanceJoint = jointTag as qb2ProxyDistanceJoint;
 				
-				if ( !defaultValue(jointTag["frequencyHz"]) )   distJoint.frequencyHz  = parseFloat(jointTag["frequencyHz"]);
-				if ( !defaultValue(jointTag["length"]) )        distJoint.length       = parseFloat(jointTag["length"]);
-				if ( !defaultValue(jointTag["dampingRatio"]) )  distJoint.dampingRatio = parseFloat(jointTag["dampingRatio"]);
+				if ( !defaultValue(distJointTag.isRope) )         distJoint.isRope        = distJointTag.isRope        == TRUE_STRING;
+				if ( !defaultValue(distJointTag.autoSetLength) )  distJoint.autoSetLength = distJointTag.autoSetLength == TRUE_STRING;
+				
+				if ( !defaultValue(distJointTag.frequencyHz) )   distJoint.frequencyHz     = parseFloat(distJointTag.frequencyHz);
+				if ( !defaultValue(distJointTag.length) )        distJoint.length          = parseFloat(distJointTag.length);
+				if ( !defaultValue(distJointTag.dampingRatio) )  distJoint.dampingRatio    = parseFloat(distJointTag.dampingRatio);
 			}
 			else if ( joint is qb2PistonJoint)
 			{
-				var pistonJoint:qb2PistonJoint = joint as qb2PistonJoint;
+				var pistonJoint:qb2PistonJoint         = joint    as qb2PistonJoint;
+				var pistonJointTag:qb2ProxyPistonJoint = jointTag as qb2ProxyPistonJoint;
 				
-				pistonJoint.springCanFlip        = jointTag["springCanFlip"];
-				pistonJoint.dampenSpringJitter   = jointTag["dampenSpringJitter"];
-				pistonJoint.syncedObjectRotation = jointTag["syncedObjectRotation"];
+				if ( !defaultValue(pistonJointTag.optimizedSpring) )     pistonJoint.optimizedSpring    = pistonJointTag.optimizedSpring    == TRUE_STRING;
+				if ( !defaultValue(pistonJointTag.springCanFlip) )       pistonJoint.springCanFlip      = pistonJointTag.springCanFlip      == TRUE_STRING;
+				if ( !defaultValue(pistonJointTag.dampenSpringJitter) )  pistonJoint.dampenSpringJitter = pistonJointTag.dampenSpringJitter == TRUE_STRING;
+				if ( !defaultValue(pistonJointTag.freeRotation) )        pistonJoint.freeRotation       = pistonJointTag.freeRotation       == TRUE_STRING;
+				if ( !defaultValue(pistonJointTag.autoSetLength) )       pistonJoint.autoSetLength      = pistonJointTag.autoSetLength      == TRUE_STRING;
+				if ( !defaultValue(pistonJointTag.autoSetDirection) )    pistonJoint.autoSetDirection   = pistonJointTag.autoSetDirection   == TRUE_STRING;
 				
-				if ( !defaultValue(jointTag["springK"]) )            pistonJoint.springK            = parseFloat(jointTag["springK"]);
-				if ( !defaultValue(jointTag["springDamping"]) )      pistonJoint.springDamping      = parseFloat(jointTag["springDamping"]);
-				if ( !defaultValue(jointTag["springLength"]) )       pistonJoint.springLength       = parseFloat(jointTag["springLength"]);
-				if ( !defaultValue(jointTag["lowerLimit"]) )         pistonJoint.lowerLimit         = parseFloat(jointTag["lowerLimit"]);
-				if ( !defaultValue(jointTag["upperLimit"]) )         pistonJoint.upperLimit         = parseFloat(jointTag["upperLimit"]);
-				if ( !defaultValue(jointTag["maxPistonForce"]) )     pistonJoint.maxPistonForce     = parseFloat(jointTag["maxPistonForce"]);
-				if ( !defaultValue(jointTag["targetPistonSpeed"]) )  pistonJoint.targetPistonSpeed  = parseFloat(jointTag["targetPistonSpeed"]);
+				if ( !defaultValue(pistonJointTag.springK) )             pistonJoint.springK            = parseFloat(pistonJointTag.springK);
+				if ( !defaultValue(pistonJointTag.springDamping) )       pistonJoint.springDamping      = parseFloat(pistonJointTag.springDamping);
+				if ( !defaultValue(pistonJointTag.springLength) )        pistonJoint.springLength       = parseFloat(pistonJointTag.springLength);
+				if ( !defaultValue(pistonJointTag.lowerLimit) )          pistonJoint.lowerLimit         = parseFloat(pistonJointTag.lowerLimit);
+				if ( !defaultValue(pistonJointTag.upperLimit) )          pistonJoint.upperLimit         = parseFloat(pistonJointTag.upperLimit);
+				if ( !defaultValue(pistonJointTag.maxForce) )            pistonJoint.maxForce           = parseFloat(pistonJointTag.maxForce);
+				if ( !defaultValue(pistonJointTag.targetSpeed) )         pistonJoint.targetSpeed        = parseFloat(pistonJointTag.targetSpeed);
 			}
 			else if ( joint is qb2RevoluteJoint )
 			{
-				var revJoint:qb2RevoluteJoint = joint as qb2RevoluteJoint;
+				var revJoint:qb2RevoluteJoint         = joint    as qb2RevoluteJoint;
+				var revJointTag:qb2ProxyRevoluteJoint = jointTag as qb2ProxyRevoluteJoint;
 	
-				revJoint.springCanFlip        = jointTag["springCanFlip"];
-				revJoint.dampenSpringJitter   = jointTag["dampenSpringJitter"];
+				if ( !defaultValue(revJointTag.optimizedSpring) )     revJoint.optimizedSpring    = revJointTag.optimizedSpring    == TRUE_STRING;
+				if ( !defaultValue(revJointTag.springCanFlip) )       revJoint.springCanFlip      = revJointTag.springCanFlip      == TRUE_STRING;
+				if ( !defaultValue(revJointTag.dampenSpringJitter) )  revJoint.dampenSpringJitter = revJointTag.dampenSpringJitter == TRUE_STRING;
 				
-				if ( !defaultValue(jointTag["springK"]) )          revJoint.springK          = parseFloat(jointTag["springK"]);
-				if ( !defaultValue(jointTag["springDamping"]) )    revJoint.springDamping    = parseFloat(jointTag["springDamping"]);
-				if ( !defaultValue(jointTag["lowerAngle"]) )        revJoint.lowerAngle       = parseFloat(jointTag["lowerAngle"]);
-				if ( !defaultValue(jointTag["upperAngle"]) )        revJoint.upperAngle       = parseFloat(jointTag["upperAngle"]);
-				if ( !defaultValue(jointTag["maxMotorTorque"]) )    revJoint.maxMotorTorque   = parseFloat(jointTag["maxMotorTorque"]);
-				if ( !defaultValue(jointTag["targetMotorSpeed"]) )  revJoint.targetMotorSpeed = parseFloat(jointTag["targetMotorSpeed"]);
-			}
+				if ( !defaultValue(revJointTag.springK) )             revJoint.springK            = parseFloat(revJointTag.springK);
+				if ( !defaultValue(revJointTag.springDamping) )       revJoint.springDamping      = parseFloat(revJointTag.springDamping);
+				if ( !defaultValue(revJointTag.lowerLimit) )          revJoint.lowerLimit         = parseFloat(revJointTag.lowerLimit);
+				if ( !defaultValue(revJointTag.upperLimit) )          revJoint.upperLimit         = parseFloat(revJointTag.upperLimit);
+				if ( !defaultValue(revJointTag.maxTorque) )           revJoint.maxTorque          = parseFloat(revJointTag.maxTorque);
+				if ( !defaultValue(revJointTag.targetSpeed) )         revJoint.targetSpeed        = parseFloat(revJointTag.targetSpeed);
+			} 
 			else if ( joint is qb2MouseJoint )
 			{
-				var mouseJoint:qb2MouseJoint = joint as qb2MouseJoint;
+				var mouseJoint:qb2MouseJoint         = joint    as qb2MouseJoint;
+				var mouseJointTag:qb2ProxyMouseJoint = jointTag as qb2ProxyMouseJoint;
 			
-				if ( !defaultValue(jointTag["frequencyHz"]) )   mouseJoint.frequencyHz  = parseFloat(jointTag["frequencyHz"]);
-				if ( !defaultValue(jointTag["maxForce"]) )      mouseJoint.maxForce     = parseFloat(jointTag["maxForce"]);
-				if ( !defaultValue(jointTag["dampingRatio"]) )  mouseJoint.dampingRatio = parseFloat(jointTag["dampingRatio"]);
+				if ( !defaultValue(mouseJointTag.frequencyHz) )   mouseJoint.frequencyHz  = parseFloat(mouseJointTag.frequencyHz);
+				if ( !defaultValue(mouseJointTag.maxForce) )      mouseJoint.maxForce     = parseFloat(mouseJointTag.maxForce);
+				if ( !defaultValue(mouseJointTag.dampingRatio) )  mouseJoint.dampingRatio = parseFloat(mouseJointTag.dampingRatio);
 			}
 			else if ( joint is qb2WeldJoint )
 			{
@@ -725,6 +736,13 @@ package QuickB2.loaders
 			addEventListenerToObject(object, objectTag, "_handler_removedFromWorld");
 			addEventListenerToObject(object, objectTag, "_handler_preUpdate");
 			addEventListenerToObject(object, objectTag, "_handler_postUpdate");
+			
+			if ( !(objectTag is qb2ProxyObject) )  return;
+			
+			var objectTagTag:qb2ProxyObject = objectTag as qb2ProxyObject;
+			if ( !defaultValue(objectTagTag.joinsInDebugDrawing) )  object.joinsInDebugDrawing = objectTagTag.joinsInDebugDrawing   == TRUE_STRING;
+			if ( !defaultValue(objectTagTag.joinsInDeepCloning) )   object.joinsInDeepCloning  = objectTagTag.joinsInDeepCloning    == TRUE_STRING;
+			if ( !defaultValue(objectTagTag.joinsInUpdateChain) )   object.joinsInUpdateChain  = objectTagTag.joinsInUpdateChain    == TRUE_STRING;
 		}
 		
 		private static function applyObjectContainerTag(container:qb2ObjectContainer, containerTag:DisplayObject):void
@@ -737,13 +755,13 @@ package QuickB2.loaders
 			addEventListenerToObject(container, containerTag, "_handler_subContactEnded");
 		}
 		
-		private static const trueString:String = "true";
+		private static const TRUE_STRING:String = "true";
 		
 		//--- For this function, the input tag is a DisplayObject and not a qb2TangibleTag, because the object's actor itself could be a tag,
 		//--- and actors shouldn't extend qb2TangibleTag.  This function is assured that the tag does however have all the variables that a qb2TangibleTag should.
 		private static function applyTangibleTag(tang:qb2Tangible, tangTag:DisplayObject):void
 		{
-			var trueString:String = "true";
+			var TRUE_STRING:String = "true";
 			
 			if (      !defaultValue(tangTag["contactCategory"])     )  tang.contactCategory     = parseInt(tangTag["contactCategory"]);
 			if (      !defaultValue(tangTag["contactCollidesWith"]) )  tang.contactCollidesWith = parseInt(tangTag["contactCollidesWith"]);
@@ -758,12 +776,12 @@ package QuickB2.loaders
 			if (      !defaultValue(tangTag["density"])             )  tang.density             = parseFloat(tangTag["density"]);
 			else if ( !defaultValue(tangTag["mass"])                )  tang.mass                = parseFloat(tangTag["mass"]);
 			
-			if (      !defaultValue(tangTag["allowSleeping"])       )  tang.allowSleeping       = tangTag["allowSleeping"]     == trueString;
-			if (      !defaultValue(tangTag["fixedRotation"])       )  tang.hasFixedRotation    = tangTag["hasFixedRotation"]  == trueString;
-			if (      !defaultValue(tangTag["isBullet"])            )  tang.isBullet            = tangTag["isBullet"]          == trueString;
-			if (      !defaultValue(tangTag["isGhost"])             )  tang.isGhost             = tangTag["isGhost"]           == trueString;
-			if (      !defaultValue(tangTag["sleepingWhenAdded"])   )  tang.sleepingWhenAdded   = tangTag["sleepingWhenAdded"] == trueString;
-			if (      !defaultValue(tangTag["isKinematic"])         )  tang.isKinematic         = tangTag["isKinematic"]       == trueString;
+			if (      !defaultValue(tangTag["allowSleeping"])       )  tang.allowSleeping       = tangTag["allowSleeping"]     == TRUE_STRING;
+			if (      !defaultValue(tangTag["fixedRotation"])       )  tang.hasFixedRotation    = tangTag["hasFixedRotation"]  == TRUE_STRING;
+			if (      !defaultValue(tangTag["isBullet"])            )  tang.isBullet            = tangTag["isBullet"]          == TRUE_STRING;
+			if (      !defaultValue(tangTag["isGhost"])             )  tang.isGhost             = tangTag["isGhost"]           == TRUE_STRING;
+			if (      !defaultValue(tangTag["sleepingWhenAdded"])   )  tang.sleepingWhenAdded   = tangTag["sleepingWhenAdded"] == TRUE_STRING;
+			if (      !defaultValue(tangTag["isKinematic"])         )  tang.isKinematic         = tangTag["isKinematic"]       == TRUE_STRING;
 			
 			addEventListenerToObject(tang, tangTag, "_handler_preSolve");
 			addEventListenerToObject(tang, tangTag, "_handler_postSolve");
@@ -834,7 +852,7 @@ package QuickB2.loaders
 			{
 				if ( object is qb2Joint )
 				{
-					applyJointTag(object as qb2Joint, tag);
+					applyJointTag(object as qb2Joint, tag as qb2ProxyJoint);
 				}
 				else if ( object is qb2ObjectContainer ) // groups can apply joint tags to all the joints in their descendancy.
 				{
@@ -847,7 +865,7 @@ package QuickB2.loaders
 						
 						if ( subObject is qb2Joint )
 						{
-							applyJointTag(subObject as qb2Joint, tag);
+							applyJointTag(subObject as qb2Joint, tag as qb2ProxyJoint);
 						}
 						else if ( subObject is qb2ObjectContainer )
 						{
@@ -877,7 +895,7 @@ package QuickB2.loaders
 			if ( (object is qb2TripSensor) && isSelfTripSensorTag(proxy) )
 				applyTripSensorTag(object as qb2TripSensor, proxy);
 			if ( (object is qb2Joint) && isSelfJointTag(proxy) )
-				applyJointTag(object as qb2Joint, proxy);
+				applyJointTag(object as qb2Joint, proxy as qb2ProxyJoint);
 				
 			if ( removeEmptyProxies )
 			{

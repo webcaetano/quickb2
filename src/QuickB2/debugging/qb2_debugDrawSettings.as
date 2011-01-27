@@ -30,52 +30,52 @@ package QuickB2.debugging
 	{
 		public static var flags:uint = qb2_debugDrawFlags.OUTLINES | qb2_debugDrawFlags.FILLS | qb2_debugDrawFlags.CIRCLE_SPOKES | qb2_debugDrawFlags.JOINTS;
 		
-		private static const DEFAULT_ALPHA:Number = .75;
+		private static const DEFAULT_ALPHA:Number    = .75;
 		
-		public static var dynamicFillColor:uint    = 0x0000ff;
-		public static var dynamicOutlineColor:uint = 0xffffff;
+		public static var dynamicFillColor:uint      = 0x0000ff;
+		public static var dynamicOutlineColor:uint   = 0xffffff;
 		
-		public static var staticFillColor:uint    = 0x666666;
-		public static var staticOutlineColor:uint = 0xffffff;
+		public static var staticFillColor:uint       = 0x666666;
+		public static var staticOutlineColor:uint    = 0xffffff;
 		
 		public static var kinematicFillColor:uint    = 0xff0000;
 		public static var kinematicOutlineColor:uint = 0xffffff;
 		
-		public static var jointFillColor:uint    = 0xff9900;
-		public static var jointOutlineColor:uint = 0xff9900;
+		public static var jointFillColor:uint        = 0xff9900;
+		public static var jointOutlineColor:uint     = 0xff9900;
 		
-		public static var fillAlpha:Number    = DEFAULT_ALPHA;
-		public static var outlineAlpha:Number = DEFAULT_ALPHA;
+		public static var fillAlpha:Number           = DEFAULT_ALPHA;
+		public static var outlineAlpha:Number        = DEFAULT_ALPHA;
 		
-		public static var boundBoxColor:uint   = 0x006633;
-		public static var boundBoxAlpha:Number = DEFAULT_ALPHA;
+		public static var boundBoxColor:uint         = 0x006633;
+		public static var boundBoxAlpha:Number       = DEFAULT_ALPHA;
 		
-		public static var boundCircleColor:uint   = 0x006633;
-		public static var boundCircleAlpha:Number = DEFAULT_ALPHA;
+		public static var boundCircleColor:uint      = 0x006633;
+		public static var boundCircleAlpha:Number    = DEFAULT_ALPHA;
 		
-		public static var centroidColor:uint   = 0x00ffff;
-		public static var centroidAlpha:Number = DEFAULT_ALPHA;
+		public static var centroidColor:uint         = 0x00ffff;
+		public static var centroidAlpha:Number       = DEFAULT_ALPHA;
 		
-		public static var lineThickness:Number = 1;
-		public static var pointRadius:Number   = 3;
+		public static var lineThickness:Number       = 1.0;
+		public static var pointRadius:Number         = 3.0;
 		
-		public static var boundBoxStartDepth:uint = 1;
-		public static var boundBoxEndDepth:uint = 1;
+		public static var boundBoxStartDepth:uint    = 1;
+		public static var boundBoxEndDepth:uint      = 1;
 		
 		public static var boundCircleStartDepth:uint = 1;
 		public static var boundCircleEndDepth:uint   = 1;
 		
-		public static var centroidStartDepth:uint = 1;
-		public static var centroidEndDepth:uint   = 1;
+		public static var centroidStartDepth:uint    = 1;
+		public static var centroidEndDepth:uint      = 1;
 		
-		public static var jointLineThickness:Number = 2;
+		public static var jointLineThickness:Number  = 2.0;
 		
 		public static var frictionPointColor:Number  = 0xff0000;
 		public static var frictionPointAlpha:Number  = DEFAULT_ALPHA;
-		public static var frictionPointRadius:Number = 5;
+		public static var frictionPointRadius:Number = 5.0;
 		
-		public static var terrainFillColor:uint    = 0x006600;
-		public static var tripSensorFillColor:uint = 0x990099;
-		public static var soundFieldFillColor:uint = 0xFFFF66;
+		public static var terrainFillColor:uint      = 0x006600;
+		public static var tripSensorFillColor:uint   = 0x990099;
+		public static var soundFieldFillColor:uint   = 0xFFFF66;
 	}
 }

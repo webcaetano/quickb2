@@ -27,16 +27,7 @@ package QuickB2.loaders.proxies
 	 * @author Doug Koellmer
 	 */
 	public class qb2ProxyRevoluteJoint extends qb2ProxyJoint
-	{
-		[Inspectable(defaultValue="default", name='springK (default=0.0)')]
-		public var springK:String = "default";
-		
-		[Inspectable(defaultValue="default", name='springDamping (default=0.0)')]
-		public var springDamping:String = "default";
-		
-		[Inspectable(defaultValue="default", name="springArc (default based on relative angles in radians)")]
-		public var springArc:String = "default";
-		
+	{		
 		[Inspectable(defaultValue="default",enumeration="default,true,false", name='springCanFlip (default=false)')]
 		public var springCanFlip:String = "default";
 		
@@ -48,18 +39,23 @@ package QuickB2.loaders.proxies
 		
 
 		
+		[Inspectable(defaultValue="default", name='springK (default=0.0)')]
+		public var springK:String = "default";
 		
-		[Inspectable(defaultValue="default", name='lowerAngle (default=-Infinity radians)')]
-		public var lowerAngle:String        = "default";
+		[Inspectable(defaultValue="default", name='springDamping (default=0.0)')]
+		public var springDamping:String = "default";
 		
-		[Inspectable(defaultValue="default", name='upperAngle (default=Infinity radians)')]
-		public var upperAngle:String        = "default";
+		[Inspectable(defaultValue="default", name='lowerLimit (default=-Infinity radians)')]
+		public var lowerLimit:String        = "default";
 		
-		[Inspectable(defaultValue="default", name='maxMotorTorque (default=0.0 N/m)')]
-		public var maxMotorTorque:String    = "default";
+		[Inspectable(defaultValue="default", name='upperLimit (default=Infinity radians)')]
+		public var upperLimit:String        = "default";
 		
-		[Inspectable(defaultValue="default", name='targetMotorSpeed (default=0.0 m/s)')]
-		public var targetMotorSpeed:String = "default";
+		[Inspectable(defaultValue="default", name='maxTorque (default=0.0 N/m)')]
+		public var maxTorque:String    = "default";
+		
+		[Inspectable(defaultValue="default", name='targetSpeed (default=0.0 rad/s)')]
+		public var targetSpeed:String = "default";
 		
 		
 		

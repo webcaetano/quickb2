@@ -60,8 +60,8 @@ package QuickB2.loaders.proxies
 		
 		
 		
-		[Inspectable(defaultValue="default",enumeration="default,true,false", name='fixedRotation (default=false)')]
-		public var fixedRotation:String = "default";
+		[Inspectable(defaultValue="default",enumeration="default,true,false", name='hasFixedRotation (default=false)')]
+		public var hasFixedRotation:String = "default";
 
 		[Inspectable(defaultValue="default",enumeration="default,true,false", name='isBullet (default=false)')]
 		public var isBullet:String = "default";
@@ -69,7 +69,7 @@ package QuickB2.loaders.proxies
 		[Inspectable(defaultValue="default",enumeration="default,true,false", name='allowSleeping (default=true)')]
 		public var allowSleeping:String = "default";
 
-		[Inspectable(defaultValue="default",enumeration="default,true,false", name='sleepingWhenAdded (default=true)')]
+		[Inspectable(defaultValue="default",enumeration="default,true,false", name='sleepingWhenAdded (default=false)')]
 		public var sleepingWhenAdded:String = "default";
 
 		[Inspectable(defaultValue="default",enumeration="default,true,false", name='isGhost (default=false)')]
