@@ -29,6 +29,7 @@ package QuickB2.objects
 	import QuickB2.*;
 	import QuickB2.events.*;
 	import QuickB2.internals.*;
+	import QuickB2.loaders.proxies.qb2ProxyObjectContainer;
 	import QuickB2.misc.*;
 	import QuickB2.objects.joints.*;
 	import QuickB2.objects.tangibles.*;
@@ -70,16 +71,23 @@ package QuickB2.objects
 		
 		public final function turnFlagOff(flag:uint, passive:Boolean = false):qb2Object
 		{
+			var oldFlags:uint = _flags;
 			_flags &= ~flag;
 			
 			if ( passive )
 			{
 				_ownershipFlagsForBooleans &= ~flag;
-				flagsChanged(flag);
+				flagsChanged(oldFlags ^ _flags);
 			}
 			else
 			{
-				cascadeFlags(this, flag);
+				_ownershipFlagsForBooleans |= flag;
+				flagsChanged(oldFlags ^ _flags);
+				
+				if ( this is qb2ObjectContainer )
+				{
+					cascadeFlags(this as qb2ObjectContainer, flag);
+				}
 			}
 			
 			return this;
@@ -87,16 +95,23 @@ package QuickB2.objects
 		
 		public final function turnFlagOn(flag:uint, passive:Boolean = false):qb2Object
 		{
+			var oldFlags:uint = _flags;
 			_flags |= flag;
-			
+				
 			if ( passive )
 			{
 				_ownershipFlagsForBooleans &= ~flag;
-				flagsChanged(flag);
+				flagsChanged( oldFlags ^ _flags );
 			}
 			else
 			{
-				cascadeFlags(this, flag);
+				_ownershipFlagsForBooleans |= flag;
+				flagsChanged(oldFlags ^ _flags);
+				
+				if ( this is qb2ObjectContainer )
+				{
+					cascadeFlags(this as qb2ObjectContainer, flag);
+				}
 			}
 			
 			return this;
@@ -194,36 +209,34 @@ package QuickB2.objects
 			}
 		}
 		
-		private static function cascadeFlags(root:qb2Object, affectedFlags:uint):void
+		private static function cascadeFlags(root:qb2ObjectContainer, affectedFlags:uint):void
 		{
-			var rootFlags:uint = root._flags;
-			
 			var queue:Vector.<qb2Object> = new Vector.<qb2Object>();
-			queue.push(root);
+			var numObjects:int = root.numObjects
+			for ( var i:int = 0; i < numObjects; i++) 
+			{
+				queue.push(root._objects[i]);
+			}
 			
+			var rootFlags:uint = root._flags;
 			while ( queue.length )
 			{
 				var subObject:qb2Object = queue.shift();
 				
-				if ( subObject != root )
-				{
-					//--- This sub-object loses ownership of this property...it is now considered "inherited" from the root.
-					subObject._ownershipFlagsForBooleans &= ~affectedFlags;
-					
-					subObject._flags &= ~affectedFlags;
-					subObject._flags |= affectedFlags & rootFlags;
-				}
-				else
-				{
-					subObject._ownershipFlagsForBooleans |= affectedFlags;
-				}
+				var oldFlags:uint = subObject._flags;
 				
-				subObject.flagsChanged(affectedFlags);
+				//--- This sub-object loses ownership of this property...it is now considered "inherited" from the root.
+				subObject._ownershipFlagsForBooleans &= ~affectedFlags;
+				
+				subObject._flags &= ~affectedFlags;
+				subObject._flags |=  affectedFlags & rootFlags;
+				
+				subObject.flagsChanged(oldFlags ^ subObject._flags);
 				
 				if ( subObject is qb2ObjectContainer )
 				{
 					var asContainer:qb2ObjectContainer = subObject as qb2ObjectContainer;
-					var numObjects:int = asContainer.numObjects;
+					numObjects = asContainer.numObjects;
 					
 					for ( var i:int = 0; i < numObjects; i++) 
 					{
