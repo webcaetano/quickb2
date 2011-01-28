@@ -31,7 +31,7 @@ package demos
 		private var trafficManager:tdTrafficManager = new tdTrafficManager();
 		
 		public function CarDriving() 
-		{
+		{			
 			var center:amPoint2d = new amPoint2d(stage.stageWidth / 2, stage.stageHeight / 2);
 			
 			//--- Make a terrain that encompasses the whole map, basically so skids are drawn everywhere.
