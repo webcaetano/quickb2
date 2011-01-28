@@ -25,6 +25,7 @@ package QuickB2.internals
 	/**
 	 * ...
 	 * @author Doug Koellmer
+	 * @private
 	 */
 	public class qb2InternalPropertyAndFlagCollection 
 	{
