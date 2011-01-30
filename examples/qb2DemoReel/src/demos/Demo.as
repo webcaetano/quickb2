@@ -33,5 +33,10 @@ package demos
 			
 		protected function get stage():Stage
 			{  return Main.singleton.stage;  }
+			
+		public virtual function resized():void
+		{
+			
+		}
 	}
 }
