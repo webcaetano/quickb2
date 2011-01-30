@@ -497,74 +497,81 @@ package QuickB2.objects.tangibles
 		
 		public function explode(preserveVelocities:Boolean = true, addToParent:Boolean = true):Vector.<qb2Object>
 		{
-			var explodes:Vector.<qb2Object> = this.removeAllObjects();
+			var explodes:Vector.<qb2Object> = new Vector.<qb2Object>();
 			
-			if ( explodes )
+			if ( this is qb2Body )
 			{
-				if ( this is qb2Body )
-				{
-					var parentBody:qb2Body = this as qb2Body;
-					
-					for (var i:int = 0; i < explodes.length; i++) 
-					{
-						if ( explodes[i] is qb2IRigidObject )
-						{
-							var rigid:qb2IRigidObject = explodes[i] as qb2IRigidObject;
-							
-							if ( preserveVelocities && !_ancestorBody )
-							{
-								rigid.linearVelocity.copy(parentBody.getLinearVelocityAtLocalPoint(rigid.position));
-							}
-							else
-							{
-								rigid.linearVelocity.zeroOut();
-								rigid.angularVelocity = 0;
-							}
-							
-							rigid.position.add(parentBody.position);
-							rigid.rotateBy(parentBody.rotation, parentBody.position);
-							
-						}
-						else if( explodes[i] is qb2Group )
-						{
-							var group:qb2Group = explodes[i] as qb2Group;
-							group.translateBy(parentBody.position.asVector());
-							group.rotateBy(parentBody.rotation, parentBody.position);
-							
-							if ( preserveVelocities && !_ancestorBody )
-							{
-								// do get vel at thing and set velocity of whole group
-							}
-							else
-							{
-								group.setAvgLinearVelocity(new amVector2d());
-								group.setAvgAngularVelocity(0);
-							}
-						}
-					}
-				}
-				else if ( (this is qb2Group) && !preserveVelocities && !_ancestorBody ) // have to cancel out velocities
-				{
-					for ( i = 0; i < explodes.length; i++) 
-					{
-						if ( explodes[i] is qb2IRigidObject )
-						{
-							(explodes[i] as qb2IRigidObject).linearVelocity.zeroOut();
-							(explodes[i] as qb2IRigidObject).angularVelocity = 0;
-						}
-						else if ( explodes[i] is qb2Group )
-						{
-							(explodes[i] as qb2Group).setAvgLinearVelocity(new amVector2d());
-							(explodes[i] as qb2Group).setAvgAngularVelocity(0);
-						}
-					}
-				}
+				var parentBody:qb2Body = this as qb2Body;
 				
-				if ( _parent )
+				for (var i:int = 0; i < _objects.length; i++) 
 				{
-					if( addToParent )  _parent.addObjects(explodes);
-					removeFromParent();
+					var explodesI:qb2Object = _objects[i];
+					
+					if ( explodesI is qb2IRigidObject )
+					{
+						var rigid:qb2IRigidObject = explodesI as qb2IRigidObject;
+						
+						if ( preserveVelocities && !_ancestorBody )
+						{
+							var worldVel:amVector2d = parentBody.getLinearVelocityAtLocalPoint(rigid.position);
+							rigid.linearVelocity.copy(worldVel);
+						}
+						else
+						{
+							rigid.linearVelocity.zeroOut();
+							rigid.angularVelocity = 0;
+						}
+						
+						rigid.position.add(parentBody.position);
+						rigid.rotateBy(parentBody.rotation, parentBody.position);
+						
+					}
+					else if( explodesI is qb2Group )
+					{
+						var group:qb2Group = explodesI as qb2Group;
+						group.translateBy(parentBody.position.asVector());
+						group.rotateBy(parentBody.rotation, parentBody.position);
+						
+						if ( preserveVelocities && !_ancestorBody )
+						{
+							// do get vel at thing and set velocity of whole group
+						}
+						else
+						{
+							group.setAvgLinearVelocity(new amVector2d());
+							group.setAvgAngularVelocity(0);
+						}
+					}
+					
+					var removed:qb2Object = parentBody.removeObjectAt(i--);
+					explodes.push(removed);
 				}
+			}
+			else if ( (this is qb2Group) && !preserveVelocities && !_ancestorBody ) // have to cancel out velocities
+			{
+				for ( i = 0; i < _objects.length; i++)
+				{
+					explodesI = _objects[i];
+					
+					if ( explodesI is qb2IRigidObject )
+					{
+						(explodesI as qb2IRigidObject).linearVelocity.zeroOut();
+						(explodesI as qb2IRigidObject).angularVelocity = 0;
+					}
+					else if ( explodes[i] is qb2Group )
+					{
+						(explodesI as qb2Group).setAvgLinearVelocity(new amVector2d());
+						(explodesI as qb2Group).setAvgAngularVelocity(0);
+					}
+				
+					explodes.push(explodesI);
+				}
+			}
+			
+			if ( _parent )
+			{
+				if( addToParent )  _parent.addObjects(explodes);
+				removeFromParent();
 			}
 			
 			return explodes;

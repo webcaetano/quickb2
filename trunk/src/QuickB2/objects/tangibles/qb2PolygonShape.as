@@ -545,37 +545,48 @@ package QuickB2.objects.tangibles
 			var drawFill:Boolean     = drawFlags & qb2_debugDrawFlags.FILLS ?    true : false;
 			var drawVertices:Boolean = drawFlags & qb2_debugDrawFlags.VERTICES ? true : false;
 			
-			if ( !drawOutlines && !drawFill && !drawVertices )
+			if ( drawOutlines || drawFill || drawVertices )
 			{
-				super.drawDebug(graphics);
-				return;
+				var staticShape:Boolean = _mass == 0;
+		
+				if ( drawOutlines )
+					graphics.lineStyle(qb2_debugDrawSettings.lineThickness, debugOutlineColor, qb2_debugDrawSettings.outlineAlpha);
+				else
+					graphics.lineStyle();
+					
+				if ( _closed && drawFill )
+					graphics.beginFill(debugFillColor, qb2_debugDrawSettings.fillAlpha);
+					
+				if( drawFill || drawOutlines )
+					draw(graphics);
+				
+				graphics.endFill();
+				
+				var numVerts:uint = polygon.numVertices;
+				
+				if ( drawVertices && numVerts )
+				{
+					///graphics.lineStyle(qb2_debugDrawSettings.lineThickness, debugOutlineColor, qb2_debugDrawSettings.outlineAlpha);
+					
+					for (var i:int = 0; i < numVerts; i++) 
+					{
+						var vertex:amPoint2d = (_parent is qb2Body ) ? (_parent as qb2Body ).getWorldPoint(getVertexAt(i)) : getVertexAt(i);
+						vertex.draw(graphics, qb2_debugDrawSettings.pointRadius, true);
+					}
+				}
 			}
 			
-			var staticShape:Boolean = _mass == 0;
-	
-			if ( drawOutlines )
-				graphics.lineStyle(qb2_debugDrawSettings.lineThickness, debugOutlineColor, qb2_debugDrawSettings.outlineAlpha);
-			else
-				graphics.lineStyle();
-				
-			if ( _closed && drawFill )
-				graphics.beginFill(debugFillColor, qb2_debugDrawSettings.fillAlpha);
-				
-			if( drawFill || drawOutlines )
-				draw(graphics);
-			
-			graphics.endFill();
-			
-			var numVerts:uint = polygon.numVertices;
-			
-			if ( drawVertices && numVerts )
+			if ( shapeB2s.length > 1 )
 			{
-				///graphics.lineStyle(qb2_debugDrawSettings.lineThickness, debugOutlineColor, qb2_debugDrawSettings.outlineAlpha);
-				
-				for (var i:int = 0; i < numVerts; i++) 
+				if ( qb2_debugDrawSettings.flags & qb2_debugDrawFlags.DECOMPOSITION )
 				{
-					var vertex:amPoint2d = (_parent is qb2Body ) ? (_parent as qb2Body ).getWorldPoint(getVertexAt(i)) : getVertexAt(i);
-					vertex.draw(graphics, qb2_debugDrawSettings.pointRadius, true);
+					var pixPer:Number = worldPixelsPerMeter;
+					var xf:XF = fixtures[0].m_body.GetTransform();
+					for (var j:int = 0; j < shapeB2s.length; j++) 
+					{
+						var polygonShape:b2PolygonShape = shapeB2s[j] as b2PolygonShape;
+						polygonShape.Draw(graphics, xf, pixPer);
+					}
 				}
 			}
 			
