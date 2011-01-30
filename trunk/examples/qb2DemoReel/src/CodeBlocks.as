@@ -157,7 +157,7 @@ package
 			{
 				var block:CodeBlock = _blocks[i];
 				block.width = resizeWidth;
-				block.height = resizeHeight-20; // minus 60 is for the window header times 3
+				block.height = resizeHeight - 20; // minus 60 is for the window header times 3
 			}
 		}
 	}

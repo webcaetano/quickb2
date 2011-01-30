@@ -3,6 +3,7 @@ package demos
 	import As3Math.consts.*;
 	import As3Math.general.*;
 	import As3Math.geo2d.*;
+	import flash.display.DisplayObjectContainer;
 	import QuickB2.events.*;
 	import QuickB2.misc.qb2Keyboard;
 	import QuickB2.objects.tangibles.*;
@@ -215,7 +216,7 @@ package demos
 				this.world.gravityZ = 9.8;
 				
 				Main.singleton.stageWalls.contactCollidesWith = 0; // disable all contacts for the stage walls.
-				Main.singleton.stage.addChild(debugPanel);
+				(this.actor as DisplayObjectContainer).addChildAt(debugPanel, 0);
 				debugPanel.alpha = 1;
 				debugPanel.y = stageHeight - debugPanel.height;
 			}
@@ -230,8 +231,14 @@ package demos
 				Main.singleton.cameraTargetRotation = 0;
 				
 				Main.singleton.stageWalls.contactCollidesWith = 0xffffff; // reenable all contacts for the stage walls.
-				Main.singleton.stage.removeChild(debugPanel);
+				(this.actor as DisplayObjectContainer).removeChild(debugPanel);
 			}
+		}
+		
+		public override function resized():void
+		{
+			debugPanel.x = 0;
+			debugPanel.y = stageHeight - debugPanel.height;
 		}
 	}
 }

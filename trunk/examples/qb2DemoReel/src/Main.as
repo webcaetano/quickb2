@@ -41,7 +41,7 @@
 		public const cameraTargetPoint:amPoint2d = new amPoint2d();
 		private var _cameraRotation:Number = 0;
 		private var _cameraTargetRotation:Number = 0;
-		private var rotationContainer:Sprite = new Sprite();
+		public var rotationContainer:Sprite = new Sprite();
 		
 		//--- All the demo classes to cycle through.
 		private static const demoClasses:Vector.<Class> = Vector.<Class>
@@ -63,6 +63,7 @@
 			removeEventListener(Event.ADDED_TO_STAGE, init);
 			
 			_singleton = this;
+			visible = false;
 			
 			stage.addChild(rotationContainer);
 			stage.removeChild(this);
@@ -95,9 +96,15 @@
 			
 			//--- Layout the gui and stage, load the first demo, and listen for future stage changes.
 			buildGui();
-			stageResized();
 			buttonClicked();
+			stageResized();
 			stage.addEventListener(Event.RESIZE, stageResized);
+			setTimeout(makeVisible, 5); // let things draw themselves.
+		}
+		
+		private function makeVisible():void
+		{
+			visible = true;
 		}
 		
 		public function get cameraRotation():Number
