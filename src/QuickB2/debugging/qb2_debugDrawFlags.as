@@ -41,6 +41,8 @@ package QuickB2.debugging
 		public static const POSITIONS:uint       = 0x00000400;
 		public static const VERTICES:uint        = 0x00000800;
 		public static const FRICTION_POINTS:uint = 0x00001000;
+		public static const DECOMPOSITION:uint   = 0x00002000;
+		
 		public static const CIRCLE_SPOKES:uint   = CIRCLE_SPOKE_1 | CIRCLE_SPOKE_2 | CIRCLE_SPOKE_3 | CIRCLE_SPOKE_4;
 	}
 }

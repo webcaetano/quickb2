@@ -238,7 +238,7 @@ package QuickB2.objects
 					var asContainer:qb2ObjectContainer = subObject as qb2ObjectContainer;
 					numObjects = asContainer.numObjects;
 					
-					for ( var i:int = 0; i < numObjects; i++) 
+					for ( i = 0; i < numObjects; i++) 
 					{
 						queue.push(asContainer._objects[i]);
 					}

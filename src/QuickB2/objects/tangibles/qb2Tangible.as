@@ -38,6 +38,7 @@ package QuickB2.objects.tangibles
 	import QuickB2.debugging.*;
 	import QuickB2.effects.*;
 	import QuickB2.events.*;
+	import QuickB2.internals.qb2InternalSliceUtility;
 	import QuickB2.loaders.proxies.*;
 	import QuickB2.misc.qb2_flags;
 	import QuickB2.misc.qb2_props;
@@ -100,7 +101,7 @@ package QuickB2.objects.tangibles
 			if ( (this as Object).constructor == qb2Tangible )  throw qb2_errors.ABSTRACT_CLASS_ERROR;
 			
 			//--- Set up default values for various properties.
-			turnFlagOn(qb2_flags.T_IS_DEBUG_DRAGGABLE | qb2_flags.T_ALLOW_SLEEPING, true);
+			turnFlagOn(qb2_flags.T_IS_DEBUG_DRAGGABLE | qb2_flags.T_ALLOW_SLEEPING | qb2_flags.T_IS_SLICEABLE, true);
 			setProperty(qb2_props.T_CONTACT_CATEGORY,      0x0001, true);
 			setProperty(qb2_props.T_CONTACT_COLLIDES_WITH, 0xFFFF, true);
 			setProperty(qb2_props.T_FRICTION,              .2,     true);
@@ -674,6 +675,16 @@ package QuickB2.objects.tangibles
 			else
 				turnFlagOff(qb2_flags.T_IS_DEBUG_DRAGGABLE);
 		}
+		
+		public function get isSliceable():Boolean
+			{  return _flags & qb2_flags.T_IS_SLICEABLE ? true : false;  }
+		public function set isSliceable(bool:Boolean):void
+		{
+			if ( bool )
+				turnFlagOn(qb2_flags.T_IS_SLICEABLE);
+			else
+				turnFlagOff(qb2_flags.T_IS_SLICEABLE);
+		}
 
 		
 		
@@ -1142,6 +1153,11 @@ package QuickB2.objects.tangibles
 			_world._terrainRevisionDict[this] = _world._globalTerrainRevision;
 		}
 		qb2_friend var _terrainsBelowThisTang:Vector.<qb2Terrain>;
+		
+		public final function slice(laser:amLine2d, includePartialPenetrations:Boolean = true):Vector.<qb2Tangible>
+		{
+			return null;
+		}
 		
 		/*public virtual function shatterRadial(focalPoint:amPoint2d, numRadialFractures:uint = 10, numRandomFractures:uint = 5, randomRadials:Boolean = true):Vector.<qb2Tangible>  {  return null;  }
 		

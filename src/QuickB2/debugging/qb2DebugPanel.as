@@ -50,7 +50,7 @@ package QuickB2.debugging
 		qb2_friend static const DEFAULT_ALPHA:Number = .75;
 		
 		private var outlines:CheckBox, fills:CheckBox, verts:CheckBox, positions:CheckBox, centroids:CheckBox;
-		private var bounds:CheckBox, boundCircles:CheckBox, joints:CheckBox, frictionPoints:CheckBox;
+		private var bounds:CheckBox, boundCircles:CheckBox, joints:CheckBox, frictionPoints:CheckBox, decomposition:CheckBox;
 		
 		private var checkboxMap:Object =
 		{
@@ -62,7 +62,8 @@ package QuickB2.debugging
 			bounds         : qb2_debugDrawFlags.BOUND_BOXES,
 			boundCircles   : qb2_debugDrawFlags.BOUND_CIRCLES,
 			joints         : qb2_debugDrawFlags.JOINTS,
-			frictionPoints : qb2_debugDrawFlags.FRICTION_POINTS
+			frictionPoints : qb2_debugDrawFlags.FRICTION_POINTS,
+			decomposition  : qb2_debugDrawFlags.DECOMPOSITION
 		};
 		
 		private var objToString:Dictionary = new Dictionary();
@@ -102,7 +103,7 @@ package QuickB2.debugging
 			const left:Number = 7;
 			
 			// FLAG CHECK BOXES
-			var startY:Number = 30, incY:Number = 19;
+			var startY:Number = 30, incY:Number = 17;
 			outlines = new CheckBox(this, left, startY, "Draw Lines", checkBoxChange);
 			fills = new CheckBox(this, left, outlines.y+incY, "Draw Fills", checkBoxChange);
 			verts = new CheckBox(this, left, fills.y+incY, "Draw Vertices", checkBoxChange);
@@ -112,6 +113,7 @@ package QuickB2.debugging
 			boundCircles = new CheckBox(this, left, bounds.y+incY, "Draw Bound Circles", checkBoxChange);
 			joints = new CheckBox(this, left, boundCircles.y + incY, "Draw Joints", checkBoxChange);
 			frictionPoints = new CheckBox(this, left, joints.y + incY, "Draw FrictionZ", checkBoxChange);
+			decomposition = new CheckBox(this, left, frictionPoints.y + incY, "Draw Decomposition", checkBoxChange);
 			
 			objToString[outlines] = "outlines";
 			objToString[fills] = "fills";
@@ -122,6 +124,7 @@ package QuickB2.debugging
 			objToString[boundCircles] = "boundCircles";
 			objToString[joints] = "joints";
 			objToString[frictionPoints] = "frictionPoints";
+			objToString[decomposition] = "decomposition";
 			
 			// SLIDERS
 			alphaSlider = new VUISlider(this, 110, 30, "Alpha", alphaChange);
@@ -132,7 +135,7 @@ package QuickB2.debugging
 			
 			// RANGES
 			const rangeX:Number = 15;
-			startY = frictionPoints.y + 30;  incY = 40;
+			startY = decomposition.y + 30;  incY = 40;
 			boundBoxRange = new HRangeSlider(this, 0, startY);
 			boundBoxRange.minimum = 0;
 			boundBoxRange.maximum = 10;

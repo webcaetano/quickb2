@@ -54,5 +54,7 @@ package QuickB2
 		public static const BAD_DISTANCE_QUERY:Error = new Error("Illegal distance query...both objects must be in the world and not descendants of each other.");
 	
 		public static const NUMBER_PROPERTY_SLOTS_FULL:Error = new Error("No more inheritable number properties can be made.");
+		
+		public static const NOT_IN_WORLD:Error = new Error("Object must be in-world.");
 	}
 }
