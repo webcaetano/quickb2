@@ -69,20 +69,20 @@ package QuickB2.objects.tangibles
 			return newCircleShape;
 		}
 		
-		public function convertToPoly(numSides:uint = 12, retainJoints:Boolean = true ):qb2PolygonShape
+		public function convertToPoly(numSides:uint = 12, transferJoints:Boolean = true, switchPlaces:Boolean = true):qb2PolygonShape
 		{
 			var poly:qb2PolygonShape = qb2Stock.newRegularPolygonShape(_position.clone(), radius, numSides, _rotation);
 			
 			poly.copyProps(this);
 			poly.copyPropertiesAndFlags(this);
 			
-			if ( _parent )
+			if ( switchPlaces && _parent )
 			{
 				var index:int = _parent.getObjectIndex(this);
 				_parent.setObjectAt(index, poly);
 			}
 				
-			if ( retainJoints && _attachedJoints )
+			if ( transferJoints && _attachedJoints )
 			{
 				for (var i:int = 0; i < _attachedJoints.length; i++) 
 				{

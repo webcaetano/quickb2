@@ -54,6 +54,6 @@ package QuickB2.misc
 		public static const J_FREE_ROTATION:uint          = 0x00040000;
 		
 		// for polygons
-		public static const P_ALLOW_NON_CONVEX:uint       = 0x00080000;
+		public static const P_ALLOW_COMPLEX_POLYGONS:uint = 0x00080000;
 	}
 }

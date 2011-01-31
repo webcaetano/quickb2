@@ -136,6 +136,17 @@ package QuickB2.objects
 			return _flags & flag ? true : false;
 		}
 		
+		public final function ownsFlag(flag:uint):Boolean
+		{
+			return _ownershipFlagsForBooleans & flag ? true : false;
+		}
+		
+		public final function ownsProperty(propertyName:String):Boolean
+		{
+			var propertyBit:uint = _propertyMap[propertyName];
+			return _ownershipFlagsForProperties & propertyBit ? true : false;
+		}
+		
 		public final function getProperty(propertyName:String):*
 		{
 			return _propertyMap[propertyName];

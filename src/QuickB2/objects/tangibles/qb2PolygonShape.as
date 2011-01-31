@@ -60,18 +60,28 @@ package QuickB2.objects.tangibles
 			
 			polygon.addEventListener(amUpdateEvent.ENTITY_UPDATED, polygonUpdated);
 			
-			turnFlagOn(qb2_flags.P_ALLOW_NON_CONVEX, true);
+			turnFlagOn(qb2_flags.P_ALLOW_COMPLEX_POLYGONS, true);
 		}
 		
-		public function get allowNonConvex():Boolean
-			{  return _flags & qb2_flags.P_ALLOW_NON_CONVEX ? true : false;  }
-		public function set allowNonConvex(bool:Boolean):void
+		public function get allowComplexPolygons():Boolean
+			{  return _flags & qb2_flags.P_ALLOW_COMPLEX_POLYGONS ? true : false;  }
+		public function set allowComplexPolygons(bool:Boolean):void
 		{
 			if ( bool )
-				turnFlagOn(qb2_flags.P_ALLOW_NON_CONVEX);
+				turnFlagOn(qb2_flags.P_ALLOW_COMPLEX_POLYGONS);
 			else
-				turnFlagOff(qb2_flags.P_ALLOW_NON_CONVEX);
+				turnFlagOff(qb2_flags.P_ALLOW_COMPLEX_POLYGONS);
 		}
+		
+		/*public function get allowPinches():Boolean
+			{  return _flags & qb2_flags.P_ALLOW_COMPLEX_POLYGONS ? true : false;  }
+		public function set allowPinches(bool:Boolean):void
+		{
+			if ( bool )
+				turnFlagOn(qb2_flags.P_ALLOW_COMPLEX_POLYGONS);
+			else
+				turnFlagOff(qb2_flags.P_ALLOW_COMPLEX_POLYGONS);
+		}*/
 		
 		private function polygonUpdated(evt:amUpdateEvent):void
 		{
@@ -339,11 +349,13 @@ package QuickB2.objects.tangibles
 			}
 			
 			var conversion:Number = theWorld._pixelsPerMeter;
+			var inverse:Number = 1 / conversion;
 			
 			const reusable:amPoint2d = new amPoint2d();
 			
 			var numVerts:int = this.numVertices;
 			b2Verts.length = 0;
+			var allowComplex:Boolean = allowComplexPolygons;
 				
 			for ( var i:int = 0; i < numVerts; i++ )
 			{
@@ -357,8 +369,13 @@ package QuickB2.objects.tangibles
 					pnt = _parent == _ancestorBody ? pnt : _ancestorBody.getLocalPoint(_parent.getWorldPoint(pnt));
 				}
 				
-				var inverse:Number = 1 / conversion;
 				pnt.scaleBy(inverse, inverse);
+				
+				if ( i >= 2 )
+				{
+				//	var 
+				}
+				
 				b2Verts.push(new V2(pnt.x, pnt.y));
 			}
 			
@@ -366,7 +383,7 @@ package QuickB2.objects.tangibles
 			{
 				if ( _closed )
 				{
-					if ( allowNonConvex )
+					if ( allowComplex )
 					{
 						if ( polygon.convex && numVerts <= 8 )
 						{
@@ -580,6 +597,8 @@ package QuickB2.objects.tangibles
 			{
 				if ( qb2_debugDrawSettings.flags & qb2_debugDrawFlags.DECOMPOSITION )
 				{
+					graphics.lineStyle(qb2_debugDrawSettings.lineThickness, debugOutlineColor, qb2_debugDrawSettings.outlineAlpha);
+					
 					var pixPer:Number = worldPixelsPerMeter;
 					var xf:XF = fixtures[0].m_body.GetTransform();
 					for (var j:int = 0; j < shapeB2s.length; j++) 
