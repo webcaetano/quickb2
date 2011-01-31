@@ -1154,9 +1154,9 @@ package QuickB2.objects.tangibles
 		}
 		qb2_friend var _terrainsBelowThisTang:Vector.<qb2Terrain>;
 		
-		public final function slice(laser:amLine2d, includePartialPenetrations:Boolean = true):Vector.<qb2Tangible>
+		public function slice(laser:amLine2d, outputPoints:Vector.<amPoint2d> = null, includePartialPenetrations:Boolean = true):Vector.<qb2Tangible>
 		{
-			return null;
+			return qb2InternalSliceUtility.slice(this, laser, outputPoints, includePartialPenetrations);
 		}
 		
 		/*public virtual function shatterRadial(focalPoint:amPoint2d, numRadialFractures:uint = 10, numRandomFractures:uint = 5, randomRadials:Boolean = true):Vector.<qb2Tangible>  {  return null;  }

@@ -207,6 +207,10 @@ package QuickB2.objects.tangibles
 		
 		function isFlagOn(flag:uint):Boolean;
 		
+		function ownsFlag(flag:uint):Boolean;
+		
+		function ownsProperty(propertyName:String):Boolean;
+		
 		function get joinsInDeepCloning():Boolean;
 		function set joinsInDeepCloning(bool:Boolean):void;
 		
