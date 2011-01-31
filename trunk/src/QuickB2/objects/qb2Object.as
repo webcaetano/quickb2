@@ -280,8 +280,8 @@ package QuickB2.objects
 				//--- Fill in the flags.
 				var flagsThatCouldBeTaken:uint = flagsTaken | currParent._ownershipFlagsForBooleans;
 				var flagsNotYetTaken:uint      = flagsTaken ^ flagsThatCouldBeTaken;
-				booleanFlags = flagsNotYetTaken & currParent._flags;
-				flagsTaken |= flagsNotYetTaken;
+				booleanFlags |= flagsNotYetTaken & currParent._flags;
+				flagsTaken   |= flagsNotYetTaken;
 				
 				currParent = currParent._parent;
 			}

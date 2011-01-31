@@ -28,6 +28,7 @@ package TopDown.objects
 	import flash.utils.Dictionary;
 	import QuickB2.events.qb2ContactEvent;
 	import QuickB2.objects.qb2Object;
+	import QuickB2.objects.tangibles.qb2ObjectContainer;
 	import QuickB2.objects.tangibles.qb2Shape;
 	import QuickB2.stock.qb2Terrain;
 	import TopDown.debugging.td_debugDrawFlags;
@@ -62,6 +63,11 @@ package TopDown.objects
 		public function tdTerrain(ubiquitous:Boolean = false) 
 		{
 			super(ubiquitous);
+		}
+		
+		public override function addObject(... bd):qb2ObjectContainer
+		{
+			return super.addObject(bd[0]);
 		}
 		
 		public function addSkid(start:amPoint2d, end:amPoint2d, thickness:Number, type:uint):void

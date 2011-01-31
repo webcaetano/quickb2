@@ -65,6 +65,16 @@ package TopDown.loaders
 			if ( !defaultValue(carBodyTag["tractionControl"]) )  carBody.tractionControl = carBodyTag["canBrake"] == "true";
 		}
 		
+		private static function applyTerrainTag(terrain:tdTerrain, terrainTag:tdProxyTerrain):void
+		{
+			terrain.frictionZMultiplier = terrainTag.frictionZMultiplier
+			terrain.rollingFrictionZMultiplier = terrain.rollingFrictionZMultiplier;
+			terrain.rollingSkidColor = terrainTag.rollingSkidColor;
+			terrain.slidingSkidColor = terrainTag.slidingSkidColor;
+			terrain.drawRollingSkids = terrainTag.drawRollingSkids;
+			terrain.drawSlidingSkids = terrainTag.drawSlidingSkids;
+		}
+		
 		private static function applyTrannyTag(tranny:tdTransmission, trannyTag:DisplayObject):void
 		{
 			if ( !defaultValue(trannyTag["torqueConversion"]) )  tranny.torqueConversion    = parseFloat(trannyTag["torqueConversion"]);
@@ -218,10 +228,7 @@ package TopDown.loaders
 				var terrainTag:tdProxyTerrain = tag as tdProxyTerrain;
 				var terrain:tdTerrain = object as tdTerrain;
 				
-				terrain.frictionZMultiplier = terrainTag.frictionZMultiplier
-				terrain.rollingFrictionZMultiplier = terrain.rollingFrictionZMultiplier;
-				terrain.rollingSkidColor = terrainTag.rollingSkidColor;
-				terrain.slidingSkidColor = terrainTag.slidingSkidColor;
+				applyTerrainTag(terrain, terrainTag);
 			}
 		}
 		
@@ -252,7 +259,11 @@ package TopDown.loaders
 					var tracks:Vector.<tdTrack> = trackDict[map] as Vector.<tdTrack>;
 					map.addTracks(tracks);
 				}*/
-			}			
+			}
+			else if ( (object is tdTerrain) && ((object as tdTerrain).actor is tdProxyTerrain) )
+			{
+				applyTerrainTag(object as tdTerrain, ((object as tdTerrain).actor as tdProxyTerrain));
+			}
 		}
 	}
 }
