@@ -81,7 +81,7 @@ package QuickB2.objects.tangibles
 		 * @default = 1.0/20.0
 		 * @see #realtimeUpdate
 		 */
-		public var maximumRealtimeStep:Number = 1.0/30.0;
+		public var maximumRealtimeStep:Number = 1.0/10.0;
 		
 		private var lastTime:Number = 0;
 	

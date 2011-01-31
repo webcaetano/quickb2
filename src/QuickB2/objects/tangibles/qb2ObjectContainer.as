@@ -198,30 +198,33 @@ package QuickB2.objects.tangibles
 			}
 			
 			var tangibleFound:Boolean = false;
-			pushMassFreeze();
+		
+			var totalArea:Number = 0, totalMass:Number = 0;
+			for ( var i:int = 0; i < someObjects.length; i++ )
 			{
-				var totalArea:Number = 0, totalMass:Number = 0;
-				for ( var i:int = 0; i < someObjects.length; i++ )
+				var object:qb2Object = someObjects[i];
+				
+				if ( object is qb2Tangible )
 				{
-					var object:qb2Object = someObjects[i];
-					addObjectToArray(object, startIndex, collection);
+					var tang:qb2Tangible = object as qb2Tangible;
+					totalArea += tang._surfaceArea;
+					totalMass += tang._mass;
 					
-					if ( object is qb2Tangible )
+					if ( !tangibleFound )
 					{
-						var tang:qb2Tangible = object as qb2Tangible;
-						totalArea += tang._surfaceArea;
-						totalMass += tang._mass;
-						
+						pushMassFreeze();
 						tangibleFound = true;
 					}
-					
-					startIndex++;
 				}
+				
+				addObjectToArray(object, startIndex, collection);
+				
+				startIndex++;
 			}
-			popMassFreeze();
 			
 			if ( tangibleFound )
 			{
+				popMassFreeze();
 				updateMassProps(totalMass, totalArea);
 			}
 			

@@ -31,7 +31,7 @@ package TopDown.loaders.proxies
 	 */
 	public class tdProxyTerrain extends qb2ProxyTerrain
 	{
-		public function tdProxyCarBody():void
+		public function tdProxyTerrain():void
 		{
 			defaultClassName = "TopDown.objects.tdTerrain";
 		}
@@ -51,7 +51,7 @@ package TopDown.loaders.proxies
 		[Inspectable(defaultValue=.6)]
 		public var rollingSkidAlpha:Number = .6;
 		
-		[Inspectable(defaultValue=2.0)]
+		[Inspectable(defaultValue=2.0, name='skidDuration (in seconds)')]
 		public var skidDuration:Number = 2.0;
 		
 		[Inspectable(defaultValue=true, type=Boolean)]
