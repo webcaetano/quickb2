@@ -516,7 +516,7 @@ package QuickB2.objects.tangibles
 						{
 							terrainIterator.root = jthTerrain;
 							
-							while ( terrainIterator.hasNext() )
+							while ( terrainIterator.hasNext )
 							{
 								var object:qb2Object = terrainIterator.next();
 								

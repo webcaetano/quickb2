@@ -275,7 +275,7 @@ package QuickB2.objects.tangibles
 				mouseDrag_iterator.root = this;
 				
 				var mouseBit:uint = qb2_flags.T_IS_DEBUG_DRAGGABLE;
-				while ( mouseDrag_iterator.hasNext() )
+				while ( mouseDrag_iterator.hasNext )
 				{
 					var object:qb2Object = mouseDrag_iterator.currentObject;
 					

@@ -48,5 +48,7 @@ package QuickB2.misc
 		public static const J_REFERENCE_ANGLE:String       = "referenceAngle";
 		public static const J_LOWER_LIMIT:String           = "lowerLimit";
 		public static const J_UPPER_LIMIT:String           = "upperLimit";
+		
+		public static const C_ARC_APPROXIMATION:String     = "arcApproximation";
 	}
 }

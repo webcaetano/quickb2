@@ -73,16 +73,6 @@ package QuickB2.objects.tangibles
 				turnFlagOff(qb2_flags.P_ALLOW_COMPLEX_POLYGONS);
 		}
 		
-		/*public function get allowPinches():Boolean
-			{  return _flags & qb2_flags.P_ALLOW_COMPLEX_POLYGONS ? true : false;  }
-		public function set allowPinches(bool:Boolean):void
-		{
-			if ( bool )
-				turnFlagOn(qb2_flags.P_ALLOW_COMPLEX_POLYGONS);
-			else
-				turnFlagOff(qb2_flags.P_ALLOW_COMPLEX_POLYGONS);
-		}*/
-		
 		private function polygonUpdated(evt:amUpdateEvent):void
 		{
 			flushShapesWrapper(_mass, polygon.area);

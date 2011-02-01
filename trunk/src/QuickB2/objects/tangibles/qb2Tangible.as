@@ -102,8 +102,8 @@ package QuickB2.objects.tangibles
 			
 			//--- Set up default values for various properties.
 			turnFlagOn(qb2_flags.T_IS_DEBUG_DRAGGABLE | qb2_flags.T_ALLOW_SLEEPING | qb2_flags.T_IS_SLICEABLE, true);
-			setProperty(qb2_props.T_CONTACT_CATEGORY,      0x0001, true);
-			setProperty(qb2_props.T_CONTACT_COLLIDES_WITH, 0xFFFF, true);
+			setProperty(qb2_props.T_CONTACT_CATEGORY,      0x0001 as uint, true);
+			setProperty(qb2_props.T_CONTACT_COLLIDES_WITH, 0xFFFF as uint, true);
 			setProperty(qb2_props.T_FRICTION,              .2,     true);
 		}
 		
@@ -1154,9 +1154,9 @@ package QuickB2.objects.tangibles
 		}
 		qb2_friend var _terrainsBelowThisTang:Vector.<qb2Terrain>;
 		
-		public function slice(laser:amLine2d, outputPoints:Vector.<amPoint2d> = null, includePartialPenetrations:Boolean = true):Vector.<qb2Tangible>
+		public function slice(laser:amLine2d, outputPoints:Vector.<amPoint2d> = null, includePartialSlices:Boolean = true, keepOriginal:Boolean = false, addNewTangs:Boolean = true):Vector.<qb2Tangible>
 		{
-			return qb2InternalSliceUtility.slice(this, laser, outputPoints, includePartialPenetrations);
+			return qb2InternalSliceUtility.slice(this, laser, outputPoints, includePartialSlices);
 		}
 		
 		/*public virtual function shatterRadial(focalPoint:amPoint2d, numRadialFractures:uint = 10, numRandomFractures:uint = 5, randomRadials:Boolean = true):Vector.<qb2Tangible>  {  return null;  }
