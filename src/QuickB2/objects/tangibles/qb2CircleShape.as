@@ -33,6 +33,7 @@ package QuickB2.objects.tangibles
 	import flash.display.*;
 	import QuickB2.*;
 	import QuickB2.debugging.*;
+	import QuickB2.misc.qb2_props;
 	import QuickB2.objects.joints.*;
 	import QuickB2.stock.*;
 	
@@ -50,7 +51,14 @@ package QuickB2.objects.tangibles
 		public function qb2CircleShape() 
 		{
 			super();
+			
+			setProperty(qb2_props.C_ARC_APPROXIMATION, 10.0, true);
 		}
+		
+		public function get arcApproximation():Number
+			{  return getProperty(qb2_props.C_ARC_APPROXIMATION) as Number;  }
+		public function set arcApproximation(value:Number):void
+			{  setProperty(qb2_props.C_ARC_APPROXIMATION, value);  }
 			
 		qb2_friend final override function baseClone(newObject:qb2Tangible, actorToo:Boolean, deep:Boolean):qb2Tangible
 		{
@@ -69,9 +77,12 @@ package QuickB2.objects.tangibles
 			return newCircleShape;
 		}
 		
-		public function convertToPoly(numSides:uint = 12, transferJoints:Boolean = true, switchPlaces:Boolean = true):qb2PolygonShape
+		public function convertToPoly(transferJoints:Boolean = true, switchPlaces:Boolean = true, numSides:int = -1, startPoint:amPoint2d = null ):qb2PolygonShape
 		{
-			var poly:qb2PolygonShape = qb2Stock.newRegularPolygonShape(_position.clone(), radius, numSides, _rotation);
+			numSides = numSides > 0 ? numSides : Math.max(perimeter / arcApproximation, 3);
+			var majorAxis:amVector2d = startPoint ? startPoint.minus(_position) : new amVector2d(0, -_radius);
+			var poly:qb2PolygonShape = qb2Stock.newEllipseShape(_position.clone(), majorAxis, _radius, numSides, 0, Math.PI * 2, 0, true);
+			poly._rotation = this._rotation;
 			
 			poly.copyProps(this);
 			poly.copyPropertiesAndFlags(this);

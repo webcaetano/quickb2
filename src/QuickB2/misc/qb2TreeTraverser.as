@@ -42,7 +42,7 @@ package QuickB2.misc
 		
 		public var path:uint = LEVEL_ORDER_LEFT_TO_RIGHT;
 		
-		public function qb2TreeTraverser(initRoot:qb2ObjectContainer = null, initPath:uint = LEVEL_ORDER_LEFT_TO_RIGHT) 
+		public function qb2TreeTraverser(initRoot:qb2Object = null, initPath:uint = LEVEL_ORDER_LEFT_TO_RIGHT) 
 		{
 			path = initPath;
 			root = initRoot;
@@ -63,9 +63,9 @@ package QuickB2.misc
 		}
 		private static var _singleton:qb2TreeTraverser;
 		
-		public function get root():qb2ObjectContainer
+		public function get root():qb2Object
 			{  return _root;  }
-		public function set root(aContainer:qb2ObjectContainer):void
+		public function set root(aContainer:qb2Object):void
 		{
 			clear();
 			_root = aContainer;
@@ -75,9 +75,9 @@ package QuickB2.misc
 				_queue.push(_root);
 			}
 		}
-		private var _root:qb2ObjectContainer;
+		private var _root:qb2Object;
 		
-		public function hasNext():Boolean
+		public function get hasNext():Boolean
 		{
 			return _queue.length > 0;
 		}

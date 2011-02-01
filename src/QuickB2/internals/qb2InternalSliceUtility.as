@@ -1,28 +1,13 @@
 package QuickB2.internals 
 {
-	import As3Math.geo2d.amLine2d;
-	import As3Math.geo2d.amPoint2d;
-	import As3Math.geo2d.amPolygon2d;
-	import As3Math.geo2d.amVector2d;
-	import Box2DAS.Common.V2;
-	import Box2DAS.Dynamics.b2DestructionListener;
-	import Box2DAS.Dynamics.b2Filter;
-	import Box2DAS.Dynamics.b2Fixture;
-	import Box2DAS.Dynamics.Joints.b2PrismaticJoint;
-	import flash.utils.Dictionary;
-	import QuickB2.debugging.qb2_debugDrawFlags;
-	import QuickB2.misc.qb2_flags;
-	import QuickB2.misc.qb2_props;
-	import QuickB2.misc.qb2TreeTraverser;
-	import QuickB2.objects.qb2Object;
-	import QuickB2.objects.tangibles.qb2CircleShape;
-	import QuickB2.objects.tangibles.qb2ObjectContainer;
-	import QuickB2.objects.tangibles.qb2PolygonShape;
-	import QuickB2.objects.tangibles.qb2Shape;
-	import QuickB2.objects.tangibles.qb2Tangible;
-	import QuickB2.qb2_errors;
-	import QuickB2.qb2_friend;
-	import QuickB2.stock.qb2Stock;
+	import As3Math.geo2d.*;
+	import Box2DAS.Common.*;
+	import Box2DAS.Dynamics.*;
+	import flash.utils.*;
+	import QuickB2.*;
+	import QuickB2.misc.*;
+	import QuickB2.objects.*;
+	import QuickB2.objects.tangibles.*;
 	use namespace qb2_friend;
 
 	/**
@@ -35,6 +20,7 @@ package QuickB2.internals
 		private static var traverser:qb2TreeTraverser;
 		
 		private static var shapeDict:Dictionary;
+		private static var pointDict:Dictionary;
 		private static var rootTang:qb2Tangible;
 		private static var sliceLine:amLine2d = null;
 		private static var outputArrayOfPoints:Vector.<amPoint2d> = null;
@@ -53,7 +39,7 @@ package QuickB2.internals
 			new amLine2d(new amPoint2d(MAX_VALUE, MAX_VALUE), new amPoint2d(MIN_VALUE, MAX_VALUE))
 		]);
 		
-		qb2_friend static function slice(tang:qb2Tangible, line:amLine2d, outputPoints:Vector.<amPoint2d>, includePartials:Boolean):Vector.<qb2Tangible>
+		qb2_friend static function slice(tang:qb2Tangible, line:amLine2d, outputPoints:Vector.<amPoint2d>, includePartialSlices:Boolean = true, keepOriginal:Boolean = false, addNewTangs:Boolean = true):Vector.<qb2Tangible>
 		{
 			if ( !tang.world )
 			{
@@ -98,6 +84,7 @@ package QuickB2.internals
 			}
 			
 			shapeDict = null;
+			pointDict = null;
 			tang.world.b2_world.RayCast(raycastCallback, modBeg, modEnd);
 			
 			//--- Ray didn't hit anything on this tangible.
@@ -108,61 +95,87 @@ package QuickB2.internals
 			
 			var toReturn:Vector.<qb2Tangible> = new Vector.<qb2Tangible>();
 			
-			if ( tang is qb2ObjectContainer )
+			var asContainer:qb2ObjectContainer = tang as qb2ObjectContainer;
+			traverser = traverser ? traverser : new qb2TreeTraverser();
+			traverser.root = asContainer;
+			
+			while ( traverser.hasNext )
 			{
-				var asContainer:qb2ObjectContainer = tang as qb2ObjectContainer;
-				traverser = traverser ? traverser : new qb2TreeTraverser();
-				traverser.root = asContainer;
+				var currObject:qb2Object = traverser.currentObject;
 				
-				while ( traverser.hasNext() )
+				if( !currObject.isFlagOn(qb2_flags.T_IS_SLICEABLE) || !(currObject is qb2Tangible) )
 				{
-					var currObject:qb2Object = traverser.currentObject;
-					
-					if( !currObject.isFlagOn(qb2_flags.T_IS_SLICEABLE) || !(currObject is qb2Tangible) )
+					traverser.next(false);
+				}
+				
+				if ( currObject is qb2Shape )
+				{
+					if ( !shapeDict[currObject] )
 					{
-						traverser.next(false);
+						traverser.next(true);
 					}
 					
-					if ( currObject is qb2Shape )
+					var intPoints:Vector.<amPoint2d> = shapeDict[currObject] as Vector.<amPoint2d>;
+					
+					if ( intPoints.length == 1 )
 					{
-						if ( shapeDict[currObject] )
+						if ( !includePartialSlices )
 						{
-							var poly:qb2PolygonShape = null;
+							traverser.next(true);
+						}
+						//else (search for tangents (raycasts that just hit the edge of the boundary)
+						//{
+						//	traverser.next(true);
+						//}
+					}
+					
+					var localIntPoint:amPoint2d;
+					
+					if ( currObject is qb2CircleShape )
+					{
+						var asCircle:qb2CircleShape = currObject as qb2CircleShape;
+						
+						if ( intPoints.length == 1 )
+						{
+							localIntPoint = asCircle.parent.getLocalPoint(intPoints[0]);
 							
-							if ( currObject is qb2CircleShape )
+							var penetrationPoint:amPoint2d = null;
+							if ( line.lineType == amLine2d.LINE_TYPE_RAY )
 							{
-								
+								penetrationPoint = asCircle.parent.getLocalPoint(line.point1);
 							}
 							else
 							{
-								poly = asShape as qb2PolygonShape;
+								
 							}
 							
 							
+							
+							var polyApprox:qb2PolygonShape = asCircle.convertToPoly(false, false, -1, localIntPoint);
+							//polyApprox.insertVertexAt(
 						}
 					}
-
-					traverser.next(true);
+					else
+					{
+						var asPoly:qb2PolygonShape = currObject as qb2PolygonShape;
+						
+					}
 				}
-			}
-			else
-			{
-				var asShape:qb2Shape = tang as qb2Shape;
-				for (var i:int = 0; i < asShape.fixtures.length; i++) 
+				else
 				{
-					var ithFixture:b2Fixture = asShape.fixtures[i];
-					
+					traverser.next(true);
 				}
 			}
 			
 			shapeDict = null;
+			pointDict = null;
 			
 			return toReturn;
 		}
 		
 		private static var utilPoint:amPoint2d = new amPoint2d();
 		private static var utilLine:amLine2d = new amLine2d();
-		private static var HIT_TOLERANCE:Number = .0001;
+		private static var HIT_TOLERANCE:Number = .001;
 		
 		private static function raycastCallback(fixture:b2Fixture, point:V2, normal:V2, fraction:Number):Number
 		{
@@ -210,33 +223,53 @@ package QuickB2.internals
 			}
 			
 			//--- Continue if the hitpoint is inside a polygon (it has hit the internal border between two polygons forming the decomposition of a non-convex polygon).
+			var outputPoint:amPoint2d = null;
 			if ( shape is qb2PolygonShape )
 			{
 				//--- Only non-convex polygons have a chance for an "internal hit", because they're decomposed to several convex polygons.
 				var foundOnBorder:Boolean = false;
 				var asPolygon:qb2PolygonShape = shape as qb2PolygonShape;
-				if ( !asPolygon.polygon.convex )
+				var polygon:amPolygon2d = asPolygon.polygon;
+				for (var i:int = 1; i < polygon.numVertices; i++) 
 				{
-					var polygon:amPolygon2d = asPolygon.polygon;
-					for (var i:int = 1; i < polygon.numVertices; i++) 
+					utilLine.set(polygon.getVertexAt(i - 1), polygon.getVertexAt(i));
+					if ( utilLine.isOn(utilPoint, HIT_TOLERANCE) )
 					{
-						utilLine.set(polygon.getVertexAt(i - 1), polygon.getVertexAt(i));
-						if ( utilLine.isOn(utilPoint, HIT_TOLERANCE) )
+						pointDict = pointDict ? pointDict : new Dictionary(true);
+						outputPoint = utilPoint.clone();
+						
+						if ( utilLine.point1.equals(utilPoint, HIT_TOLERANCE) )
 						{
-							foundOnBorder = true;
-							break;
+							pointDict[outputPoint] = (i-1)*2 // even number signifies intersection of corner of polygon.
 						}
-					}
-					
-					if ( !foundOnBorder )
-					{
-						return toReturn;
+						else if ( utilLine.point2.equals(utilPoint, HIT_TOLERANCE) )
+						{
+							pointDict[outputPoint] = i*2 // even number signifies intersection of corner of polygon.
+						}
+						else
+						{
+							pointDict[outputPoint] = (i - 1) * 2 - 1; // odd number signifies line intersection.
+						}
+						
+						foundOnBorder = true;
+						break;
 					}
 				}
+				
+				if ( !foundOnBorder )
+				{
+					return toReturn;
+				}
+			}
+			else
+			{
+				pointDict = pointDict ? pointDict : new Dictionary(true);
+				outputPoint = utilPoint.clone();
+				pointDict[outputPoint] = -1; // negative number signifies intersection with a circle.
 			}
 			
 			//--- Add the point to the list of output points.
-			var outputPoint:amPoint2d = utilPoint.clone();
+			
 			if ( outputArrayOfPoints )
 			{
 				outputArrayOfPoints.push(outputPoint);
@@ -244,7 +277,7 @@ package QuickB2.internals
 			
 			//--- Create a dictionary for this shape that is an array of points, if it's not made already.
 			shapeDict = shapeDict ? shapeDict : new Dictionary(true);
-			shapeDict[shape] = shapeDict[shape] ? shapeDict[shape] : [];
+			shapeDict[shape] = shapeDict[shape] ? shapeDict[shape] : new Vector.<amPoint2d>;
 			shapeDict[shape].push(outputPoint);
 			
 			return toReturn;
