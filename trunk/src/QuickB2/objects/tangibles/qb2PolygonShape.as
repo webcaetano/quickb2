@@ -60,7 +60,7 @@ package QuickB2.objects.tangibles
 			
 			polygon.addEventListener(amUpdateEvent.ENTITY_UPDATED, polygonUpdated);
 			
-			turnFlagOn(qb2_flags.P_ALLOW_COMPLEX_POLYGONS, true);
+			turnFlagOn(qb2_flags.P_ALLOW_COMPLEX_POLYGONS, false);
 		}
 		
 		public function get allowComplexPolygons():Boolean

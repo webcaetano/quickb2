@@ -52,7 +52,7 @@ package QuickB2.objects.tangibles
 		{
 			super();
 			
-			setProperty(qb2_props.C_ARC_APPROXIMATION, 10.0, true);
+			setProperty(qb2_props.C_ARC_APPROXIMATION, 10.0, false);
 		}
 		
 		public function get arcApproximation():Number

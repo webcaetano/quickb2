@@ -46,9 +46,9 @@ package QuickB2.objects.joints
 	{		
 		public function qb2RevoluteJoint(initObject1:qb2IRigidObject = null, initObject2:qb2IRigidObject = null, initWorldAnchor:amPoint2d = null) 
 		{
-			turnFlagOn(qb2_flags.J_OPTIMIZED_SPRING, true);
-			setProperty(qb2_props.J_LOWER_LIMIT, -Infinity, true);
-			setProperty(qb2_props.J_UPPER_LIMIT,  Infinity, true);
+			turnFlagOn(qb2_flags.J_OPTIMIZED_SPRING, false);
+			setProperty(qb2_props.J_LOWER_LIMIT, -Infinity, false);
+			setProperty(qb2_props.J_UPPER_LIMIT,  Infinity, false);
 			
 			hasOneWorldPoint = true;
 		

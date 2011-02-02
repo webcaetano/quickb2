@@ -195,15 +195,13 @@ package QuickB2.objects.tangibles
 		// FUNCTIONS in qb2Object/qb2EventDispatcher (EventDispatcher functions are pulled in by 'extends IEventDispatcher' at the top.
 		
 		function getProperty(propertyName:String):*;
-		function setProperty(propertyName:String, value:*, passive:Boolean = false):qb2Object;
+		function setProperty(propertyName:String, value:*, takesOwnership:Boolean = true):qb2Object;
 		
 		function get flags():uint;
 		
-		function turnFlagOn(flag:uint, passive:Boolean = false):qb2Object;
+		function turnFlagOn(flag:uint, takesOwnership:Boolean = true):qb2Object;
 		
-		function turnFlagOff(flag:uint, passive:Boolean = false):qb2Object;
-		
-		function setFlag(bool:Boolean, flag:uint, passive:Boolean = false):qb2Object
+		function turnFlagOff(flag:uint, takesOwnership:Boolean = true):qb2Object;
 		
 		function isFlagOn(flag:uint):Boolean;
 		
@@ -239,8 +237,6 @@ package QuickB2.objects.tangibles
 		function getAncestorOfType(ancestorType:Class):qb2ObjectContainer;
 		
 		function getCommonAncestor(otherObject:qb2Object):qb2ObjectContainer;
-		
-		function getSeperationFromAncestor(ancestor:qb2ObjectContainer = null):int;
 		
 		function isAbove(otherObject:qb2Object):Boolean;
 		

@@ -730,7 +730,7 @@ package QuickB2.loaders
 		
 		private static function applyObjectTag(object:qb2Object, objectTag:DisplayObject):void
 		{
-			object.identifier = objectTag["identifier"];
+			object.userData = objectTag["identifier"];
 			 
 			addEventListenerToObject(object, objectTag, "_handler_addedToWorld");
 			addEventListenerToObject(object, objectTag, "_handler_removedFromWorld");

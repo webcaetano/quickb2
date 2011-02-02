@@ -46,7 +46,7 @@ package QuickB2.objects.joints
 	{
 		public function qb2DistanceJoint(initObject1:qb2IRigidObject = null, initObject2:qb2IRigidObject = null, initWorldAnchor1:amPoint2d = null, initWorldAnchor2:amPoint2d = null)
 		{
-			turnFlagOn(qb2_flags.J_AUTO_SET_LENGTH, true);
+			turnFlagOn(qb2_flags.J_AUTO_SET_LENGTH, false);
 			
 			object1 = initObject1;
 			object2 = initObject2;

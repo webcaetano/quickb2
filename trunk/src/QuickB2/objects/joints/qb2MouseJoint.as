@@ -48,9 +48,9 @@ package QuickB2.objects.joints
 	
 		public function qb2MouseJoint(initObject:qb2IRigidObject = null, initWorldAnchor:amPoint2d = null) 
 		{
-			setProperty(qb2_props.J_MAX_FORCE,    100.0, true);
-			setProperty(qb2_props.J_FREQUENCY_HZ,   5.0, true);
-			setProperty(qb2_props.J_DAMPING_RATIO,  0.7, true);
+			setProperty(qb2_props.J_MAX_FORCE,    100.0, false);
+			setProperty(qb2_props.J_FREQUENCY_HZ,   5.0, false);
+			setProperty(qb2_props.J_DAMPING_RATIO,  0.7, false);
 			
 			requiresTwoRigids = false;
 			hasOneWorldPoint = true;

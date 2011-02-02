@@ -48,13 +48,14 @@ package QuickB2.objects
 	 */
 	public class qb2Object extends qb2EventDispatcher
 	{
-		public var identifier:String = "";
+		/// A place to put any kind of data you want to be associated with this object.
+		public var userData:*;
 		
 		public function qb2Object()
 		{
 			if ( (this as Object).constructor == qb2Object )  throw qb2_errors.ABSTRACT_CLASS_ERROR;
 			
-			turnFlagOn(qb2_flags.O_JOINS_IN_DEBUG_DRAWING | qb2_flags.O_JOINS_IN_DEEP_CLONING | qb2_flags.O_JOINS_IN_UPDATE_CHAIN, true);
+			turnFlagOn(qb2_flags.O_JOINS_IN_DEBUG_DRAWING | qb2_flags.O_JOINS_IN_DEEP_CLONING | qb2_flags.O_JOINS_IN_UPDATE_CHAIN, false);
 			
 			if ( !eventsInitialized )
 			{
@@ -65,16 +66,22 @@ package QuickB2.objects
 		qb2_friend var _ownershipFlagsForProperties:uint = 0;
 		qb2_friend var _ownershipFlagsForBooleans:uint   = 0;
 		
+		/** Returns the bitwise flags assigned to this object.
+		 * @default qb2_flags.O_JOINS_IN_DEBUG_DRAWING | qb2_flags.O_JOINS_IN_DEEP_CLONING | qb2_flags.O_JOINS_IN_UPDATE_CHAIN
+		 */
+		
 		public function get flags():uint
 			{  return _flags;  }
 		qb2_friend var _flags:uint = 0;
 		
-		public final function turnFlagOff(flag:uint, passive:Boolean = false):qb2Object
+		/// Turns a flag (or flags) off.  For example turnFlagOff(qb2_flags.O_JOINS_IN_DEBUG_DRAWING)
+		/// will tell this object not to draw debug graphics.
+		public final function turnFlagOff(flag:uint, takeOwnership:Boolean = true):qb2Object
 		{
 			var oldFlags:uint = _flags;
 			_flags &= ~flag;
 			
-			if ( passive )
+			if ( !takeOwnership )
 			{
 				_ownershipFlagsForBooleans &= ~flag;
 				flagsChanged(oldFlags ^ _flags);
@@ -93,12 +100,14 @@ package QuickB2.objects
 			return this;
 		}
 		
-		public final function turnFlagOn(flag:uint, passive:Boolean = false):qb2Object
+		/// Turns a flag (or flags) on.  For example turnFlagOn(qb2_flags.O_JOINS_IN_DEBUG_DRAWING)
+		/// will tell this object to draw debug graphics.
+		public final function turnFlagOn(flag:uint, takeOwnership:Boolean = true):qb2Object
 		{
 			var oldFlags:uint = _flags;
 			_flags |= flag;
 				
-			if ( passive )
+			if ( !takeOwnership )
 			{
 				_ownershipFlagsForBooleans &= ~flag;
 				flagsChanged( oldFlags ^ _flags );
@@ -117,42 +126,52 @@ package QuickB2.objects
 			return this;
 		}
 		
-		public final function setFlag(bool:Boolean, flag:uint, passive:Boolean = false):qb2Object
+		qb2_friend final function setFlag(bool:Boolean, flag:uint, takeOwnership:Boolean = true):qb2Object
 		{
 			if ( bool )
 			{
-				turnFlagOn(flag, passive);
+				turnFlagOn(flag, takeOwnership);
 			}
 			else
 			{
-				turnFlagOff(flag, passive);
+				turnFlagOff(flag, takeOwnership);
 			}
 			
 			return this;
 		}
 		
+		/// Tells whether a bitwise flag(s) is on or off.
 		public final function isFlagOn(flag:uint):Boolean
 		{
 			return _flags & flag ? true : false;
 		}
 		
+		/// Tells whether this object owns a given flag(s).
 		public final function ownsFlag(flag:uint):Boolean
 		{
 			return _ownershipFlagsForBooleans & flag ? true : false;
 		}
 		
+		/// Tells whether this object owns a given property name.
 		public final function ownsProperty(propertyName:String):Boolean
 		{
 			var propertyBit:uint = _propertyMap[propertyName];
 			return _ownershipFlagsForProperties & propertyBit ? true : false;
 		}
 		
+		/** Gets the property value for a given property name.
+		 * @return Generall a Number, uint, or int.
+		 */
 		public final function getProperty(propertyName:String):*
 		{
 			return _propertyMap[propertyName];
 		}
 		
-		public final function setProperty(propertyName:String, value:*, passive:Boolean = false):qb2Object
+		/** Sets the property value for a given property name.
+		 * @param value The value associated with the property name.  This is generally a Number, int, or uint.
+		 * @return this
+		 */
+		public final function setProperty(propertyName:String, value:*, takeOwnership:Boolean = true):qb2Object
 		{
 			//--- Check if this property has been registered yet by any object.
 			if ( !_propertyBits[propertyName] )
@@ -166,7 +185,7 @@ package QuickB2.objects
 				_currPropertyBit = _currPropertyBit << 1;
 			}
 			
-			if ( passive )
+			if ( !takeOwnership )
 			{
 				_propertyMap[propertyName] = value;
 				_ownershipFlagsForProperties &= ~_propertyBits[propertyName];
@@ -358,6 +377,10 @@ package QuickB2.objects
 			}
 		}
 		
+		/** Whether or not this object joins in deep clones, i.e. when an ancestor gets its clone() function called.
+		 * Direct calls to this object's clone() method will still work regardless.
+		 * @default true
+		 */
 		public function get joinsInDeepCloning():Boolean
 			{  return _flags & qb2_flags.O_JOINS_IN_DEEP_CLONING ? true : false;  }
 		public function set joinsInDeepCloning(bool:Boolean):void
@@ -368,6 +391,9 @@ package QuickB2.objects
 				turnFlagOff(qb2_flags.O_JOINS_IN_DEEP_CLONING);
 		}
 		
+		/** Whether or not this object joins in debug drawing.  Direct calls to drawDebug() will still work regardless.
+		 * @default true
+		 */
 		public function get joinsInDebugDrawing():Boolean
 			{  return _flags & qb2_flags.O_JOINS_IN_DEBUG_DRAWING ? true : false;  }
 		public function set joinsInDebugDrawing(bool:Boolean):void
@@ -378,6 +404,10 @@ package QuickB2.objects
 				turnFlagOff(qb2_flags.O_JOINS_IN_DEBUG_DRAWING);
 		}
 		
+		/** Whether or not this object joins in the update chain.  Setting this to false means that overriding qb2Object::update()
+		 * is meaningless.
+		 * @default true
+		 */
 		public function get joinsInUpdateChain():Boolean
 			{  return _flags & qb2_flags.O_JOINS_IN_UPDATE_CHAIN ? true : false;  }
 		public function set joinsInUpdateChain(bool:Boolean):void
@@ -455,17 +485,27 @@ package QuickB2.objects
 		
 		private static var eventsInitialized:Boolean = false;
 		
+		/** The parent of this object, if any.
+		 * @default null
+		 */
 		public function get parent():qb2ObjectContainer
 			{  return _parent;  }
 		qb2_friend var _parent:qb2ObjectContainer = null;
 
+		/** The world this object resides in, if any.
+		 * @default null
+		 */
 		public function get world():qb2World
 			{  return _world;  }
 		qb2_friend var _world:qb2World = null;
 		
+		/** Removes this object from its parent.
+		 */
 		public function removeFromParent():void
 			{  this._parent.removeObject(this);  }
 			
+		/** Determines if this object is a descendant of the given ancestor.
+		*/
 		public function isDescendantOf(possibleAncestor:qb2ObjectContainer):Boolean
 		{
 			var object:qb2ObjectContainer = this._parent;
@@ -478,6 +518,8 @@ package QuickB2.objects
 			return false;
 		}
 		
+		/** Determines whether this object has an ancestor of a certain class.
+		 */
 		public function isDescendantOfType(possibleAncestorType:Class):Boolean
 		{
 			var object:qb2ObjectContainer = this._parent;
@@ -490,6 +532,8 @@ package QuickB2.objects
 			return false;
 		}
 		
+		/** Returns the first ancestor of this object that is of a certain class.
+		 */
 		public function getAncestorOfType(ancestorType:Class):qb2ObjectContainer
 		{
 			var object:qb2ObjectContainer = this._parent;
@@ -503,6 +547,9 @@ package QuickB2.objects
 			return null;
 		}
 		
+		/** Gets the first common ancestor of this an another object, if any.
+		 * If the two objects are in the same world, at the very least this function will return the world.
+		 */
 		public function getCommonAncestor(otherObject:qb2Object):qb2ObjectContainer
 		{
 			setAncestorPair(this, otherObject);
@@ -547,26 +594,8 @@ package QuickB2.objects
 		qb2_friend static var setAncestorPair_local:qb2Object = null;
 		qb2_friend static var setAncestorPair_other:qb2Object = null;
 		
-		public function getSeperationFromAncestor(ancestor:qb2ObjectContainer = null):int
-		{
-			var count:int = 0;
-			var currParent:qb2Object = this;
-			var foundAncestor:Boolean = false;
-			while ( currParent )
-			{
-				if ( currParent == ancestor )
-				{
-					foundAncestor = true;
-					break;
-				}
-				
-				currParent = currParent._parent;
-				count++;
-			}
-			
-			return foundAncestor ? count : count-1;
-		}
-		
+		/// Determines if this object is "above" otherObject.  If it returns true, it means for example
+		/// that this object will be drawn on top of otherObject for debug drawing.
 		public function isAbove(otherObject:qb2Object):Boolean
 		{
 			setAncestorPair(this, otherObject);
@@ -603,11 +632,15 @@ package QuickB2.objects
 			return false;
 		}
 		
+		/// Determines if this object is "below" otherObject.  If it returns true, it means for example
+		/// that this object will be drawn below otherObject for debug drawing.
 		public function isBelow(otherObject:qb2Object):Boolean
 		{
 			return !isAbove(otherObject);
 		}
 		
+		/// Override this in subclasses to process class-specific changes that should be made immeddiately after the physics time step.
+		/// This function is called after qb2UpdateEvent.PRE_UPDATE and before qb2UpdateEvent.POST_UPDATE.
 		protected function update():void { }
 		
 		//--- Need this relay function because qb2ObjectContainer can't call protected functions directly.
@@ -749,10 +782,15 @@ package QuickB2.objects
 			_world = null;
 		}
 		
+		/// Virtual method for drawing this object.  You can override this if you want, or leave it unimplemented.
 		public virtual function draw(graphics:Graphics):void      {}
 		
+		/// Virtual method for drawing debug graphics for this object.  You can override this if you want, or leave it unimplemented.
+		/// A general use for this function is to set fill/stroke on the Graphics object, and then call draw();
 		public virtual function drawDebug(graphics:Graphics):void {}
 		
+		/// Returns a new object that is a clone of this object.  Properties, flags, and their ownerships are transferred to the new copy.
+		/// Subclasses are responsible for overriding this function and ammending whatever they need to the clone.
 		public function clone():qb2Object
 		{
 			var cloned:qb2Object = new (this as Object).constructor;
@@ -778,7 +816,7 @@ package QuickB2.objects
 			}
 		}
 		
-		/// A convenience function for getting the world's pixelPerMeter property.  If the object isn't in a world, function returns 1.
+		/// A convenience function for getting the world's pixelsPerMeter property.  If the object isn't in a world, function returns 1.
 		public function get worldPixelsPerMeter():Number
 			{  return _world ? _world.pixelsPerMeter : 1  }
 	}

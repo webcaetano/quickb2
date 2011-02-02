@@ -70,15 +70,19 @@ package QuickB2.objects.tangibles
 		 */
 		public var realtimeUpdate:Boolean = false;
 		
-		/** Number of iterations to use for each update. A higher number will produce a slower but more accurate simulation.  Lower, vice
-		 * versa. The default of 10 is suitable for most real time physics simulations.  Rarely will you have to change this.
+		/** Number of position iterations to use for each update. A higher number will produce a slower but more accurate simulation.
 		 * @default 3
 		 */
 		public var defaultPositionIterations:uint = 3;
+		
+		/** Number of velocity iterations to use for each update. A higher number will produce a slower but more accurate simulation.
+		 * @default 3
+		 */
 		public var defaultVelocityIterations:uint = 8;
 		
-		/** If realtimeUpdate is true, this is the maximum step that will be taken per frame.  Large timesteps cause instabilities.
-		 * @default = 1.0/20.0
+		/** If realtimeUpdate is true, this is the maximum step that will be taken per frame.  Large timesteps cause instabilities,
+		 * so this setting makes it so that under heavy load, or on slow computers, the physics don't go completely haywire.
+		 * @default = 1.0/10.0
 		 * @see #realtimeUpdate
 		 */
 		public var maximumRealtimeStep:Number = 1.0/10.0;
@@ -88,6 +92,8 @@ package QuickB2.objects.tangibles
 		//---- Used to register an event loop.
 		private var eventer:Sprite = new Sprite();
 		
+		/** Use this body to attach joints to the background of you application.
+		 **/
 		public function get background():qb2Body
 			{  return _background;  }
 		qb2_friend var _background:qb2Body = new qb2Body();
@@ -122,9 +128,15 @@ package QuickB2.objects.tangibles
 			_background._bodyB2 = _worldB2.m_groundBody;
 		}
 		
+		/** The box2d world that qb2World wraps.  This object has lower-level properties and functions that might not
+		 * be exposed through QuickB2, but generally you don't need to use it.  The b2World should be considered read-only.
+		 */
 		public function get b2_world():b2World
 			{  return _worldB2;  }
 			
+		/** Defines gravity in the z direction.  Use this property for top-down games in combination with frictionZ.
+		 * @default 0
+		 */
 		public function get gravityZ():Number
 			{ return _gravityZ; }
 		public function set gravityZ(value:Number):void 
@@ -135,6 +147,9 @@ package QuickB2.objects.tangibles
 		}
 		private var _gravityZ:Number = 0;
 		
+		/** Defines gravity in the x and y directions.
+		 * @default zero gravity
+		 */
 		public function get gravity():amVector2d
 			{ return _gravity; }
 		public function set gravity(value:amVector2d):void 
@@ -169,13 +184,13 @@ package QuickB2.objects.tangibles
 		}
 
 		/** If set, objects in the world will be drawn to the context according to the values in qb2_debugDrawSettings.
-		 * This is not meant as a polished rendering solution, but is very useful for quick debugging.
+		 * This is not meant as a production-level rendering solution, but is very useful for quick debugging.
 		 * @default null
 		 */
 		public var debugDrawContext:Graphics = null;
 		
-		/** If set, debug mouse dragging is enabled using the mouseX/Y of the given object. This means every dynamic object is draggable.  It is called
-		 * debug because it is not meant as a robust solution for most games or simulations. Usually you would set this to the stage or another high-level display list object.
+		/** If set, debug mouse dragging is enabled using the mouseX/Y of the given object. This makes every dynamic object draggable (except if the object has isDebugDraggable set to false.
+		 * It is called debug because it is not meant as a robust solution for most games or simulations. Usually you set this to the stage or another high-level display list object.
 		 * @default null
 		 * @see #debugDragAccel
 		 * @warning Make sure the display object you set this to can receive MouseEvent's.
@@ -217,7 +232,7 @@ package QuickB2.objects.tangibles
 		
 		
 		/** If debugDragSource is set to something meaningful, this value determines how forcefully the mouse can drag bodies.
-		 * It is scaled by the mass of the body being dragged, so all bodies will be dragged at the same speed.
+		 * It is scaled by the mass of the body being dragged, so all bodies will be dragged with the same apparent force.
 		 * @default 1000.0
 		 * @see #debugDragSource
 		 */
@@ -227,7 +242,7 @@ package QuickB2.objects.tangibles
 		private var mouseDown:Boolean = false;
 		private const debugMouseJoint:qb2MouseJoint = new qb2MouseJoint();
 		
-		/** The relationship between the physics world ("meters") and the Flash world (pixels). Box2D is tuned to work with values much
+		/** The relationship between the physics world in meters and the Flash world in pixels. Box2D is tuned to work with values much
 		 * smaller than the average resolutions of Flash apps.  30 pixels per 1 meter seems to be a good ratio for most simulations.
 		 * NOTE: Unless otherwise noted, ALL units passed back and forth through qb2World are in pixels, for convenience. qb2World automatically does the conversion to "meters".
 		 * @default 30.0
@@ -368,7 +383,7 @@ package QuickB2.objects.tangibles
 		private var _running:Boolean = false;
 	
 		/** Starts the simulation by registering an Event.ENTER_FRAME on an internal dummy Sprite, which calls step().
-		 * If you want to operate on an frequency different than your display rate, set up a timer and call step() yourself.
+		 * If you want to operate on an frequency different than your display rate, set up a _clock and call step() yourself.
 		 * @see #stop()
 		 * @see #step()
 		 */
@@ -392,7 +407,7 @@ package QuickB2.objects.tangibles
 			lastTime = currTime;
 		}
 		
-		/** The last time step that was used to advance the physics world in step().  This can change for each pass if realTimeUpdate == true
+		/** The last time step that was used to advance the physics world in step().  This can change slightly for each pass if realTimeUpdate == true.
 		 * @default 0
 		 * @see #step()
 		 * @see #realTimeUpdate
@@ -406,9 +421,8 @@ package QuickB2.objects.tangibles
 		 * @default 0
 		 */
 		public function get clock():Number
-			{  return timer;  }
-			
-		private var timer:Number = 0;
+			{  return _clock;  }
+		private var _clock:Number = 0;
 		
 		/** Updates the physics world. This includes processing debug mouse input, drawing debug graphics, updating fps, calling pre/postCallback(), and updating sprite/actor positions (if applicable).
 		 * @see #defaultTimeStep
@@ -427,7 +441,7 @@ package QuickB2.objects.tangibles
 			mouseDrag();
 			
 			_lastTimeStep = timeStep;
-			timer += _lastTimeStep;
+			_clock += _lastTimeStep;
 	
 			processingBox2DStuff = true;
 				b2Base.lib.b2World_Step(_worldB2._ptr, timeStep, velocityIterations, positionIterations);
