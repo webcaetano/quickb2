@@ -101,10 +101,10 @@ package QuickB2.objects.tangibles
 			if ( (this as Object).constructor == qb2Tangible )  throw qb2_errors.ABSTRACT_CLASS_ERROR;
 			
 			//--- Set up default values for various properties.
-			turnFlagOn(qb2_flags.T_IS_DEBUG_DRAGGABLE | qb2_flags.T_ALLOW_SLEEPING | qb2_flags.T_IS_SLICEABLE, true);
-			setProperty(qb2_props.T_CONTACT_CATEGORY,      0x0001 as uint, true);
-			setProperty(qb2_props.T_CONTACT_COLLIDES_WITH, 0xFFFF as uint, true);
-			setProperty(qb2_props.T_FRICTION,              .2,     true);
+			turnFlagOn(qb2_flags.T_IS_DEBUG_DRAGGABLE | qb2_flags.T_ALLOW_SLEEPING | qb2_flags.T_IS_SLICEABLE, false);
+			setProperty(qb2_props.T_CONTACT_CATEGORY,      0x0001 as uint, false);
+			setProperty(qb2_props.T_CONTACT_COLLIDES_WITH, 0xFFFF as uint, false);
+			setProperty(qb2_props.T_FRICTION,              .2,             false);
 		}
 		
 		qb2_friend virtual function baseClone(newObject:qb2Tangible, actorToo:Boolean, deep:Boolean):qb2Tangible {  return null;  }

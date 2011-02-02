@@ -50,9 +50,9 @@ package QuickB2.objects.joints
 	
 		public function qb2PistonJoint(initObject1:qb2IRigidObject = null, initObject2:qb2IRigidObject = null, initWorldAnchor1:amPoint2d = null, initWorldAnchor2:amPoint2d = null)
 		{
-			turnFlagOn(qb2_flags.J_OPTIMIZED_SPRING | qb2_flags.J_AUTO_SET_LENGTH | qb2_flags.J_AUTO_SET_DIRECTION, true);
-			setProperty(qb2_props.J_LOWER_LIMIT, -Infinity, true);
-			setProperty(qb2_props.J_UPPER_LIMIT,  Infinity, true);
+			turnFlagOn(qb2_flags.J_OPTIMIZED_SPRING | qb2_flags.J_AUTO_SET_LENGTH | qb2_flags.J_AUTO_SET_DIRECTION, false);
+			setProperty(qb2_props.J_LOWER_LIMIT, -Infinity, false);
+			setProperty(qb2_props.J_UPPER_LIMIT,  Infinity, false);
 			
 			object1 = initObject1;
 			object2 = initObject2;

@@ -41,9 +41,7 @@ package QuickB2.objects.joints
 	 * @author Doug Koellmer
 	 */
 	public class qb2WeldJoint extends qb2Joint
-	{		
-		private var _referenceAngle:Number = 0;
-		
+	{
 		public function qb2WeldJoint(initObject1:qb2IRigidObject = null, initObject2:qb2IRigidObject = null, initWorldAnchor:amPoint2d = null) 
 		{
 			hasOneWorldPoint = true;
@@ -67,7 +65,7 @@ package QuickB2.objects.joints
 			
 			if ( propertyName == qb2_props.J_REFERENCE_ANGLE )
 			{
-				joint.m_referenceAngle = _referenceAngle;
+				joint.m_referenceAngle = this.referenceAngle;
 				wakeUpAttached();
 			}
 		}
@@ -151,7 +149,7 @@ package QuickB2.objects.joints
 				weldJointDef.localAnchorA.y   = corrected1.y;
 				weldJointDef.localAnchorB.x   = corrected2.x;
 				weldJointDef.localAnchorB.y   = corrected2.y;
-				weldJointDef.referenceAngle = _referenceAngle;
+				weldJointDef.referenceAngle = this.referenceAngle;
 				
 				jointDef = weldJointDef;
 			}
