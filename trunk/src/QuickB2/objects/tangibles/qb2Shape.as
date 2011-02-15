@@ -63,6 +63,8 @@ package QuickB2.objects.tangibles
 			super();
 			
 			if ( (this as Object).constructor == qb2Shape )  throw qb2_errors.ABSTRACT_CLASS_ERROR;
+			
+			turnFlagOn(qb2_flags.P_ALLOW_COMPLEX_POLYGONS, false); // for the "convertToPoly" function, this should be defined for circles and polys.
 		}
 		
 		public function get b2_fixtures():Vector.<b2Fixture>
@@ -102,15 +104,14 @@ package QuickB2.objects.tangibles
 
 		public override function set density(value:Number):void
 		{
+			updateFixtureDensities( (value) / (worldPixelsPerMeter * worldPixelsPerMeter) );
 			updateMassProps(value * _surfaceArea - _mass, 0);
-			updateFixtureDensities();
-			
 		}
 
 		public override function set mass(value:Number):void
 		{
+			updateFixtureDensities( (value / _surfaceArea) / (worldPixelsPerMeter * worldPixelsPerMeter) );
 			updateMassProps(value - _mass, 0);
-			updateFixtureDensities();
 		}
 			
 		public virtual function get perimeter():Number { return NaN; }
@@ -200,13 +201,12 @@ package QuickB2.objects.tangibles
 		
 		
 		
-		private function updateFixtureDensities():void
+		private function updateFixtureDensities(newDensity:Number):void
 		{
 			if ( fixtures.length )
 			{
-				var metricDens:Number = this.metricDensity;
 				for ( var i:int = 0; i < fixtures.length; i++ )
-					fixtures[i].SetDensity(metricDens);
+					fixtures[i].SetDensity(newDensity);
 			}
 		}
 		
@@ -471,6 +471,8 @@ package QuickB2.objects.tangibles
 		protected override function update():void
 		{
 			rigid_update();
+			
+			super.update();
 			
 			if ( _world._gravityZRevisionDict[this] != _world._globalGravityZRevision || frictionJoints && _world._terrainRevisionDict[this] != _world._globalTerrainRevision )
 			{

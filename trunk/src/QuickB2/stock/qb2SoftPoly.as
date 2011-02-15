@@ -367,6 +367,19 @@ package QuickB2.stock
 					}
 				}
 			}
+			
+			if ( drawFlags & qb2_debugDrawFlags.DECOMPOSITION )
+			{
+				for (var j:int = 0; j < numObjects; j++) 
+				{
+					var jthObject:qb2Object = getObjectAt(j);
+					
+					if ( jthObject is qb2IRigidObject )
+					{
+						jthObject.draw(graphics);
+					}
+				}
+			}
 		}
 		
 		public override function toString():String

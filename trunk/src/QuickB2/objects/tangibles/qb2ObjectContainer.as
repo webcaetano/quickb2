@@ -58,16 +58,16 @@ package QuickB2.objects.tangibles
 		private static var baseClone_joints:Dictionary = null;
 		private static var baseClone_rigids:Dictionary = null;
 		
-		qb2_friend final override function baseClone(newObject:qb2Tangible, actorToo:Boolean, deep:Boolean):qb2Tangible
+		public override function clone():qb2Object
 		{
-			if ( !newObject || (this as Object).constructor != (newObject as Object).constructor)
-				throw new Error("newObject's type must match the cloned object's type");
+			var actorToo:Boolean = true;
+			var deep:Boolean = true;
 			
-			var newContainer:qb2ObjectContainer = newObject as qb2ObjectContainer;
+			var newContainer:qb2ObjectContainer = super.clone() as qb2ObjectContainer;
 			newContainer.removeAllObjects(); // in case the constructor adds some objects.
-			if ( newObject is qb2Body )
-				(newObject as qb2Body).setTransform(_position.clone(), _rotation);
-			newContainer.copyProps(this);
+			if ( newContainer is qb2Body )
+				(newContainer as qb2Body).setTransform(_position.clone(), _rotation);
+			newContainer.copyTangibleProps(this);
 			
 			var deepCloneBit:uint = qb2_flags.O_JOINS_IN_DEEP_CLONING;
 			

@@ -28,12 +28,11 @@ package QuickB2.effects
 	 * ...
 	 * @author Doug Koellmer
 	 */
-	public class qb2Vibrator extends qb2Effect
+	public class qb2Vibrator extends qb2EffectField
 	{
-		
-		public function qb2Vibrator() 
+		public function qb2Vibrator(ubiquitous:Boolean = false)
 		{
-			
+			super(ubiquitous);
 		}
 		
 		public override function toString():String 

@@ -46,6 +46,7 @@ package
 				block.y = lastBlock.y;
 				block.width = lastBlock.width;
 			}
+			_currentBlock = block;
 			_blocks.push(block);
 			addChild(block);
 			
@@ -120,7 +121,14 @@ package
 			_buttons[index].alpha = 1;
 			_buttons[index].selected = true;
 			_blocks[index].visible = true;
+			_currentBlock = _blocks[index];
 		}
+		
+		public function get currentBlock():CodeBlock
+		{
+			return _currentBlock;
+		}
+		private var _currentBlock:CodeBlock = null;
 		
 		private function dehighlightBlock(index:uint):void
 		{

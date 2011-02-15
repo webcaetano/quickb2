@@ -28,12 +28,11 @@ package QuickB2.effects
 	 * ...
 	 * @author Doug Koellmer
 	 */
-	public class qb2Vortex extends qb2Effect
+	public class qb2Vortex extends qb2EffectField
 	{
-		
-		public function qb2Vortex() 
+		public function qb2Vortex(ubiquitous:Boolean = false)
 		{
-			
+			super(ubiquitous);
 		}
 		
 		public override function toString():String 

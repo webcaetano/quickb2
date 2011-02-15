@@ -22,18 +22,69 @@
 
 package QuickB2.effects 
 {
+	import As3Math.geo2d.amVector2d;
 	import QuickB2.debugging.qb2DebugTraceSettings;
+	import QuickB2.objects.qb2Object;
+	import QuickB2.objects.tangibles.qb2Group;
+	import QuickB2.objects.tangibles.qb2IRigidObject;
+	import QuickB2.objects.tangibles.qb2Tangible;
 	
 	/**
 	 * ...
 	 * @author Doug Koellmer
 	 */
-	public class qb2GravityField extends qb2Effect
+	public class qb2GravityField extends qb2EffectField
 	{
+		public var gravity:amVector2d = new amVector2d();
 		
-		public function qb2GravityField() 
+		public function qb2GravityField(ubiquitous:Boolean = false)
 		{
+			super(ubiquitous);
+		}
+		
+		public override function apply(toObject:qb2Tangible):void
+		{
+			if ( !shouldApply(toObject) )  return;
 			
+			utilTraverser.root = toObject;
+			
+			while (utilTraverser.hasNext )
+			{
+				var currObject:qb2Object = utilTraverser.currentObject;
+				
+				if ( !(currObject is qb2Tangible) )
+				{
+					utilTraverser.next(false);
+					continue;
+				}
+				else if ( currObject is qb2IRigidObject )
+				{
+					var asRigid:qb2IRigidObject = currObject as qb2IRigidObject;
+					if ( asRigid.ancestorBody )
+					{
+						asRigid.ancestorBody.applyForce(asRigid.parent.getWorldPoint(asRigid.centerOfMass), gravity.scaledBy(asRigid.mass));
+					}
+					else
+					{
+						asRigid.applyForce(asRigid.centerOfMass, gravity.scaledBy(asRigid.mass));
+					}
+					
+					utilTraverser.next(false);
+				}
+				else
+				{
+					utilTraverser.next(true);
+				}
+			}
+		}
+		
+		public override function clone():qb2Object
+		{
+			var cloned:qb2GravityField = super.clone() as qb2GravityField;
+			
+			cloned.gravity.copy(this.gravity);
+			
+			return cloned;
 		}
 		
 		public override function toString():String 

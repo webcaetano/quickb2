@@ -28,12 +28,11 @@ package QuickB2.effects
 	 * ...
 	 * @author Doug Koellmer
 	 */
-	public class qb2GravityWell extends qb2Effect
+	public class qb2GravityWell extends qb2EffectField
 	{
-		
-		public function qb2GravityWell() 
+		public function qb2GravityWell(ubiquitous:Boolean = false)
 		{
-			
+			super(ubiquitous);
 		}
 		
 		public override function toString():String 

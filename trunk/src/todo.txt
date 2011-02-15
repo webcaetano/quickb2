@@ -1,11 +1,11 @@
 
 - bound circles
 
-- convex hulls
+- make the rigid implementation a seperate internal  class that gets its calls routed from the qb2IRigidObejct implementers...instead of qb2Tangible holding all the code.
 
-- virtual function on qb2Object that is overloaded by subclasses to determine what it contributes as far as geometry for bound box, bound circle, and convex hull
+- virtual function on qb2Object that is overloaded by subclasses to determine what it contributes as far as geometry for bounding reps (maybe).
 
-- have explode preserve velocities
+- have explode preserve velocities correctly.
 
 - have revolute spring working off of forces
 

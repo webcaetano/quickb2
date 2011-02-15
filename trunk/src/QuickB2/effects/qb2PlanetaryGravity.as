@@ -28,12 +28,11 @@ package QuickB2.effects
 	 * ...
 	 * @author Doug Koellmer
 	 */
-	public class qb2PlanetaryGravity extends qb2Effect
+	public class qb2PlanetaryGravity extends qb2EffectField
 	{
-		
-		public function qb2PlanetaryGravity() 
+		public function qb2PlanetaryGravity(ubiquitous:Boolean = false)
 		{
-			
+			super(ubiquitous);			
 		}
 		
 		public override function toString():String 

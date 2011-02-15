@@ -36,6 +36,7 @@ package QuickB2.objects.tangibles
 	import QuickB2.debugging.*;
 	import QuickB2.misc.qb2_flags;
 	import QuickB2.misc.qb2_props;
+	import QuickB2.objects.qb2Object;
 	import QuickB2.stock.qb2Terrain;
 	
 	use namespace qb2_friend;
@@ -59,8 +60,6 @@ package QuickB2.objects.tangibles
 			super();
 			
 			polygon.addEventListener(amUpdateEvent.ENTITY_UPDATED, polygonUpdated);
-			
-			turnFlagOn(qb2_flags.P_ALLOW_COMPLEX_POLYGONS, false);
 		}
 		
 		public function get allowComplexPolygons():Boolean
@@ -154,8 +153,22 @@ package QuickB2.objects.tangibles
 		public function setVertexAt(index:uint, point:amPoint2d):qb2PolygonShape
 			{  polygon.setVertexAt(index, point);  return this; }
 			
-		public function insertVertexAt(index:uint, point:amPoint2d):qb2PolygonShape
-			{  polygon.insertVertexAt(index, point);  return this;  }
+		public function insertVertexAt(index:uint, ... pointOrPoints):qb2PolygonShape
+		{
+			polygon.removeEventListener(amUpdateEvent.ENTITY_UPDATED, polygonUpdated);
+			{
+				for ( var i:int = 0; i < pointOrPoints.length; i++ )
+				{
+					polygon.insertVertexAt(index, pointOrPoints[i] as amPoint2d);
+					index++;
+				}
+			}
+			polygon.addEventListener(amUpdateEvent.ENTITY_UPDATED, polygonUpdated);
+
+			polygonUpdated(null);
+			
+			return this;
+		}
 		
 		public function removeVertex(vertex:amPoint2d):qb2PolygonShape
 			{  polygon.removeVertex(vertex);  return this;  }
@@ -197,15 +210,15 @@ package QuickB2.objects.tangibles
 			return this;
 		}
 			
-		qb2_friend final override function baseClone(newObject:qb2Tangible, actorToo:Boolean, deep:Boolean):qb2Tangible
+		public override function clone():qb2Object
 		{
-			if ( !newObject || newObject && !(newObject is qb2PolygonShape) )
-				throw new Error("newObject must be a type of qb2PolygonShape.");
-				
-			var newPolyShape:qb2PolygonShape = newObject as qb2PolygonShape;
+			var actorToo:Boolean = true;
+			var deep:Boolean = true;
+			
+			var newPolyShape:qb2PolygonShape = super.clone() as qb2PolygonShape;
 			newPolyShape.set(polygon.asPoints(), _position.clone());
 			newPolyShape._rotation = this._rotation;
-			newPolyShape.copyProps(this);
+			newPolyShape.copyTangibleProps(this);
 			newPolyShape._closed = this._closed;
 			
 			if ( actorToo && actor )
