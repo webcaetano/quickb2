@@ -17,6 +17,9 @@
 
 - have one click build for all .swc and documentation builds...maybe examples too.
 
+- upgrade to latest min comps
+
+
 
 
 TESTING
