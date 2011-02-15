@@ -39,7 +39,7 @@ package QuickB2.effects
 	 */
 	public class qb2EffectField extends qb2Body
 	{
-		public var filter:Array = null;
+		public var filter:Dictionary = null;
 		
 		public function qb2EffectField(ubiquitous:Boolean = false)
 		{
@@ -63,22 +63,22 @@ package QuickB2.effects
 		{
 			if ( !filter )  return true;
 			
-			for (var i:int = 0; i < filter.length; i++) 
+			for ( var key:* in filter )
 			{
-				if ( filter[i] is Class )
+				if ( key is Class )
 				{
-					if ( toObject is (filter[i] as Class) )
+					if ( toObject is (key as Class) )
 					{
-						return true;
+						return filter[key] as Boolean;
 					}
 				}
-				else if ( filter[i] == toObject )
+				else if ( key == toObject )
 				{
-					return true;
+					return filter[key] as Boolean;
 				}
 			}
 			
-			return false;
+			return true;
 		}
 		
 		private function addedOrRemoved(evt:qb2ContainerEvent):void
