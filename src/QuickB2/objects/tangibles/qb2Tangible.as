@@ -38,6 +38,7 @@ package QuickB2.objects.tangibles
 	import QuickB2.debugging.*;
 	import QuickB2.effects.*;
 	import QuickB2.events.*;
+	import QuickB2.internals.qb2InternalContactListener;
 	import QuickB2.internals.qb2InternalSliceUtility;
 	import QuickB2.loaders.proxies.*;
 	import QuickB2.misc.qb2_flags;
@@ -106,8 +107,6 @@ package QuickB2.objects.tangibles
 			setProperty(qb2_props.T_CONTACT_COLLIDES_WITH, 0xFFFF as uint, false);
 			setProperty(qb2_props.T_FRICTION,              .2,             false);
 		}
-		
-		qb2_friend virtual function baseClone(newObject:qb2Tangible, actorToo:Boolean, deep:Boolean):qb2Tangible {  return null;  }
 		
 		qb2_friend virtual function updateContactReporting(bits:uint):void { }
 		
@@ -280,11 +279,11 @@ package QuickB2.objects.tangibles
 		}
 	
 		
-		public function get effects():Vector.<qb2Effect>
-			{ return _effects; }
-		public function set effects(value:Vector.<qb2Effect>):void 
-			{  _effects = value;  }
-		private var _effects:Vector.<qb2Effect>;
+		public function get effectFields():Vector.<qb2EffectField>
+			{ return _effectFields; }
+		public function set effectFields(array:Vector.<qb2EffectField>):void 
+			{  _effectFields = array;  }
+		private var _effectFields:Vector.<qb2EffectField>;
 		
 		public function get actor():DisplayObject
 			{  return _actor;  }
@@ -299,10 +298,10 @@ package QuickB2.objects.tangibles
 		}
 		qb2_friend var _actor:DisplayObject;
 		
-		public override function clone():qb2Object
-			{  return baseClone(super.clone() as qb2Tangible, true, true);  }
+		//public override function clone():qb2Object
+		//	{  return baseClone(super.clone() as qb2Tangible, true, true);  }
 			
-		qb2_friend function copyProps(source:qb2Tangible, massPropsToo:Boolean = true ):void
+		qb2_friend function copyTangibleProps(source:qb2Tangible, massPropsToo:Boolean = true ):void
 		{
 			if ( massPropsToo ) // clones will have this true by default, while convertTo*()'s will have it false.
 			{
@@ -1154,10 +1153,11 @@ package QuickB2.objects.tangibles
 		}
 		qb2_friend var _terrainsBelowThisTang:Vector.<qb2Terrain>;
 		
-		public function slice(laser:amLine2d, outputPoints:Vector.<amPoint2d> = null, includePartialSlices:Boolean = true, keepOriginal:Boolean = false, addNewTangs:Boolean = true):Vector.<qb2Tangible>
+		public function slice(laser:amLine2d, outputHitPoints:Vector.<amPoint2d> = null, includePartialSlices:Boolean = true, keepOriginal:Boolean = false, addNewTangs:Boolean = true):Vector.<qb2Tangible>
 		{
-			return qb2InternalSliceUtility.slice(this, laser, outputPoints, includePartialSlices);
+			return (_sliceUtility ? _sliceUtility : _sliceUtility = new qb2InternalSliceUtility()).slice(this, laser, outputHitPoints, includePartialSlices);
 		}
+		qb2_friend var _sliceUtility:qb2InternalSliceUtility = null;
 		
 		/*public virtual function shatterRadial(focalPoint:amPoint2d, numRadialFractures:uint = 10, numRandomFractures:uint = 5, randomRadials:Boolean = true):Vector.<qb2Tangible>  {  return null;  }
 		
@@ -1169,13 +1169,13 @@ package QuickB2.objects.tangibles
 		
 		protected override function update():void
 		{
-			//--- NOTE: qb2Object doesn't implement update(), so there's no reason to call it.
+			// NOTE: qb2Object doesn't implement update(), so there's no reason to call it.
 			
-			if ( effects )
+			if ( _effectFields )
 			{
-				for (var i:int = 0; i < effects.length; i++) 
+				for (var i:int = 0; i < _effectFields.length; i++) 
 				{
-					effects[i].apply(this);
+					_effectFields[i].apply(this);
 				}
 			}
 		}

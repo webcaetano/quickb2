@@ -10,6 +10,7 @@
 	import flash.text.TextFieldAutoSize;
 	import flash.utils.*;
 	import QuickB2.debugging.*;
+	import QuickB2.effects.qb2GravityField;
 	import QuickB2.events.qb2UpdateEvent;
 	import QuickB2.loaders.proxies.qb2ProxyBody;
 	import QuickB2.objects.*;
@@ -46,7 +47,7 @@
 		//--- All the demo classes to cycle through.
 		private static const demoClasses:Vector.<Class> = Vector.<Class>
 		([
-			CarDriving, RigidCar, StockSofts, JelloCar, StockRigids, StressTest,
+			/*Carving, */CarDriving, RigidCar, StockSofts, JelloCar, StockRigids, StressTest,
 			BubblePop, Cup, Actors, ShapeTransformation, Drawing, Joints, Distance
 		]);
 		
@@ -204,7 +205,7 @@
 			
 			if ( currDemo )  world.removeObject(currDemo);
 			var nextDemo:Demo = !refresh && _demos.length > currIndex ? _demos[currIndex] : new demoClasses[currIndex]();
-			world.addObject(currDemo = nextDemo);
+			currDemo = nextDemo;
 			
 			var fileName:String = getQualifiedClassName(currDemo).split("::")[1] + ".as";
 			if ( _demos.length <= currIndex )
@@ -217,6 +218,8 @@
 				_demos[currIndex] = currDemo;
 				CodeBlocks.singleton.highlightTab(fileName);
 			}
+			
+			world.addObject(currDemo);
 			
 			//--- Just make the world refresh stuff if it's paused and the user switches demos.
 			if ( !world.running )

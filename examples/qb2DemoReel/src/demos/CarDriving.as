@@ -40,6 +40,7 @@ package demos
 			defaultTerrain.frictionZMultiplier = 1.5;
 			map.addObject(defaultTerrain);
 			
+			//--- Make a little icy pond.
 			var icyPatch:tdTerrain = new tdTerrain();
 			icyPatch.frictionZMultiplier = .1;
 			icyPatch.slidingSkidColor = 0x33ffff;

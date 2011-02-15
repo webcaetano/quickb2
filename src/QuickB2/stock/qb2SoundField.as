@@ -6,6 +6,7 @@ package QuickB2.stock
 	import QuickB2.debugging.qb2_debugDrawSettings;
 	import QuickB2.events.qb2ContainerEvent;
 	import QuickB2.events.qb2ContactEvent;
+	import QuickB2.events.qb2MassEvent;
 	import QuickB2.objects.qb2Object;
 	import QuickB2.objects.tangibles.qb2Body;
 	import QuickB2.objects.tangibles.qb2ObjectContainer;
@@ -23,6 +24,7 @@ package QuickB2.stock
 			addEventListener(qb2ContainerEvent.REMOVED_FROM_WORLD, addedOrRemoved, false, 0, true);
 			addEventListener(qb2ContactEvent.CONTACT_STARTED, contact, false, 0, true);
 			addEventListener(qb2ContactEvent.CONTACT_ENDED, contact, false, 0, true);
+			addEventListener(qb2MassEvent.MASS_PROPS_CHANGED, massOrAreaChanged, false, 0, true);
 		}
 		
 		private function addedOrRemoved(evt:qb2ContainerEvent):void
@@ -74,9 +76,7 @@ package QuickB2.stock
 		protected override function update():void
 		{
 			super.update();
-			
-			if ( !ear )  return;
-			
+	
 			//--- We can only update sound volumes when the last sound field is updated.
 			if ( this == globalSoundFieldList[globalSoundFieldList.length - 1] )
 			{
@@ -87,7 +87,7 @@ package QuickB2.stock
 		private static function updateVolumes():void
 		{
 			var soundVolumeDict:Dictionary = new Dictionary(true);
-			var soundNumDict:Dictionary = new Dictionary(true);
+			var soundCountDict:Dictionary = new Dictionary(true);
 			
 			for (var i:int = 0; i < globalSoundFieldList.length; i++) 
 			{
@@ -153,23 +153,23 @@ package QuickB2.stock
 				if ( !soundVolumeDict[soundField._sound] )
 				{
 					soundVolumeDict[soundField._sound] = 0.0 as Number;
-					soundNumDict[soundField._sound] = 0 as int;
+					soundCountDict[soundField._sound] = 0 as int;
 				}
 				
 				soundVolumeDict[soundField._sound] += volume;
-				soundNumDict[soundField._sound]++;
+				soundCountDict[soundField._sound]++;
 			}
 			
 			for ( key in soundDict )
 			{
 				var sound:stSoundObject = key as stSoundObject;
 				
-				if ( soundNumDict[sound] )
+				if ( soundCountDict[sound] )
 				{
-					var numberOfSounds:Number = soundNumDict[key];
+					var numberOfSounds:Number = soundCountDict[key];
 					var soundVolume:Number = soundVolumeDict[key];
 					
-					sound.volume = soundVolume / numberOfSounds;
+					sound.volume = numberOfSounds ? soundVolume / numberOfSounds : 0;
 					
 					if ( !sound.playing )
 					{
@@ -221,6 +221,11 @@ package QuickB2.stock
 		}
 		private var _horizon:Number = 0;
 		
+		private function massOrAreaChanged(evt:qb2MassEvent):void
+		{
+			refreshHorizonTang();
+		}
+		
 		private function refreshHorizonTang():void
 		{
 			if ( _horizonTang )
@@ -247,6 +252,11 @@ package QuickB2.stock
 			debugFillColorStack.unshift(qb2_debugDrawSettings.soundFieldFillColor);
 				super.drawDebug(graphics);
 			debugFillColorStack.shift();
+			
+			if ( _horizonTang )
+			{
+				
+			}
 		}
 		
 		public override function clone():qb2Object

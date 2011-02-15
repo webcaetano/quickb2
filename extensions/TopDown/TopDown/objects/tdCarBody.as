@@ -29,6 +29,7 @@ package TopDown.objects
 	import flash.display.Graphics;
 	import flash.utils.Dictionary;
 	import QuickB2.*;
+	import QuickB2.events.qb2ContactEvent;
 	import QuickB2.events.qb2ContainerEvent;
 	import QuickB2.events.qb2MassEvent;
 	import QuickB2.misc.qb2TreeTraverser;
@@ -90,6 +91,7 @@ package TopDown.objects
 		{
 			addEventListener(qb2ContainerEvent.ADDED_TO_WORLD,     addedOrRemoved, false, 0, true);
 			addEventListener(qb2ContainerEvent.REMOVED_FROM_WORLD, addedOrRemoved, false, 0, true);
+			addEventListener(qb2ContainerEvent.INDEX_CHANGED,      indexChanged, false, 0, true);
 			addEventListener(qb2MassEvent.MASS_PROPS_CHANGED,      massPropsUpdated, false, 0, true);
 		}
 		
@@ -105,6 +107,11 @@ package TopDown.objects
 			{
 				_map = null;
 			}
+		}
+		
+		private function indexChanged(evt:qb2ContainerEvent):void
+		{
+			_world._terrainRevisionDict[this] = -1; // let this car know that it needs to update its terrain list on the next pass.
 		}
 		
 		public function get map():tdMap
@@ -356,7 +363,7 @@ package TopDown.objects
 			
 			if ( !axle )  return;
 			
-			if( !_world._terrainRevisionDict || _world._terrainRevisionDict[this] != _world._globalTerrainRevision )
+			if( _world._terrainRevisionDict[this] != _world._globalTerrainRevision )
 			{
 				populateTerrainsBelowThisTang();
 			}

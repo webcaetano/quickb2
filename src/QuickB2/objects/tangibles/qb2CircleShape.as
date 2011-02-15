@@ -33,8 +33,10 @@ package QuickB2.objects.tangibles
 	import flash.display.*;
 	import QuickB2.*;
 	import QuickB2.debugging.*;
+	import QuickB2.misc.qb2_flags;
 	import QuickB2.misc.qb2_props;
 	import QuickB2.objects.joints.*;
+	import QuickB2.objects.qb2Object;
 	import QuickB2.stock.*;
 	
 	use namespace qb2_friend;
@@ -52,7 +54,7 @@ package QuickB2.objects.tangibles
 		{
 			super();
 			
-			setProperty(qb2_props.C_ARC_APPROXIMATION, 10.0, false);
+			setProperty(qb2_props.C_ARC_APPROXIMATION, 20.0, false);
 		}
 		
 		public function get arcApproximation():Number
@@ -60,14 +62,14 @@ package QuickB2.objects.tangibles
 		public function set arcApproximation(value:Number):void
 			{  setProperty(qb2_props.C_ARC_APPROXIMATION, value);  }
 			
-		qb2_friend final override function baseClone(newObject:qb2Tangible, actorToo:Boolean, deep:Boolean):qb2Tangible
+		public override function clone():qb2Object
 		{
-			if ( !newObject || newObject && !(newObject is qb2CircleShape) )
-				throw new Error("newObject must be a type of qb2CircleShape.");
-				
-			var newCircleShape:qb2CircleShape = newObject as qb2CircleShape;
+			var actorToo:Boolean = true;
+			var deep:Boolean = true;
+			
+			var newCircleShape:qb2CircleShape = super.clone() as qb2CircleShape;
 			newCircleShape.set(_position.clone(), _radius, _rotation);
-			newCircleShape.copyProps(this);
+			newCircleShape.copyTangibleProps(this);
 
 			if ( actorToo && actor )
 			{
@@ -81,10 +83,10 @@ package QuickB2.objects.tangibles
 		{
 			numSides = numSides > 0 ? numSides : Math.max(perimeter / arcApproximation, 3);
 			var majorAxis:amVector2d = startPoint ? startPoint.minus(_position) : new amVector2d(0, -_radius);
-			var poly:qb2PolygonShape = qb2Stock.newEllipseShape(_position.clone(), majorAxis, _radius, numSides, 0, Math.PI * 2, 0, true);
+			var poly:qb2PolygonShape = qb2Stock.newEllipseShape(_position.clone(), majorAxis, _radius, numSides);
 			poly._rotation = this._rotation;
 			
-			poly.copyProps(this);
+			poly.copyTangibleProps(this);
 			poly.copyPropertiesAndFlags(this);
 			
 			if ( switchPlaces && _parent )

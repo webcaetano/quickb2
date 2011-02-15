@@ -266,7 +266,7 @@ package QuickB2.objects.tangibles
 			if ( oldParent )  removeFromParent();
 			
 			var body:qb2Body = new qb2Body();
-			body.copyProps(this, false);
+			body.copyTangibleProps(this, false);
 			body.position.copy(registrationPoint);
 			
 			var explodes:Vector.<qb2Object> = this.explode();

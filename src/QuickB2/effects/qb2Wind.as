@@ -28,12 +28,11 @@ package QuickB2.effects
 	 * ...
 	 * @author Doug Koellmer
 	 */
-	public class qb2Wind extends qb2Effect
+	public class qb2Wind extends qb2EffectField
 	{
-		
-		public function qb2Wind() 
+		public function qb2Wind(ubiquitous:Boolean = true)
 		{
-			
+			super(ubiquitous);
 		}
 		
 		public override function toString():String 

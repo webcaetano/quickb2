@@ -2,6 +2,7 @@ package demos
 {
 	import As3Math.geo2d.*;
 	import QuickB2.events.*;
+	import QuickB2.misc.qb2Keyboard;
 	import QuickB2.objects.tangibles.*;
 	import QuickB2.stock.*;
 
@@ -43,6 +44,12 @@ package demos
 			jelloStar.springK = 10;
 			jelloStar.restitution = .5;
 			addObject(jelloStar);
+			
+			qb2Keyboard.makeSingleton(stage).anyKeyDown = hit;
+			function hit():void
+			{
+				addObject(jelloStar.clone());
+			}
 		}
 		
 		//--- Jello stuff can tweak out if it doesn't have a small enough timestep.

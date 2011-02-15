@@ -69,7 +69,7 @@ package QuickB2.objects.tangibles
 			var oldParent:qb2ObjectContainer = _parent;
 			
 			var group:qb2Group = new qb2Group();
-			group.copyProps(this, false);
+			group.copyTangibleProps(this, false);
 			var explodes:Vector.<qb2Object> = this.explode(preserveVelocities, false);
 			if ( explodes )
 			{
@@ -167,6 +167,8 @@ package QuickB2.objects.tangibles
 		
 		protected override function update():void
 		{
+			rigid_update();
+			
 			super.update();
 			
 			var updateLoopBit:uint = qb2_flags.O_JOINS_IN_UPDATE_CHAIN;
@@ -179,7 +181,7 @@ package QuickB2.objects.tangibles
 				object.relay_update(); // You can't call update directly because it's protected.
 			}
 			
-			rigid_update();
+			
 		}
 
 		public override function translateBy(vector:amVector2d):qb2Tangible

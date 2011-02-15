@@ -31,6 +31,8 @@ package QuickB2.misc
 	
 	[Event(name="mouseDown", type="flash.events.MouseEvent")]
 	[Event(name="mouseUp",   type="flash.events.MouseEvent")]
+	[Event(name="mouseOut",  type="flash.events.MouseEvent")]
+	[Event(name="mouseOver", type="flash.events.MouseEvent")]
 	[Event(name="click",     type="flash.events.MouseEvent")]
 	
 	/**
@@ -116,6 +118,8 @@ package QuickB2.misc
 			{
 				_interactiveSource.removeEventListener(MouseEvent.MOUSE_DOWN, mouseEvent);
 				_interactiveSource.removeEventListener(MouseEvent.MOUSE_UP,   mouseEvent);
+				_interactiveSource.removeEventListener(MouseEvent.MOUSE_OUT,  mouseEvent);
+				_interactiveSource.removeEventListener(MouseEvent.MOUSE_OVER, mouseEvent);
 				_interactiveSource.removeEventListener(MouseEvent.CLICK,      mouseEvent);
 			}
 			
@@ -125,6 +129,8 @@ package QuickB2.misc
 			{
 				_interactiveSource.addEventListener(MouseEvent.MOUSE_DOWN, mouseEvent, false, 0, true );
 				_interactiveSource.addEventListener(MouseEvent.MOUSE_UP,   mouseEvent, false, 0, true );
+				_interactiveSource.addEventListener(MouseEvent.MOUSE_OUT,  mouseEvent, false, 0, true );
+				_interactiveSource.addEventListener(MouseEvent.MOUSE_OVER, mouseEvent, false, 0, true );
 				_interactiveSource.addEventListener(MouseEvent.CLICK,      mouseEvent, false, 0, true );
 			}
 			

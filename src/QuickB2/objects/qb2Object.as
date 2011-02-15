@@ -547,7 +547,7 @@ package QuickB2.objects
 			return null;
 		}
 		
-		/** Gets the first common ancestor of this an another object, if any.
+		/** Gets the first common ancestor of this and another object, if any.
 		 * If the two objects are in the same world, at the very least this function will return the world.
 		 */
 		public function getCommonAncestor(otherObject:qb2Object):qb2ObjectContainer
@@ -639,7 +639,7 @@ package QuickB2.objects
 			return !isAbove(otherObject);
 		}
 		
-		/// Override this in subclasses to process class-specific changes that should be made immeddiately after the physics time step.
+		/// Override this in subclasses to process class-specific changes that should be made immediately after the physics time step.
 		/// This function is called after qb2UpdateEvent.PRE_UPDATE and before qb2UpdateEvent.POST_UPDATE.
 		protected function update():void { }
 		
@@ -786,7 +786,7 @@ package QuickB2.objects
 		public virtual function draw(graphics:Graphics):void      {}
 		
 		/// Virtual method for drawing debug graphics for this object.  You can override this if you want, or leave it unimplemented.
-		/// A general use for this function is to set fill/stroke on the Graphics object, and then call draw();
+		/// A general use for this function is to set fill/stroke on the Graphics object, and then call draw().
 		public virtual function drawDebug(graphics:Graphics):void {}
 		
 		/// Returns a new object that is a clone of this object.  Properties, flags, and their ownerships are transferred to the new copy.
