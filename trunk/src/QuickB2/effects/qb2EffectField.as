@@ -39,7 +39,8 @@ package QuickB2.effects
 	 */
 	public class qb2EffectField extends qb2Body
 	{
-		public var filter:Dictionary = null;
+		private var instanceFilter:Dictionary = null;
+		private var typeFilter:Dictionary = null;
 		
 		public function qb2EffectField(ubiquitous:Boolean = false)
 		{
@@ -59,22 +60,52 @@ package QuickB2.effects
 			if ( (this as Object).constructor == qb2EffectField )  throw qb2_errors.ABSTRACT_CLASS_ERROR;
 		}
 		
+		private static const weakKeys:Boolean = true;
+		
+		public function disableForType(type:Class):void
+		{
+			typeFilter = typeFilter ? typeFilter : new Dictionary(weakKeys);
+			typeFilter[type] = false;
+		}
+		
+		public function enableForType(type:Class):void
+		{
+			if ( !typeFilter )  return;
+			
+			if ( typeFilter[type] )
+			{
+				delete typeFilter[type];
+			}
+		}
+		
+		public function disableForInstance(object:qb2Tangible):void
+		{
+			instanceFilter = instanceFilter ? instanceFilter : new Dictionary(weakKeys);
+			instanceFilter[object] = false;
+		}
+		
+		public function enableForInstance(object:qb2Tangible):void
+		{
+			instanceFilter = instanceFilter ? instanceFilter : new Dictionary(weakKeys);
+			instanceFilter[object] = true;
+		}
+		
+		
 		protected final function shouldApply(toObject:qb2Tangible):Boolean
 		{
-			if ( !filter )  return true;
-			
-			for ( var key:* in filter )
+			if ( instanceFilter && instanceFilter[toObject] )
 			{
-				if ( key is Class )
+				return instanceFilter[toObject];
+			}
+			
+			if ( typeFilter )
+			{
+				for ( var key:* in typeFilter )
 				{
 					if ( toObject is (key as Class) )
 					{
-						return filter[key] as Boolean;
+						return typeFilter[key] as Boolean;
 					}
-				}
-				else if ( key == toObject )
-				{
-					return filter[key] as Boolean;
 				}
 			}
 			
@@ -124,7 +155,7 @@ package QuickB2.effects
 			addEventListener(qb2ContainerEvent.REMOVED_FROM_WORLD, addedOrRemoved, false, 0, true);
 		}
 		
-		private var shapeContactDict:Dictionary = new Dictionary(true);
+		private var shapeContactDict:Dictionary = new Dictionary(weakKeys);
 		
 		private function contact(evt:qb2ContactEvent):void
 		{
