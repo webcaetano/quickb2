@@ -10,6 +10,7 @@
 	import flash.text.TextFieldAutoSize;
 	import flash.utils.*;
 	import QuickB2.debugging.*;
+	import QuickB2.effects.qb2EffectField;
 	import QuickB2.effects.qb2GravityField;
 	import QuickB2.events.qb2UpdateEvent;
 	import QuickB2.loaders.proxies.qb2ProxyBody;
