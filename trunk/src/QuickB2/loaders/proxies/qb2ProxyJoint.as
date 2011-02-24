@@ -29,6 +29,6 @@ package QuickB2.loaders.proxies
 	public class qb2ProxyJoint extends qb2ProxyObject
 	{
 		[Inspectable(defaultValue="default",enumeration="default,true,false", name='collideConnected (default=true)')]
-		public var collideConnected:String = "default";
+		public var _bool_collideConnected:String = "default";
 	}
 }

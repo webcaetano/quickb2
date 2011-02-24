@@ -48,9 +48,9 @@ package QuickB2.objects.joints
 	
 		public function qb2MouseJoint(initObject:qb2IRigidObject = null, initWorldAnchor:amPoint2d = null) 
 		{
-			setProperty(qb2_props.J_MAX_FORCE,    100.0, false);
-			setProperty(qb2_props.J_FREQUENCY_HZ,   5.0, false);
-			setProperty(qb2_props.J_DAMPING_RATIO,  0.7, false);
+			setProperty(qb2_props.MAX_FORCE,    100.0, false);
+			setProperty(qb2_props.FREQUENCY_HZ,   5.0, false);
+			setProperty(qb2_props.DAMPING_RATIO,  0.7, false);
 			
 			requiresTwoRigids = false;
 			hasOneWorldPoint = true;
@@ -118,19 +118,19 @@ package QuickB2.objects.joints
 		}
 		
 		public function get frequencyHz():Number
-			{  return getProperty(qb2_props.J_FREQUENCY_HZ) as Number;  }
+			{  return getProperty(qb2_props.FREQUENCY_HZ) as Number;  }
 		public function set frequencyHz(value:Number):void
-			{  setProperty(qb2_props.J_FREQUENCY_HZ, value);  }
+			{  setProperty(qb2_props.FREQUENCY_HZ, value);  }
 			
 		public function get dampingRatio():Number
-			{  return getProperty(qb2_props.J_DAMPING_RATIO) as Number;  }
+			{  return getProperty(qb2_props.DAMPING_RATIO) as Number;  }
 		public function set dampingRatio(value:Number):void
-			{  setProperty(qb2_props.J_DAMPING_RATIO, value);  }
+			{  setProperty(qb2_props.DAMPING_RATIO, value);  }
 			
 		public function get maxForce():Number
-			{  return getProperty(qb2_props.J_MAX_FORCE) as Number;  }
+			{  return getProperty(qb2_props.MAX_FORCE) as Number;  }
 		public function set maxForce(value:Number):void
-			{  setProperty(qb2_props.J_MAX_FORCE, value);  }
+			{  setProperty(qb2_props.MAX_FORCE, value);  }
 			
 		protected override function propertyChanged(propertyName:String):void
 		{
@@ -138,15 +138,15 @@ package QuickB2.objects.joints
 			
 			var value:Number = _propertyMap[propertyName];
 			
-			if ( propertyName == qb2_props.J_MAX_FORCE )
+			if ( propertyName == qb2_props.MAX_FORCE )
 			{
 				joint.SetMaxForce(value);
 			}
-			else if ( propertyName == qb2_props.J_DAMPING_RATIO )
+			else if ( propertyName == qb2_props.DAMPING_RATIO )
 			{
 				joint.SetDampingRatio(value);
 			}
-			else if ( propertyName == qb2_props.J_FREQUENCY_HZ )
+			else if ( propertyName == qb2_props.FREQUENCY_HZ )
 			{
 				joint.SetFrequency(value);
 			}
@@ -235,6 +235,6 @@ package QuickB2.objects.joints
 		}
 		
 		public override function toString():String 
-			{  return qb2DebugTraceSettings.formatToString(this, "qb2MouseJoint");  }
+			{  return qb2DebugTraceUtils.formatToString(this, "qb2MouseJoint");  }
 	}
 }

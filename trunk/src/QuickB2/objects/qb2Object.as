@@ -55,7 +55,7 @@ package QuickB2.objects
 		{
 			if ( (this as Object).constructor == qb2Object )  throw qb2_errors.ABSTRACT_CLASS_ERROR;
 			
-			turnFlagOn(qb2_flags.O_JOINS_IN_DEBUG_DRAWING | qb2_flags.O_JOINS_IN_DEEP_CLONING | qb2_flags.O_JOINS_IN_UPDATE_CHAIN, false);
+			turnFlagOn(qb2_flags.JOINS_IN_DEBUG_DRAWING | qb2_flags.JOINS_IN_DEEP_CLONING | qb2_flags.JOINS_IN_UPDATE_CHAIN, false);
 			
 			if ( !eventsInitialized )
 			{
@@ -67,14 +67,13 @@ package QuickB2.objects
 		qb2_friend var _ownershipFlagsForBooleans:uint   = 0;
 		
 		/** Returns the bitwise flags assigned to this object.
-		 * @default qb2_flags.O_JOINS_IN_DEBUG_DRAWING | qb2_flags.O_JOINS_IN_DEEP_CLONING | qb2_flags.O_JOINS_IN_UPDATE_CHAIN
+		 * @default qb2_flags.JOINS_IN_DEBUG_DRAWING | qb2_flags.JOINS_IN_DEEP_CLONING | qb2_flags.JOINS_IN_UPDATE_CHAIN
 		 */
-		
 		public function get flags():uint
 			{  return _flags;  }
 		qb2_friend var _flags:uint = 0;
 		
-		/// Turns a flag (or flags) off.  For example turnFlagOff(qb2_flags.O_JOINS_IN_DEBUG_DRAWING)
+		/// Turns a flag (or flags) off.  For example turnFlagOff(qb2_flags.JOINS_IN_DEBUG_DRAWING)
 		/// will tell this object not to draw debug graphics.
 		public final function turnFlagOff(flag:uint, takeOwnership:Boolean = true):qb2Object
 		{
@@ -100,7 +99,7 @@ package QuickB2.objects
 			return this;
 		}
 		
-		/// Turns a flag (or flags) on.  For example turnFlagOn(qb2_flags.O_JOINS_IN_DEBUG_DRAWING)
+		/// Turns a flag (or flags) on.  For example turnFlagOn(qb2_flags.JOINS_IN_DEBUG_DRAWING)
 		/// will tell this object to draw debug graphics.
 		public final function turnFlagOn(flag:uint, takeOwnership:Boolean = true):qb2Object
 		{
@@ -152,7 +151,7 @@ package QuickB2.objects
 			return _ownershipFlagsForBooleans & flag ? true : false;
 		}
 		
-		/// Tells whether this object owns a given property name.
+		/// Tells whether this object owns a given property.
 		public final function ownsProperty(propertyName:String):Boolean
 		{
 			var propertyBit:uint = _propertyMap[propertyName];
@@ -160,7 +159,7 @@ package QuickB2.objects
 		}
 		
 		/** Gets the property value for a given property name.
-		 * @return Generall a Number, uint, or int.
+		 * @return Generally a Number, uint, or int.
 		 */
 		public final function getProperty(propertyName:String):*
 		{
@@ -381,27 +380,28 @@ package QuickB2.objects
 		 * Direct calls to this object's clone() method will still work regardless.
 		 * @default true
 		 */
+		[Inspectable(defaultValue="default", enumeration="default,true,false", name='joinsInDeepCloning (default=true)')]
 		public function get joinsInDeepCloning():Boolean
-			{  return _flags & qb2_flags.O_JOINS_IN_DEEP_CLONING ? true : false;  }
+			{  return _flags & qb2_flags.JOINS_IN_DEEP_CLONING ? true : false;  }
 		public function set joinsInDeepCloning(bool:Boolean):void
 		{
 			if ( bool )
-				turnFlagOn(qb2_flags.O_JOINS_IN_DEEP_CLONING);
+				turnFlagOn(qb2_flags.JOINS_IN_DEEP_CLONING);
 			else
-				turnFlagOff(qb2_flags.O_JOINS_IN_DEEP_CLONING);
+				turnFlagOff(qb2_flags.JOINS_IN_DEEP_CLONING);
 		}
 		
 		/** Whether or not this object joins in debug drawing.  Direct calls to drawDebug() will still work regardless.
 		 * @default true
 		 */
 		public function get joinsInDebugDrawing():Boolean
-			{  return _flags & qb2_flags.O_JOINS_IN_DEBUG_DRAWING ? true : false;  }
+			{  return _flags & qb2_flags.JOINS_IN_DEBUG_DRAWING ? true : false;  }
 		public function set joinsInDebugDrawing(bool:Boolean):void
 		{
 			if ( bool )
-				turnFlagOn(qb2_flags.O_JOINS_IN_DEBUG_DRAWING);
+				turnFlagOn(qb2_flags.JOINS_IN_DEBUG_DRAWING);
 			else
-				turnFlagOff(qb2_flags.O_JOINS_IN_DEBUG_DRAWING);
+				turnFlagOff(qb2_flags.JOINS_IN_DEBUG_DRAWING);
 		}
 		
 		/** Whether or not this object joins in the update chain.  Setting this to false means that overriding qb2Object::update()
@@ -409,13 +409,13 @@ package QuickB2.objects
 		 * @default true
 		 */
 		public function get joinsInUpdateChain():Boolean
-			{  return _flags & qb2_flags.O_JOINS_IN_UPDATE_CHAIN ? true : false;  }
+			{  return _flags & qb2_flags.JOINS_IN_UPDATE_CHAIN ? true : false;  }
 		public function set joinsInUpdateChain(bool:Boolean):void
 		{
 			if ( bool )
-				turnFlagOn(qb2_flags.O_JOINS_IN_UPDATE_CHAIN);
+				turnFlagOn(qb2_flags.JOINS_IN_UPDATE_CHAIN);
 			else
-				turnFlagOff(qb2_flags.O_JOINS_IN_UPDATE_CHAIN);
+				turnFlagOff(qb2_flags.JOINS_IN_UPDATE_CHAIN);
 		}
 		
 		qb2_friend static var cancelPropertyInheritance:Boolean = false; // this is invoked by clone functions to cancel the property flow

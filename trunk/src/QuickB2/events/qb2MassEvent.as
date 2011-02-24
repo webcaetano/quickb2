@@ -24,7 +24,7 @@ package QuickB2.events
 {
 	import flash.events.*;
 	import QuickB2.*;
-	import QuickB2.debugging.qb2DebugTraceSettings;
+	import QuickB2.debugging.qb2DebugTraceUtils;
 	import QuickB2.objects.*;
 	import QuickB2.objects.tangibles.qb2Tangible;
 	use namespace qb2_friend;
@@ -69,6 +69,6 @@ package QuickB2.events
 			{  return _densityChange;  }
 			
 		public override function toString():String 
-			{  return qb2DebugTraceSettings.formatToString(this, "qb2MassEvent");  }
+			{  return qb2DebugTraceUtils.formatToString(this, "qb2MassEvent");  }
 	}
 }

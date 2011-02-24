@@ -23,11 +23,8 @@
 package QuickB2.effects 
 {
 	import As3Math.geo2d.amVector2d;
-	import demos.RigidCar;
 	import QuickB2.debugging.qb2DebugTraceUtils;
 	import QuickB2.objects.qb2Object;
-	import QuickB2.objects.tangibles.qb2Body;
-	import QuickB2.objects.tangibles.qb2Group;
 	import QuickB2.objects.tangibles.qb2IRigidObject;
 	import QuickB2.objects.tangibles.qb2Tangible;
 	
@@ -35,32 +32,67 @@ package QuickB2.effects
 	 * ...
 	 * @author Doug Koellmer
 	 */
-	public class qb2GravityField extends qb2EffectField
+	public class qb2WindField extends qb2EffectField
 	{
-		public var gravityVector:amVector2d = new amVector2d();
+		/** The wind direction and speed.
+		 * @default zero-length vector.
+		 */
+		public var windVector:amVector2d = new amVector2d();
 		
-		public override function applyToRigid(rigid:qb2IRigidObject):void
+		/** The air density in kg/m^3, which effects how strong the wind is.
+		 * @default 1.22521 kg/m^3 (standard air density at 15 degrees Celcius at sea level.
+		 */
+		public var airDensity:Number = 1.22521;
+		
+		public override function apply(toObject:qb2Tangible):void
 		{
-			if ( rigid.ancestorBody )
+			if ( !shouldApply(toObject) )  return;
+			
+			utilTraverser.root = toObject;
+			
+			while (utilTraverser.hasNext )
 			{
-				rigid.ancestorBody.applyForce(rigid.parent.getWorldPoint(rigid.centerOfMass), gravityVector.scaledBy(rigid.mass));
-			}
-			else
-			{
-				rigid.applyForce(rigid.centerOfMass, gravityVector.scaledBy(rigid.mass));
+				var currObject:qb2Object = utilTraverser.currentObject;
+				
+				if ( !(currObject is qb2Tangible) )
+				{
+					utilTraverser.next(false);
+					continue;
+				}
+				else if ( currObject is qb2IRigidObject )
+				{
+					var asRigid:qb2IRigidObject = currObject as qb2IRigidObject;
+					
+					if ( asRigid.ancestorBody )
+					{
+						asRigid.ancestorBody.applyForce(asRigid.parent.getWorldPoint(asRigid.centerOfMass), gravityVector.scaledBy(asRigid.mass));
+					}
+					else
+					{
+						asRigid.applyForce(asRigid.centerOfMass, gravityVector.scaledBy(asRigid.mass));
+					}
+					
+					utilTraverser.next(false);
+				}
+				else
+				{
+					utilTraverser.next(true);
+				}
 			}
 		}
 		
 		public override function clone():qb2Object
 		{
-			var cloned:qb2GravityField = super.clone() as qb2GravityField;
+			var cloned:qb2WindField = super.clone() as qb2WindField;
 			
-			cloned.gravityVector.copy(this.gravityVector);
+			cloned.windVector.copy(this.windVector);
+			cloned.airDensity = this.airDensity;
 			
 			return cloned;
 		}
 		
 		public override function toString():String 
-			{  return qb2DebugTraceUtils.formatToString(this, "qb2GravityField");  }
+			{  return qb2DebugTraceUtils.formatToString(this, "qb2WindField");  }
+		
 	}
 }

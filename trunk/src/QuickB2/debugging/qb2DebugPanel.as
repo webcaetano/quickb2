@@ -375,13 +375,16 @@ package QuickB2.debugging
 				
 				for (key in dict)
 				{
-					if ( dict[key].running )
+					var world:qb2World = dict[key] as qb2World;
+					
+					if ( world.running )
 					{
-						dict[key].stop();
+						world.stop();
 					}
 					else
 					{
-						dict[key].step();
+						var timeStep:Number = world.realtimeUpdate ? world.maximumRealtimeStep : world.defaultTimeStep;
+						world.step(timeStep);
 					}
 				}
 			}

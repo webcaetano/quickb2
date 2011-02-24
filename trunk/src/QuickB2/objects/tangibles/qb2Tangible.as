@@ -39,10 +39,12 @@ package QuickB2.objects.tangibles
 	import QuickB2.effects.*;
 	import QuickB2.events.*;
 	import QuickB2.internals.qb2InternalContactListener;
+	import QuickB2.internals.qb2InternalLineIntersectionFinder;
 	import QuickB2.internals.qb2InternalSliceUtility;
 	import QuickB2.loaders.proxies.*;
 	import QuickB2.misc.qb2_flags;
 	import QuickB2.misc.qb2_props;
+	import QuickB2.misc.qb2_sliceFlags;
 	import QuickB2.objects.*;
 	import QuickB2.objects.joints.*;
 	import QuickB2.stock.*;
@@ -102,10 +104,11 @@ package QuickB2.objects.tangibles
 			if ( (this as Object).constructor == qb2Tangible )  throw qb2_errors.ABSTRACT_CLASS_ERROR;
 			
 			//--- Set up default values for various properties.
-			turnFlagOn(qb2_flags.T_IS_DEBUG_DRAGGABLE | qb2_flags.T_ALLOW_SLEEPING | qb2_flags.T_IS_SLICEABLE, false);
-			setProperty(qb2_props.T_CONTACT_CATEGORY,      0x0001 as uint, false);
-			setProperty(qb2_props.T_CONTACT_COLLIDES_WITH, 0xFFFF as uint, false);
-			setProperty(qb2_props.T_FRICTION,              .2,             false);
+			turnFlagOn(qb2_flags.IS_DEBUG_DRAGGABLE | qb2_flags.ALLOW_SLEEPING, false);
+			setProperty(qb2_props.CONTACT_CATEGORY,      0x0001 as uint, false);
+			setProperty(qb2_props.CONTACT_COLLIDES_WITH, 0xFFFF as uint, false);
+			setProperty(qb2_props.FRICTION,              .2,             false);
+			setProperty(qb2_props.SLICE_FLAGS,           0xFFFFFFFF,     false);
 		}
 		
 		qb2_friend virtual function updateContactReporting(bits:uint):void { }
@@ -115,25 +118,25 @@ package QuickB2.objects.tangibles
 			//--- Make actual changes to a simulating body if the property has an actual effect.
 			if ( this._bodyB2 )
 			{
-				if ( affectedFlags & qb2_flags.T_IS_KINEMATIC )
+				if ( affectedFlags & qb2_flags.IS_KINEMATIC )
 				{
 					rigid_recomputeBodyB2Mass();
 					updateFrictionJoints();
 				}
 				
-				if ( affectedFlags & qb2_flags.T_HAS_FIXED_ROTATION )
+				if ( affectedFlags & qb2_flags.HAS_FIXED_ROTATION )
 				{
 					this._bodyB2.SetFixedRotation(hasFixedRotation );
 					this._bodyB2.SetAwake(true);
 					(this as qb2IRigidObject).angularVelocity = 0; // object won't stop spinning if we don't stop it manually, because now it has infinite intertia.
 				}
 				
-				if ( affectedFlags & qb2_flags.T_IS_BULLET )
+				if ( affectedFlags & qb2_flags.IS_BULLET )
 				{
 					this._bodyB2.SetBullet(isBullet);
 				}
 				
-				if ( affectedFlags & qb2_flags.T_ALLOW_SLEEPING )
+				if ( affectedFlags & qb2_flags.ALLOW_SLEEPING )
 				{
 					this._bodyB2.SetSleepingAllowed(allowSleeping);
 				}
@@ -145,11 +148,11 @@ package QuickB2.objects.tangibles
 			//--- Make actual changes to a simulating body if the property has an actual effect.
 			if ( this._bodyB2 )
 			{
-				if ( propertyName == qb2_props.T_LINEAR_DAMPING )
+				if ( propertyName == qb2_props.LINEAR_DAMPING )
 				{
 					this._bodyB2.m_linearDamping = linearDamping;
 				}
-				else if ( propertyName == qb2_props.T_ANGULAR_DAMPING )
+				else if ( propertyName == qb2_props.ANGULAR_DAMPING )
 				{
 					this._bodyB2.m_angularDamping = angularDamping;
 				}
@@ -562,127 +565,143 @@ package QuickB2.objects.tangibles
 
 			
 		public function get restitution():Number
-			{  return getProperty(qb2_props.T_RESTITUTION) as Number;  }
+			{  return getProperty(qb2_props.RESTITUTION) as Number;  }
 		public function set restitution(value:Number):void
-			{  setProperty(qb2_props.T_RESTITUTION, value);  }
+			{  setProperty(qb2_props.RESTITUTION, value);  }
 		
 		public function get contactCategory():uint
-			{  return getProperty(qb2_props.T_CONTACT_CATEGORY) as uint;  }
+			{  return getProperty(qb2_props.CONTACT_CATEGORY) as uint;  }
 		public function set contactCategory(bitmask:uint):void
-			{  setProperty(qb2_props.T_CONTACT_CATEGORY, bitmask);  }
+			{  setProperty(qb2_props.CONTACT_CATEGORY, bitmask);  }
 		
 		public function get contactCollidesWith():uint
-			{  return getProperty(qb2_props.T_CONTACT_COLLIDES_WITH) as uint;  }
+			{  return getProperty(qb2_props.CONTACT_COLLIDES_WITH) as uint;  }
 		public function set contactCollidesWith(bitmask:uint):void
-			{  setProperty(qb2_props.T_CONTACT_COLLIDES_WITH, bitmask);  }
+			{  setProperty(qb2_props.CONTACT_COLLIDES_WITH, bitmask);  }
 		
 		public function get contactGroupIndex():int
-			{  return getProperty(qb2_props.T_CONTACT_GROUP_INDEX) as int; }
+			{  return getProperty(qb2_props.CONTACT_GROUP_INDEX) as int; }
 		public function set contactGroupIndex(index:int):void
-			{  setProperty(qb2_props.T_CONTACT_GROUP_INDEX, index);  }
+			{  setProperty(qb2_props.CONTACT_GROUP_INDEX, index);  }
 	
 		public function get friction():Number
-			{  return getProperty(qb2_props.T_FRICTION) as Number;  }
+			{  return getProperty(qb2_props.FRICTION) as Number;  }
 		public function set friction(value:Number):void
-			{  setProperty(qb2_props.T_FRICTION, value);  }
+			{  setProperty(qb2_props.FRICTION, value);  }
 		
 		public function get frictionZ():Number
-			{  return getProperty(qb2_props.T_FRICTION_Z) as Number;  }
+			{  return getProperty(qb2_props.FRICTION_Z) as Number;  }
 		public function set frictionZ(value:Number):void
-			{  setProperty(qb2_props.T_FRICTION_Z, value);  }
+			{  setProperty(qb2_props.FRICTION_Z, value);  }
 		
 		public function get linearDamping():Number
-			{  return getProperty(qb2_props.T_LINEAR_DAMPING) as Number;  }
+			{  return getProperty(qb2_props.LINEAR_DAMPING) as Number;  }
 		public function set linearDamping(value:Number):void
-			{  setProperty(qb2_props.T_LINEAR_DAMPING, value);  }
+			{  setProperty(qb2_props.LINEAR_DAMPING, value);  }
 		
 		public function get angularDamping():Number
-			{  return getProperty(qb2_props.T_ANGULAR_DAMPING) as Number;  }
+			{  return getProperty(qb2_props.ANGULAR_DAMPING) as Number;  }
 		public function set angularDamping(value:Number):void
-			{  setProperty(qb2_props.T_ANGULAR_DAMPING, value);  }
+			{  setProperty(qb2_props.ANGULAR_DAMPING, value);  }
+	
+		public function get sliceFlags():uint
+			{  return getProperty(qb2_props.SLICE_FLAGS) as Number;  }
+		public function set sliceFlags(value:uint):void
+			{  setProperty(qb2_props.SLICE_FLAGS, value);  }
+			
+	
+		public function turnSliceFlagOn(sliceFlagOrFlags:uint):qb2Tangible
+			{	sliceFlags |= sliceFlagOrFlags;  return this;  }
+		public function turnSliceFlagOff(sliceFlagOrFlags:uint):qb2Tangible
+			{	sliceFlags &= ~sliceFlagOrFlags;  return this;  }
+		public function isSliceFlagOn(sliceFlagOrFlags:uint):Boolean
+			{  return sliceFlags & sliceFlagOrFlags ? true : false;  }
+		public function setSliceFlag(bool:Boolean, sliceFlagOrFlags:uint):qb2Tangible
+		{
+			if ( bool )
+			{
+				sliceFlags |= sliceFlagOrFlags;
+			}
+			else
+			{
+				sliceFlags &= ~sliceFlagOrFlags;
+			}
+			
+			return this;
+		}
 		
 		
 		
 		
 		
 		public function get isGhost():Boolean
-			{  return _flags & qb2_flags.T_IS_GHOST ? true : false;  }
+			{  return _flags & qb2_flags.IS_GHOST ? true : false;  }
 		public function set isGhost(bool:Boolean):void
 		{
 			if ( bool )
-				turnFlagOn(qb2_flags.T_IS_GHOST);
+				turnFlagOn(qb2_flags.IS_GHOST);
 			else
-				turnFlagOff(qb2_flags.T_IS_GHOST);
+				turnFlagOff(qb2_flags.IS_GHOST);
 		}
 		
 		public function get isKinematic():Boolean
-			{  return _flags & qb2_flags.T_IS_KINEMATIC ? true : false;  }
+			{  return _flags & qb2_flags.IS_KINEMATIC ? true : false;  }
 		public function set isKinematic(bool:Boolean):void
 		{
 			if ( bool )
-				turnFlagOn(qb2_flags.T_IS_KINEMATIC);
+				turnFlagOn(qb2_flags.IS_KINEMATIC);
 			else
-				turnFlagOff(qb2_flags.T_IS_KINEMATIC);
+				turnFlagOff(qb2_flags.IS_KINEMATIC);
 		}
 	
 		public function get hasFixedRotation():Boolean
-			{  return _flags & qb2_flags.T_HAS_FIXED_ROTATION ? true : false;  }
+			{  return _flags & qb2_flags.HAS_FIXED_ROTATION ? true : false;  }
 		public function set hasFixedRotation(bool:Boolean):void
 		{
 			if ( bool )
-				turnFlagOn(qb2_flags.T_HAS_FIXED_ROTATION);
+				turnFlagOn(qb2_flags.HAS_FIXED_ROTATION);
 			else
-				turnFlagOff(qb2_flags.T_HAS_FIXED_ROTATION);
+				turnFlagOff(qb2_flags.HAS_FIXED_ROTATION);
 		}
 		
 		public function get isBullet():Boolean
-			{  return _flags & qb2_flags.T_IS_BULLET ? true : false;  }
+			{  return _flags & qb2_flags.IS_BULLET ? true : false;  }
 		public function set isBullet(bool:Boolean):void
 		{
 			if ( bool )
-				turnFlagOn(qb2_flags.T_IS_BULLET);
+				turnFlagOn(qb2_flags.IS_BULLET);
 			else
-				turnFlagOff(qb2_flags.T_IS_BULLET);
+				turnFlagOff(qb2_flags.IS_BULLET);
 		}
 		
 		public function get allowSleeping():Boolean
-			{  return _flags & qb2_flags.T_ALLOW_SLEEPING ? true : false;  }
+			{  return _flags & qb2_flags.ALLOW_SLEEPING ? true : false;  }
 		public function set allowSleeping(bool:Boolean):void
 		{
 			if ( bool )
-				turnFlagOn(qb2_flags.T_ALLOW_SLEEPING);
+				turnFlagOn(qb2_flags.ALLOW_SLEEPING);
 			else
-				turnFlagOff(qb2_flags.T_ALLOW_SLEEPING);
+				turnFlagOff(qb2_flags.ALLOW_SLEEPING);
 		}
 		
 		public function get sleepingWhenAdded():Boolean
-			{  return _flags & qb2_flags.T_SLEEPING_WHEN_ADDED ? true : false;  }
+			{  return _flags & qb2_flags.SLEEPING_WHEN_ADDED ? true : false;  }
 		public function set sleepingWhenAdded(bool:Boolean):void
 		{
 			if ( bool )
-				turnFlagOn(qb2_flags.T_SLEEPING_WHEN_ADDED);
+				turnFlagOn(qb2_flags.SLEEPING_WHEN_ADDED);
 			else
-				turnFlagOff(qb2_flags.T_SLEEPING_WHEN_ADDED);
+				turnFlagOff(qb2_flags.SLEEPING_WHEN_ADDED);
 		}
 		
 		public function get isDebugDraggable():Boolean
-			{  return _flags & qb2_flags.T_IS_DEBUG_DRAGGABLE ? true : false;  }
+			{  return _flags & qb2_flags.IS_DEBUG_DRAGGABLE ? true : false;  }
 		public function set isDebugDraggable(bool:Boolean):void
 		{
 			if ( bool )
-				turnFlagOn(qb2_flags.T_IS_DEBUG_DRAGGABLE);
+				turnFlagOn(qb2_flags.IS_DEBUG_DRAGGABLE);
 			else
-				turnFlagOff(qb2_flags.T_IS_DEBUG_DRAGGABLE);
-		}
-		
-		public function get isSliceable():Boolean
-			{  return _flags & qb2_flags.T_IS_SLICEABLE ? true : false;  }
-		public function set isSliceable(bool:Boolean):void
-		{
-			if ( bool )
-				turnFlagOn(qb2_flags.T_IS_SLICEABLE);
-			else
-				turnFlagOff(qb2_flags.T_IS_SLICEABLE);
+				turnFlagOff(qb2_flags.IS_DEBUG_DRAGGABLE);
 		}
 
 		
@@ -1153,33 +1172,48 @@ package QuickB2.objects.tangibles
 		}
 		qb2_friend var _terrainsBelowThisTang:Vector.<qb2Terrain>;
 		
-		public function slice(laser:amLine2d, outputHitPoints:Vector.<amPoint2d> = null, includePartialSlices:Boolean = true, keepOriginal:Boolean = false, addNewTangs:Boolean = true):Vector.<qb2Tangible>
+		public function slice(laser:amLine2d, outputIntPoints:Vector.<amPoint2d> = null):Vector.<qb2Tangible>
 		{
-			return (_sliceUtility ? _sliceUtility : _sliceUtility = new qb2InternalSliceUtility()).slice(this, laser, outputHitPoints, includePartialSlices);
+			return (_sliceUtility ? _sliceUtility : _sliceUtility = new qb2InternalSliceUtility()).slice(this, laser, outputIntPoints);
 		}
 		qb2_friend var _sliceUtility:qb2InternalSliceUtility = null;
 		
-		/*public virtual function shatterRadial(focalPoint:amPoint2d, numRadialFractures:uint = 10, numRandomFractures:uint = 5, randomRadials:Boolean = true):Vector.<qb2Tangible>  {  return null;  }
-		
-		public virtual function shatterRandom(numFractures:uint = 10):Vector.<qb2Tangible>  { return null; }
-		
-		public virtual function slice(laser:amLine2d):Vector.<qb2Tangible>  {  return null;  }
-		
-		public virtual function sliceUp(knives:Vector.<amLine2d>):Vector.<qb2Tangible>  {  return null;  }*/
+		public function intersectsLine(line:amLine2d, outputIntPoints:Vector.<amPoint2d> = null, orderPoints:Boolean = true):Boolean
+		{
+			return qb2InternalLineIntersectionFinder.intersectsLine(this, line, outputIntPoints, orderPoints);
+		}
 		
 		protected override function update():void
 		{
 			// NOTE: qb2Object doesn't implement update(), so there's no reason to call it.
+			var numEffectsOnStack:int = _world._effectFieldStack.length;
+			var asRigid:qb2IRigidObject = this as qb2IRigidObject;  // assuming a little, but the only classes to call this super function are qb2Body and qb2Shape anyway...
 			
-			if ( _effectFields )
+			if ( this is qb2Shape )
 			{
-				for (var i:int = 0; i < _effectFields.length; i++) 
+				for (var i:int = 0; i < numEffectsOnStack; i++) 
 				{
-					_effectFields[i].apply(this);
+					var field:qb2EffectField = _world._effectFieldStack[i];
+					
+					if ( field.applyPerShape )
+					{
+						field.applyToRigid(asRigid);
+					}
+				}
+			}
+			else if ( this is qb2Body )
+			{
+				for ( i = 0; i < numEffectsOnStack; i++ )
+				{
+					field = _world._effectFieldStack[i];
+					
+					if ( !field.applyPerShape )
+					{
+						field.applyToRigid(asRigid);
+					}
 				}
 			}
 		}
-		
 		
 		qb2_friend function drawDebugExtras(graphics:Graphics):void
 		{
@@ -1243,7 +1277,7 @@ package QuickB2.objects.tangibles
 		{
 			if ( debugFillColorStack.length )
 			{
-				return debugFillColorStack[0];
+				return debugFillColorStack[debugFillColorStack.length-1];
 			}
 			else
 			{
@@ -1254,7 +1288,42 @@ package QuickB2.objects.tangibles
 			}
 		}
 		
-		protected static const debugFillColorStack:Vector.<uint> = new Vector.<uint>;
+		protected static function pushDebugFillColor(color:uint):void
+			{  debugFillColorStack.push(color);  }
+		
+		protected static function popDebugFillColor():void
+			{  debugFillColorStack.pop();  }
+		
+		private static const debugFillColorStack:Vector.<uint> = new Vector.<uint>();
+		
+		qb2_friend function pushToEffectsStack():int
+		{
+			var numPushed:int = 0;
+			
+			if ( _world && _effectFields )
+			{
+				for (var i:int = 0; i < _effectFields.length; i++) 
+				{
+					var ithField:qb2EffectField = _effectFields[i];
+					
+					if ( !ithField.isDisabledForInstance(this) )
+					{
+						_world._effectFieldStack.push(ithField);
+						numPushed++;
+					}
+				}
+			}
+			
+			return numPushed;
+		}
+		
+		qb2_friend function popFromEffectsStack(numToPop:int):void
+		{
+			for (var i:int = 0; i < numToPop; i++) 
+			{
+				_world._effectFieldStack.pop();
+			}
+		}
 		
 		private static function rigid_shouldTransform(oldPos:amPoint2d, newPos:amPoint2d, oldRot:Number, newRot:Number):Boolean
 		{

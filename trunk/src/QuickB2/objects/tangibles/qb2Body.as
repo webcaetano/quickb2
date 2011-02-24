@@ -30,7 +30,7 @@ package QuickB2.objects.tangibles
 	import Box2DAS.Dynamics.*;
 	import flash.display.*;
 	import QuickB2.*;
-	import QuickB2.debugging.qb2DebugTraceSettings;
+	import QuickB2.debugging.qb2DebugTraceUtils;
 	import QuickB2.events.*;
 	import QuickB2.misc.qb2_flags;
 	import QuickB2.objects.*;
@@ -161,17 +161,15 @@ package QuickB2.objects.tangibles
 			rigid_propertyChanged(propertyName); // sets body properties if this body has a b2Body
 		}
 		
-		
-		
-		
-		
 		protected override function update():void
 		{
+			var numToPop:int = pushToEffectsStack();
+			
 			rigid_update();
 			
 			super.update();
 			
-			var updateLoopBit:uint = qb2_flags.O_JOINS_IN_UPDATE_CHAIN;
+			var updateLoopBit:uint = qb2_flags.JOINS_IN_UPDATE_CHAIN;
 			for ( var i:int = 0; i < _objects.length; i++ )
 			{
 				var object:qb2Object = _objects[i];
@@ -181,7 +179,7 @@ package QuickB2.objects.tangibles
 				object.relay_update(); // You can't call update directly because it's protected.
 			}
 			
-			
+			popFromEffectsStack(numToPop);
 		}
 
 		public override function translateBy(vector:amVector2d):qb2Tangible
@@ -256,6 +254,6 @@ package QuickB2.objects.tangibles
 			{  return this as qb2Tangible;  }
 			
 		public override function toString():String 
-			{  return qb2DebugTraceSettings.formatToString(this, "qb2Body");  }
+			{  return qb2DebugTraceUtils.formatToString(this, "qb2Body");  }
 	}
 }

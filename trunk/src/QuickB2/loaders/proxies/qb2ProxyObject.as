@@ -44,18 +44,15 @@ package QuickB2.loaders.proxies
 		
 		
 		[Inspectable(defaultValue="default",enumeration="default,true,false", name='joinsInDeepCloning (default=true)')]
-		public var joinsInDeepCloning:String = "default";
+		public var _bool_joinsInDeepCloning:String = "default";
 		
 		[Inspectable(defaultValue="default",enumeration="default,true,false", name='joinsInDebugDrawing (default=true)')]
-		public var joinsInDebugDrawing:String = "default";
+		public var _bool_joinsInDebugDrawing:String = "default";
 		
 		[Inspectable(defaultValue="default",enumeration="default,true,false", name='joinsInUpdateChain (default=true)')]
-		public var joinsInUpdateChain:String = "default";
+		public var _bool_joinsInUpdateChain:String = "default";
 		
-		[Inspectable(defaultValue="default", type='String', name="Class Name")]
-		public var className:String = "default";
-		
-		[Inspectable(defaultValue="", type='String')]
-		public var identifier:String = "";
+		[Inspectable(defaultValue="", type='String', name='userData')]
+		public var userData:String = "";
 	}
 }

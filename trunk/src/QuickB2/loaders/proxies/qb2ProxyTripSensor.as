@@ -34,7 +34,7 @@ package QuickB2.loaders.proxies
 		}
 		
 		[Inspectable(defaultValue="default", type='String', name='tripTime (default=0.0 seconds)')]
-		public var tripTime:String = "default";
+		public var _float_tripTime:String = "default";
 		
 		[Inspectable(defaultValue="", type='String')]
 		public var _handler_sensorTripped:String = "";

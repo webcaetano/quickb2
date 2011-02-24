@@ -29,40 +29,38 @@ package QuickB2.loaders.proxies
 	public class qb2ProxyRevoluteJoint extends qb2ProxyJoint
 	{		
 		[Inspectable(defaultValue="default",enumeration="default,true,false", name='springCanFlip (default=false)')]
-		public var springCanFlip:String = "default";
+		public var _bool_springCanFlip:String = "default";
 		
 		[Inspectable(defaultValue="default",enumeration="default,true,false", name='dampenSpringJitter (default=false)')]
-		public var dampenSpringJitter:String = "default";
+		public var _bool_dampenSpringJitter:String = "default";
 		
 		[Inspectable(defaultValue="default",enumeration="default,true,false", name='optimizedSpring (default=true)')]
-		public var optimizedSpring:String = "default";
+		public var _bool_optimizedSpring:String = "default";
 		
-
 		
 		[Inspectable(defaultValue="default", name='springK (default=0.0)')]
-		public var springK:String = "default";
+		public var _float_springK:String = "default";
 		
 		[Inspectable(defaultValue="default", name='springDamping (default=0.0)')]
-		public var springDamping:String = "default";
+		public var _float_springDamping:String = "default";
 		
 		[Inspectable(defaultValue="default", name='lowerLimit (default=-Infinity radians)')]
-		public var lowerLimit:String        = "default";
+		public var _float_lowerLimit:String        = "default";
 		
 		[Inspectable(defaultValue="default", name='upperLimit (default=Infinity radians)')]
-		public var upperLimit:String        = "default";
+		public var _float_upperLimit:String        = "default";
 		
 		[Inspectable(defaultValue="default", name='maxTorque (default=0.0 N/m)')]
-		public var maxTorque:String    = "default";
+		public var _float_maxTorque:String    = "default";
 		
 		[Inspectable(defaultValue="default", name='targetSpeed (default=0.0 rad/s)')]
-		public var targetSpeed:String = "default";
+		public var _float_targetSpeed:String = "default";
 		
 		
-		
-		[Inspectable(defaultValue="")]
+		[Inspectable(defaultValue="", name='overrideObject1')]
 		public var overrideObject1:String = "";
 		
-		[Inspectable(defaultValue="")]
+		[Inspectable(defaultValue="", name='overrideObject2')]
 		public var overrideObject2:String = "";
 	}
 }

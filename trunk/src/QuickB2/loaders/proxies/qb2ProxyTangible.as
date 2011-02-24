@@ -29,54 +29,57 @@ package QuickB2.loaders.proxies
 	public class qb2ProxyTangible extends qb2ProxyObject
 	{
 		[Inspectable(defaultValue="default", type='String', name='mass (default=0.0 kg)')]
-		public var mass:String = "default";
+		public var _float_mass:String = "default";
 
 		[Inspectable(defaultValue="default", type='String', name='density (default=0.0)')]
-		public var density:String = "default";
+		public var _float_density:String = "default";
 
 		[Inspectable(defaultValue="default", type='String', name='restitution (default=0.0)')]
-		public var restitution:String = "default";
+		public var _float_restitution:String = "default";
 
 		[Inspectable(defaultValue="default", type='String', name='contactCategory (default=0x0001)')]
-		public var contactCategory:String = "default";
+		public var _uint_contactCategory:String = "default";
 
 		[Inspectable(defaultValue="default", type='String', name='contactCollidesWith (default=0xFFFF)')]
-		public var contactCollidesWith:String = "default";
+		public var _uint_contactCollidesWith:String = "default";
 
 		[Inspectable(defaultValue="default", type='String', name='contactGroupIndex (default=0)')]
-		public var contactGroupIndex:String = "default";
+		public var _int_contactGroupIndex:String = "default";
 
 		[Inspectable(defaultValue="default", type='String', name='friction (default=0.2)')]
-		public var friction:String = "default";
+		public var _float_friction:String = "default";
 
 		[Inspectable(defaultValue="default", type='String', name='frictionZ (default=0.0)')]
-		public var frictionZ:String = "default";
+		public var _float_frictionZ:String = "default";
 
 		[Inspectable(defaultValue="default", type='String', name='linearDamping (default=0.0)')]
-		public var linearDamping:String = "default";
+		public var _float_linearDamping:String = "default";
 
 		[Inspectable(defaultValue="default", type='String', name='angularDamping (default=0.0)')]
-		public var angularDamping:String = "default";
+		public var _float_angularDamping:String = "default";
+		
+		[Inspectable(defaultValue="default", type='String', name='sliceFlags (default=0xFFFFFFFF)')]
+		public var _uint_sliceFlags:String = "default";
 		
 		
 		
 		[Inspectable(defaultValue="default",enumeration="default,true,false", name='hasFixedRotation (default=false)')]
-		public var hasFixedRotation:String = "default";
+		public var _bool_hasFixedRotation:String = "default";
 
 		[Inspectable(defaultValue="default",enumeration="default,true,false", name='isBullet (default=false)')]
-		public var isBullet:String = "default";
+		public var _bool_isBullet:String = "default";
 
-		[Inspectable(defaultValue="default",enumeration="default,true,false", name='allowSleeping (default=true)')]
-		public var allowSleeping:String = "default";
+		[Inspectable(defaultValue="default",enumeration="default,true,false", name='AAAallowSleeping (default=true)')]
+		public var _bool_allowSleeping:String = "default";
 
 		[Inspectable(defaultValue="default",enumeration="default,true,false", name='sleepingWhenAdded (default=false)')]
-		public var sleepingWhenAdded:String = "default";
+		public var _bool_sleepingWhenAdded:String = "default";
 
 		[Inspectable(defaultValue="default",enumeration="default,true,false", name='isGhost (default=false)')]
-		public var isGhost:String = "default";
+		public var _bool_isGhost:String = "default";
 		
 		[Inspectable(defaultValue="default",enumeration="default,true,false", name='isKinematic (default=false)')]
-		public var isKinematic:String = "default";
+		public var _bool_isKinematic:String = "default";
 		
 		
 		

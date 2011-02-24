@@ -57,14 +57,14 @@ package QuickB2.objects.tangibles
 		qb2_friend var freezeFlush:Boolean = false;
 		
 		qb2_friend var flaggedForDestroy:Boolean = false;
-				
+	
 		public function qb2Shape()
 		{
 			super();
 			
 			if ( (this as Object).constructor == qb2Shape )  throw qb2_errors.ABSTRACT_CLASS_ERROR;
 			
-			turnFlagOn(qb2_flags.P_ALLOW_COMPLEX_POLYGONS, false); // for the "convertToPoly" function, this should be defined for circles and polys.
+			turnFlagOn(qb2_flags.ALLOW_COMPLEX_POLYGONS, false); // for the "convertToPoly" function, this should be defined for circles and polys.
 		}
 		
 		public function get b2_fixtures():Vector.<b2Fixture>
@@ -132,14 +132,14 @@ package QuickB2.objects.tangibles
 				
 			var i:int;
 			var value:* = _propertyMap[propertyName];
-			if ( propertyName == qb2_props.T_RESTITUTION )
+			if ( propertyName == qb2_props.RESTITUTION )
 			{
 				for ( i = 0; i < this.fixtures.length; i++ )
 				{
 					this.fixtures[i].SetRestitution(value as Number);
 				}
 			}
-			else if ( propertyName == qb2_props.T_CONTACT_CATEGORY )
+			else if ( propertyName == qb2_props.CONTACT_CATEGORY )
 			{
 				for ( i = 0; i < this.fixtures.length; i++ )
 				{
@@ -147,7 +147,7 @@ package QuickB2.objects.tangibles
 					this.fixtures[i].Refilter();
 				}
 			}
-			else if ( propertyName == qb2_props.T_CONTACT_COLLIDES_WITH )
+			else if ( propertyName == qb2_props.CONTACT_COLLIDES_WITH )
 			{
 				for ( i = 0; i < this.fixtures.length; i++ )
 				{
@@ -155,7 +155,7 @@ package QuickB2.objects.tangibles
 					this.fixtures[i].Refilter();
 				}
 			}
-			else if ( propertyName == qb2_props.T_CONTACT_GROUP_INDEX )
+			else if ( propertyName == qb2_props.CONTACT_GROUP_INDEX )
 			{
 				for ( i = 0; i < this.fixtures.length; i++ )
 				{
@@ -163,14 +163,14 @@ package QuickB2.objects.tangibles
 					this.fixtures[i].Refilter();
 				}
 			}
-			else if ( propertyName == qb2_props.T_FRICTION )
+			else if ( propertyName == qb2_props.FRICTION )
 			{
 				for ( i = 0; i < this.fixtures.length; i++ )
 				{
 					this.fixtures[i].SetFriction(value as Number);
 				}
 			}
-			else if ( propertyName == qb2_props.T_FRICTION_Z )
+			else if ( propertyName == qb2_props.FRICTION_Z )
 			{
 				updateFrictionJoints();
 			}
@@ -180,7 +180,7 @@ package QuickB2.objects.tangibles
 		{
 			if ( !this.fixtures.length )  return;
 			
-			if ( affectedFlags & qb2_flags.T_IS_GHOST )
+			if ( affectedFlags & qb2_flags.IS_GHOST )
 			{
 				var isAGhost:Boolean = isGhost;
 				for ( var i:int = 0; i < this.fixtures.length; i++ )
@@ -470,6 +470,8 @@ package QuickB2.objects.tangibles
 		
 		protected override function update():void
 		{
+			var numToPop:int = pushToEffectsStack();
+			
 			rigid_update();
 			
 			super.update();
@@ -559,6 +561,8 @@ package QuickB2.objects.tangibles
 					ithFricJoint.m_maxTorque = 0;
 				}
 			}
+			
+			popFromEffectsStack(numToPop);
 		}
 		
 		private static var terrainIterator:qb2TreeTraverser = new qb2TreeTraverser();

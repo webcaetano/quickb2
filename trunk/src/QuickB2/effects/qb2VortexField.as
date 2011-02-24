@@ -22,21 +22,16 @@
 
 package QuickB2.effects 
 {
-	import QuickB2.debugging.qb2DebugTraceSettings;
+	import QuickB2.debugging.qb2DebugTraceUtils;
 	
 	/**
 	 * ...
 	 * @author Doug Koellmer
 	 */
-	public class qb2Vortex extends qb2EffectField
-	{
-		public function qb2Vortex(ubiquitous:Boolean = false)
-		{
-			super(ubiquitous);
-		}
-		
-		public override function toString():String 
-			{  return qb2DebugTraceSettings.formatToString(this, "qb2Vortex");  }
+	public class qb2VortexField extends qb2EffectField
+	{		
+		public override function toString():String
+			{  return qb2DebugTraceUtils.formatToString(this, "qb2VortexField");  }
 		
 	}
 }

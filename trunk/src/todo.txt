@@ -19,6 +19,8 @@
 
 - upgrade to latest min comps
 
+- make a qb2MouseEvent to wrap MouseEvent types, and also to have the stage enter/stage leave events
+
 
 
 
@@ -73,10 +75,6 @@ TESTING
 - implement get inertia for all tangibles
 
 - triangle mapping utilities of some kind
-
-- cache all properties in apply*Tag functions in qb2Loader/wwwwLoader so that they are only reflected once.
-
-- write a generic apply tag function that accepts an array of parameter names to set
 
 - effects implementation
 

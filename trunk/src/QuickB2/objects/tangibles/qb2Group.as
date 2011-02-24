@@ -132,6 +132,8 @@ package QuickB2.objects.tangibles
 		
 		protected override function update():void
 		{
+			// NOTE qb2Group doesn't call super.update() (for qb2Tangible) since it only applies effects, which are applied implicitly with the effects stack.
+			
 			//--- Cache these for slight speed boost.
 			if ( killBox )
 			{
@@ -143,9 +145,9 @@ package QuickB2.objects.tangibles
 				const ACTOR_BOUND_BOX_LEAVES:uint = qb2KillBox.ACTOR_BOUND_BOX_LEAVES;
 			}
 			
-			//var drawingDebug:Boolean = world.debugDrawContext ? true : false;
-		//	var context:Graphics = world.debugDrawContext;
-			var updateLoopBit:uint = qb2_flags.O_JOINS_IN_UPDATE_CHAIN;
+			var numToPop:int = pushToEffectsStack();
+			
+			var updateLoopBit:uint = qb2_flags.JOINS_IN_UPDATE_CHAIN;
 			for ( var i:int = 0; i < _objects.length; i++ )
 			{
 				var object:qb2Object = _objects[i];
@@ -228,7 +230,7 @@ package QuickB2.objects.tangibles
 				}
 			}
 			
-			super.update();
+			popFromEffectsStack(numToPop);
 		}
 		
 		qb2_friend override function make(theWorld:qb2World):void
@@ -606,6 +608,6 @@ package QuickB2.objects.tangibles
 		}
 		
 		public override function toString():String 
-			{  return qb2DebugTraceSettings.formatToString(this, "qb2Group");  }
+			{  return qb2DebugTraceUtils.formatToString(this, "qb2Group");  }
 	}
 }

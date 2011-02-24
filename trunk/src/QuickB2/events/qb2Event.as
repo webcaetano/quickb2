@@ -23,7 +23,7 @@
 package QuickB2.events 
 {
 	import flash.events.Event;
-	import QuickB2.debugging.qb2DebugTraceSettings;
+	import QuickB2.debugging.qb2DebugTraceUtils;
 	import QuickB2.objects.joints.qb2Joint;
 	import QuickB2.qb2_errors;
 	
@@ -41,6 +41,6 @@ package QuickB2.events
 		}
 		
 		public override function toString():String 
-			{  return qb2DebugTraceSettings.formatToString(this, "qb2Event");  }
+			{  return qb2DebugTraceUtils.formatToString(this, "qb2Event");  }
 	}
 }

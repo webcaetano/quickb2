@@ -22,21 +22,16 @@
 
 package QuickB2.effects 
 {
-	import QuickB2.debugging.qb2DebugTraceSettings;
+	import QuickB2.debugging.qb2DebugTraceUtils;
 	
 	/**
 	 * ...
 	 * @author Doug Koellmer
 	 */
-	public class qb2Vibrator extends qb2EffectField
-	{
-		public function qb2Vibrator(ubiquitous:Boolean = false)
-		{
-			super(ubiquitous);
-		}
-		
+	public class qb2PlanetaryGravityField extends qb2EffectField
+	{		
 		public override function toString():String 
-			{  return qb2DebugTraceSettings.formatToString(this, "qb2Vibrator");  }
+			{  return qb2DebugTraceUtils.formatToString(this, "qb2PlanetaryGravityField");  }
 		
 	}
 }

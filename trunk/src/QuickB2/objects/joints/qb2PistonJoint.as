@@ -50,9 +50,9 @@ package QuickB2.objects.joints
 	
 		public function qb2PistonJoint(initObject1:qb2IRigidObject = null, initObject2:qb2IRigidObject = null, initWorldAnchor1:amPoint2d = null, initWorldAnchor2:amPoint2d = null)
 		{
-			turnFlagOn(qb2_flags.J_OPTIMIZED_SPRING | qb2_flags.J_AUTO_SET_LENGTH | qb2_flags.J_AUTO_SET_DIRECTION, false);
-			setProperty(qb2_props.J_LOWER_LIMIT, -Infinity, false);
-			setProperty(qb2_props.J_UPPER_LIMIT,  Infinity, false);
+			turnFlagOn(qb2_flags.OPTIMIZED_SPRING | qb2_flags.AUTO_SET_LENGTH | qb2_flags.AUTO_SET_DIRECTION, false);
+			setProperty(qb2_props.LOWER_LIMIT, -Infinity, false);
+			setProperty(qb2_props.UPPER_LIMIT,  Infinity, false);
 			
 			object1 = initObject1;
 			object2 = initObject2;
@@ -64,38 +64,38 @@ package QuickB2.objects.joints
 		}
 		
 		public function get springCanFlip():Boolean
-			{  return _flags & qb2_flags.J_SPRING_CAN_FLIP ? true : false;  }
+			{  return _flags & qb2_flags.SPRING_CAN_FLIP ? true : false;  }
 		public function set springCanFlip(bool:Boolean):void
-			{  setFlag(bool, qb2_flags.J_SPRING_CAN_FLIP, false);  }
+			{  setFlag(bool, qb2_flags.SPRING_CAN_FLIP, false);  }
 			
 		public function get dampenSpringJitter():Boolean
-			{  return _flags & qb2_flags.J_DAMPEN_SPRING_JITTER ? true : false;  }
+			{  return _flags & qb2_flags.DAMPEN_SPRING_JITTER ? true : false;  }
 		public function set dampenSpringJitter(bool:Boolean):void
-			{  setFlag(bool, qb2_flags.J_DAMPEN_SPRING_JITTER, false);  }
+			{  setFlag(bool, qb2_flags.DAMPEN_SPRING_JITTER, false);  }
 			
 		public function get optimizedSpring():Boolean
-			{  return _flags & qb2_flags.J_OPTIMIZED_SPRING ? true : false;  }
+			{  return _flags & qb2_flags.OPTIMIZED_SPRING ? true : false;  }
 		public function set optimizedSpring(bool:Boolean):void
-			{  setFlag(bool, qb2_flags.J_OPTIMIZED_SPRING, false);  }
+			{  setFlag(bool, qb2_flags.OPTIMIZED_SPRING, false);  }
 			
 		public function get freeRotation():Boolean
-			{  return _flags & qb2_flags.J_FREE_ROTATION ? true : false;  }
+			{  return _flags & qb2_flags.FREE_ROTATION ? true : false;  }
 		public function set freeRotation(bool:Boolean):void
-			{  setFlag(bool, qb2_flags.J_FREE_ROTATION, false);  }
+			{  setFlag(bool, qb2_flags.FREE_ROTATION, false);  }
 			
 		public function get autoSetLength():Boolean
-			{  return _flags & qb2_flags.J_AUTO_SET_LENGTH ? true : false;  }
+			{  return _flags & qb2_flags.AUTO_SET_LENGTH ? true : false;  }
 		public function set autoSetLength(bool:Boolean):void
-			{  setFlag(bool, qb2_flags.J_AUTO_SET_LENGTH, false);  }
+			{  setFlag(bool, qb2_flags.AUTO_SET_LENGTH, false);  }
 			
 		public function get autoSetDirection():Boolean
-			{  return _flags & qb2_flags.J_AUTO_SET_DIRECTION ? true : false;  }
+			{  return _flags & qb2_flags.AUTO_SET_DIRECTION ? true : false;  }
 		public function set autoSetDirection(bool:Boolean):void
-			{  setFlag(bool, qb2_flags.J_AUTO_SET_DIRECTION, false);  }
+			{  setFlag(bool, qb2_flags.AUTO_SET_DIRECTION, false);  }
 			
 		protected override function flagsChanged(affectedFlags:uint):void
 		{
-			if ( flags & qb2_flags.J_FREE_ROTATION )
+			if ( flags & qb2_flags.FREE_ROTATION )
 			{
 				if ( jointB2 )
 				{
@@ -108,44 +108,44 @@ package QuickB2.objects.joints
 		}
 		
 		public function get springLength():Number
-			{  return getProperty(qb2_props.J_LENGTH) as Number;  }
+			{  return getProperty(qb2_props.LENGTH) as Number;  }
 		public function set springLength(value:Number):void
-			{  setProperty(qb2_props.J_LENGTH, value);  }
+			{  setProperty(qb2_props.LENGTH, value);  }
 
 		public function get springDamping():Number
-			{  return getProperty(qb2_props.J_SPRING_DAMPING) as Number;  }
+			{  return getProperty(qb2_props.SPRING_DAMPING) as Number;  }
 		public function set springDamping(value:Number):void
-			{  setProperty(qb2_props.J_SPRING_DAMPING, value);  }
+			{  setProperty(qb2_props.SPRING_DAMPING, value);  }
 			
 		public function get springK():Number
-			{  return getProperty(qb2_props.J_SPRING_K) as Number;  }
+			{  return getProperty(qb2_props.SPRING_K) as Number;  }
 		public function set springK(value:Number):void
-			{  setProperty(qb2_props.J_SPRING_K, value);  }
+			{  setProperty(qb2_props.SPRING_K, value);  }
 			
 		public function get maxForce():Number
-			{  return getProperty(qb2_props.J_MAX_FORCE) as Number;  }
+			{  return getProperty(qb2_props.MAX_FORCE) as Number;  }
 		public function set maxForce(value:Number):void
-			{  setProperty(qb2_props.J_MAX_FORCE, value);  }
+			{  setProperty(qb2_props.MAX_FORCE, value);  }
 			
 		public function get targetSpeed():Number
-			{  return getProperty(qb2_props.J_TARGET_SPEED) as Number;  }
+			{  return getProperty(qb2_props.TARGET_SPEED) as Number;  }
 		public function set targetSpeed(value:Number):void
-			{  setProperty(qb2_props.J_TARGET_SPEED, value);  }
+			{  setProperty(qb2_props.TARGET_SPEED, value);  }
 			
 		public function get referenceAngle():Number
-			{  return getProperty(qb2_props.J_REFERENCE_ANGLE) as Number;  }
+			{  return getProperty(qb2_props.REFERENCE_ANGLE) as Number;  }
 		public function set referenceAngle(value:Number):void
-			{  setProperty(qb2_props.J_REFERENCE_ANGLE, value);  }
+			{  setProperty(qb2_props.REFERENCE_ANGLE, value);  }
 			
 		public function get lowerLimit():Number
-			{  return getProperty(qb2_props.J_LOWER_LIMIT) as Number;  }
+			{  return getProperty(qb2_props.LOWER_LIMIT) as Number;  }
 		public function set lowerLimit(value:Number):void
-			{  setProperty(qb2_props.J_LOWER_LIMIT, value);  }
+			{  setProperty(qb2_props.LOWER_LIMIT, value);  }
 			
 		public function get upperLimit():Number
-			{  return getProperty(qb2_props.J_UPPER_LIMIT) as Number;  }
+			{  return getProperty(qb2_props.UPPER_LIMIT) as Number;  }
 		public function set upperLimit(value:Number):void
-			{  setProperty(qb2_props.J_UPPER_LIMIT, value);  }
+			{  setProperty(qb2_props.UPPER_LIMIT, value);  }
 			
 		protected override function propertyChanged(propertyName:String):void
 		{
@@ -153,7 +153,7 @@ package QuickB2.objects.joints
 			
 			var value:Number = _propertyMap[propertyName];
 			
-			if ( propertyName == qb2_props.J_MAX_FORCE )
+			if ( propertyName == qb2_props.MAX_FORCE )
 			{
 				if ( !callingFromUpdate && optimizedSpring && springK )
 					throw qb2_errors.OPT_SPRING_ERROR;
@@ -171,7 +171,7 @@ package QuickB2.objects.joints
 				
 				wakeUpAttached();
 			}
-			else if ( propertyName == qb2_props.J_TARGET_SPEED )
+			else if ( propertyName == qb2_props.TARGET_SPEED )
 			{
 				if ( !callingFromUpdate && optimizedSpring && springK )
 					throw qb2_errors.OPT_SPRING_ERROR;
@@ -187,7 +187,7 @@ package QuickB2.objects.joints
 						
 				wakeUpAttached();
 			}
-			else if ( propertyName == qb2_props.J_REFERENCE_ANGLE )
+			else if ( propertyName == qb2_props.REFERENCE_ANGLE )
 			{
 				if ( jointB2 is b2PrismaticJoint )
 				{
@@ -196,7 +196,7 @@ package QuickB2.objects.joints
 				
 				wakeUpAttached();
 			}
-			else if ( propertyName == qb2_props.J_LOWER_LIMIT || propertyName == qb2_props.J_UPPER_LIMIT )
+			else if ( propertyName == qb2_props.LOWER_LIMIT || propertyName == qb2_props.UPPER_LIMIT )
 			{
 				updateLimits();
 				wakeUpAttached();
@@ -675,6 +675,6 @@ package QuickB2.objects.joints
 		}
 		
 		public override function toString():String 
-			{  return qb2DebugTraceSettings.formatToString(this, "qb2PistonJoint");  }
+			{  return qb2DebugTraceUtils.formatToString(this, "qb2PistonJoint");  }
 	}
 }

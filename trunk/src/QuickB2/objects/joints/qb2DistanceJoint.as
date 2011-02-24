@@ -46,7 +46,7 @@ package QuickB2.objects.joints
 	{
 		public function qb2DistanceJoint(initObject1:qb2IRigidObject = null, initObject2:qb2IRigidObject = null, initWorldAnchor1:amPoint2d = null, initWorldAnchor2:amPoint2d = null)
 		{
-			turnFlagOn(qb2_flags.J_AUTO_SET_LENGTH, false);
+			turnFlagOn(qb2_flags.AUTO_SET_LENGTH, false);
 			
 			object1 = initObject1;
 			object2 = initObject2;
@@ -56,18 +56,18 @@ package QuickB2.objects.joints
 		}
 		
 		public function get autoSetLength():Boolean
-			{  return _flags & qb2_flags.J_AUTO_SET_LENGTH ? true : false;  }
+			{  return _flags & qb2_flags.AUTO_SET_LENGTH ? true : false;  }
 		public function set autoSetLength(bool:Boolean):void
-			{  setFlag(bool, qb2_flags.J_AUTO_SET_LENGTH, false);  }
+			{  setFlag(bool, qb2_flags.AUTO_SET_LENGTH, false);  }
 		
 		public function get isRope():Boolean
-			{  return _flags & qb2_flags.J_IS_ROPE ? true : false;  }
+			{  return _flags & qb2_flags.IS_ROPE ? true : false;  }
 		public function set isRope(bool:Boolean):void
-			{  setFlag(bool, qb2_flags.J_IS_ROPE, false);  }
+			{  setFlag(bool, qb2_flags.IS_ROPE, false);  }
 		
 		protected override function flagsChanged(affectedFlags:uint):void
 		{
-			if ( affectedFlags & qb2_flags.J_IS_ROPE )
+			if ( affectedFlags & qb2_flags.IS_ROPE )
 			{
 				if ( jointB2 )
 				{
@@ -137,19 +137,19 @@ package QuickB2.objects.joints
 		}
 		
 		public function get length():Number
-			{  return getProperty(qb2_props.J_LENGTH) as Number;  }
+			{  return getProperty(qb2_props.LENGTH) as Number;  }
 		public function set length(value:Number):void
-			{  setProperty(qb2_props.J_LENGTH, value);  }
+			{  setProperty(qb2_props.LENGTH, value);  }
 
 		public function get frequencyHz():Number
-			{  return getProperty(qb2_props.J_FREQUENCY_HZ) as Number;  }
+			{  return getProperty(qb2_props.FREQUENCY_HZ) as Number;  }
 		public function set frequencyHz(value:Number):void
-			{  setProperty(qb2_props.J_FREQUENCY_HZ, value);  }
+			{  setProperty(qb2_props.FREQUENCY_HZ, value);  }
 			
 		public function get dampingRatio():Number
-			{  return getProperty(qb2_props.J_DAMPING_RATIO) as Number;  }
+			{  return getProperty(qb2_props.DAMPING_RATIO) as Number;  }
 		public function set dampingRatio(value:Number):void
-			{  setProperty(qb2_props.J_DAMPING_RATIO, value);  }
+			{  setProperty(qb2_props.DAMPING_RATIO, value);  }
 			
 		protected override function propertyChanged(propertyName:String):void
 		{
@@ -157,7 +157,7 @@ package QuickB2.objects.joints
 			
 			var value:Number = _propertyMap[propertyName];
 			
-			if ( propertyName == qb2_props.J_LENGTH )
+			if ( propertyName == qb2_props.LENGTH )
 			{
 				if( jointB2 is b2DistanceJoint )
 					distJoint.m_length = value / worldPixelsPerMeter;
@@ -166,14 +166,14 @@ package QuickB2.objects.joints
 					
 				wakeUpAttached();
 			}
-			else if ( propertyName == qb2_props.J_DAMPING_RATIO )
+			else if ( propertyName == qb2_props.DAMPING_RATIO )
 			{
 				if ( jointB2 is b2DistanceJoint )
 					distJoint.SetFrequency(value);
 				else
 					ropeJoint.SetFrequency(value);
 			}
-			else if ( propertyName == qb2_props.J_FREQUENCY_HZ )
+			else if ( propertyName == qb2_props.FREQUENCY_HZ )
 			{
 				if ( jointB2 is b2DistanceJoint )
 					distJoint.SetFrequency(value);
@@ -347,6 +347,6 @@ package QuickB2.objects.joints
 		
 		
 		public override function toString():String 
-			{  return qb2DebugTraceSettings.formatToString(this, "qb2DistanceJoint");  }
+			{  return qb2DebugTraceUtils.formatToString(this, "qb2DistanceJoint");  }
 	}
 }

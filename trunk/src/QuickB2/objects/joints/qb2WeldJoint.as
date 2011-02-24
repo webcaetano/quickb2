@@ -53,9 +53,9 @@ package QuickB2.objects.joints
 		}
 		
 		public function get referenceAngle():Number
-			{  return getProperty(qb2_props.J_REFERENCE_ANGLE) as Number;  }
+			{  return getProperty(qb2_props.REFERENCE_ANGLE) as Number;  }
 		public function set referenceAngle(value:Number):void
-			{  setProperty(qb2_props.J_REFERENCE_ANGLE, value);  }
+			{  setProperty(qb2_props.REFERENCE_ANGLE, value);  }
 			
 		protected override function propertyChanged(propertyName:String):void
 		{
@@ -63,7 +63,7 @@ package QuickB2.objects.joints
 			
 			var value:Number = _propertyMap[propertyName];
 			
-			if ( propertyName == qb2_props.J_REFERENCE_ANGLE )
+			if ( propertyName == qb2_props.REFERENCE_ANGLE )
 			{
 				joint.m_referenceAngle = this.referenceAngle;
 				wakeUpAttached();
@@ -215,6 +215,6 @@ package QuickB2.objects.joints
 		}
 		
 		public override function toString():String 
-			{  return qb2DebugTraceSettings.formatToString(this, "qb2WeldJoint");  }
+			{  return qb2DebugTraceUtils.formatToString(this, "qb2WeldJoint");  }
 	}
 }

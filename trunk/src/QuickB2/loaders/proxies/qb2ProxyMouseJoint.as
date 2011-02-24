@@ -29,16 +29,16 @@ package QuickB2.loaders.proxies
 	public class qb2ProxyMouseJoint extends qb2ProxyJoint
 	{		
 		[Inspectable(defaultValue="default", name='frequencyHz (default=5.0)')]
-		public var frequencyHz:String = "default (5.0)";
+		public var _float_frequencyHz:String = "default (5.0)";
 		
 		[Inspectable(defaultValue="default", name='dampingRatio (default=0.7)')]
-		public var dampingRatio:String = "default";
+		public var _float_dampingRatio:String = "default";
 		
 		[Inspectable(defaultValue="default", name='maxForce (default=100.0)')]
-		public var maxForce:String = "default";
+		public var _float_maxForce:String = "default";
 		
 		
-		[Inspectable(defaultValue="")]
+		[Inspectable(defaultValue="", name='overrideObject')]
 		public var overrideObject:String = "";
 	}
 }

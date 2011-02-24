@@ -137,9 +137,9 @@ package QuickB2.stock
 		
 		public override function drawDebug(graphics:Graphics):void
 		{
-			debugFillColorStack.unshift(qb2_debugDrawSettings.terrainFillColor);
+			pushDebugFillColor(qb2_debugDrawSettings.terrainFillColor);
 				super.drawDebug(graphics);
-			debugFillColorStack.shift();
+			popDebugFillColor();
 		}
 		
 		public override function clone():qb2Object
