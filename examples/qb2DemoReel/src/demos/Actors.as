@@ -19,7 +19,7 @@ package demos
 		public function Actors() 
 		{
 			var numPics:uint = 10;
-			var center:amPoint2d = new amPoint2d(stage.stageWidth / 2, stage.stageHeight / 2);
+			var center:amPoint2d = new amPoint2d(stageWidth / 2, stageHeight / 2);
 			
 			for (var i:int = 0; i < numPics; i++) 
 			{
@@ -33,7 +33,7 @@ package demos
 				addObject(pic);
 			}
 			
-			this.joinsInDebugDrawing = false;
+		//	this.joinsInDebugDrawing = false;
 		}
 		
 		private static function makePic():qb2Body

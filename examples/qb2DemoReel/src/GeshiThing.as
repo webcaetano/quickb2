@@ -78,7 +78,7 @@ package
         
         private function bubbleEventHandler(event:Event):void
 		{
-            dispatchEvent(event);
+            //dispatchEvent(event);
 			releaseListeners();
         }
 		

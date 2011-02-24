@@ -1,15 +1,10 @@
 package  
 {
-	import com.bit101.components.TextArea;
-	import com.greensock.events.LoaderEvent;
-	import com.greensock.loading.data.DataLoaderVars;
-	import com.greensock.loading.DataLoader;
-	import flash.events.Event;
-	import flash.events.MouseEvent;
-	import flash.text.AntiAliasType;
-	import flash.text.TextField;
-	import flash.text.TextFormat;
-	import flash.utils.unescapeMultiByte;
+	import com.bit101.components.*;
+	import com.greensock.events.*;
+	import com.greensock.loading.*;
+	import flash.events.*;
+	import flash.text.*;
 	
 	public class CodeBlock extends TextArea
 	{		
@@ -46,9 +41,15 @@ package
 			
 			var dataLoader:DataLoader = new DataLoader(address);
 			dataLoader.addEventListener(LoaderEvent.COMPLETE, completed);
+			dataLoader.addEventListener(LoaderEvent.IO_ERROR, ioError);
 			dataLoader.load();
 			
 			this._tf.styleSheet = null;
+		}
+		
+		private function ioError(evt:Event):void
+		{
+			// blah;
 		}
 		
 		private var _geshi:GeshiThing;

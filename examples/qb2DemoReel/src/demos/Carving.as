@@ -1,30 +1,19 @@
 package demos 
 {
-	import As3Math.general.amUpdateEvent;
-	import As3Math.geo2d.amLine2d;
-	import As3Math.geo2d.amPoint2d;
-	import As3Math.geo2d.amVector2d;
-	import com.greensock.loading.core.DisplayObjectLoader;
-	import com.greensock.loading.LoaderStatus;
-	import flash.display.Bitmap;
-	import flash.display.BitmapData;
-	import flash.display.DisplayObjectContainer;
-	import flash.display.Graphics;
-	import flash.display.Sprite;
-	import flash.events.Event;
-	import flash.events.MouseEvent;
-	import flash.ui.Mouse;
-	import flash.ui.MouseCursor;
-	import QuickB2.events.qb2ContactEvent;
-	import QuickB2.events.qb2ContainerEvent;
-	import QuickB2.misc.qb2Mouse;
-	import QuickB2.objects.tangibles.qb2Body;
-	import QuickB2.objects.tangibles.qb2PolygonShape;
-	import QuickB2.objects.tangibles.qb2Tangible;
-	import QuickB2.stock.qb2Stock;
+	import As3Math.geo2d.*;
+	import flash.display.*;
+	import flash.events.*;
+	import flash.ui.*;
+	import flash.utils.*;
+	import QuickB2.events.*;
+	import QuickB2.misc.*;
+	import QuickB2.objects.tangibles.*;
+	import QuickB2.stock.*;
 	
 	/**
 	 * How to use the slice function to add delicious destruction to your project.
+	 * Most of this demo is dedicated to crosshair click-drag interaction and graphics, and making smaller pieces fall off of larger pieces.
+	 * The actual qb2Tangible::slice() function itself is very simple to use.
 	 * 
 	 * @author Doug Koellmer
 	 */
@@ -33,28 +22,47 @@ package demos
 		private static var mouse:qb2Mouse;
 		
 		private var crosshairs:Sprite = new Crosshairs();
-		private var stone:qb2Body = new qb2Body();
+		
+		private var circleCarving:qb2Body = new qb2Body();
+		private var rectCarving:qb2Body   = new qb2Body();
+		private var carvingBlocks:qb2Group = new qb2Group();
 		
 		public function Carving() 
 		{
 			mouse = mouse ? mouse : new qb2Mouse(stage);
 			
-			stone.addObject(qb2Stock.newRectShape(new amPoint2d, stageWidth / 4, stageHeight / 4));
-			//stone.mass = 1;
-			stone.position.set(stageWidth / 2, stageHeight / 2);
-			addObject(stone);
+			//--- Start off with a rectangle and insert a bunch of vertices to make parapets.
+			rectCarving.addObject(qb2Stock.newRectShape(new amPoint2d(), stageWidth / 4, stageHeight / 4));
+			rectCarving.position.set(stageWidth *.75, stageHeight / 2);
+			var parHeight:Number = -stageHeight / 4 - 20;
+			var normalHeight:Number = -stageHeight / 8;
+			var inc:Number = stageWidth / 4 / 5;
+			var left:Number = -stageWidth / 8;
+			var poly:qb2PolygonShape = rectCarving.lastObject() as qb2PolygonShape;
+			poly.getVertexAt(0).y = parHeight
+			poly.getVertexAt(1).y = parHeight;
+			poly.insertVertexAt(1,
+				new amPoint2d(left + inc, parHeight),
+				new amPoint2d(left+inc, normalHeight),
+				new amPoint2d(left+inc*2, normalHeight),
+				new amPoint2d(left+inc*2, parHeight),
+				new amPoint2d(left+inc*3, parHeight),
+				new amPoint2d(left+inc*3, normalHeight),
+				new amPoint2d(left+inc*4, normalHeight),
+				new amPoint2d(left+inc * 4, parHeight)
+			);
+			rectCarving.position.y += 20;
+			rectCarving.position.x -= 30;
+				
+			//--- Make a circle to slice...this will get decomposed to polygons automatically since partial arcs aren't supported.
+			circleCarving.position.set(stageWidth/4, stageHeight/2);
+			var circleShape:qb2CircleShape = qb2Stock.newCircleShape(new amPoint2d(), stageWidth / 8, 0);
+			circleCarving.addObject(circleShape);
 			
-			var poly:qb2PolygonShape = stone.lastObject() as qb2PolygonShape;
-			poly.insertVertexAt(1, new amPoint2d( -stageWidth / 16, -stageHeight / 8), new amPoint2d(0, -stageHeight / 4), new amPoint2d(stageWidth / 16, -stageHeight / 8));
-			poly.getVertexAt(0).incY( -stageHeight / 8);
-			poly.getVertexAt(4).incY( -stageHeight / 8);
-			
-			var stoneClone:qb2Body = stone.clone() as qb2Body;
-			stoneClone.translateBy(new amVector2d( -200, -100));
-			//stoneClone.mass = 1;
-			//addObject(stoneClone);
-			
-			addObject(qb2Stock.newCircleBody(new amPoint2d(100, 100), 50, 0));
+			//--- 'carvingBlocks' will be the object that's sliced.
+			carvingBlocks.addObject(rectCarving);
+			carvingBlocks.addObject(circleCarving);
+			addObject(carvingBlocks);
 		}
 		
 		protected override function update():void
@@ -98,15 +106,15 @@ package demos
 		{
 			if ( _dragging )
 			{
-				_endDrag.x = _startDrag.x + (Main.singleton.mouseX - _startDrag.x) * CROSSHAIRS_LEAD_MULT;
-				_endDrag.y = _startDrag.y + (Main.singleton.mouseY - _startDrag.y) * CROSSHAIRS_LEAD_MULT;
+				_endDrag.x = _startDrag.x + (actor.mouseX - _startDrag.x) * CROSSHAIRS_LEAD_MULT;
+				_endDrag.y = _startDrag.y + (actor.mouseY - _startDrag.y) * CROSSHAIRS_LEAD_MULT;
 				crosshairs.x = _endDrag.x;
 				crosshairs.y = _endDrag.y;
 			}
 			else
 			{
-				crosshairs.x = Main.singleton.mouseX;
-				crosshairs.y = Main.singleton.mouseY;
+				crosshairs.x = actor.mouseX;
+				crosshairs.y = actor.mouseY;
 			}
 		}
 		
@@ -120,7 +128,7 @@ package demos
 			if ( evt.type == MouseEvent.MOUSE_DOWN )
 			{
 				_dragging = true;
-				_startDrag.set(Main.singleton.mouseX, Main.singleton.mouseY);
+				_startDrag.set(actor.mouseX, actor.mouseY);
 				_endDrag.copy(_startDrag);
 			}
 			else if( evt.type == MouseEvent.MOUSE_UP )
@@ -133,19 +141,60 @@ package demos
 					sliceLine.point1 = _startDrag;
 					sliceLine.point2 = _endDrag;
 					var hitPoints:Vector.<amPoint2d> = new Vector.<amPoint2d>();
-					var pieces:Vector.<qb2Tangible> = slice(sliceLine, hitPoints);
+					
+					var pieces:Vector.<qb2Tangible> = carvingBlocks.slice(sliceLine, hitPoints);
 					
 					if ( pieces )
-					{
+					{					
+						var pieceDict:Dictionary = new Dictionary(true);
 						for (var i:int = 0; i < pieces.length; i++) 
 						{
-							pieces[i].density = 1;
-							pieces[i].isSliceable = false;
+							var ithPiece:qb2Tangible = pieces[i];
+							pieceDict[ithPiece.userData] = pieceDict[ithPiece.userData] ? pieceDict[ithPiece.userData] : ithPiece.userData is qb2CircleShape ? [] : [ithPiece.userData];
+							pieceDict[ithPiece.userData].push(ithPiece);
+						}
+						
+						for ( var key:* in pieceDict )
+						{
+							var newPieces:Array = pieceDict[key];
+							
+							var largestArea:Number = 0;
+							var largestPiece:qb2Tangible = null;
+							
+							for (var j:int = 0; j < newPieces.length; j++)
+							{
+								var item:qb2Tangible = newPieces[j];
+								var itemArea:Number = item.surfaceArea;
+								
+								if ( !largestPiece || item.surfaceArea > largestArea)
+								{
+									largestPiece = item;
+									largestArea = item.surfaceArea;
+								}
+							}
+							
+							for ( j = 0; j < newPieces.length; j++) 
+							{
+								item = newPieces[j];
+								if ( item != largestPiece )
+								{
+									item.density = 1; // make this piece fall off the largest piece, which remains static.
+									
+									item.turnSliceFlagOff(qb2_sliceFlags.IS_SLICEABLE); // make it so this object can't be sliced anymore.
+								}
+								else
+								{
+									if ( item.parent && !item.isDescendantOf(carvingBlocks) )
+									{
+										item.removeFromParent();
+										carvingBlocks.addObject(item);
+									}
+								}
+							}
 						}
 					}
 					
 					var pulse:LaserPulse = new LaserPulse();
-					trace("num po", hitPoints.length);
 					pulse.points = hitPoints;
 					_pulses.push(pulse);
 				}
@@ -194,9 +243,8 @@ package demos
 	}
 }
 
-import As3Math.geo2d.amPoint2d;
-import flash.display.Graphics;
-import flash.display.Sprite;
+import As3Math.geo2d.*;
+import flash.display.*;
 
 class Crosshairs extends Sprite
 {
@@ -220,7 +268,7 @@ class Crosshairs extends Sprite
 
 class LaserPulse
 {
-	public var state:Number = 5;
+	public var state:Number = 4;
 	public var points:Vector.<amPoint2d>;
 	private static const BASE_COLOR:uint = 0xff0000;
 	
@@ -246,9 +294,10 @@ class LaserPulse
 				mode--;
 			}
 			
+			
 			if ( mode == 0 )
 			{
-				graphics.lineStyle(state, BASE_COLOR);
+				graphics.lineStyle(state, BASE_COLOR, .75);
 			}
 			else
 			{

@@ -44,12 +44,6 @@ package demos
 			jelloStar.springK = 10;
 			jelloStar.restitution = .5;
 			addObject(jelloStar);
-			
-			qb2Keyboard.makeSingleton(stage).anyKeyDown = hit;
-			function hit():void
-			{
-				addObject(jelloStar.clone());
-			}
 		}
 		
 		//--- Jello stuff can tweak out if it doesn't have a small enough timestep.

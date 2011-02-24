@@ -1,11 +1,16 @@
 package demos
 {
+	import As3Math.consts.TO_DEG;
+	import As3Math.consts.TO_RAD;
+	import As3Math.geo2d.amPoint2d;
+	import As3Math.geo2d.amVector2d;
 	import flash.display.*;
 	import QuickB2.events.*;
 	import QuickB2.objects.tangibles.*;
+	import QuickB2.stock.qb2StageWalls;
 
 	/**
-	 * Serves as the base class for all the demos, providing basic hooks and events.
+	 * Serves as the base class for all the demos, basically providing some hooks to Main's properties.
 	 * 
 	 * @author Doug Koellmer
 	 */
@@ -19,8 +24,29 @@ package demos
 			this.addEventListener(qb2ContainerEvent.REMOVED_FROM_WORLD, addedOrRemoved, false, 0, true);
 		}
 		
+		public function get stageWalls():qb2StageWalls
+			{  return Main.singleton.stageWalls;  }
+		private var _stageWalls:qb2StageWalls = null;
+		
+		public function get cameraRotation():Number
+			{  return Main.singleton.cameraRotation;  }
+		public function set cameraRotation(value:Number):void
+			{  Main.singleton.cameraRotation = value;  }
+		
+		public function get cameraTargetRotation():Number
+			{  return Main.singleton.cameraTargetRotation;  }
+		public function set cameraTargetRotation(value:Number):void
+			{  Main.singleton.cameraTargetRotation = value;  }
+			
+		public function get cameraTargetPoint():amPoint2d
+			{  return Main.singleton.cameraTargetPoint;  }
+			
+		public function get cameraPoint():amPoint2d
+			{  return Main.singleton.cameraPoint;  }
+			
+		
 		/// Lets a demo know when it should clean stuff up.
-		protected function addedOrRemoved(evt:qb2ContainerEvent):void
+		protected virtual function addedOrRemoved(evt:qb2ContainerEvent):void
 		{
 			
 		}

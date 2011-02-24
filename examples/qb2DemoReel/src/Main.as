@@ -4,6 +4,7 @@
 	import As3Math.consts.TO_RAD;
 	import As3Math.geo2d.*;
 	import com.bit101.components.*;
+	import com.greensock.core.SimpleTimeline;
 	import demos.*;
 	import flash.display.*;
 	import flash.events.*;
@@ -48,7 +49,7 @@
 		//--- All the demo classes to cycle through.
 		private static const demoClasses:Vector.<Class> = Vector.<Class>
 		([
-			/*Carving, */CarDriving, RigidCar, StockSofts, JelloCar, StockRigids, StressTest,
+		Carving, EffectFields, StockSofts, CarDriving, RigidCar, JelloCar, StockRigids, StressTest,
 			BubblePop, Cup, Actors, ShapeTransformation, Drawing, Joints, Distance
 		]);
 		
@@ -78,7 +79,9 @@
 			//--- An empty actor is provided for any demos featuring DisplayObject's.
 			world.debugDragSource = this;
 			world.actor = addChild(new Sprite());
-			world.debugDrawContext = (addChild(new Sprite()) as Sprite).graphics;
+			var debugDrawSprite:Sprite = (addChild(new Sprite()) as Sprite);
+			debugDrawSprite.mouseEnabled = false; // so physics drawing doesn't interfere with gui.
+			world.debugDrawContext = debugDrawSprite.graphics;
 			world.realtimeUpdate = true;
 			world.maximumRealtimeStep = 1.0 / 10.0 // make it so a simulation step is never longer than this.
 			world.gravity.y = 10;
