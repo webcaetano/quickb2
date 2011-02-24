@@ -643,7 +643,7 @@ package TopDown.ai.brains
 			var wid:Number = bbWid < _minAntennaWidth ? _minAntennaWidth : bbWid;
 			
 			var tri:qb2Shape = qb2Stock.newIsoTriShape(bb.topCenter, wid, _antennaLength, 0, 0);
-			tri.turnFlagOff(qb2_flags.O_JOINS_IN_DEBUG_DRAWING | qb2_flags.T_IS_DEBUG_DRAGGABLE );
+			tri.turnFlagOff(qb2_flags.JOINS_IN_DEBUG_DRAWING | qb2_flags.IS_DEBUG_DRAGGABLE );
 			
 			return tri;
 		}

@@ -43,7 +43,7 @@ package TopDown.ai.brains
 			if ( Object(this).constructor == tdBrain )
 					throw qb2_errors.ABSTRACT_CLASS_ERROR;
 
-			turnFlagOff(qb2_flags.O_JOINS_IN_DEEP_CLONING);
+			turnFlagOff(qb2_flags.JOINS_IN_DEEP_CLONING);
 		}
 		
 		td_friend function setHost(aSmartBody:tdSmartBody):void

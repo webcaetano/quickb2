@@ -46,47 +46,6 @@ package TopDown.loaders
 	 */
 	public class tdFlashLoader extends qb2FlashLoader
 	{		
-		private static function applyTireTag(tire:tdTire, tireTag:DisplayObject):void
-		{
-			if ( !defaultValue(tireTag["friction"]) )         tire.friction        = parseFloat(tireTag["friction"]);
-			if ( !defaultValue(tireTag["rollingFriction"]) )  tire.rollingFriction = parseFloat(tireTag["rollingFriction"]);
-			if ( !defaultValue(tireTag["mass"]) )             tire.mass            = parseFloat(tireTag["mass"]);
-			
-			if ( !defaultValue(tireTag["canTurn"]) )   tire.canTurn          = tireTag["canTurn"]  == "true";
-			if ( !defaultValue(tireTag["isDriven"]) )  tire.isDriven         = tireTag["isDriven"] == "true";
-			if ( !defaultValue(tireTag["canBrake"]) )  tire.canBrake         = tireTag["canBrake"] == "true";
-			if ( !defaultValue(tireTag["flippedTurning"]) )  tire.flippedTurning         = tireTag["flippedTurning"] == "true";
-		}
-		
-		private static function applyCarBodyTag(carBody:tdCarBody, carBodyTag:DisplayObject):void
-		{
-			if ( !defaultValue(carBodyTag["maxTurnAngle"]) )     carBody.maxTurnAngle    = parseFloat(carBodyTag["maxTurnAngle"]) * TO_RAD;
-			if ( !defaultValue(carBodyTag["zCenterOfMass"]) )    carBody.zCenterOfMass   = parseFloat(carBodyTag["zCenterOfMass"]);
-			if ( !defaultValue(carBodyTag["tractionControl"]) )  carBody.tractionControl = carBodyTag["canBrake"] == "true";
-		}
-		
-		private static function applyTerrainTag(terrain:tdTerrain, terrainTag:tdProxyTerrain):void
-		{
-			terrain.frictionZMultiplier = terrainTag.frictionZMultiplier
-			terrain.rollingFrictionZMultiplier = terrain.rollingFrictionZMultiplier;
-			terrain.rollingSkidColor = terrainTag.rollingSkidColor;
-			terrain.slidingSkidColor = terrainTag.slidingSkidColor;
-			terrain.drawRollingSkids = terrainTag.drawRollingSkids;
-			terrain.drawSlidingSkids = terrainTag.drawSlidingSkids;
-		}
-		
-		private static function applyTrannyTag(tranny:tdTransmission, trannyTag:DisplayObject):void
-		{
-			if ( !defaultValue(trannyTag["torqueConversion"]) )  tranny.torqueConversion    = parseFloat(trannyTag["torqueConversion"]);
-			if ( !defaultValue(trannyTag["differential"]) )      tranny.differential   = parseFloat(trannyTag["differential"]);
-			if ( !defaultValue(trannyTag["shiftTime"]) )         tranny.shiftTime = parseFloat(trannyTag["shiftTime"]);
-			if ( !defaultValue(trannyTag["efficiency"]) )        tranny.efficiency = parseFloat(trannyTag["efficiency"]);
-			if ( !defaultValue(trannyTag["transmissionType"]) )  tranny.transmissionType = trannyTag["transmissionType"] == "automatic" ? tdTransmission.TRANNY_AUTOMATIC : tdTransmission.TRANNY_MANUAL;
-		}
-		
-		private static function isSelfTireTag(potentialTag:DisplayObject):Boolean
-			{  return potentialTag.hasOwnProperty("rollingFriction");  }
-		
 		protected override function foundUserProxy(host:qb2Object, proxy:qb2ProxyUserObject):void
 		{
 			var i:int;
@@ -101,9 +60,8 @@ package TopDown.loaders
 					tireProxy.rotation = 0;
 					var newTire:tdTire = new tdTire(new amPoint2d(tireProxy.x, tireProxy.y), tireProxy.width, tireProxy.height / 2);
 					
-					if ( isSelfTireTag(tireProxy) )
-						applyTireTag(newTire, tireProxy);
-						
+					applyTag(newTire, tireProxy);
+					
 					newTire.actor = tireProxy;
 					tireProxy.actualObject = newTire;
 					carBody.addObject(newTire);
@@ -135,7 +93,7 @@ package TopDown.loaders
 					
 					proxyTrack.rotation = 0;
 					track.width = proxyTrack.width;
-					if ( !defaultValue(proxyTrack["speedLimit"]) )
+					if ( !defaultValue(proxyTrack.speedLimit) )
 					{
 						track.speedLimit = qb2UnitConverter.milesPerHour_to_metersPerSecond(parseFloat(proxyTrack.speedLimit));
 					}
@@ -151,21 +109,16 @@ package TopDown.loaders
 			
 			if ( object is tdCarBody )
 			{
-				var carBody:tdCarBody       = object as tdCarBody;
+				var carBody:tdCarBody = object as tdCarBody;
 				
-				if ( tag is tdProxyCarBody )
+				if ( tag is tdProxyTire )
 				{
-					var carBodyTag:tdProxyCarBody = tag    as tdProxyCarBody;
-					applyCarBodyTag(carBody, carBodyTag);
-				}
-				else if ( tag is tdProxyTire )
-				{
-					var tireTag:tdProxyTire = tag    as tdProxyTire;
+					var tireTag:tdProxyTire = tag as tdProxyTire;
 					
 					for (var i:int = 0; i < carBody.tires.length; i++) 
 					{
 						var tire:tdTire = carBody.tires[i];
-						applyTireTag(tire, tireTag);
+						applyTag(tire, tireTag);
 					}
 				}
 				else if ( tag is tdProxyGearRatio )
@@ -185,7 +138,7 @@ package TopDown.loaders
 				{
 					if ( !carBody.tranny )  carBody.addObject(new tdTransmission());
 					
-					applyTrannyTag(carBody.tranny, tag);
+					applyTag(carBody.tranny, tag);
 				}
 				else if ( tag is tdProxyTorqueEntry )
 				{
@@ -223,13 +176,6 @@ package TopDown.loaders
 					map.trafficManager = tm;
 				}
 			}
-			else if ( (tag is tdProxyTerrain) && (object is tdTerrain) )
-			{
-				var terrainTag:tdProxyTerrain = tag as tdProxyTerrain;
-				var terrain:tdTerrain = object as tdTerrain;
-				
-				applyTerrainTag(terrain, terrainTag);
-			}
 		}
 		
 		private function initializeTrafficManagerSeeds(source:String, existingSeeds:Array):void
@@ -249,7 +195,7 @@ package TopDown.loaders
 			
 			if ( object is tdCarBody )
 			{
-				// add stuff for controlling the car, or something
+				// add stuff for controlling the car, or something, maybe
 			}
 			else if ( object is tdMap )
 			{
@@ -259,10 +205,6 @@ package TopDown.loaders
 					var tracks:Vector.<tdTrack> = trackDict[map] as Vector.<tdTrack>;
 					map.addTracks(tracks);
 				}*/
-			}
-			else if ( (object is tdTerrain) && ((object as tdTerrain).actor is tdProxyTerrain) )
-			{
-				applyTerrainTag(object as tdTerrain, ((object as tdTerrain).actor as tdProxyTerrain));
 			}
 		}
 	}
