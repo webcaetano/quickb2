@@ -13,8 +13,6 @@ package demos
 	 */
 	public class BubblePop extends Demo
 	{
-		private var bubbleBody:qb2Body;
-		
 		public function BubblePop() 
 		{
 			this.restitution = .75;  // make this whole group pretty bouncy.
@@ -27,7 +25,7 @@ package demos
 			var startY:Number = -numDown * radius;
 			var start:amPoint2d = new amPoint2d(startX, startY);
 			
-			bubbleBody = new qb2Body();
+			var bubbleBody:qb2Body = new qb2Body();
 			bubbleBody.position.set(stageWidth/2, stageHeight/2);
 			
 			for (var i:int = 0; i < numAcross; i++) 
@@ -42,19 +40,13 @@ package demos
 			}
 			bubbleBody.rotateBy(RAD_45, bubbleBody.position);
 			addObject(bubbleBody);
+			
+			bubbleBody.addEventListener(qb2ContactEvent.CONTACT_STARTED, contactStarted);
 		}
 		
 		private function contactStarted(evt:qb2ContactEvent):void
 		{
 			evt.localShape.removeFromParent(); // slowly chop away at the object.
-		}
-		
-		protected override function addedOrRemoved(evt:qb2ContainerEvent):void
-		{
-			if ( evt.type == qb2ContainerEvent.ADDED_TO_WORLD )
-				bubbleBody.addEventListener(qb2ContactEvent.CONTACT_STARTED, contactStarted);
-			else
-				bubbleBody.removeEventListener(qb2ContactEvent.CONTACT_STARTED, contactStarted);
 		}
 	}
 }

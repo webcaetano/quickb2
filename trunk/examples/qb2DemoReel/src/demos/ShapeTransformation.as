@@ -51,14 +51,5 @@ package demos
 				direction = -direction;
 			}
 		}
-		
-		protected override function addedOrRemoved(evt:qb2ContainerEvent):void
-		{
-			if ( evt.type == qb2ContainerEvent.ADDED_TO_WORLD )
-				aBody.addEventListener(qb2UpdateEvent.POST_UPDATE, updateShapes);
-			else
-				aBody.removeEventListener(qb2UpdateEvent.POST_UPDATE, updateShapes);
-		}
 	}
-
 }

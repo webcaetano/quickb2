@@ -1,4 +1,4 @@
-package demos
+package demos 
 {
 	import As3Math.consts.*;
 	import As3Math.general.*;
@@ -17,7 +17,7 @@ package demos
 	import TopDown.stock.*;
 	
 	/**
-	 * Demonstrates the basics of working with cars using the TopDown extension library.
+	 * Demonstrates how to use qb2FlashLoader to load in some assets made in FlashCS5.
 	 * 
 	 * @author Doug Koellmer
 	 */
