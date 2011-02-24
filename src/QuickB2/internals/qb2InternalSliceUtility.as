@@ -1,4 +1,4 @@
-package QuickB2.internals 
+﻿package QuickB2.internals 
 {
 	import As3Math.consts.AM_PI;
 	import As3Math.general.amUtils;
@@ -8,7 +8,6 @@ package QuickB2.internals
 	import Box2DAS.Collision.Shapes.b2Shape;
 	import Box2DAS.Common.*;
 	import Box2DAS.Dynamics.*;
-	import com.bit101.charts.LineChart;
 	import flash.utils.*;
 	import QuickB2.*;
 	import QuickB2.misc.*;

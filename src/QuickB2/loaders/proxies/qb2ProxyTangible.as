@@ -69,7 +69,7 @@ package QuickB2.loaders.proxies
 		[Inspectable(defaultValue="default",enumeration="default,true,false", name='isBullet (default=false)')]
 		public var _bool_isBullet:String = "default";
 
-		[Inspectable(defaultValue="default",enumeration="default,true,false", name='AAAallowSleeping (default=true)')]
+		[Inspectable(defaultValue="default",enumeration="default,true,false", name='allowSleeping (default=true)')]
 		public var _bool_allowSleeping:String = "default";
 
 		[Inspectable(defaultValue="default",enumeration="default,true,false", name='sleepingWhenAdded (default=false)')]
