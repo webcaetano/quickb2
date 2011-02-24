@@ -1,3 +1,11 @@
+2/22/2011  (version 0.7)
+
+- finally got around to implementing some effects, i.e. qb2EffectField and some of its subclasses
+
+- implemented qb2Tangible::slice()
+
+- added several more demos to qb2DemoReel to showcase new features, and cleaned up some of the code so that people can more easily copy/paste from demo source if so inclined.
+
 
 
 1/13/2011  (version 0.6)
