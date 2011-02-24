@@ -24,7 +24,6 @@ package TopDown.events
 {
 	import flash.events.*;
 	import QuickB2.*;
-	import QuickB2.debugging.qb2DebugTraceSettings;
 	import QuickB2.events.qb2Event;
 	import QuickB2.objects.*;
 	import QuickB2.objects.tangibles.qb2ObjectContainer;

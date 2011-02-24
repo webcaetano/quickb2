@@ -443,7 +443,7 @@ package TopDown.carparts
 		
 		public override function toString():String
 		{
-			return qb2DebugTraceSettings.formatToStringWithCustomVars(this, "position", "radius", "massShare");
+			return qb2DebugTraceUtils.formatToStringWithCustomVars(this, "position", "radius", "massShare");
 		}
 	}
 }

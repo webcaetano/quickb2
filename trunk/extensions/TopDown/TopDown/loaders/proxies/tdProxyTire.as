@@ -31,24 +31,24 @@ package TopDown.loaders.proxies
 	public class tdProxyTire extends qb2ProxyUserObject
 	{
 		[Inspectable(defaultValue="default", name="friction (default=1.5)")]
-		public var friction:String = "default";
+		public var _float_friction:String = "default";
 
 		[Inspectable(defaultValue="default", name="rollingFriction (default=.01)")]
-		public var rollingFriction:String = "default";
+		public var _float_rollingFriction:String = "default";
 		
 		[Inspectable(defaultValue="default", name="Mass in kg (default=20)")]
-		public var mass:String = "default";
+		public var _float_mass:String = "default";
 		
 		[Inspectable(defaultValue="default",enumeration="default,true,false", name='canTurn (default=false)')]
-		public var canTurn:String = "default";
+		public var _bool_canTurn:String = "default";
 		
 		[Inspectable(defaultValue="default",enumeration="default,true,false", name='isDriven (default=false)')]
-		public var isDriven:String = "default";
+		public var _bool_isDriven:String = "default";
 		
 		[Inspectable(defaultValue="default",enumeration="default,true,false", name='canBrake (default=false)')]
-		public var canBrake:String = "default";
+		public var _bool_canBrake:String = "default";
 		
 		[Inspectable(defaultValue="default",enumeration="default,true,false", name='flippedTurning (default=false)')]
-		public var flippedTurning:String = "default";
+		public var _bool_flippedTurning:String = "default";
 	}
 }

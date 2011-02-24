@@ -77,20 +77,7 @@ package TopDown.objects
 				
 				updateTrackBranches(track);
 			}
-			else if ( object is tdTerrain )
-			{
-				var terrain:tdTerrain = object as tdTerrain;
-				
-				if ( terrain.ubiquitous )
-				{
-					_defaultTerrain = terrain;
-				}
-			}
 		}
-		
-		public function get defaultTerrain():tdTerrain
-			{  return _defaultTerrain;  }
-		td_friend var _defaultTerrain:tdTerrain;
 		
 		protected override function justRemovedObject(object:qb2Object):void
 		{
@@ -101,15 +88,6 @@ package TopDown.objects
 				track._map = null;
 				
 				delete trackDict[track];
-			}
-			else if ( object is tdTerrain )
-			{
-				var terrain:tdTerrain = object as tdTerrain;
-				
-				if ( terrain.ubiquitous )
-				{
-					_defaultTerrain = null;
-				}
 			}
 		}
 		

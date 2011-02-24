@@ -31,16 +31,16 @@ package TopDown.loaders.proxies
 	public class tdProxyTransmission extends qb2ProxyUserObject
 	{
 		[Inspectable(defaultValue="default", name='torqueConversion (default=0.8)')]
-		public var torqueConversion:String = "default";
+		public var _float_torqueConversion:String = "default";
 		
 		[Inspectable(defaultValue="default", name='differential (default=3.5)')]
-		public var differential:String = "default";
+		public var _float_differential:String = "default";
 		
 		[Inspectable(defaultValue="default", name='shiftTime (default=.25)')]
-		public var shiftTime:String = "default";
+		public var _float_shiftTime:String = "default";
 		
 		[Inspectable(defaultValue="default", name='efficiency (default=.7)')]
-		public var efficiency:String = "default";
+		public var _float_efficiency:String = "default";
 		
 		[Inspectable(defaultValue="default", enumeration="default,automatic,manual", name='transmissionType (default=automatic)')]
 		public var transmissionType:String = "default";
