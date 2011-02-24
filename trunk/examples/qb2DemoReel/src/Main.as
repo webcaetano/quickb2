@@ -15,6 +15,7 @@
 	import QuickB2.effects.qb2GravityField;
 	import QuickB2.events.qb2UpdateEvent;
 	import QuickB2.loaders.proxies.qb2ProxyBody;
+	import QuickB2.loaders.qb2FlashLoader;
 	import QuickB2.objects.*;
 	import QuickB2.objects.tangibles.*;
 	import QuickB2.stock.*;
@@ -63,6 +64,9 @@
 
 		private function init(e:Event = null):void 
 		{
+			var loader:qb2FlashLoader = new qb2FlashLoader();
+			loader.loadObject(null);
+			
 			removeEventListener(Event.ADDED_TO_STAGE, init);
 			
 			_singleton = this;

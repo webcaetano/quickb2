@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Copyright (c) 2010 Johnson Center for Simulation at Pine Technical College
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -26,7 +26,6 @@ package QuickB2.effects
 	import Box2DAS.Dynamics.b2Fixture;
 	import Box2DAS.Dynamics.b2World;
 	import Box2DAS.Dynamics.Contacts.b2Contact;
-	import com.greensock.loading.core.DisplayObjectLoader;
 	import flash.display.Graphics;
 	import flash.utils.Dictionary;
 	import QuickB2.debugging.*;

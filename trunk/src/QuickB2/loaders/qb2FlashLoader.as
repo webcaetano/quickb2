@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Copyright (c) 2010 Johnson Center for Simulation at Pine Technical College
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -686,7 +686,8 @@ package QuickB2.loaders
 		{
 			"overrideObject"  : true,
 			"overrideObject1" : true,
-			"overrideObject2" : true
+			"overrideObject2" : true,
+			"componentInspectorSetting" : true // no idea what this is, but it doesn't come up in the describeType() XML
 		}
 		
 		private static var movieClipVars:Object = { };
@@ -694,10 +695,19 @@ package QuickB2.loaders
 		
 		private static function buildMovieClipVars():void
 		{
-			var sampleMovieClip:Object = new qb2Proxy();
-			for ( var key:String in sampleMovieClip )
+			var xml:XML = describeType(new qb2Proxy());
+			var list:XMLList = xml.variable;
+			var listLen:int = list.length();
+			for (var i:int = 0; i < listLen; i++) 
 			{
-				movieClipVars[key] = true;
+				movieClipVars[list[i].@name] = true;				
+			}
+			
+			list = xml.accessor;
+			listLen = list.length();
+			for ( i = 0; i < listLen; i++) 
+			{
+				movieClipVars[list[i].@name] = true;				
 			}
 			
 			movieClipVarsBuilt = true;
@@ -705,19 +715,23 @@ package QuickB2.loaders
 
 		protected virtual function foundUserProxy(host:qb2Object, proxy:qb2ProxyUserObject):void  { }
 		
-		protected function applyTag(object:qb2Object, tag:qb2Proxy):void
+		private function processList(xmlList:XMLList, object:qb2Object, tag:qb2Proxy):void
 		{
+			var listLen:int = xmlList.length();
 			var tagAsObject:Object = tag;
-			for (var key:String in tagAsObject )
+			for (var i:int = 0; i < listLen; i++) 
 			{
-				//--- Skip this variable if it's reserved or is defined by MovieClip or its super classes.
-				if ( reservedVars[key] || movieClipVars[key] )  continue;
+				var proxyVarName:String = xmlList[i].@name;
 				
-				if ( (tag[key] is String) && key.charAt(0) == DELIMITER_STRING )
+				//--- Skip this variable if it's reserved or is defined by MovieClip or its super classes.
+				if ( reservedVars[proxyVarName] || movieClipVars[proxyVarName] )  continue;
+				
+				if ( (tag[proxyVarName] is String) && proxyVarName.charAt(0) == DELIMITER_STRING )
 				{
-					if ( !tag[key] || tag[key] == DEFAULT_STRING )  continue;
+					if ( !tag[proxyVarName] || tag[proxyVarName] == DEFAULT_STRING )  continue;
 					
-					var split:Array = key.split(DELIMITER_STRING);
+					var split:Array = proxyVarName.split(DELIMITER_STRING);
+					split.shift();
 					if ( split.length != 2 )
 					{
 						throw new Error("Problem with variable name.");
@@ -728,23 +742,23 @@ package QuickB2.loaders
 					
 					if ( varPrefix == BOOL_STRING )
 					{
-						object[varName] = tag[key] == TRUE_STRING;
+						object[varName] = tag[proxyVarName] == TRUE_STRING;
 					}
 					else if ( varPrefix == UINT_STRING )
 					{
-						object[varName] = parseInt(tag[key]) as uint;
+						object[varName] = parseInt(tag[proxyVarName]) as uint;
 					}
 					else if ( varPrefix == INT_STRING )
 					{
-						object[varName] = parseInt(tag[key]) as int;
+						object[varName] = parseInt(tag[proxyVarName]) as int;
 					}
 					else if ( varPrefix == FLOAT_STRING )
 					{
-						object[varName] = parseFloat(tag[key]);
+						object[varName] = parseFloat(tag[proxyVarName]);
 					}
 					else if ( varPrefix == HANDLER_STRING )
 					{
-						var listener:Function = null; (tag.parent && tag.parent[tag[key]] ? tag.parent[tag[key]] : tag[key]) as Function;
+						var listener:Function = null; (tag.parent && tag.parent[tag[proxyVarName]] ? tag.parent[tag[proxyVarName]] : tag[proxyVarName]) as Function;
 						
 						if ( listener != null )
 						{
@@ -754,9 +768,23 @@ package QuickB2.loaders
 				}
 				else
 				{
-					object[key] = tag[key];
+					try
+					{
+						object[proxyVarName] = tag[proxyVarName];
+					}
+					catch(err:Error)
+					{
+						
+					}
 				}
 			}
+		}
+		
+		protected function applyTag(object:qb2Object, tag:qb2Proxy):void
+		{
+			var xml:XML = describeType(tag);
+			processList(xml.variable, object, tag);
+			//processList(xml.accessor); proxies shouldn't really have accessor's
 		}
 		
 		protected function finishObject(object:qb2Object):void

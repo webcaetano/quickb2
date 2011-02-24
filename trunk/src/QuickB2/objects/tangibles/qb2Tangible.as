@@ -1186,6 +1186,7 @@ package QuickB2.objects.tangibles
 		protected override function update():void
 		{
 			// NOTE: qb2Object doesn't implement update(), so there's no reason to call it.
+			
 			var numEffectsOnStack:int = _world._effectFieldStack.length;
 			var asRigid:qb2IRigidObject = this as qb2IRigidObject;  // assuming a little, but the only classes to call this super function are qb2Body and qb2Shape anyway...
 			
@@ -1203,13 +1204,16 @@ package QuickB2.objects.tangibles
 			}
 			else if ( this is qb2Body )
 			{
-				for ( i = 0; i < numEffectsOnStack; i++ )
+				if ( this._bodyB2 )
 				{
-					field = _world._effectFieldStack[i];
-					
-					if ( !field.applyPerShape )
+					for ( i = 0; i < numEffectsOnStack; i++ )
 					{
-						field.applyToRigid(asRigid);
+						field = _world._effectFieldStack[i];
+						
+						if ( !field.applyPerShape )
+						{
+							field.applyToRigid(asRigid);
+						}
 					}
 				}
 			}
