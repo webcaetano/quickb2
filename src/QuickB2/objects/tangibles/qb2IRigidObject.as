@@ -130,8 +130,15 @@ package QuickB2.objects.tangibles
 		
 		function get angularDamping():Number;
 		function set angularDamping(value:Number):void;
-	
 		
+		function get sliceFlags():uint;
+		function set sliceFlags(value:uint):void;
+			
+		function turnSliceFlagOn(sliceFlagOrFlags:uint):qb2Tangible;
+		function turnSliceFlagOff(sliceFlagOrFlags:uint):qb2Tangible;
+		function isSliceFlagOn(sliceFlagOrFlags:uint):Boolean;
+		function setSliceFlag(bool:Boolean, sliceFlagOrFlags:uint):qb2Tangible;
+	
 		function get isGhost():Boolean;
 		function set isGhost(bool:Boolean):void;
 		

@@ -23,7 +23,7 @@
 package QuickB2.events 
 {
 	import flash.events.Event;
-	import QuickB2.debugging.qb2DebugTraceSettings;
+	import QuickB2.debugging.qb2DebugTraceUtils;
 	
 	/**
 	 * ...
@@ -35,6 +35,6 @@ package QuickB2.events
 			{  super(type);  }
 			
 		public override function toString():String 
-			{  return qb2DebugTraceSettings.formatToString(this, "qb2RayCastEvent");  }
+			{  return qb2DebugTraceUtils.formatToString(this, "qb2RayCastEvent");  }
 	}
 }

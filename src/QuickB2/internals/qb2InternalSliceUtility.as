@@ -1,7 +1,9 @@
 package QuickB2.internals 
 {
 	import As3Math.consts.AM_PI;
+	import As3Math.general.amUtils;
 	import As3Math.geo2d.*;
+	import As3Math.misc.am_intersectionFlags;
 	import Box2DAS.Collision.b2AABB;
 	import Box2DAS.Collision.Shapes.b2Shape;
 	import Box2DAS.Common.*;
@@ -25,7 +27,7 @@ package QuickB2.internals
 		private const intPoints:Vector.<amPoint2d> = new Vector.<amPoint2d>();
 		private const INFINITE:Number = 1000000;
 		
-		qb2_friend function slice(rootTang:qb2Tangible, sliceLine:amLine2d, outputPoints:Vector.<amPoint2d>, includePartialSlices:Boolean = true, keepOriginal:Boolean = false, addNewTangs:Boolean = true):Vector.<qb2Tangible>
+		qb2_friend function slice(rootTang:qb2Tangible, sliceLine:amLine2d, outputPoints:Vector.<amPoint2d>):Vector.<qb2Tangible>
 		{
 			var infiniteBeg:amPoint2d = sliceLine.point1.translatedBy(sliceLine.direction.negate().scaleBy(INFINITE));
 			var distanceDict:Dictionary = new Dictionary(true); // stores point->point's distance from infiniteBeg
@@ -44,7 +46,12 @@ package QuickB2.internals
 					traverser.next(false);
 					continue;
 				}
-				if( !currObject.isFlagOn(qb2_flags.T_IS_SLICEABLE) )
+				
+				//--- Proceed down tree and continue until we find a sliceable shape.
+				//--- Ancestor containers of shapes that have IS_SLICEABLE turned off will cause the traverser the skip that branch.
+				//--- This means that even if a shape itself at a leaf having IS_SLICEABLE on still won't be sliced.
+				var asTang:qb2Tangible = currObject as qb2Tangible;
+				if( !asTang.isSliceFlagOn(qb2_sliceFlags.IS_SLICEABLE) )
 				{
 					traverser.next(false);
 					continue;
@@ -55,7 +62,8 @@ package QuickB2.internals
 					continue;
 				}
 				
-				//--- Find intersection points with the slice line.
+				//--- Find intersection points with the slice line.  Here we extend the beginning of the line by "infinite"
+				//--- in order to know whether partial slices are entrances or exits.
 				intPoints.length = 0;
 				utilArray.length = 0;
 				var localSliceLine:amLine2d = currObject.parent ?
@@ -63,64 +71,46 @@ package QuickB2.internals
 						new amLine2d(sliceLine.point1.clone(), sliceLine.point2.clone());
 				var localSliceLineBeg:amPoint2d = localSliceLine.point1.translatedBy(localSliceLine.direction.negate().scaleBy(INFINITE));
 				var localSliceLineInf:amLine2d = new amLine2d(localSliceLineBeg, localSliceLine.point2.clone(), localSliceLine.lineType);
-				if ( currObject is qb2PolygonShape )
+				qb2InternalLineIntersectionFinder.intersectsLine(currObject as qb2Tangible, localSliceLineInf, intPoints, true);
+				
+				//--- Search for doubled points and correct their indeces.  This usually happens when a slice line encounters an internal
+				//--- seam of a polygon.  The seam, in turn, is generally caused by a partial slice into a circle or polygon.
+				if ( intPoints.length > 1 )
 				{
-					//--- Compare slice line against each polygon edge to determine intersection.
-					var asPoly:qb2PolygonShape = currObject as qb2PolygonShape;
-					var numVerts:int = asPoly.numVertices;
-					for (var j:int = 0; j < numVerts; j++) 
+					for (var m:int = 0; m < intPoints.length-1; m++) 
 					{
-						var edgeBeg:amPoint2d = asPoly.getVertexAt(j);
-						var edgeEnd:amPoint2d = asPoly.getVertexAt(j < numVerts-1 ? j+1 : 0);
-						utilLine.set(edgeBeg, edgeEnd);
+						var mthPoint:amPoint2d        = intPoints[m]
+						var mthPlusOnePoint:amPoint2d = intPoints[m + 1];
 						
-						if ( localSliceLineInf.intersectsLine(utilLine, utilPoint, INT_TOLERANCE) )
+						if ( mthPoint.equals(mthPlusOnePoint, DIST_TOLERANCE) )
 						{
-							var newIntPoint:amPoint2d = utilPoint.clone();//
-							utilArray.push(newIntPoint); 
 							
-							//--- Determine if the slice line goes through a vertex or the "meat" of an edge.
-							if ( newIntPoint.distanceTo(edgeBeg) < DIST_TOLERANCE )
-							{
-								intDict[newIntPoint] = j * 2;
-							}
-							else
-							{
-								intDict[newIntPoint] = j * 2 + 1;
-							}
 						}
 					}
 				}
-				else
-				{
-					var asCircle:qb2CircleShape = currObject as qb2CircleShape;
-					var geoCircle:amCircle2d = asCircle.asCircle();
-					localSliceLineInf.intersectsCircle(geoCircle, utilArray, INT_TOLERANCE);
-					
-					for (var m:int = 0; m < utilArray.length; m++) 
-					{
-						intDict[utilArray[m]] = -1;
-					}
-				}
 				
-				//--- Order the intersection points for this shape by their distance from the line's beginning.
-				for (var k:int = 0; k < utilArray.length; k++) 
-				{
-					insertPointInOrder(utilArray[k], intPoints, distanceDict, localSliceLineBeg);
-				}
-				
+				//--- Set up some things for the following loop.
 				var numPreviousPointsOffSliceLine:int = 0;
 				var encounteredPointOnSliceLine:Boolean = false;
-				var ammendments:Array = [];
+				var flagDict:Dictionary = new Dictionary(true);
+				var polyEdits:Array = [];
+				var asPoly:qb2PolygonShape;
+				
 				for (var l:int = 0; l < intPoints.length; l++) 
 				{
 					var lthIntPoint:amPoint2d = intPoints[l];
 					var numIntPoints:int = 0;
 					
+					var lthIntFlags:uint = lthIntPoint.userData;
+					var lthPlusOneIntFlags:uint = 0;
+					
+					flagDict[lthIntPoint] = lthIntFlags;
+					
 					//--- See if this int point is on the actual slice line (and not the infinite version), and then if it's an incoming or outgoing point.
+					//--- Also see whether this slice will be a partial slice (numIntPoints==1) or a full slice (numIntPoints==2).
 					if ( localSliceLine.isOn(lthIntPoint, DIST_TOLERANCE) )
 					{
-						if ( numPreviousPointsOffSliceLine % 2 == 0 || encounteredPointOnSliceLine )
+						if ( numPreviousPointsOffSliceLine % 2 == 0 || encounteredPointOnSliceLine || lthIntFlags & (am_intersectionFlags.CURVE_TO_POINT) )
 						{
 							if ( l == intPoints.length - 1 )
 							{
@@ -130,6 +120,8 @@ package QuickB2.internals
 							else
 							{
 								numIntPoints = 2;
+								lthPlusOneIntFlags = intPoints[l + 1].userData;
+								flagDict[intPoints[l + 1]] = intPoints[l + 1].userData;
 								lthIntPoint.userData    = INCOMING;
 								intPoints[++l].userData = OUTGOING;
 							}
@@ -148,61 +140,62 @@ package QuickB2.internals
 						numPreviousPointsOffSliceLine++;
 					}
 					
-					if ( numIntPoints == 1 && includePartialSlices ) // if this is a partial slice...
+					//--- If this is a partial slice (and this shape allows partial slices)...
+					if ( numIntPoints == 1 && asTang.isSliceFlagOn(qb2_sliceFlags.IS_PARTIALLY_SLICEABLE) )
 					{
+						//--- Add the entrance or exit intersection point to the output array (in order) if the caller so desires.
 						if ( outputPoints )
 						{
 							var outputPoint:amPoint2d = currObject.parent ? currObject.parent.getWorldPoint(lthIntPoint, rootTang.parent) : lthIntPoint;
 							outputPoint.userData = lthIntPoint.userData;
-							insertPointInOrder(outputPoint, outputPoints, distanceDict, infiniteBeg);
+							qb2InternalLineIntersectionFinder.insertPointInOrder(outputPoint, outputPoints, distanceDict, infiniteBeg);
 						}
 						
 						//--- Find the point that represents the penetration of this shape, either the beginning or end of the slice line in the shape's parent's coordinate space.
 						var penetrationPoint:amPoint2d = null;
 						if ( lthIntPoint.userData == OUTGOING )
 						{
-							penetrationPoint = currObject.parent ? currObject.parent.getLocalPoint(sliceLine.point1, rootTang.parent) : sliceLine.point1;
+							penetrationPoint = currObject.parent ? currObject.parent.getLocalPoint(sliceLine.point1, rootTang.parent) : sliceLine.point1.clone();
 						}
 						else
 						{
-							penetrationPoint = currObject.parent ? currObject.parent.getLocalPoint(sliceLine.point2, rootTang.parent) : sliceLine.point2;
+							penetrationPoint = currObject.parent ? currObject.parent.getLocalPoint(sliceLine.point2, rootTang.parent) : sliceLine.point2.clone();
 						}
 						
 						//--- Get a polygon representation, either by casting or by converting a circle to a polygon based on where the slice line hit the circle.
-						var polyShape:qb2PolygonShape = null;
 						if ( currObject is qb2CircleShape )
 						{
-							polyShape = (currObject as qb2CircleShape).convertToPoly(false, true, -1, lthIntPoint);
+							asPoly = (currObject as qb2CircleShape).convertToPoly(false, true, -1, lthIntPoint);
 						}
 						else
 						{
-							polyShape = currObject as qb2PolygonShape;
+							asPoly = currObject as qb2PolygonShape;
 						}
 						
-						var index:int = intDict[lthIntPoint];
-						if ( index < 0 || index % 2 == 0 ) // sliceLine intersected a polygon's vertex, or a circle's boundary...either case is the same because the circle is decomposed to a polygon with vertices lining up to the slice line.
+						//--- If the slice line intersected a vertex of a polygon, or if currObject is a decomposed circle...
+						if ( (currObject is qb2CircleShape) || (lthIntFlags & am_intersectionFlags.CURVE_TO_POINT) )
 						{
-							var cornerIndex:int = index < 0 ? 0 : index/2;
-							var afterIndex:int  = cornerIndex == polyShape.numVertices - 1 ? 0 : cornerIndex + 1;
-							var pinch:amPoint2d = polyShape.getVertexAt(cornerIndex).clone();
+							var cornerIndex:int = lthIntFlags >> 16;
+							var afterIndex:int  = cornerIndex == asPoly.numVertices - 1 ? 0 : cornerIndex + 1;
+							var pinch:amPoint2d = asPoly.getVertexAt(cornerIndex).clone();
 							
-							if ( currObject is qb2PolygonShape )
-							{
-								adjustIntPoints(intPoints, l + 1, intDict, 2, afterIndex);
-							}
-							
-							polyShape.insertVertexAt(afterIndex, penetrationPoint, pinch);
+							registerPolyEdit(asPoly, polyEdits, penetrationPoint, afterIndex);
+							registerPolyEdit(asPoly, polyEdits, pinch,            afterIndex);
 						}
-						else // slice line intersected an edge of a polygon...
+						
+						//--- Otherwise currObject is a polygon and the slice line intersected an edge (probably the most common case)...
+						else
 						{
-							var edgeIndex:int = (index - 1) / 2;
+							var edgeIndex:uint = lthIntFlags >> 16;
 							
-							adjustIntPoints(intPoints, l + 1, intDict, 3, edgeIndex + 1);
-							
-							polyShape.insertVertexAt(edgeIndex + 1, lthIntPoint.clone(), penetrationPoint, lthIntPoint.clone());
+							registerPolyEdit(asPoly, polyEdits, lthIntPoint.clone(), edgeIndex + 1);
+							registerPolyEdit(asPoly, polyEdits, penetrationPoint,    edgeIndex + 1);
+							registerPolyEdit(asPoly, polyEdits, lthIntPoint.clone(), edgeIndex + 1);
 						}
 					}
-					else if( numIntPoints == 2 ) // this is a slice that goes all the way through a discrete portion of the shape
+					
+					//--- This is a slice that goes all the way through a discrete portion of the shape (or the whole shape).
+					else if( numIntPoints == 2 )
 					{
 						var localIntPoint1:amPoint2d = lthIntPoint;
 						var localIntPoint2:amPoint2d = intPoints[l];
@@ -214,13 +207,15 @@ package QuickB2.internals
 							var outputPoint2:amPoint2d = currObject.parent ? currObject.parent.getWorldPoint(localIntPoint2, rootTang.parent) : localIntPoint2;
 							outputPoint1.userData = localIntPoint1.userData;
 							outputPoint2.userData = localIntPoint2.userData;
-							insertPointInOrder(outputPoint1, outputPoints, distanceDict, infiniteBeg);
-							insertPointInOrder(outputPoint2, outputPoints, distanceDict, infiniteBeg);
+							qb2InternalLineIntersectionFinder.insertPointInOrder(outputPoint1, outputPoints, distanceDict, infiniteBeg);
+							qb2InternalLineIntersectionFinder.insertPointInOrder(outputPoint2, outputPoints, distanceDict, infiniteBeg);
 						}
 						
-						if ( currObject is qb2CircleShape ) // circle is an easy case...
+						//--- Circle case for two intersections is easy...just split a circle into two polygonized halves
+						//--- based on where the slice line intersects the circle.
+						if ( currObject is qb2CircleShape )
 						{
-							asCircle = currObject as qb2CircleShape;
+							var asCircle:qb2CircleShape = currObject as qb2CircleShape;
 							
 							var vec1:amVector2d = localIntPoint1.minus(asCircle.position);
 							var vec2:amVector2d = localIntPoint2.minus(asCircle.position);
@@ -230,23 +225,69 @@ package QuickB2.internals
 							var poly1:qb2PolygonShape = polygonizeArc(asCircle, localIntPoint1, vec1ToVec2);
 							var poly2:qb2PolygonShape = polygonizeArc(asCircle, localIntPoint2, vec2ToVec1);
 							
+							if ( asCircle.parent && asCircle.isSliceFlagOn(qb2_sliceFlags.REMOVES_SELF_FROM_WORLD) )
+							{
+								asCircle.removeFromParent();
+							}
+							
 							toReturn.push(poly1, poly2);
 						}
+						
+						//--- Polygon case sucks because we have to keep track of and account for all kinds of crap.
 						else if ( currObject is qb2PolygonShape )
 						{
 							asPoly = currObject as qb2PolygonShape;
 							
-							var index1:int = intDict[localIntPoint1];
-							var index2:int = intDict[localIntPoint2];
+							var index1:uint = lthIntFlags >> 16;
+							var index2:uint = lthPlusOneIntFlags >> 16;
+							
+							var index1IsVertexInt:Boolean = lthIntFlags & am_intersectionFlags.CURVE_TO_POINT ? true : false;
+							var index2IsVertexInt:Boolean = lthPlusOneIntFlags & am_intersectionFlags.CURVE_TO_POINT ? true : false;
 							
 							var newPoly:qb2PolygonShape = new qb2PolygonShape();
 							newPoly.copyTangibleProps(asPoly);
 							newPoly.copyPropertiesAndFlags(asPoly);
 							toReturn.push(newPoly);
 							
-							var modIndex1:int = index1 % 2 == 0 ? index1 / 2 : (index1 - 1) / 2;
-							var modIndex2:int = index2 % 2 == 0 ? index2 / 2 : (index2 - 1) / 2;
-							/*if ( modIndex1 > modIndex2 )
+							var modIndex1:int = index1;
+							var modIndex2:int = index2;
+							
+							var mod:int = asPoly.numVertices;
+							
+							var flipPoints:Boolean = false;
+							var numSteps:int = 0;
+							
+							for (var i:int = modIndex1; i != modIndex2; i = (i+1) % mod ) 
+							{
+								for (var j:int = 0; j < intPoints.length; j++) 
+								{
+									if ( j == l || j == l - 1 )  continue;
+									
+									var jthIndex:uint = flagDict[intPoints[j]] ? flagDict[intPoints[j]] >> 16 : intPoints[j].userData >> 16;
+									
+									if ( jthIndex == i )
+									{
+										flipPoints = true;
+										break;
+									}
+								}
+								
+								numSteps++;
+							}
+							
+							if ( !flipPoints && intPoints.length == 2 )
+							{
+								if ( numSteps < mod / 2 )
+								{
+									flipPoints = false;
+								}
+								else if ( modIndex1 > modIndex2 )
+								{
+									flipPoints = true;
+								}
+							}
+							
+							if ( flipPoints )
 							{
 								var temp:int = modIndex1;
 								modIndex1 = modIndex2;
@@ -255,102 +296,75 @@ package QuickB2.internals
 								var tempPoint:amPoint2d = localIntPoint1;
 								localIntPoint1 = localIntPoint2;
 								localIntPoint2 = tempPoint;
-							}*/
-							var count:int = 0;
+								
+								var tempBool:Boolean = index1IsVertexInt;
+								index1IsVertexInt = index2IsVertexInt;
+								index2IsVertexInt = tempBool;
+							}
+		
+							var count:int = (modIndex1 + 1) % mod;
 							
-							var offset:int = 0;
-							if ( index1 % 2 == 0 && index2 % 2 == 0 )
+							if ( index1IsVertexInt )
 							{
 								newPoly.addVertex(asPoly.getVertexAt(modIndex1).clone());
-								while ( count <= modIndex2 )
-								{
-									var useIndex:int = (modIndex1 + 1) % asPoly.numVertices;
-									
-									newPoly.addVertex(asPoly.getVertexAt(useIndex).clone());
-									
-									if ( count < modIndex2 )
-									{
-										asPoly.removeVertexAt(useIndex);
-										offset--;
-									}
-									
-									count++;
-								}
-							}
-							else if ( index1 % 2 == 0 )
-							{
-								newPoly.addVertex(asPoly.getVertexAt(modIndex1).clone());
-								while ( count <= modIndex2 )
-								{
-									useIndex = (modIndex1 + 1) % asPoly.numVertices;
-									
-									newPoly.addVertex(asPoly.getVertexAt(useIndex).clone());
-									
-									asPoly.removeVertexAt(useIndex);
-									offset--;
-									
-									count++;
-								}
-								
-								newPoly.addVertex(localIntPoint2.clone());
-								asPoly.insertVertexAt(modIndex1 + 1, localIntPoint2.clone());
-								offset++;
-							}
-							else if ( index2 % 2 == 0 )
-							{
-								newPoly.addVertex(localIntPoint1.clone());
-								asPoly.insertVertexAt(modIndex1 + 1, localIntPoint1.clone());
-								offset++;
-								
-								while ( count <= modIndex2 )
-								{
-									useIndex = (modIndex1 + 1) % asPoly.numVertices;
-									
-									newPoly.addVertex(asPoly.getVertexAt(useIndex).clone());
-									
-									if ( count < modIndex2 )
-									{
-										asPoly.removeVertexAt(useIndex);
-										offset--;
-									}
-									
-									count++;
-								}
 							}
 							else
 							{
 								newPoly.addVertex(localIntPoint1.clone());
-								asPoly.insertVertexAt(modIndex1, localIntPoint1.clone());
-								adjustIntPoints(intPoints, l + 1, intDict, 1, modIndex1);
-								
-								var numOfOperations:int = 0;
-								
-								while ( count % asPoly.numVertices <= modIndex2 )
-								{
-									useIndex = (modIndex1 + 2) % asPoly.numVertices;
-									
-									newPoly.addVertex(asPoly.getVertexAt(useIndex).clone());
-									
-									asPoly.removeVertexAt(useIndex);
-									offset--;
-									
-									count++;
-								}
-								
-								newPoly.addVertex(localIntPoint2.clone());
-								asPoly.insertVertexAt(modIndex1 + 2 % asPoly.numVertices, localIntPoint2.clone());
-								offset++;
+								registerPolyEdit(asPoly, polyEdits, localIntPoint1.clone(), (modIndex1 + 1) % mod );
 							}
 							
-							adjustIntPoints(intPoints, l + 1, intDict, offset, modIndex1);
+							while ( count != (modIndex2+1) % mod )
+							{
+								newPoly.addVertex(asPoly.getVertexAt(count).clone());
+								
+								registerPolyEdit(asPoly, polyEdits, null, count );
+								
+								count++;
+								count = count % mod;
+							}
 							
-							if ( asPoly.parent )
+							if ( index2IsVertexInt )
+							{
+								registerPolyEdit(asPoly, polyEdits, asPoly.getVertexAt(modIndex2), (modIndex2+1) % mod);
+							}
+							else
+							{
+								newPoly.addVertex(localIntPoint2.clone());
+								registerPolyEdit(asPoly, polyEdits, localIntPoint2.clone(), count );
+							}
+							
+							if ( asPoly.parent && asPoly.isSliceFlagOn(qb2_sliceFlags.ADDS_NEW_PARTS_TO_WORLD) )
 							{
 								newPoly.position = asPoly.parent.getWorldPoint(newPoly.position, rootTang);
+								newPoly.userData = asPoly;
 								rootTang.parent.addObject(newPoly);
 							}
 						}
 					}
+				}
+				
+				//--- Edits to the original polygon are accumlated throughtout the above loop and only processed here.
+				//--- Polygons with CHANGES_OWN_GEOMETRY off won't have any changes accumulated in polyEdits.
+				if ( polyEdits.length )
+				{
+					asPoly.beginEditSession();
+					var offset:int = 0;
+					for (var k:int = 0; k < polyEdits.length; k++) 
+					{
+						if ( polyEdits[k] is int )
+						{
+							asPoly.removeVertexAt(polyEdits[k] + offset);
+							offset--;
+						}
+						else
+						{
+							asPoly.insertVertexAt(polyEdits[k].userData + offset, polyEdits[k]);
+							polyEdits[k].userData = null;
+							offset++;
+						}
+					}
+					asPoly.endEditSession();
 				}
 				
 				traverser.next();
@@ -375,34 +389,30 @@ package QuickB2.internals
 			return toReturn;
 		}
 		
-		private function adjustIntPoints(intPoints:Vector.<amPoint2d>, startIndex:int, intDict:Dictionary, offset:int, vertexIndex:int):void
+		private function registerPolyEdit(poly:qb2PolygonShape, editArray:Array, point:amPoint2d, index:int):void
 		{
-			for (var i:int = startIndex; i < intPoints.length; i++) 
+			if ( !(poly.sliceFlags & qb2_sliceFlags.CHANGES_OWN_GEOMETRY) )  return;
+			
+			var inserted:Boolean = false;
+			if ( point )
 			{
-				var ithIntPoint:amPoint2d = intPoints[i];
-				
-				var baseIndex:int = intDict[ithIntPoint];
-				
-				if ( baseIndex % 2 == 0 )
+				point.userData = index;
+			}
+			
+			for (var i:int = 0; i < editArray.length; i++) 
+			{
+				var ithIndex:int = editArray[i] is int ? editArray[i] as int : (editArray[i] as amPoint2d).userData as int;
+				if ( index < ithIndex )
 				{
-					var actualIndex:int = baseIndex / 2;
-					
-					if ( actualIndex >= vertexIndex )
-					{
-						actualIndex += offset;
-						intDict[ithIntPoint] = actualIndex * 2;
-					}
+					editArray.splice(i, 0, point ? point : index);
+					inserted = true;
+					break;
 				}
-				else
-				{
-					actualIndex = (baseIndex - 1) / 2;
-					
-					if ( actualIndex >= vertexIndex )
-					{
-						actualIndex += offset;
-						intDict[ithIntPoint] = actualIndex * 2 + 1;
-					}
-				}
+			}
+			
+			if ( !inserted )
+			{
+				editArray.push(point ? point : index);
 			}
 		}
 		
@@ -425,73 +435,22 @@ package QuickB2.internals
 				poly.addVertex(rotPoint.rotateBy(angInc, circleShape.position).clone());
 			}
 			
-			poly.copyTangibleProps(circleShape);
+			poly.copyTangibleProps(circleShape, false);
+			poly.density = circleShape.density;
 			poly.copyPropertiesAndFlags(circleShape);
 			
 			if ( circleShape.parent )
 			{
-				poly.position = circleShape.parent.getWorldPoint(poly.position, traverser.root as qb2Tangible);
-				traverser.root.parent.addObject(poly);
+				if ( circleShape.isSliceFlagOn(qb2_sliceFlags.ADDS_NEW_PARTS_TO_WORLD) )
+				{
+					poly.position = circleShape.parent.getWorldPoint(poly.position, traverser.root as qb2Tangible);
+					poly.userData = circleShape;
+					traverser.root.parent.addObject(poly);
+				}
 			}
 			
 			return poly;
 		}
-		
-		/*private function insertAmmendment(object:*, index:int, currentAmmendments:Array):void
-		{
-			if ( object is amPoint2d )
-			{
-				(object as amPoint2d).userData = index;
-			}
-			
-			var inserted:Boolean = false;
-			for (var i:int = 0; i < currentAmmendments.length; i++) 
-			{
-				if( (currentAmmendments[i] is int) && (currentAmmendments[i] as int) < 
-			}
-			
-			if ( !inserted )
-			{
-				currentAmmendments.push(object);
-			}
-		}*/
-		
-		private function insertPointInOrder(point:amPoint2d, otherPoints:Vector.<amPoint2d>, distanceDict:Dictionary, basePoint:amPoint2d):amPoint2d
-		{
-			var distance:Number = 0;
-			if ( !distanceDict[point] )
-			{
-				distance = point.distanceTo(basePoint);
-				distanceDict[point] = distance;
-			}
-			else
-			{
-				distance = distanceDict[point] as Number;
-			}
-			
-			var inserted:Boolean = false;
-			for (var i:int = 0; i < otherPoints.length; i++) 
-			{
-				if ( distance < distanceDict[otherPoints[i]] )
-				{
-					otherPoints.splice(i, 0, point);
-					inserted = true;
-					break;
-				}
-			}
-			
-			if ( !inserted )
-			{
-				otherPoints.push(point);
-			}
-			
-			return point;
-		}
-		
-		/*private function addLineCaps():void
-		{
-			
-		}*/
 		
 		private var utilPoint:amPoint2d = new amPoint2d();
 		private var utilLine:amLine2d = new amLine2d();

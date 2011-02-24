@@ -69,7 +69,7 @@ package QuickB2.objects.tangibles
 				(newContainer as qb2Body).setTransform(_position.clone(), _rotation);
 			newContainer.copyTangibleProps(this);
 			
-			var deepCloneBit:uint = qb2_flags.O_JOINS_IN_DEEP_CLONING;
+			var deepCloneBit:uint = qb2_flags.JOINS_IN_DEEP_CLONING;
 			
 			if ( deep )
 			{
@@ -693,7 +693,7 @@ package QuickB2.objects.tangibles
 		
 		public override function drawDebug(graphics:Graphics):void
 		{
-			var debugDrawBit:uint = qb2_flags.O_JOINS_IN_DEBUG_DRAWING;
+			var debugDrawBit:uint = qb2_flags.JOINS_IN_DEBUG_DRAWING;
 			
 			for (var i:int = 0; i < _objects.length; i++) 
 			{

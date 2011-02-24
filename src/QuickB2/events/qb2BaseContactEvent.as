@@ -71,7 +71,7 @@ package QuickB2.events
 		
 		private function checkForError():void
 		{
-			if ( type != qb2ContactEvent.PRE_SOLVE || type != qb2SubContactEvent.SUB_PRE_SOLVE )
+			if ( type != qb2ContactEvent.PRE_SOLVE && type != qb2SubContactEvent.SUB_PRE_SOLVE )
 				throw new Error("Contacts can only be enabled/disabled for \"pre-solve\" events.");
 		}
 			

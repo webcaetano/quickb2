@@ -61,6 +61,11 @@ package QuickB2.loaders
 		{
 			if ( _loadingInProgress )  throw new Error("A load is already in progress.");
 			
+			if ( !movieClipVarsBuilt )
+			{
+				buildMovieClipVars();
+			}
+			
 			_loadingInProgress = true;
 			
 			var newSource:* = null;
@@ -131,7 +136,7 @@ package QuickB2.loaders
 				var subclipRad:Number = subclip.rotation * TO_RAD;
 				//trace(subclip.x);
 				
-				var overriddenClassName:String = getClassName(subclip, tags);
+				var overriddenClassName:String = getClassName(subclip as qb2Proxy, tags);
 				
 				if ( type & JOINT )
 				{
@@ -601,7 +606,10 @@ package QuickB2.loaders
 				for ( var i:int = 0; i < container.numChildren; i++ )
 				{
 					var subchild:DisplayObject = container.getChildAt(i);
-					if ( containsProxyTag(subchild) )
+					
+					if ( !(subchild is qb2Proxy) )  continue;
+					
+					if ( containsProxyTag(subchild as qb2Proxy) )
 					{
 						if ( !tags )  tags = new Vector.<qb2Proxy>();
 						
@@ -614,268 +622,139 @@ package QuickB2.loaders
 			return tags;
 		}
 		
-		private static function containsProxyTag(displayObject:DisplayObject):Boolean
+		private static function containsProxyTag(proxy:qb2Proxy):Boolean
 		{
-			if ( displayObject is DisplayObjectContainer )
+			var numChildren:int = proxy.numChildren;
+			for (var i:int = 0; i < numChildren; i++) 
 			{
-				var asContainer:DisplayObjectContainer = displayObject as DisplayObjectContainer;
-				var numChildren:int = asContainer.numChildren;
-				for (var i:int = 0; i < numChildren; i++) 
+				var ithChild:DisplayObject = proxy.getChildAt(i);
+				
+				if ( ithChild is qb2ProxyTag )
 				{
-					var ithChild:DisplayObject = asContainer.getChildAt(i);
-					if ( ithChild is qb2ProxyTag )
-						return true;
+					return true;
 				}
 			}
 			
 			return false;
 		}
 		
-		private static function getClassName(clip:DisplayObject, tags:Vector.<qb2Proxy>):String
+		private static function getClassName(proxy:qb2Proxy, tags:Vector.<qb2Proxy>):String
 		{
-			if ( clip.hasOwnProperty("className") )
-			{
-				if ( defaultValue(clip["className"]) )
-					return clip["defaultClassName"];
-				else
-					return clip["className"];
-			}
+			if ( !defaultValue(proxy.className) )
+				return proxy.className;
 			
 			if ( !tags )  return null;
 			
-			for (var i:int = tags.length-1; i >= 0; i--) // hit the highest z-order tags first
+			if ( tags )
 			{
-				var tag:qb2Proxy = tags[i];
-				
-				if ( tag is qb2ProxyObject )
+				for (var i:int = tags.length-1; i >= 0; i--) // hit the highest z-order tags first
 				{
-					var objectTag:qb2ProxyObject = tag as qb2ProxyObject;
+					var tag:qb2Proxy = tags[i];
 					
-					if ( defaultValue(objectTag.className) )
-						return objectTag.defaultClassName;
-					else
-						return objectTag.className;
+					if ( tag is qb2ProxyObject )
+					{
+						var objectTag:qb2ProxyObject = tag as qb2ProxyObject;
+						
+						if ( !defaultValue(objectTag.className) )
+						{
+							return objectTag.className;
+						}
+					}
 				}
 			}
 			
-			return null;
+			return proxy.defaultClassName;
 		}
 		
-		private static function applyJointTag(joint:qb2Joint, jointTag:qb2ProxyJoint):void
-		{
-			if ( !defaultValue(jointTag.collideConnected) )  joint.collideConnected = jointTag.collideConnected == TRUE_STRING;
-			
-			if ( joint is qb2DistanceJoint )
-			{
-				var distJoint:qb2DistanceJoint         = joint    as qb2DistanceJoint;
-				var distJointTag:qb2ProxyDistanceJoint = jointTag as qb2ProxyDistanceJoint;
-				
-				if ( !defaultValue(distJointTag.isRope) )         distJoint.isRope        = distJointTag.isRope        == TRUE_STRING;
-				if ( !defaultValue(distJointTag.autoSetLength) )  distJoint.autoSetLength = distJointTag.autoSetLength == TRUE_STRING;
-				
-				if ( !defaultValue(distJointTag.frequencyHz) )   distJoint.frequencyHz     = parseFloat(distJointTag.frequencyHz);
-				if ( !defaultValue(distJointTag.length) )        distJoint.length          = parseFloat(distJointTag.length);
-				if ( !defaultValue(distJointTag.dampingRatio) )  distJoint.dampingRatio    = parseFloat(distJointTag.dampingRatio);
-			}
-			else if ( joint is qb2PistonJoint)
-			{
-				var pistonJoint:qb2PistonJoint         = joint    as qb2PistonJoint;
-				var pistonJointTag:qb2ProxyPistonJoint = jointTag as qb2ProxyPistonJoint;
-				
-				if ( !defaultValue(pistonJointTag.optimizedSpring) )     pistonJoint.optimizedSpring    = pistonJointTag.optimizedSpring    == TRUE_STRING;
-				if ( !defaultValue(pistonJointTag.springCanFlip) )       pistonJoint.springCanFlip      = pistonJointTag.springCanFlip      == TRUE_STRING;
-				if ( !defaultValue(pistonJointTag.dampenSpringJitter) )  pistonJoint.dampenSpringJitter = pistonJointTag.dampenSpringJitter == TRUE_STRING;
-				if ( !defaultValue(pistonJointTag.freeRotation) )        pistonJoint.freeRotation       = pistonJointTag.freeRotation       == TRUE_STRING;
-				if ( !defaultValue(pistonJointTag.autoSetLength) )       pistonJoint.autoSetLength      = pistonJointTag.autoSetLength      == TRUE_STRING;
-				if ( !defaultValue(pistonJointTag.autoSetDirection) )    pistonJoint.autoSetDirection   = pistonJointTag.autoSetDirection   == TRUE_STRING;
-				
-				if ( !defaultValue(pistonJointTag.springK) )             pistonJoint.springK            = parseFloat(pistonJointTag.springK);
-				if ( !defaultValue(pistonJointTag.springDamping) )       pistonJoint.springDamping      = parseFloat(pistonJointTag.springDamping);
-				if ( !defaultValue(pistonJointTag.springLength) )        pistonJoint.springLength       = parseFloat(pistonJointTag.springLength);
-				if ( !defaultValue(pistonJointTag.lowerLimit) )          pistonJoint.lowerLimit         = parseFloat(pistonJointTag.lowerLimit);
-				if ( !defaultValue(pistonJointTag.upperLimit) )          pistonJoint.upperLimit         = parseFloat(pistonJointTag.upperLimit);
-				if ( !defaultValue(pistonJointTag.maxForce) )            pistonJoint.maxForce           = parseFloat(pistonJointTag.maxForce);
-				if ( !defaultValue(pistonJointTag.targetSpeed) )         pistonJoint.targetSpeed        = parseFloat(pistonJointTag.targetSpeed);
-			}
-			else if ( joint is qb2RevoluteJoint )
-			{
-				var revJoint:qb2RevoluteJoint         = joint    as qb2RevoluteJoint;
-				var revJointTag:qb2ProxyRevoluteJoint = jointTag as qb2ProxyRevoluteJoint;
-	
-				if ( !defaultValue(revJointTag.optimizedSpring) )     revJoint.optimizedSpring    = revJointTag.optimizedSpring    == TRUE_STRING;
-				if ( !defaultValue(revJointTag.springCanFlip) )       revJoint.springCanFlip      = revJointTag.springCanFlip      == TRUE_STRING;
-				if ( !defaultValue(revJointTag.dampenSpringJitter) )  revJoint.dampenSpringJitter = revJointTag.dampenSpringJitter == TRUE_STRING;
-				
-				if ( !defaultValue(revJointTag.springK) )             revJoint.springK            = parseFloat(revJointTag.springK);
-				if ( !defaultValue(revJointTag.springDamping) )       revJoint.springDamping      = parseFloat(revJointTag.springDamping);
-				if ( !defaultValue(revJointTag.lowerLimit) )          revJoint.lowerLimit         = parseFloat(revJointTag.lowerLimit);
-				if ( !defaultValue(revJointTag.upperLimit) )          revJoint.upperLimit         = parseFloat(revJointTag.upperLimit);
-				if ( !defaultValue(revJointTag.maxTorque) )           revJoint.maxTorque          = parseFloat(revJointTag.maxTorque);
-				if ( !defaultValue(revJointTag.targetSpeed) )         revJoint.targetSpeed        = parseFloat(revJointTag.targetSpeed);
-			} 
-			else if ( joint is qb2MouseJoint )
-			{
-				var mouseJoint:qb2MouseJoint         = joint    as qb2MouseJoint;
-				var mouseJointTag:qb2ProxyMouseJoint = jointTag as qb2ProxyMouseJoint;
-			
-				if ( !defaultValue(mouseJointTag.frequencyHz) )   mouseJoint.frequencyHz  = parseFloat(mouseJointTag.frequencyHz);
-				if ( !defaultValue(mouseJointTag.maxForce) )      mouseJoint.maxForce     = parseFloat(mouseJointTag.maxForce);
-				if ( !defaultValue(mouseJointTag.dampingRatio) )  mouseJoint.dampingRatio = parseFloat(mouseJointTag.dampingRatio);
-			}
-			else if ( joint is qb2WeldJoint )
-			{
-				// nothing to do here.
-			}
-		}
+		private static const TRUE_STRING:String      = "true";
+		private static const DEFAULT_STRING:String   = "default";
+		private static const DELIMITER_STRING:String = "_";
 		
-		private static function applyObjectTag(object:qb2Object, objectTag:DisplayObject):void
-		{
-			object.userData = objectTag["identifier"];
-			 
-			addEventListenerToObject(object, objectTag, "_handler_addedToWorld");
-			addEventListenerToObject(object, objectTag, "_handler_removedFromWorld");
-			addEventListenerToObject(object, objectTag, "_handler_preUpdate");
-			addEventListenerToObject(object, objectTag, "_handler_postUpdate");
-			
-			if ( !(objectTag is qb2ProxyObject) )  return;
-			
-			var objectTagTag:qb2ProxyObject = objectTag as qb2ProxyObject;
-			if ( !defaultValue(objectTagTag.joinsInDebugDrawing) )  object.joinsInDebugDrawing = objectTagTag.joinsInDebugDrawing   == TRUE_STRING;
-			if ( !defaultValue(objectTagTag.joinsInDeepCloning) )   object.joinsInDeepCloning  = objectTagTag.joinsInDeepCloning    == TRUE_STRING;
-			if ( !defaultValue(objectTagTag.joinsInUpdateChain) )   object.joinsInUpdateChain  = objectTagTag.joinsInUpdateChain    == TRUE_STRING;
-		}
-		
-		private static function applyObjectContainerTag(container:qb2ObjectContainer, containerTag:DisplayObject):void
-		{
-			addEventListenerToObject(container, containerTag, "_handler_addedObject");
-			addEventListenerToObject(container, containerTag, "_handler_removedObject");
-			addEventListenerToObject(container, containerTag, "_handler_subPreSolve");
-			addEventListenerToObject(container, containerTag, "_handler_subPostSolve");
-			addEventListenerToObject(container, containerTag, "_handler_subContactStarted");
-			addEventListenerToObject(container, containerTag, "_handler_subContactEnded");
-		}
-		
-		private static const TRUE_STRING:String = "true";
-		
-		//--- For this function, the input tag is a DisplayObject and not a qb2TangibleTag, because the object's actor itself could be a tag,
-		//--- and actors shouldn't extend qb2TangibleTag.  This function is assured that the tag does however have all the variables that a qb2TangibleTag should.
-		private static function applyTangibleTag(tang:qb2Tangible, tangTag:DisplayObject):void
-		{
-			var TRUE_STRING:String = "true";
-			
-			if (      !defaultValue(tangTag["contactCategory"])     )  tang.contactCategory     = parseInt(tangTag["contactCategory"]);
-			if (      !defaultValue(tangTag["contactCollidesWith"]) )  tang.contactCollidesWith = parseInt(tangTag["contactCollidesWith"]);
-			if (      !defaultValue(tangTag["contactGroupIndex"])   )  tang.contactGroupIndex   = parseInt(tangTag["contactGroupIndex"]);
-			
-			if (      !defaultValue(tangTag["angularDamping"])      )  tang.angularDamping      = parseFloat(tangTag["angularDamping"]);
-			if (      !defaultValue(tangTag["friction"])            )  tang.friction            = parseFloat(tangTag["friction"]);
-			if (      !defaultValue(tangTag["frictionZ"])           )  tang.frictionZ           = parseFloat(tangTag["frictionZ"]);
-			if (      !defaultValue(tangTag["linearDamping"])       )  tang.linearDamping       = parseFloat(tangTag["linearDamping"]);
-			if (      !defaultValue(tangTag["restitution"])         )  tang.restitution         = parseFloat(tangTag["restitution"]);
-			
-			if (      !defaultValue(tangTag["density"])             )  tang.density             = parseFloat(tangTag["density"]);
-			else if ( !defaultValue(tangTag["mass"])                )  tang.mass                = parseFloat(tangTag["mass"]);
-			
-			if (      !defaultValue(tangTag["allowSleeping"])       )  tang.allowSleeping       = tangTag["allowSleeping"]     == TRUE_STRING;
-			if (      !defaultValue(tangTag["hasFixedRotation"])    )  tang.hasFixedRotation    = tangTag["hasFixedRotation"]  == TRUE_STRING;
-			if (      !defaultValue(tangTag["isBullet"])            )  tang.isBullet            = tangTag["isBullet"]          == TRUE_STRING;
-			if (      !defaultValue(tangTag["isGhost"])             )  tang.isGhost             = tangTag["isGhost"]           == TRUE_STRING;
-			if (      !defaultValue(tangTag["sleepingWhenAdded"])   )  tang.sleepingWhenAdded   = tangTag["sleepingWhenAdded"] == TRUE_STRING;
-			if (      !defaultValue(tangTag["isKinematic"])         )  tang.isKinematic         = tangTag["isKinematic"]       == TRUE_STRING;
-			
-			addEventListenerToObject(tang, tangTag, "_handler_preSolve");
-			addEventListenerToObject(tang, tangTag, "_handler_postSolve");
-			addEventListenerToObject(tang, tangTag, "_handler_contactStarted");
-			addEventListenerToObject(tang, tangTag, "_handler_contactEnded");
-			addEventListenerToObject(tang, tangTag, "_handler_massPropsChanged");
-		}
-		
-		private static function applyTripSensorTag(sensor:qb2TripSensor, sensorTag:DisplayObject):void
-		{
-			if ( !defaultValue(sensorTag["tripTime"]) )  sensor.tripTime = parseFloat(sensorTag["tripTime"]);
-			
-			addEventListenerToObject(sensor, sensorTag, "_handler_sensorTripped");
-			addEventListenerToObject(sensor, sensorTag, "_handler_sensorEntered");
-			addEventListenerToObject(sensor, sensorTag, "_handler_sensorExited");
-		}
-		
-		private static function addEventListenerToObject(object:qb2Object, tag:DisplayObject, componentDefVar:String):void
-		{
-			if ( !tag.parent )  return; // handlers must reside in the parent of the tag.
-			
-			var functionName:String = tag[componentDefVar];
-			if ( !functionName )  return;
-			
-			var eventType:String = componentDefVar.replace("_handler_", ""); // get the raw event type.
-			var handler:Function = tag.parent[functionName];
-			
-			object.addEventListener(eventType, handler, false, 0, true);
-		}
-		
-		//--- These are rather lax methods of determining if a display object itself is using a qb2Tag as a component definition.
-		//--- Unfortunately there are no strict ways that I know of for checking this, so this is the best that can be done.
-		private static function isSelfTangibleTag(potentialTag:DisplayObject):Boolean
-			{  return potentialTag.hasOwnProperty("allowSleeping");  }
-		private static function isSelfTripSensorTag(potentialTag:DisplayObject):Boolean
-			{  return potentialTag.hasOwnProperty("trippedCallback");  }
-		private static function isSelfJointTag(potentialTag:DisplayObject):Boolean
-			{  return potentialTag.hasOwnProperty("collideConnected");  }
-		private static function isSelfContainerTag(potentialTag:DisplayObject):Boolean
-			{  return potentialTag.hasOwnProperty("_handler_addedObject");  }
-		private static function isSelfObjectTag(potentialTag:DisplayObject):Boolean
-			{  return potentialTag.hasOwnProperty("_handler_postUpdate");  }
+		private static const FLOAT_STRING:String     = "float";
+		private static const INT_STRING:String       = "uint";
+		private static const UINT_STRING:String      = "int";
+		private static const BOOL_STRING:String      = "bool";
+		private static const HANDLER_STRING:String   = "handler";
 		
 		protected static function defaultValue(variable:String):Boolean
 		{
 			if ( !variable )  return false;
-			return variable.indexOf("default") >= 0;
+			return variable.indexOf(DEFAULT_STRING) >= 0;
 		}
 		
+		private static const reservedVars:Object = 
+		{
+			"overrideObject"  : true,
+			"overrideObject1" : true,
+			"overrideObject2" : true
+		}
 		
+		private static var movieClipVars:Object = { };
+		private static var movieClipVarsBuilt:Boolean = false;
 		
-		
-		
-		
+		private static function buildMovieClipVars():void
+		{
+			var sampleMovieClip:Object = new qb2Proxy();
+			for ( var key:String in sampleMovieClip )
+			{
+				movieClipVars[key] = true;
+			}
+			
+			movieClipVarsBuilt = true;
+		}
+
 		protected virtual function foundUserProxy(host:qb2Object, proxy:qb2ProxyUserObject):void  { }
 		
 		protected function applyTag(object:qb2Object, tag:qb2Proxy):void
 		{
-			if ( tag is qb2ProxyObject)
-				applyObjectTag(object, tag);
-			if ( (tag is qb2ProxyTangible) && (object is qb2Tangible) )
-				applyTangibleTag(object as qb2Tangible, tag);
-			if ( (tag is qb2ProxyObjectContainer) && (object is qb2ObjectContainer) )
-				applyObjectContainerTag(object as qb2ObjectContainer,  tag);
-			if ( (tag is qb2ProxyTripSensor) && (object is qb2TripSensor) )
-				applyTripSensorTag(object as qb2TripSensor, tag);
-			if ( tag is qb2ProxyJoint )
+			var tagAsObject:Object = tag;
+			for (var key:String in tagAsObject )
 			{
-				if ( object is qb2Joint )
+				//--- Skip this variable if it's reserved or is defined by MovieClip or its super classes.
+				if ( reservedVars[key] || movieClipVars[key] )  continue;
+				
+				if ( (tag[key] is String) && key.charAt(0) == DELIMITER_STRING )
 				{
-					applyJointTag(object as qb2Joint, tag as qb2ProxyJoint);
-				}
-				else if ( object is qb2ObjectContainer ) // groups can apply joint tags to all the joints in their descendancy.
-				{
-					var queue:Vector.<qb2Object> = new Vector.<qb2Object>();
-					queue.unshift(object);
+					if ( !tag[key] || tag[key] == DEFAULT_STRING )  continue;
 					
-					while ( queue.length )
+					var split:Array = key.split(DELIMITER_STRING);
+					if ( split.length != 2 )
 					{
-						var subObject:qb2Object = queue.shift();
+						throw new Error("Problem with variable name.");
+					}
+					
+					var varPrefix:String = split[0];
+					var varName:String   = split[1];
+					
+					if ( varPrefix == BOOL_STRING )
+					{
+						object[varName] = tag[key] == TRUE_STRING;
+					}
+					else if ( varPrefix == UINT_STRING )
+					{
+						object[varName] = parseInt(tag[key]) as uint;
+					}
+					else if ( varPrefix == INT_STRING )
+					{
+						object[varName] = parseInt(tag[key]) as int;
+					}
+					else if ( varPrefix == FLOAT_STRING )
+					{
+						object[varName] = parseFloat(tag[key]);
+					}
+					else if ( varPrefix == HANDLER_STRING )
+					{
+						var listener:Function = null; (tag.parent && tag.parent[tag[key]] ? tag.parent[tag[key]] : tag[key]) as Function;
 						
-						if ( subObject is qb2Joint )
+						if ( listener != null )
 						{
-							applyJointTag(subObject as qb2Joint, tag as qb2ProxyJoint);
-						}
-						else if ( subObject is qb2ObjectContainer )
-						{
-							var asContainer:qb2ObjectContainer = subObject as qb2ObjectContainer;
-							for (var i:int = 0; i < asContainer.numObjects; i++)
-							{
-								queue.push(asContainer.getObjectAt(i));
-							}
+							object.addEventListener(varName, listener, false, 0, true);
 						}
 					}
+				}
+				else
+				{
+					object[key] = tag[key];
 				}
 			}
 		}
@@ -884,18 +763,9 @@ package QuickB2.loaders
 		{
 			if ( !proxyDict || !proxyDict[object] )  return;
 			
-			var proxy:DisplayObject = proxyDict[object] as DisplayObject;
+			var proxy:qb2Proxy = proxyDict[object] as qb2Proxy;
 			
-			if ( isSelfObjectTag(proxy) )
-				applyObjectTag(object, proxy);
-			if ( (object is qb2Tangible) && isSelfTangibleTag(proxy) )
-				applyTangibleTag(object as qb2Tangible, proxy);
-			if ( (object is qb2ObjectContainer) && isSelfContainerTag(proxy) )
-				applyObjectContainerTag(object as qb2ObjectContainer, proxy);
-			if ( (object is qb2TripSensor) && isSelfTripSensorTag(proxy) )
-				applyTripSensorTag(object as qb2TripSensor, proxy);
-			if ( (object is qb2Joint) && isSelfJointTag(proxy) )
-				applyJointTag(object as qb2Joint, proxy as qb2ProxyJoint);
+			applyTag(object, proxy);
 				
 			if ( removeEmptyProxies )
 			{

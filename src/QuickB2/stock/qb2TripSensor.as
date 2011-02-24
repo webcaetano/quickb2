@@ -27,7 +27,7 @@ package QuickB2.stock
 	import flash.display.Graphics;
 	import flash.utils.*;
 	import QuickB2.debugging.qb2_debugDrawSettings;
-	import QuickB2.debugging.qb2DebugTraceSettings;
+	import QuickB2.debugging.qb2DebugTraceUtils;
 	import QuickB2.events.*;
 	import QuickB2.internals.*;
 	import QuickB2.objects.qb2Object;
@@ -256,12 +256,12 @@ package QuickB2.stock
 		
 		public override function drawDebug(graphics:Graphics):void
 		{
-			debugFillColorStack.unshift(qb2_debugDrawSettings.tripSensorFillColor);
+			pushDebugFillColor(qb2_debugDrawSettings.tripSensorFillColor);
 				super.drawDebug(graphics);
-			debugFillColorStack.shift();
+			popDebugFillColor();
 		}
 		
 		public override function toString():String 
-			{  return qb2DebugTraceSettings.formatToString(this, "qb2TripSensor");  }
+			{  return qb2DebugTraceUtils.formatToString(this, "qb2TripSensor");  }
 	}
 }

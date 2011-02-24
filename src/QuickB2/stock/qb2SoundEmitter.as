@@ -14,11 +14,11 @@ package QuickB2.stock
 	import QuickB2.objects.tangibles.qb2Tangible;
 	import SoundTree.objects.stSoundObject;
 	
-	public class qb2SoundField extends qb2Body
+	public class qb2SoundEmitter extends qb2Body
 	{
 		public var ignoreList:Array = null;
 		
-		public function qb2SoundField() 
+		public function qb2SoundEmitter() 
 		{
 			addEventListener(qb2ContainerEvent.ADDED_TO_WORLD, addedOrRemoved, false, 0, true);
 			addEventListener(qb2ContainerEvent.REMOVED_FROM_WORLD, addedOrRemoved, false, 0, true);
@@ -41,7 +41,7 @@ package QuickB2.stock
 		
 		public static var ear:qb2Tangible = null;
 		
-		private static var globalSoundFieldList:Vector.<qb2SoundField> = new Vector.<qb2SoundField>();
+		private static var globalSoundFieldList:Vector.<qb2SoundEmitter> = new Vector.<qb2SoundEmitter>();
 		private static var soundDict:Dictionary = new Dictionary(true);
 		
 		public function get sound():stSoundObject
@@ -50,7 +50,7 @@ package QuickB2.stock
 		{
 			if ( _sound )
 			{
-				var array:Vector.<qb2SoundField> = soundDict[_sound];
+				var array:Vector.<qb2SoundEmitter> = soundDict[_sound];
 				array.splice(array.indexOf(this), 1);
 				if ( !array.length )
 				{
@@ -65,7 +65,7 @@ package QuickB2.stock
 			{
 				if ( !soundDict[_sound] )
 				{
-					array = new Vector.<qb2SoundField>();
+					array = new Vector.<qb2SoundEmitter>();
 					array.push(this);
 					soundDict[_sound] = array;
 				}
@@ -91,7 +91,7 @@ package QuickB2.stock
 			
 			for (var i:int = 0; i < globalSoundFieldList.length; i++) 
 			{
-				var soundField:qb2SoundField = globalSoundFieldList[i];
+				var soundField:qb2SoundEmitter = globalSoundFieldList[i];
 				
 				if ( !soundField._sound )  continue;
 				
@@ -137,7 +137,7 @@ package QuickB2.stock
 					}
 				}
 				
-				if ( !soundField_inContactWithEar )
+				if ( !soundEmitter_inContactWithEar )
 				{
 					continue;
 				}
@@ -249,9 +249,9 @@ package QuickB2.stock
 		
 		public override function drawDebug(graphics:Graphics):void
 		{
-			debugFillColorStack.unshift(qb2_debugDrawSettings.soundFieldFillColor);
+			debugFillColorStack.push(qb2_debugDrawSettings.soundFieldFillColor);
 				super.drawDebug(graphics);
-			debugFillColorStack.shift();
+			debugFillColorStack.pop();
 			
 			if ( _horizonTang )
 			{
@@ -261,7 +261,7 @@ package QuickB2.stock
 		
 		public override function clone():qb2Object
 		{
-			var clone:qb2SoundField = super.clone() as qb2SoundField;
+			var clone:qb2SoundEmitter = super.clone() as qb2SoundEmitter;
 			
 			clone._horizon = this._horizon; // don't use setter, cause horizonTang gets made through the clone.
 			clone.sound = this.sound;

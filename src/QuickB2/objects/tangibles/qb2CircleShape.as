@@ -54,13 +54,13 @@ package QuickB2.objects.tangibles
 		{
 			super();
 			
-			setProperty(qb2_props.C_ARC_APPROXIMATION, 20.0, false);
+			setProperty(qb2_props.ARC_APPROXIMATION, 20.0, false);
 		}
 		
 		public function get arcApproximation():Number
-			{  return getProperty(qb2_props.C_ARC_APPROXIMATION) as Number;  }
+			{  return getProperty(qb2_props.ARC_APPROXIMATION) as Number;  }
 		public function set arcApproximation(value:Number):void
-			{  setProperty(qb2_props.C_ARC_APPROXIMATION, value);  }
+			{  setProperty(qb2_props.ARC_APPROXIMATION, value);  }
 			
 		public override function clone():qb2Object
 		{
@@ -294,6 +294,6 @@ package QuickB2.objects.tangibles
 		}
 		
 		public override function toString():String 
-			{  return qb2DebugTraceSettings.formatToString(this, "qb2CircleShape");  }
+			{  return qb2DebugTraceUtils.formatToString(this, "qb2CircleShape");  }
 	}
 }

@@ -45,7 +45,6 @@ package QuickB2.stock
 		public var linearLag:Number = 0;
 		public var angularLag:Number = 0;
 		
-		
 		public var linearSnapTolerance:Number      = .01;
 		public var linearDistanceTolerance:Number  = .001;
 		public var angularSnapTolerance:Number     = RAD_1;
@@ -107,7 +106,27 @@ package QuickB2.stock
 			}
 		}
 		
+		public override function clone():qb2Object
+		{
+			var cloned:qb2FollowBody = super.clone() as qb2FollowBody;
+			
+			cloned.targetPoint = this.targetPoint ? this.targetPoint.clone() : null;
+			cloned.targetRotation = this.targetRotation;
+			
+			cloned.maxLinearVelocity = this.maxLinearVelocity;
+			cloned.maxAngularVelocity = this.maxAngularVelocity;
+			cloned.linearLag = this.linearLag;
+			cloned.angularLag = this.angularLag;
+			
+			cloned.linearSnapTolerance      = this.linearSnapTolerance;
+			cloned.linearDistanceTolerance  = this.linearDistanceTolerance;
+			cloned.angularSnapTolerance     = this.angularSnapTolerance;
+			cloned.angularDistanceTolerance = this.angularDistanceTolerance;
+			
+			return cloned;
+		}
+		
 		public override function toString():String 
-			{  return qb2DebugTraceSettings.formatToString(this, "qb2FollowBody");  }
+			{  return qb2DebugTraceUtils.formatToString(this, "qb2FollowBody");  }
 	}
 }

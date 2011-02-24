@@ -35,8 +35,10 @@ package QuickB2.objects.tangibles
 	import flash.utils.*;
 	import QuickB2.*;
 	import QuickB2.debugging.*;
+	import QuickB2.effects.qb2EffectField;
 	import QuickB2.events.*;
 	import QuickB2.internals.*;
+	import QuickB2.loaders.proxies.qb2ProxyMouseJoint;
 	import QuickB2.misc.qb2_flags;
 	import QuickB2.misc.qb2TreeTraverser;
 	import QuickB2.objects.*;
@@ -56,12 +58,14 @@ package QuickB2.objects.tangibles
 		
 		qb2_friend var _worldB2:b2World;
 		
-		/** The default time step (in seconds) to take on each update.  You generally want this to coincide with your display rate.
-		 * This value is ignored if realTimeUpdate=true
+		public static const DEFAULT_TIME_STEP:Number = 1.0 / 30.0;
+		
+		/** If using auto-stepping with start()/stop(), this is the default time step (in seconds) taken each frame.
+		 * You generally want this to coincide with your display rate. This value is ignored if realTimeUpdate==true.
 		 * @default 1.0/30.0
 		 * @see #realTimeUpdate
 		 */
-		public var defaultTimeStep:Number   = 1.0 / 30.0;
+		public var defaultTimeStep:Number = DEFAULT_TIME_STEP;
 		
 		/** If true, things will update based on the actual elapsed time since the last update.
 		 * If false, the simulation will update on the fixed time step specified by defaultTimeStep.
@@ -212,19 +216,19 @@ package QuickB2.objects.tangibles
 
 			if ( _debugDragSource )
 			{
-				if ( !containsObject(debugMouseJoint) )
+				if ( !containsObject(_debugMouseJoint) )
 				{
-					debugMouseJoint.object = null;
-					addObject(debugMouseJoint);
+					_debugMouseJoint.object = null;
+					addObject(_debugMouseJoint);
 				}
 					
 				_debugDragSource.addEventListener(MouseEvent.MOUSE_DOWN, mouseEvent, false, 0, true);
 			}
 			else
 			{
-				if ( containsObject(debugMouseJoint) )
+				if ( containsObject(_debugMouseJoint) )
 				{
-					removeObject(debugMouseJoint);
+					removeObject(_debugMouseJoint);
 				}
 			}
 		}
@@ -240,7 +244,10 @@ package QuickB2.objects.tangibles
 		
 		//--- Internal variables for mouse tracking.
 		private var mouseDown:Boolean = false;
-		private const debugMouseJoint:qb2MouseJoint = new qb2MouseJoint();
+		
+		public function get debugMouseJoint():qb2MouseJoint
+			{  return _debugMouseJoint;  }
+		private const _debugMouseJoint:qb2MouseJoint = new qb2MouseJoint();
 		
 		/** The relationship between the physics world in meters and the Flash world in pixels. Box2D is tuned to work with values much
 		 * smaller than the average resolutions of Flash apps.  30 pixels per 1 meter seems to be a good ratio for most simulations.
@@ -279,7 +286,7 @@ package QuickB2.objects.tangibles
 		private function mouseDrag():void
 		{
 			// mouse press
-			if( _debugDragSource && mouseDown && !debugMouseJoint.object )
+			if( _debugDragSource && mouseDown && !_debugMouseJoint.object )
 			{
 				var rigid:qb2IRigidObject = null;
 				
@@ -289,7 +296,7 @@ package QuickB2.objects.tangibles
 				mouseDrag_iterator.path = qb2TreeTraverser.Z_ORDER_TOP_TO_BOTTOM;
 				mouseDrag_iterator.root = this;
 				
-				var mouseBit:uint = qb2_flags.T_IS_DEBUG_DRAGGABLE;
+				var mouseBit:uint = qb2_flags.IS_DEBUG_DRAGGABLE;
 				while ( mouseDrag_iterator.hasNext )
 				{
 					var object:qb2Object = mouseDrag_iterator.currentObject;
@@ -354,23 +361,23 @@ package QuickB2.objects.tangibles
 						rigid = rigid.parent as qb2IRigidObject;
 					}
 					
-					debugMouseJoint.object = rigid;
-					if ( !containsObject(debugMouseJoint) ) // a world.removeAllObjects(), for example, could remove this joint inadvertently.
-						addObject(debugMouseJoint);
-					debugMouseJoint.setWorldAnchor(mousePoint);
-					debugMouseJoint.maxForce = (rigid.mass + rigid.attachedMass) * debugDragAccel;
-					setObjectIndex(debugMouseJoint, numObjects - 1); // make joint be drawn on top of everything else...this could be done every frame to be guaranteed always on top, but that prolly costs more than it's worth.
+					_debugMouseJoint.object = rigid;
+					if ( !containsObject(_debugMouseJoint) ) // a world.removeAllObjects(), for example, could remove this joint inadvertently.
+						addObject(_debugMouseJoint);
+					_debugMouseJoint.setWorldAnchor(mousePoint);
+					_debugMouseJoint.maxForce = (rigid.mass + rigid.attachedMass) * debugDragAccel;
+					setObjectIndex(_debugMouseJoint, numObjects - 1); // make joint be drawn on top of everything else...this could be done every frame to be guaranteed always on top, but that prolly costs more than it's worth.
 				}
 			}
 
-			if( debugMouseJoint.object && (!mouseDown || !_debugDragSource || !debugMouseJoint.object.world) )
+			if( _debugMouseJoint.object && (!mouseDown || !_debugDragSource || !_debugMouseJoint.object.world) )
 			{
-				debugMouseJoint.object = null;
+				_debugMouseJoint.object = null;
 			}
 
-			if( debugMouseJoint.object )
+			if( _debugMouseJoint.object )
 			{
-				debugMouseJoint.worldTarget.set(_debugDragSource.mouseX, _debugDragSource.mouseY);
+				_debugMouseJoint.worldTarget.set(_debugDragSource.mouseX, _debugDragSource.mouseY);
 			}
 		}
 		
@@ -383,7 +390,7 @@ package QuickB2.objects.tangibles
 		private var _running:Boolean = false;
 	
 		/** Starts the simulation by registering an Event.ENTER_FRAME on an internal dummy Sprite, which calls step().
-		 * If you want to operate on an frequency different than your display rate, set up a _clock and call step() yourself.
+		 * If you want to operate on an frequency different than your display rate, set up a timer or something and call step() yourself.
 		 * @see #stop()
 		 * @see #step()
 		 */
@@ -407,7 +414,9 @@ package QuickB2.objects.tangibles
 			lastTime = currTime;
 		}
 		
-		/** The last time step that was used to advance the physics world in step().  This can change slightly for each pass if realTimeUpdate == true.
+		/**
+		 * The last time step that was used to advance the physics world in step().
+		 * This can change slightly for each pass if realTimeUpdate == true.
 		 * @default 0
 		 * @see #step()
 		 * @see #realTimeUpdate
@@ -416,7 +425,8 @@ package QuickB2.objects.tangibles
 			{  return _lastTimeStep;  }
 		private var _lastTimeStep:Number = 0;
 		
-		/** The amount of time in seconds that has passed in the physics world since the simulation started.
+		/**
+		 * The amount of time in seconds that has passed in the physics world since the simulation started.
 		 * That is, the number of times step() has been called multiplied by the time step used on each call.
 		 * @default 0
 		 */
@@ -424,11 +434,16 @@ package QuickB2.objects.tangibles
 			{  return _clock;  }
 		private var _clock:Number = 0;
 		
-		/** Updates the physics world. This includes processing debug mouse input, drawing debug graphics, updating fps, calling pre/postCallback(), and updating sprite/actor positions (if applicable).
+		/**
+		 * Updates the physics world. This includes processing debug mouse input, drawing debug graphics, updating the clock, firing pre/post events, and updating sprite/actor positions (if applicable).
+		 * You can call step any time and as often as you want, it doesn't have to be once per frame.  For example you can call step a dozen or so times in a for-loop in order to simulate something to rest.
+		 * step() is called automatically once per frame if you're using start()/stop() to manage your game loop.
 		 * @see #defaultTimeStep
 		 * @see #realtimeUpdate
+		 * @see #start()
+		 * @see #stop()
 		 */
-		public function step( timeStep:Number = 1.0/30.0, positionIterations:uint = 3, velocityIterations:uint = 8 ):void
+		public function step( timeStep:Number = DEFAULT_TIME_STEP, positionIterations:uint = 3, velocityIterations:uint = 8 ):void
 		{
 			for (var key:* in preEventers)
 			{
@@ -523,8 +538,9 @@ package QuickB2.objects.tangibles
 		public override function clone():qb2Object
 		{
 			throw new Error("A qb2World cannot be cloned.");
-			return null;
 		}
+		
+		qb2_friend const _effectFieldStack:Vector.<qb2EffectField> = new Vector.<qb2EffectField>();
 		
 		qb2_friend function registerGlobalTerrain(terrain:qb2Terrain):void
 		{
@@ -592,11 +608,10 @@ package QuickB2.objects.tangibles
 		qb2_friend var _globalGravityZRevision:int = 0;
 		qb2_friend var _globalTerrainRevision:int = 0;
 		
-		qb2_friend var _terrainRevisionDict:Dictionary = new Dictionary(true);
-		qb2_friend var _gravityZRevisionDict:Dictionary = new Dictionary(true);
-		
+		qb2_friend const _terrainRevisionDict:Dictionary = new Dictionary(true);
+		qb2_friend const _gravityZRevisionDict:Dictionary = new Dictionary(true);
 		
 		public override function toString():String 
-			{  return qb2DebugTraceSettings.formatToString(this, "qb2World");  }
+			{  return qb2DebugTraceUtils.formatToString(this, "qb2World");  }
 	}
 }

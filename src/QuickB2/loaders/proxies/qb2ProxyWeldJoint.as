@@ -28,5 +28,10 @@ package QuickB2.loaders.proxies
 	 */
 	public class qb2ProxyWeldJoint extends qb2ProxyJoint
 	{
+		[Inspectable(defaultValue="", name='overrideObject1')]
+		public var overrideObject1:String = "";
+		
+		[Inspectable(defaultValue="", name='overrideObject2')]
+		public var overrideObject2:String = "";
 	}
 }

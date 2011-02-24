@@ -65,10 +65,10 @@ package QuickB2.misc
 		
 		public function get root():qb2Object
 			{  return _root;  }
-		public function set root(aContainer:qb2Object):void
+		public function set root(anObject:qb2Object):void
 		{
 			clear();
-			_root = aContainer;
+			_root = anObject;
 			
 			if ( _root )
 			{

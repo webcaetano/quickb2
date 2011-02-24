@@ -27,6 +27,7 @@ package QuickB2.stock
 	import As3Math.geo2d.*;
 	import flash.display.*;
 	import QuickB2.debugging.*;
+	import QuickB2.misc.qb2_props;
 	import QuickB2.objects.*;
 	import QuickB2.objects.joints.*;
 	import QuickB2.objects.tangibles.*;
@@ -48,6 +49,10 @@ package QuickB2.stock
 		
 		public function qb2SoftPoly():void
 		{
+			springK = 10;
+			springDamping = .15;
+			lowerLimit = -RAD_10;
+			upperLimit =  RAD_10;
 		}
 		
 		public override function clone():qb2Object
@@ -145,56 +150,59 @@ package QuickB2.stock
 		private function stitch(body1:qb2Body, body2:qb2Body, point:amPoint2d):void
 		{
 			var joint:qb2RevoluteJoint = new qb2RevoluteJoint(body1, body2, point);
-			joint.springK = _springK;
-			joint.springDamping = _springDamping;
-			//joint.lowerAngle = -RAD_90;
-			//joint.upperAngle = RAD_90;
-			joint.setLimits( -_jointLimitRange/2, _jointLimitRange/2);
 			addObject(joint);
 			revJoints.push(joint);
 		}
 		
-		public function get springK():Number
-			{  return _springK;  }
-		public function set springK(value:Number):void
-		{
-			_springK = value;
-			
-			for (var i:int = 0; i < revJoints.length; i++) 
-			{
-				revJoints[i].springK = _springK;
-			}
-		}
-		private var _springK:Number   = 10;
-		
 		public function get springDamping():Number
-			{  return _springDamping;  }
+			{  return getProperty(qb2_props.SPRING_DAMPING) as Number;  }
 		public function set springDamping(value:Number):void
-		{
-			_springDamping = value;
+			{  setProperty(qb2_props.SPRING_DAMPING, value);  }
 			
-			for (var i:int = 0; i < revJoints.length; i++) 
-			{
-				revJoints[i].springDamping = _springDamping;
-			}
-		}
-		private var _springDamping:Number   = .15;
+		public function get springK():Number
+			{  return getProperty(qb2_props.SPRING_K) as Number;  }
+		public function set springK(value:Number):void
+			{  setProperty(qb2_props.SPRING_K, value);  }
 		
-		public function get jointLimitRange():Number
-			{  return _jointLimitRange;  }
-		public function set jointLimitRange(value:Number):void
-		{
-			_jointLimitRange = value;
+		public function get lowerLimit():Number
+			{  return getProperty(qb2_props.LOWER_LIMIT) as Number;  }
+		public function set lowerLimit(value:Number):void
+			{  setProperty(qb2_props.LOWER_LIMIT, value);  }
 			
-			var div2:Number = _jointLimitRange / 2;
-			for (var i:int = 0; i < revJoints.length; i++) 
+		public function get upperLimit():Number
+			{  return getProperty(qb2_props.UPPER_LIMIT) as Number;  }
+		public function set upperLimit(value:Number):void
+			{  setProperty(qb2_props.UPPER_LIMIT, value);  }
+			
+		protected override function propertyChanged(propertyName:String):void
+		{
+			super.propertyChanged(propertyName);
+			
+			var value:Number = getProperty(propertyName);
+			var i:int;
+			
+			if ( propertyName == qb2_props.SPRING_K )
 			{
-				revJoints[i].setLimits( -div2, div2);
+				for ( i = 0; i < revJoints.length; i++) 
+				{
+					revJoints[i].springK = value;
+				}
 			}
-		}
-		private var _jointLimitRange:Number   = RAD_10*2;
-		
-		
+			else if ( propertyName == qb2_props.SPRING_DAMPING )
+			{
+				for ( i = 0; i < revJoints.length; i++) 
+				{
+					revJoints[i].springDamping = value;
+				}
+			}
+			else if ( propertyName == qb2_props.LOWER_LIMIT || propertyName == qb2_props.UPPER_LIMIT )
+			{
+				for ( i = 0; i < revJoints.length; i++) 
+				{
+					revJoints[i].setLimits(lowerLimit, upperLimit);
+				}
+			}
+		}	
 		
 		public function setAsCircle(center:amPoint2d, radius:Number, numSegments:uint = 12, initMass:Number = 1, initGroupIndex:int = -1):qb2SoftPoly
 		{
@@ -323,28 +331,29 @@ package QuickB2.stock
 			if ( !revJoints.length )  return;
 			
 			var drawFlags:uint = qb2_debugDrawSettings.flags;
-			
-			if ( !(drawFlags & qb2_debugDrawFlags.OUTLINES) && !(drawFlags & qb2_debugDrawFlags.FILLS))  return;
-			
-			var staticShape:Boolean = mass == 0;
-			
-			if ( drawFlags & qb2_debugDrawFlags.OUTLINES )
-				graphics.lineStyle(qb2_debugDrawSettings.lineThickness, debugOutlineColor, qb2_debugDrawSettings.outlineAlpha);
-			else
-				graphics.lineStyle();
-			if ( drawFlags & qb2_debugDrawFlags.FILLS )
-				graphics.beginFill(debugFillColor, qb2_debugDrawSettings.fillAlpha);
+			var drawDecomp:Boolean = drawFlags & qb2_debugDrawFlags.DECOMPOSITION ? true : false;
+			var drawOutlines:Boolean = drawFlags & qb2_debugDrawFlags.OUTLINES ? true : false;
+			var drawFills:Boolean = drawFlags & qb2_debugDrawFlags.FILLS ? true : false;
+
+			if ( drawOutlines || drawFills )
+			{
+				if ( drawOutlines )
+					graphics.lineStyle(qb2_debugDrawSettings.lineThickness, debugOutlineColor, qb2_debugDrawSettings.outlineAlpha);
+				else
+					graphics.lineStyle();
+					
+				if ( drawFills )
+					graphics.beginFill(debugFillColor, qb2_debugDrawSettings.fillAlpha);
+					
+				draw(graphics);
 				
-			draw(graphics);
-			
-			graphics.endFill();
+				graphics.endFill();
+			}
 			
 			if ( _isCircle )
 			{
-				if ( (drawFlags & qb2_debugDrawFlags.OUTLINES) && (drawFlags & qb2_debugDrawFlags.CIRCLE_SPOKES) )
+				if ( drawOutlines && (drawFlags & qb2_debugDrawFlags.CIRCLE_SPOKES) )
 				{
-					//graphics.lineStyle(qb2_debugDrawSettings.lineThickness, staticShape ? qb2_debugDrawSettings.staticOutlineColor : qb2_debugDrawSettings.dynamicOutlineColor, qb2_debugDrawSettings.outlineAlpha);
-					
 					var center:amPoint2d = centerOfMass;
 					
 					if ( !center )  return;
@@ -368,8 +377,10 @@ package QuickB2.stock
 				}
 			}
 			
-			if ( drawFlags & qb2_debugDrawFlags.DECOMPOSITION )
+			if ( drawDecomp )
 			{
+				graphics.lineStyle(qb2_debugDrawSettings.lineThickness, debugOutlineColor, qb2_debugDrawSettings.outlineAlpha);
+				
 				for (var j:int = 0; j < numObjects; j++) 
 				{
 					var jthObject:qb2Object = getObjectAt(j);
@@ -383,6 +394,6 @@ package QuickB2.stock
 		}
 		
 		public override function toString():String
-			{  return qb2DebugTraceSettings.formatToString(this, "qb2SoftPoly");  }
+			{  return qb2DebugTraceUtils.formatToString(this, "qb2SoftPoly");  }
 	}
 }

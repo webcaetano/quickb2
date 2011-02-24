@@ -22,16 +22,19 @@
 
 package QuickB2.misc 
 {
-	/**
-	 * ...
-	 * @author Doug Koellmer
-	 */
 	import As3Math.geo2d.*;
 	import com.bit101.components.*;
 	import flash.display.*;
 	import flash.events.*;
 	import flash.utils.*;
 	
+	
+	/**
+	 * A bare bones preloader.  You can use this class for prototypes/demos that you
+	 * just want to throw up on the web and show to clients or testers or something.
+	 * 
+	 * @author Doug Koellmer
+	 */
 	public class qb2Preloader extends MovieClip
 	{
 		private var _upperLeft:amPoint2d = new amPoint2d();

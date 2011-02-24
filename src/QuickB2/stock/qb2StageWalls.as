@@ -31,7 +31,7 @@ package QuickB2.stock
 	import flash.display.StageScaleMode;
 	import flash.events.Event;
 	import flash.utils.setTimeout;
-	import QuickB2.debugging.qb2DebugTraceSettings;
+	import QuickB2.debugging.qb2DebugTraceUtils;
 	import QuickB2.misc.qb2_flags;
 	import QuickB2.objects.tangibles.qb2Group;
 	
@@ -79,7 +79,7 @@ package QuickB2.stock
 				_stage.scaleMode = StageScaleMode.NO_SCALE;
 			}
 			
-			turnFlagOff(qb2_flags.O_JOINS_IN_DEBUG_DRAWING);
+			turnFlagOff(qb2_flags.JOINS_IN_DEBUG_DRAWING);
 			
 			stageEvent(null);
 		}
@@ -124,6 +124,6 @@ package QuickB2.stock
 		private var _stage:Stage;
 		
 		public override function toString():String 
-			{  return qb2DebugTraceSettings.formatToString(this, "qb2StageWalls");  }
+			{  return qb2DebugTraceUtils.formatToString(this, "qb2StageWalls");  }
 	}
 }

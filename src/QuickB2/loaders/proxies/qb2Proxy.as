@@ -33,5 +33,8 @@ package QuickB2.loaders.proxies
 		public var actualObject:* = null;
 		
 		public var defaultClassName:String = "";
+		
+		[Inspectable(defaultValue="default", type='String', name="Subclass Name")]
+		public var className:String = "default";
 	}
 }

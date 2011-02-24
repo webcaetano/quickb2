@@ -26,7 +26,7 @@ package QuickB2.events
 	import Box2DAS.Dynamics.Contacts.b2Contact;
 	import flash.events.*;
 	import QuickB2.*;
-	import QuickB2.debugging.qb2DebugTraceSettings;
+	import QuickB2.debugging.qb2DebugTraceUtils;
 	import QuickB2.objects.*;
 	import QuickB2.objects.tangibles.*;
 	
@@ -73,6 +73,6 @@ package QuickB2.events
 		}
 		
 		public override function toString():String 
-			{  return qb2DebugTraceSettings.formatToString(this, "qb2SubContactEvent");  }
+			{  return qb2DebugTraceUtils.formatToString(this, "qb2SubContactEvent");  }
 	}
 }

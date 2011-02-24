@@ -30,53 +30,53 @@ package QuickB2.loaders.proxies
 	{
 		
 		[Inspectable(defaultValue="default",enumeration="default,true,false", name='springCanFlip (default=false)')]
-		public var springCanFlip:String = "default";
+		public var _bool_springCanFlip:String = "default";
 		
 		[Inspectable(defaultValue="default",enumeration="default,true,false", name='dampenSpringJitter (default=false)')]
-		public var dampenSpringJitter:String = "default";
+		public var _bool_dampenSpringJitter:String = "default";
 		
 		[Inspectable(defaultValue="default",enumeration="default,true,false", name='optimizedSpring (default=true)')]
-		public var optimizedSpring:String = "default";
+		public var _bool_optimizedSpring:String = "default";
 		
 		[Inspectable(defaultValue="default",enumeration="default,true,false", name='autoSetLength (default=true)')]
-		public var autoSetLength:String = "default";
+		public var _bool_autoSetLength:String = "default";
 		
 		[Inspectable(defaultValue="default",enumeration="default,true,false", name='autoSetDirection (default=true)')]
-		public var autoSetDirection:String = "default";
+		public var _bool_autoSetDirection:String = "default";
 		
 		[Inspectable(defaultValue="default",enumeration="default,true,false", name='freeRotation (default=false)')]
-		public var freeRotation:String = "default";
+		public var _bool_freeRotation:String = "default";
 		
 		
 		
 		
 		[Inspectable(defaultValue="default", name='springK (default=0.0)')]
-		public var springK:String = "default";
+		public var _float_springK:String = "default";
 		
 		[Inspectable(defaultValue="default", name='springDamping (default=0.0)')]
-		public var springDamping:String = "default";
+		public var _float_springDamping:String = "default";
 		
 		[Inspectable(defaultValue = "default", name = 'springLength (default based on object seperation')]
-		public var springLength:String = "default";
+		public var _float_springLength:String = "default";
 		
 		[Inspectable(defaultValue="default", name='lowerLimit (default=-Infinity)')]
-		public var lowerLimit:String        = "default";
+		public var _float_lowerLimit:String        = "default";
 		
 		[Inspectable(defaultValue="default", name='upperLimit (default=Infinity)')]
-		public var upperLimit:String        = "default";
+		public var _float_upperLimit:String        = "default";
 		
 		[Inspectable(defaultValue="default", name='maxForce (default=0.0 N)')]
-		public var maxForce:String    = "default";
+		public var _float_maxForce:String    = "default";
 		
 		[Inspectable(defaultValue="default", name='targetSpeed (default=0.0 m/s)')]
-		public var targetSpeed:String = "default";
+		public var _float_targetSpeed:String = "default";
 		
 		
 		
-		[Inspectable(defaultValue="")]
+		[Inspectable(defaultValue="", name='overrideObject1')]
 		public var overrideObject1:String = "";
 		
-		[Inspectable(defaultValue="")]
+		[Inspectable(defaultValue="", name='overrideObject2')]
 		public var overrideObject2:String = "";
 	}
 }

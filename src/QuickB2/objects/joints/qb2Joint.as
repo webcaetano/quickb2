@@ -30,7 +30,7 @@ package QuickB2.objects.joints
 	import QuickB2.*;
 	import QuickB2.debugging.qb2_debugDrawFlags;
 	import QuickB2.debugging.qb2_debugDrawSettings;
-	import QuickB2.debugging.qb2DebugTraceSettings;
+	import QuickB2.debugging.qb2DebugTraceUtils;
 	import QuickB2.events.qb2ContainerEvent;
 	import QuickB2.misc.qb2_flags;
 	import QuickB2.objects.*;
@@ -197,13 +197,13 @@ package QuickB2.objects.joints
 		qb2_friend virtual function anchorUpdated(anchor:amPoint2d):void  {}
 		
 		public function get collideConnected():Boolean
-			{  return _flags & qb2_flags.J_COLLIDE_CONNECTED ? true : false;  }
+			{  return _flags & qb2_flags.COLLIDE_CONNECTED ? true : false;  }
 		public function set collideConnected(bool:Boolean):void
 		{
 			if ( bool )
-				turnFlagOn(qb2_flags.J_COLLIDE_CONNECTED);
+				turnFlagOn(qb2_flags.COLLIDE_CONNECTED);
 			else
-				turnFlagOff(qb2_flags.J_COLLIDE_CONNECTED);
+				turnFlagOff(qb2_flags.COLLIDE_CONNECTED);
 		}
 		
 		qb2_friend var jointDef:b2JointDef = null; // this is assigned in make() in subclasses, then nullified again in the base make() function.
@@ -375,6 +375,6 @@ package QuickB2.objects.joints
 		}
 		
 		public override function toString():String 
-			{  return qb2DebugTraceSettings.formatToString(this, "qb2Joint");  }
+			{  return qb2DebugTraceUtils.formatToString(this, "qb2Joint");  }
 	}
 }

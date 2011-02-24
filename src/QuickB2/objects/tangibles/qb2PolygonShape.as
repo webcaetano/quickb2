@@ -63,13 +63,40 @@ package QuickB2.objects.tangibles
 		}
 		
 		public function get allowComplexPolygons():Boolean
-			{  return _flags & qb2_flags.P_ALLOW_COMPLEX_POLYGONS ? true : false;  }
+			{  return _flags & qb2_flags.ALLOW_COMPLEX_POLYGONS ? true : false;  }
 		public function set allowComplexPolygons(bool:Boolean):void
 		{
 			if ( bool )
-				turnFlagOn(qb2_flags.P_ALLOW_COMPLEX_POLYGONS);
+				turnFlagOn(qb2_flags.ALLOW_COMPLEX_POLYGONS);
 			else
-				turnFlagOff(qb2_flags.P_ALLOW_COMPLEX_POLYGONS);
+				turnFlagOff(qb2_flags.ALLOW_COMPLEX_POLYGONS);
+		}
+		
+		private var _sessionTracker:int;
+		
+		public function beginEditSession():void
+		{
+			_sessionTracker++;
+		}
+		
+		public function endEditSession():void
+		{
+			_sessionTracker--;
+			
+			if ( _sessionTracker <= 0 )
+			{
+				rigid_flushShapes();
+				
+				_sessionTracker = 0;
+			}
+		}
+		
+		qb2_friend override function flushShapesWrapper(newMass:Number, newArea:Number):void
+		{
+			if ( !_sessionTracker )
+			{
+				super.flushShapesWrapper(newMass, newArea);
+			}
 		}
 		
 		private function polygonUpdated(evt:amUpdateEvent):void
@@ -616,6 +643,6 @@ package QuickB2.objects.tangibles
 		}
 		
 		public override function toString():String 
-			{  return qb2DebugTraceSettings.formatToString(this, "qb2PolygonShape");  }
+			{  return qb2DebugTraceUtils.formatToString(this, "qb2PolygonShape");  }
 	}
 }
