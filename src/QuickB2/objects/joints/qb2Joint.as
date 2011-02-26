@@ -206,14 +206,14 @@ package QuickB2.objects.joints
 		
 		qb2_friend var jointDef:b2JointDef = null; // this is assigned in make() in subclasses, then nullified again in the base make() function.
 		
-		qb2_friend override function make(theWorld:qb2World):void
+		qb2_friend override function make(theWorld:qb2World, ancestor:qb2ObjectContainer):void
 		{
 			if ( !jointB2 )
 			{
 				makeJointB2(theWorld);
 			}
 			
-			super.make(theWorld);
+			super.make(theWorld, ancestor);
 		}
 		
 		qb2_friend function checkForMake(theWorld:qb2World):Boolean
@@ -248,14 +248,14 @@ package QuickB2.objects.joints
 			return true;
 		}
 		
-		qb2_friend override function destroy():void
+		qb2_friend override function destroy(ancestor:qb2ObjectContainer):void
 		{
 			if ( jointB2 )
 			{
 				destroyJointB2();
 			}
 
-			super.destroy();
+			super.destroy(ancestor);
 		}
 		
 		qb2_friend function makeJointB2(theWorld:qb2World):void

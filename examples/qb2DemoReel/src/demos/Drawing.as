@@ -144,7 +144,7 @@ package demos
 				stage.removeEventListener(MouseEvent.MOUSE_DOWN, toggleDragging);
 				
 				if ( worldDragSprite )
-					world.debugDragSource = worldDragSprite;
+					evt.ancestor.world.debugDragSource = worldDragSprite;
 			}
 		}
 		

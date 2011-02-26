@@ -110,11 +110,11 @@ package QuickB2.objects.tangibles
 		function get restitution():Number;
 		function set restitution(value:Number):void;
 		
-		function get contactCategory():uint;
-		function set contactCategory(bitmask:uint):void;
+		function get contactCategoryFlags():uint;
+		function set contactCategoryFlags(bitmask:uint):void;
 		
-		function get contactCollidesWith():uint;
-		function set contactCollidesWith(bitmask:uint):void;
+		function get contactMaskFlags():uint;
+		function set contactMaskFlags(bitmask:uint):void;
 		
 		function get contactGroupIndex():int;
 		function set contactGroupIndex(index:int):void;

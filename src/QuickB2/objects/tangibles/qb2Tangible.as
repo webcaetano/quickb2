@@ -101,10 +101,10 @@ package QuickB2.objects.tangibles
 			
 			//--- Set up default values for various properties.
 			turnFlagOn(qb2_flags.IS_DEBUG_DRAGGABLE | qb2_flags.ALLOW_SLEEPING, false);
-			setProperty(qb2_props.CONTACT_CATEGORY,      0x0001 as uint, false);
-			setProperty(qb2_props.CONTACT_COLLIDES_WITH, 0xFFFF as uint, false);
-			setProperty(qb2_props.FRICTION,              .2,             false);
-			setProperty(qb2_props.SLICE_FLAGS,           0xFFFFFFFF,     false);
+			setProperty(qb2_props.CONTACT_CATEGORY_FLAGS, 0x0001 as uint, false);
+			setProperty(qb2_props.CONTACT_MASK_FLAGS,     0xFFFF as uint, false);
+			setProperty(qb2_props.FRICTION,              .2,              false);
+			setProperty(qb2_props.SLICE_FLAGS,            0xFFFFFFFF,     false);
 		}
 		
 		qb2_friend virtual function updateContactReporting(bits:uint):void { }
@@ -558,15 +558,15 @@ package QuickB2.objects.tangibles
 		public function set restitution(value:Number):void
 			{  setProperty(qb2_props.RESTITUTION, value);  }
 		
-		public function get contactCategory():uint
-			{  return getProperty(qb2_props.CONTACT_CATEGORY) as uint;  }
-		public function set contactCategory(bitmask:uint):void
-			{  setProperty(qb2_props.CONTACT_CATEGORY, bitmask);  }
+		public function get contactCategoryFlags():uint
+			{  return getProperty(qb2_props.CONTACT_CATEGORY_FLAGS) as uint;  }
+		public function set contactCategoryFlags(bitmask:uint):void
+			{  setProperty(qb2_props.CONTACT_CATEGORY_FLAGS, bitmask);  }
 		
-		public function get contactCollidesWith():uint
-			{  return getProperty(qb2_props.CONTACT_COLLIDES_WITH) as uint;  }
-		public function set contactCollidesWith(bitmask:uint):void
-			{  setProperty(qb2_props.CONTACT_COLLIDES_WITH, bitmask);  }
+		public function get contactMaskFlags():uint
+			{  return getProperty(qb2_props.CONTACT_MASK_FLAGS) as uint;  }
+		public function set contactMaskFlags(bitmask:uint):void
+			{  setProperty(qb2_props.CONTACT_MASK_FLAGS, bitmask);  }
 		
 		public function get contactGroupIndex():int
 			{  return getProperty(qb2_props.CONTACT_GROUP_INDEX) as int; }
@@ -1284,33 +1284,16 @@ package QuickB2.objects.tangibles
 			
 			if ( _world && _effectFields )
 			{
-				var queue:Vector.<qb2EffectField> = new Vector.<qb2EffectField>();
-				
 				//--- Push all of this object's field (and its fields' slaves) to the effects stack.
 				for (var i:int = 0; i < _effectFields.length; i++) 
 				{
-					queue.push(_effectFields[i]);
+					var ithfield:qb2EffectField = _effectFields[i];
 					
-					while ( queue.length )
+					if ( !ithfield.isDisabledForInstance(this) )
 					{
-						var fieldInLine:qb2EffectField = queue.shift();
-						
-						if ( !fieldInLine.isDisabledForInstance(this) )
-						{
-							_world._effectFieldStack.push(fieldInLine);
-							numPushed++;
-						}
-						
-						var slaveFields:Vector.<qb2EffectField> = fieldInLine._slaves;
-					
-						if ( slaveFields )
-						{
-							for (var j:int = 0; j < slaveFields.length; j++) 
-							{
-								queue.push(slaveFields[j]);
-							}
-						}
-					}					
+						_world._effectFieldStack.push(ithfield);
+						numPushed++;
+					}			
 				}
 			}
 			

@@ -143,7 +143,7 @@ package demos
 				removeEventListener(qb2UpdateEvent.POST_UPDATE, updateStuff);
 				
 				if ( worldDragSprite )
-					world.debugDragSource = worldDragSprite;
+					evt.ancestor.world.debugDragSource = worldDragSprite;
 			}
 		}
 	}

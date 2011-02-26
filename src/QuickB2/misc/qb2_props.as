@@ -28,28 +28,28 @@ package QuickB2.misc
 	 */
 	public class qb2_props
 	{
-		public static const RESTITUTION:String           = "restitution";
-		public static const CONTACT_CATEGORY:String      = "contactCategory";
-		public static const CONTACT_COLLIDES_WITH:String = "contactCollidesWith";
-		public static const CONTACT_GROUP_INDEX:String   = "contactGroupIndex";
-		public static const FRICTION:String              = "friction";
-		public static const FRICTION_Z:String            = "frictionZ";
-		public static const LINEAR_DAMPING:String        = "linearDamping";
-		public static const ANGULAR_DAMPING:String       = "angularDamping";
-		public static const SLICE_FLAGS:String           = "sliceFlags";
+		public static const RESTITUTION:String            = "restitution";
+		public static const CONTACT_CATEGORY_FLAGS:String = "contactCategoryFlags";
+		public static const CONTACT_MASK_FLAGS:String     = "contactMaskFlags";
+		public static const CONTACT_GROUP_INDEX:String    = "contactGroupIndex";
+		public static const FRICTION:String               = "friction";
+		public static const FRICTION_Z:String             = "frictionZ";
+		public static const LINEAR_DAMPING:String         = "linearDamping";
+		public static const ANGULAR_DAMPING:String        = "angularDamping";
+		public static const SLICE_FLAGS:String            = "sliceFlags";
+	
+		public static const LENGTH:String                 = "jointLength";
+		public static const FREQUENCY_HZ:String           = "frequencyHz";
+		public static const DAMPING_RATIO:String          = "dampingRatio";
+		public static const MAX_FORCE:String              = "maxForce";
+		public static const MAX_TORQUE:String             = "maxTorque";
+		public static const SPRING_K:String               = "springK";
+		public static const SPRING_DAMPING:String         = "springDamping";
+		public static const TARGET_SPEED:String           = "targetSpeed";
+		public static const REFERENCE_ANGLE:String        = "referenceAngle";
+		public static const LOWER_LIMIT:String            = "lowerLimit";
+		public static const UPPER_LIMIT:String            = "upperLimit";
 		
-		public static const LENGTH:String                = "jointLength";
-		public static const FREQUENCY_HZ:String          = "frequencyHz";
-		public static const DAMPING_RATIO:String         = "dampingRatio";
-		public static const MAX_FORCE:String             = "maxForce";
-		public static const MAX_TORQUE:String            = "maxTorque";
-		public static const SPRING_K:String              = "springK";
-		public static const SPRING_DAMPING:String        = "springDamping";
-		public static const TARGET_SPEED:String          = "targetSpeed";
-		public static const REFERENCE_ANGLE:String       = "referenceAngle";
-		public static const LOWER_LIMIT:String           = "lowerLimit";
-		public static const UPPER_LIMIT:String           = "upperLimit";
-		
-		public static const ARC_APPROXIMATION:String     = "arcApproximation";
+		public static const ARC_APPROXIMATION:String      = "arcApproximation";
 	}
 }

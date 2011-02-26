@@ -78,7 +78,7 @@ package QuickB2.stock
 			}
 			else
 			{
-				world.unregisterGlobalTerrain(this);
+				evt.ancestor.world.unregisterGlobalTerrain(this);
 			}
 		}
 		

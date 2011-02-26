@@ -137,7 +137,7 @@ package QuickB2.objects.tangibles
 					this.fixtures[i].SetRestitution(value as Number);
 				}
 			}
-			else if ( propertyName == qb2_props.CONTACT_CATEGORY )
+			else if ( propertyName == qb2_props.CONTACT_CATEGORY_FLAGS )
 			{
 				for ( i = 0; i < this.fixtures.length; i++ )
 				{
@@ -145,7 +145,7 @@ package QuickB2.objects.tangibles
 					this.fixtures[i].Refilter();
 				}
 			}
-			else if ( propertyName == qb2_props.CONTACT_COLLIDES_WITH )
+			else if ( propertyName == qb2_props.CONTACT_MASK_FLAGS )
 			{
 				for ( i = 0; i < this.fixtures.length; i++ )
 				{
@@ -324,7 +324,7 @@ package QuickB2.objects.tangibles
 			}
 		}
 		
-		qb2_friend override function make(theWorld:qb2World):void
+		qb2_friend override function make(theWorld:qb2World, ancestor:qb2ObjectContainer):void
 		{
 			_world = theWorld;
 			
@@ -344,7 +344,7 @@ package QuickB2.objects.tangibles
 			theWorld._terrainRevisionDict[this]  = 0 as int;
 			theWorld._gravityZRevisionDict[this] = 0 as int;
 			
-			super.make(theWorld); // fire added to world events
+			super.make(theWorld, ancestor); // fire added to world events
 			
 			updateFrictionJoints();
 		}
@@ -358,8 +358,8 @@ package QuickB2.objects.tangibles
 			//--- Populate the fixture definition.
 			var fixtureDef:b2FixtureDef    = b2Def.fixture;
 			fixtureDef.density             =  _mass / (_surfaceArea / (conversion * conversion));
-			fixtureDef.filter.categoryBits = contactCategory;
-			fixtureDef.filter.maskBits     = contactCollidesWith;
+			fixtureDef.filter.categoryBits = contactCategoryFlags;
+			fixtureDef.filter.maskBits     = contactMaskFlags;
 			fixtureDef.filter.groupIndex   = contactGroupIndex;
 			fixtureDef.friction            = friction;
 			fixtureDef.isSensor            = isGhost;
@@ -407,7 +407,7 @@ package QuickB2.objects.tangibles
 			}
 		}
 		
-		qb2_friend override function destroy():void
+		qb2_friend override function destroy(ancestor:qb2ObjectContainer):void
 		{
 			if ( _bodyB2 )
 			{
@@ -419,7 +419,7 @@ package QuickB2.objects.tangibles
 			delete _world._terrainRevisionDict[this];
 			delete _world._gravityZRevisionDict[this];
 		
-			super.destroy();
+			super.destroy(ancestor);
 			
 			updateFrictionJoints();
 		}

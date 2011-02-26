@@ -124,7 +124,7 @@ package demos
 			}
 			else
 			{
-				world.maximumRealtimeStep = saveMaxTimeStep;
+				evt.ancestor.world.maximumRealtimeStep = saveMaxTimeStep;
 				car.removeEventListener(qb2UpdateEvent.POST_UPDATE, updateCar);
 			}
 		}
