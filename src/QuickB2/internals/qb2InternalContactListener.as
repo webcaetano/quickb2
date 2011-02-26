@@ -98,8 +98,7 @@ package QuickB2.internals
 						subEvent._shape2 = shape2;
 						subEvent._ancestorGroup = currParent as qb2Group;
 						subEvent._contactB2 = contact;
-						
-						setContactPoints(subEvent, contact, shape1.world.pixelsPerMeter);
+						subEvent._world = shape1.world;
 						
 						currParent.dispatchEvent(subEvent);
 					}				
@@ -136,36 +135,13 @@ package QuickB2.internals
 					qb2Object.setAncestorPair_local = null;
 					qb2Object.setAncestorPair_other = null;
 					event._contactB2 = contact;
-					
-					setContactPoints(event, contact, shape1.world.pixelsPerMeter);
+					event._world = shape1.world;
 					
 					currParent.dispatchEvent(event);
 				}
 				
 				currParent = currParent.parent;
 			}
-		}
-		
-		private function setContactPoints(evt:qb2BaseContactEvent, contact:b2Contact, pixelsPerMeter:Number):void
-		{
-			//--- Get contact points and normals.
-			var worldMani:b2WorldManifold = new b2WorldManifold();
-			contact.GetWorldManifold(worldMani);
-			var pnt:V2 = worldMani.GetPoint();
-			var point:amPoint2d = pnt && !isNaN(pnt.x) && !isNaN(pnt.y) ? new amPoint2d(pnt.x * pixelsPerMeter, pnt.y * pixelsPerMeter) : null;
-			var normal:amVector2d = worldMani.normal && !isNaN(worldMani.normal.x) && !isNaN(worldMani.normal.y)? new amVector2d(worldMani.normal.x, worldMani.normal.y) : null;
-			var numPoints:int = contact.m_manifold.pointCount;
-			var width:Number = 0;
-			if ( numPoints > 1 )
-			{
-				var diffX:Number = worldMani.points[0].x - worldMani.points[1].x;
-				var diffY:Number = worldMani.points[0].y - worldMani.points[1].y;
-				width = Math.sqrt(diffX * diffX + diffY * diffY) * pixelsPerMeter;
-			}
-			
-			evt._contactPoint  = point;
-			evt._contactNormal = normal;
-			evt._contactWidth  = width;
 		}
 		
 		public override function BeginContact(contact:b2Contact):void
