@@ -75,8 +75,8 @@ package QuickB2.objects.tangibles
 		
 		
 		// FUNCTIONS FOR qb2Tangible
-		function get effectFields():Vector.<qb2EffectField>;
-		function set effectFields(value:Vector.<qb2EffectField>):void 
+		//function get effectFields():Vector.<qb2EffectField>;
+		//function set effectFields(value:Vector.<qb2EffectField>):void 
 			
 		function get actor():DisplayObject;
 		function set actor(newDO:DisplayObject):void;

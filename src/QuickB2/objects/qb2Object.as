@@ -769,6 +769,8 @@ package QuickB2.objects
 				delete _world.preEventers[this];
 			if ( _world.postEventers[this] )
 				delete _world.postEventers[this];
+				
+			_world = null;
 			
 			if ( eventFlags & REMOVED_FROM_WORLD_BIT )
 			{
@@ -777,8 +779,6 @@ package QuickB2.objects
 				evt._childObject  = this;
 				dispatchEvent(evt);
 			}
-			
-			_world = null;
 		}
 		
 		/// Virtual method for drawing this object.  You can override this if you want, or leave it unimplemented.

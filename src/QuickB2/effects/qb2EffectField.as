@@ -33,6 +33,8 @@ package QuickB2.effects
 	import QuickB2.objects.*;
 	import QuickB2.objects.tangibles.*;
 	
+	use namespace qb2_friend;
+	
 	/**
 	 * ...
 	 * @author Doug Koellmer
@@ -44,6 +46,9 @@ package QuickB2.effects
 		
 		public var applyPerShape:Boolean = false;
 		
+		private var _master:qb2EffectField;
+		qb2_friend var _slaves:Vector.<qb2EffectField>;
+		
 		public function qb2EffectField()
 		{
 			isGhost = true;
@@ -52,9 +57,9 @@ package QuickB2.effects
 			addEventListener(qb2ContainerEvent.DESCENDANT_REMOVED_OBJECT, childrenChanged, false, 0, true);
 			addEventListener(qb2ContainerEvent.ADDED_OBJECT,              childrenChanged, false, 0, true);
 			addEventListener(qb2ContainerEvent.REMOVED_OBJECT,            childrenChanged, false, 0, true);
-			addEventListener(qb2UpdateEvent.POST_UPDATE,                  postUpdate,      false, 0, true);
 			
-			addContainerEventListeners();
+			addEventListener(qb2ContainerEvent.ADDED_TO_WORLD,            addedOrRemoved,  false, 0, true);
+			addEventListener(qb2ContainerEvent.REMOVED_FROM_WORLD,        addedOrRemoved,  false, 0, true);
 			
 			if ( (this as Object).constructor == qb2EffectField )  throw qb2_errors.ABSTRACT_CLASS_ERROR;
 		}
@@ -101,18 +106,42 @@ package QuickB2.effects
 			
 		}
 		
+		private static const utilArray:Vector.<qb2EffectField> = new Vector.<qb2EffectField>();
+		
 		protected function postUpdate(evt:qb2UpdateEvent):void
 		{
-			if ( ubiquitous )  return;
+			if ( !_shapeCount )  return;
+			
 			var contactDict:Dictionary = applyPerShape ? shapeContactDict : bodyContactDict;
 			
-			for ( var key:* in contactDict )
+			//--- Here we apply not only this effect fields, but all this effect field's slaves (and their slaves, and so on).
+			//--- Only slaves that don't have shape geometry are applied here.  Those slaves (and sub slaves, and so on) that 
+			//--- *have* geometry will process things in their own 
+			utilArray.length = 0;
+			utilArray.push(this);
+			while ( utilArray.length )
 			{
-				var rigid:qb2IRigidObject = key as qb2IRigidObject;
+				var field:qb2EffectField = utilArray.shift();
 				
-				if ( !isDisabledForInstance(rigid as qb2Tangible) )
+				for ( var key:* in contactDict )
 				{
-					this.applyToRigid(rigid);
+					var rigid:qb2IRigidObject = key as qb2IRigidObject;
+					
+					if ( !field.isDisabledForInstance(rigid as qb2Tangible) )
+					{
+						field.applyToRigid(rigid);
+					}
+				}
+				
+				if ( field._slaves )
+				{
+					for (var i:int = 0; i < field._slaves.length; i++) 
+					{
+						if ( !field._slaves[i]._shapeCount )
+						{
+							utilArray.push(field._slaves[i]);
+						}
+					}
 				}
 			}
 		}
@@ -124,17 +153,16 @@ package QuickB2.effects
 			var addEvent:Boolean = evt.type == qb2ContainerEvent.ADDED_OBJECT || evt.type == qb2ContainerEvent.DESCENDANT_ADDED_OBJECT;
 			
 			utilTraverser.root = evt.childObject;
+			
 			while ( utilTraverser.hasNext )
 			{
 				var descendant:qb2Object = utilTraverser.next();
-				
 				if ( descendant is qb2Shape )
 				{
 					if ( addEvent )
 					{
 						if ( _shapeCount == 0 )
 						{
-							removeContainerListeners();
 							addContactEventListeners();
 						}
 						
@@ -145,7 +173,6 @@ package QuickB2.effects
 						if ( _shapeCount == 1 )
 						{
 							removeContactEventListeners();
-							addContainerEventListeners();
 						}
 						
 						_shapeCount--;
@@ -182,12 +209,10 @@ package QuickB2.effects
 		{
 			instanceFilter = instanceFilter ? instanceFilter : new Dictionary(WEAK_KEYS);
 			instanceFilter[object] = true;
-		}		
+		}
 		
 		public final function isDisabledForInstance(toObject:qb2Tangible):Boolean
 		{
-			if ( toObject.isKinematic )  return true;
-			
 			if ( instanceFilter && instanceFilter[toObject] )
 			{
 				return instanceFilter[toObject];
@@ -211,28 +236,64 @@ package QuickB2.effects
 		{
 			if ( evt.type == qb2ContainerEvent.ADDED_TO_WORLD )
 			{
-				parent.effectFields = parent.effectFields ? parent.effectFields : new Vector.<qb2EffectField>();
-				parent.effectFields.push(this);
+				_master = getAncestorOfType(qb2EffectField) as qb2EffectField;
+				
+				if ( _master )
+				{
+					_master._slaves = _master._slaves ? _master._slaves : new Vector.<qb2EffectField>();
+					_master._slaves.push(this);
+				}
+				else if( !_shapeCount )
+				{
+					parent._effectFields = parent._effectFields ? parent._effectFields : new Vector.<qb2EffectField>();
+					parent._effectFields.push(this);
+				}
 			}
 			else
 			{
-				if ( parent.effectFields )
+				if ( _master )
 				{
-					var index:int = parent.effectFields.indexOf(this);
-					
-					if ( index >= 0 )
+					var slaveIndex:int = _master._slaves.indexOf(this);
+					if ( slaveIndex >= 0 ) // can't see how this could ever be false, but who knows.
 					{
-						parent.effectFields.splice(index, 1);
+						_master._slaves.splice(slaveIndex, 1);
+					}
+					_master = null;
+				}
+				else if( !_shapeCount )
+				{
+					if ( parent._effectFields )
+					{
+						var index:int = parent._effectFields.indexOf(this);
+						
+						if ( index >= 0 )
+						{
+							parent._effectFields.splice(index, 1);
+						}
 					}
 				}
 			}
 		}
 		
-		public function get ubiquitous():Boolean
-			{  return _shapeCount ? false : true;  }
+		/*public function get ubiquitous():Boolean
+			{  return _shapeCount ? false : true;  }*/
 		
 		private function addContactEventListeners():void
 		{
+			if ( parent && !_master )
+			{
+				if ( parent._effectFields )
+				{
+					var index:int = parent._effectFields.indexOf(this);
+					if ( index >= 0 )
+					{
+						parent._effectFields.splice(index, 1);
+					}
+				}
+			}
+			
+			addEventListener(qb2UpdateEvent.POST_UPDATE, postUpdate, false, 0, true);
+			
 			//--- Create (and fill) contact dictionary.
 			shapeContactDict = new Dictionary(WEAK_KEYS);
 			bodyContactDict  = new Dictionary(WEAK_KEYS);
@@ -284,6 +345,14 @@ package QuickB2.effects
 		
 		private function removeContactEventListeners():void
 		{
+			if ( parent && !_master )
+			{
+				parent._effectFields = parent._effectFields ? parent._effectFields : new Vector.<qb2EffectField>();
+				parent._effectFields.push(this);
+			}
+			
+			removeEventListener(qb2UpdateEvent.POST_UPDATE, postUpdate, false);
+			
 			//--- Clean up contact dictionary, removing this effects from all shapes in contact.
 			if ( shapeContactDict )
 			{
@@ -305,36 +374,6 @@ package QuickB2.effects
 			
 			removeEventListener(qb2ContactEvent.CONTACT_STARTED, contact);
 			removeEventListener(qb2ContactEvent.CONTACT_ENDED,   contact);
-		}
-		
-		private function addContainerEventListeners():void
-		{
-			if ( parent )
-			{
-				parent.effectFields = parent.effectFields ? parent.effectFields : new Vector.<qb2EffectField>();
-				parent.effectFields.push(this);
-			}
-			
-			addEventListener(qb2ContainerEvent.ADDED_TO_WORLD,     addedOrRemoved, false, 0, true);
-			addEventListener(qb2ContainerEvent.REMOVED_FROM_WORLD, addedOrRemoved, false, 0, true);
-		}
-		
-		private function removeContainerListeners():void
-		{
-			if ( parent )
-			{
-				if ( parent.effectFields )
-				{
-					var index:int = parent.effectFields.indexOf(this);
-					if ( index >= 0 )
-					{
-						parent.effectFields.splice(index, 1);
-					}
-				}
-			}
-			
-			removeEventListener(qb2ContainerEvent.ADDED_TO_WORLD,     addedOrRemoved);
-			removeEventListener(qb2ContainerEvent.REMOVED_FROM_WORLD, addedOrRemoved);
 		}
 		
 		private var shapeContactDict:Dictionary = null;
@@ -377,13 +416,33 @@ package QuickB2.effects
 			}
 		}
 		
-		protected static var utilTraverser:qb2TreeTraverser = new qb2TreeTraverser();
+		private static var utilTraverser:qb2TreeTraverser = new qb2TreeTraverser();
 		
 		public override function clone():qb2Object
 		{
 			var cloned:qb2EffectField = super.clone() as qb2EffectField;
 			
 			cloned.applyPerShape = this.applyPerShape;
+			
+			if ( instanceFilter )
+			{
+				cloned.instanceFilter = new Dictionary(WEAK_KEYS);
+				
+				for ( var key:* in instanceFilter )
+				{
+					cloned.instanceFilter[key] = this.instanceFilter[this];
+				}
+			}
+			
+			if ( typeFilter )
+			{
+				cloned.typeFilter = new Dictionary(WEAK_KEYS);
+				
+				for ( key in typeFilter )
+				{
+					cloned.typeFilter[key] = this.typeFilter[key];
+				}
+			}
 			
 			return cloned;
 		}

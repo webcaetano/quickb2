@@ -269,13 +269,13 @@ package QuickB2.objects.tangibles
 				currParent = currParent._parent;
 			}
 		}
-	
 		
-		public function get effectFields():Vector.<qb2EffectField>
+		//--- I think exposing the effectFields array for user use is just confusing, so I've made it unavailable.
+		/*public function get effectFields():Vector.<qb2EffectField>
 			{ return _effectFields; }
 		public function set effectFields(array:Vector.<qb2EffectField>):void 
-			{  _effectFields = array;  }
-		private var _effectFields:Vector.<qb2EffectField>;
+			{  _effectFields = array;  }*/
+		qb2_friend var _effectFields:Vector.<qb2EffectField>;
 		
 		public function get actor():DisplayObject
 			{  return _actor;  }
@@ -1178,31 +1178,17 @@ package QuickB2.objects.tangibles
 			
 			var numEffectsOnStack:int = _world._effectFieldStack.length;
 			var asRigid:qb2IRigidObject = this as qb2IRigidObject;  // assuming a little, but the only classes to call this super function are qb2Body and qb2Shape anyway...
+			var isShape:Boolean = this is qb2Shape;
 			
-			if ( this is qb2Shape )
+			for (var i:int = 0; i < numEffectsOnStack; i++) 
 			{
-				for (var i:int = 0; i < numEffectsOnStack; i++) 
+				var field:qb2EffectField = _world._effectFieldStack[i];
+				
+				if ( field.applyPerShape && isShape || !field.applyPerShape && this._bodyB2 )
 				{
-					var field:qb2EffectField = _world._effectFieldStack[i];
-					
-					if ( field.applyPerShape )
+					if ( !field.isDisabledForInstance(this) )
 					{
 						field.applyToRigid(asRigid);
-					}
-				}
-			}
-			else if ( this is qb2Body )
-			{
-				if ( this._bodyB2 )
-				{
-					for ( i = 0; i < numEffectsOnStack; i++ )
-					{
-						field = _world._effectFieldStack[i];
-						
-						if ( !field.applyPerShape )
-						{
-							field.applyToRigid(asRigid);
-						}
 					}
 				}
 			}
@@ -1293,17 +1279,38 @@ package QuickB2.objects.tangibles
 		{
 			var numPushed:int = 0;
 			
+			// TODO analyze current stack and somehow halt further propogration of fields that are disabled for this instance
+			//      Then you have to smoehow get rid of the halt thing when calling popEffects()
+			
 			if ( _world && _effectFields )
 			{
+				var queue:Vector.<qb2EffectField> = new Vector.<qb2EffectField>();
+				
+				//--- Push all of this object's field (and its fields' slaves) to the effects stack.
 				for (var i:int = 0; i < _effectFields.length; i++) 
 				{
-					var ithField:qb2EffectField = _effectFields[i];
+					queue.push(_effectFields[i]);
 					
-					if ( !ithField.isDisabledForInstance(this) )
+					while ( queue.length )
 					{
-						_world._effectFieldStack.push(ithField);
-						numPushed++;
-					}
+						var fieldInLine:qb2EffectField = queue.shift();
+						
+						if ( !fieldInLine.isDisabledForInstance(this) )
+						{
+							_world._effectFieldStack.push(fieldInLine);
+							numPushed++;
+						}
+						
+						var slaveFields:Vector.<qb2EffectField> = fieldInLine._slaves;
+					
+						if ( slaveFields )
+						{
+							for (var j:int = 0; j < slaveFields.length; j++) 
+							{
+								queue.push(slaveFields[j]);
+							}
+						}
+					}					
 				}
 			}
 			
