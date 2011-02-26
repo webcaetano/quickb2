@@ -157,7 +157,8 @@ package QuickB2.objects
 			return _ownershipFlagsForProperties & propertyBit ? true : false;
 		}
 		
-		/** Gets the property value for a given property name.
+		/**
+		 * Gets the property value for a given property name.
 		 * @return Generally a Number, uint, or int.
 		 */
 		public final function getProperty(propertyName:String):*
@@ -165,7 +166,8 @@ package QuickB2.objects
 			return _propertyMap[propertyName];
 		}
 		
-		/** Sets the property value for a given property name.
+		/**
+		 * Sets the property value for a given property name.
 		 * @param value The value associated with the property name.  This is generally a Number, int, or uint.
 		 * @return this
 		 */
@@ -375,11 +377,11 @@ package QuickB2.objects
 			}
 		}
 		
-		/** Whether or not this object joins in deep clones, i.e. when an ancestor gets its clone() function called.
+		/**
+		 * Whether or not this object joins in deep clones, i.e. when an ancestor gets its clone() function called.
 		 * Direct calls to this object's clone() method will still work regardless.
 		 * @default true
 		 */
-		[Inspectable(defaultValue="default", enumeration="default,true,false", name='joinsInDeepCloning (default=true)')]
 		public function get joinsInDeepCloning():Boolean
 			{  return _flags & qb2_flags.JOINS_IN_DEEP_CLONING ? true : false;  }
 		public function set joinsInDeepCloning(bool:Boolean):void
@@ -390,7 +392,8 @@ package QuickB2.objects
 				turnFlagOff(qb2_flags.JOINS_IN_DEEP_CLONING);
 		}
 		
-		/** Whether or not this object joins in debug drawing.  Direct calls to drawDebug() will still work regardless.
+		/**
+		 * Whether or not this object joins in debug drawing.  Direct calls to drawDebug() will still work regardless.
 		 * @default true
 		 */
 		public function get joinsInDebugDrawing():Boolean
@@ -403,7 +406,8 @@ package QuickB2.objects
 				turnFlagOff(qb2_flags.JOINS_IN_DEBUG_DRAWING);
 		}
 		
-		/** Whether or not this object joins in the update chain.  Setting this to false means that overriding qb2Object::update()
+		/**
+		 * Whether or not this object joins in the update chain.  Setting this to false means that overriding qb2Object::update()
 		 * is meaningless.
 		 * @default true
 		 */
@@ -735,7 +739,7 @@ package QuickB2.objects
 			return flags;
 		}
 		
-		qb2_friend function make(theWorld:qb2World):void
+		qb2_friend function make(theWorld:qb2World, ancestor:qb2ObjectContainer):void
 		{
 			if ( !theWorld )
 				throw new Error("World wasn't provided.");
@@ -754,13 +758,13 @@ package QuickB2.objects
 			if ( eventFlags & ADDED_TO_WORLD_BIT )
 			{
 				var evt:qb2ContainerEvent = getCachedEvent(qb2ContainerEvent.ADDED_TO_WORLD);
-				evt._parentObject = this._parent;
-				evt._childObject  = this;
+				evt._ancestor	  = ancestor;
+				evt._child  = this;
 				dispatchEvent(evt);
 			}
 		}
 		
-		qb2_friend function destroy():void
+		qb2_friend function destroy(ancestor:qb2ObjectContainer):void
 		{
 			if ( !_world )
 				throw new Error("_world isn't defined.");
@@ -775,8 +779,8 @@ package QuickB2.objects
 			if ( eventFlags & REMOVED_FROM_WORLD_BIT )
 			{
 				var evt:qb2ContainerEvent = getCachedEvent(qb2ContainerEvent.REMOVED_FROM_WORLD);
-				evt._parentObject = this._parent;
-				evt._childObject  = this;
+				evt._ancestor = ancestor;
+				evt._child    = this;
 				dispatchEvent(evt);
 			}
 		}

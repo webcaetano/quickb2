@@ -69,7 +69,7 @@ package demos
 			}
 			else
 			{
-				world.debugDrawContext = saveContext;
+				evt.ancestor.world.debugDrawContext = saveContext;
 				saveContext = null;
 			}			
 		}

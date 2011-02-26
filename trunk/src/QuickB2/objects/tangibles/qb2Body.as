@@ -111,7 +111,7 @@ package QuickB2.objects.tangibles
 			}
 		}*/
 		
-		qb2_friend override function make(theWorld:qb2World):void
+		qb2_friend override function make(theWorld:qb2World, ancestor:qb2ObjectContainer):void
 		{
 			_world = theWorld;
 			
@@ -126,7 +126,7 @@ package QuickB2.objects.tangibles
 			{
 				for ( var i:int = 0; i < _objects.length; i++ )
 				{
-					_objects[i].make(theWorld);
+					_objects[i].make(theWorld, ancestor);
 				}
 			}
 			popMassFreeze();
@@ -138,10 +138,10 @@ package QuickB2.objects.tangibles
 				rigid_recomputeBodyB2Mass();
 			}
 			
-			super.make(theWorld); // just fires qb2ContainerEvents
+			super.make(theWorld, ancestor); // just fires qb2ContainerEvents
 		}
 		
-		qb2_friend override function destroy():void
+		qb2_friend override function destroy(ancestor:qb2ObjectContainer):void
 		{
 			if ( _bodyB2 )
 			{
@@ -150,10 +150,10 @@ package QuickB2.objects.tangibles
 			
 			for ( var i:int = 0; i < _objects.length; i++ )
 			{
-				_objects[i].destroy();
+				_objects[i].destroy(ancestor);
 			}
 			
-			super.destroy();
+			super.destroy(ancestor);
 		}
 		
 		protected override function propertyChanged(propertyName:String):void

@@ -6,6 +6,8 @@
 
 - added several more demos to qb2DemoReel to showcase new features, and cleaned up some of the code so that people can more easily copy/paste from demo source if so inclined.
 
+- lots of minor optimizations and some bug fixes
+
 
 
 1/13/2011  (version 0.6)

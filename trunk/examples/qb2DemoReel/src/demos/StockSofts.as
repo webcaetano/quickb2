@@ -57,7 +57,7 @@ package demos
 			}
 			else
 			{
-				world.maximumRealtimeStep = saveMaxTimeStep;
+				evt.ancestor.world.maximumRealtimeStep = saveMaxTimeStep; // don't have access to world anymore here, so have to go through event property.
 			}
 		}
 	}

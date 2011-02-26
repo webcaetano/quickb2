@@ -37,11 +37,11 @@ package QuickB2.loaders.proxies
 		[Inspectable(defaultValue="default", type='String', name='restitution (default=0.0)')]
 		public var _float_restitution:String = "default";
 
-		[Inspectable(defaultValue="default", type='String', name='contactCategory (default=0x0001)')]
-		public var _uint_contactCategory:String = "default";
+		[Inspectable(defaultValue="default", type='String', name='contactCategoryFlags (default=0x0001)')]
+		public var _uint_contactCategoryFlags:String = "default";
 
-		[Inspectable(defaultValue="default", type='String', name='contactCollidesWith (default=0xFFFF)')]
-		public var _uint_contactCollidesWith:String = "default";
+		[Inspectable(defaultValue="default", type='String', name='contactMaskFlags (default=0xFFFF)')]
+		public var _uint_contactMaskFlags:String = "default";
 
 		[Inspectable(defaultValue="default", type='String', name='contactGroupIndex (default=0)')]
 		public var _int_contactGroupIndex:String = "default";

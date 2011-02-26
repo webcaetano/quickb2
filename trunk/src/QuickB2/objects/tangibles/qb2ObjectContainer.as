@@ -258,13 +258,13 @@ package QuickB2.objects.tangibles
 					tang.setAncestorBody(theAncestorBody);
 			}
 			
-			if ( _world )  object.make(_world);
+			if ( _world )  object.make(_world, this);
 			
 			if ( eventFlags & ADDED_OBJECT_BIT )
 			{
 				var evt:qb2ContainerEvent = getCachedEvent(qb2ContainerEvent.ADDED_OBJECT);
-				evt._parentObject = this;
-				evt._childObject = object;
+				evt._ancestor = this;
+				evt._child    = object;
 				dispatchEvent(evt);
 			}
 			
@@ -274,7 +274,7 @@ package QuickB2.objects.tangibles
 		}
 		
 		private function removeObjectFromArray(index:uint):qb2Object
-		{			
+		{
 			var objectRemoved:qb2Object = _objects.splice(index, 1)[0];
 			
 			if ( objectRemoved is qb2Tangible )
@@ -285,15 +285,15 @@ package QuickB2.objects.tangibles
 				
 				flushAncestorBody(tangible);
 			}
-			
+
 			objectRemoved._parent = null;
-			if( _world )  objectRemoved.destroy();
+			if ( _world )  objectRemoved.destroy(this);
 			
 			if ( eventFlags & REMOVED_OBJECT_BIT )
 			{
 				var evt:qb2ContainerEvent = getCachedEvent(qb2ContainerEvent.REMOVED_OBJECT);
-				evt._parentObject = this;
-				evt._childObject  = objectRemoved;
+				evt._ancestor = this;
+				evt._child    = objectRemoved;
 				dispatchEvent(evt);
 			}
 			
@@ -315,8 +315,8 @@ package QuickB2.objects.tangibles
 				if ( currParent.eventFlags & bit )
 				{
 					var evt:qb2ContainerEvent = cachedEvent;
-					evt._parentObject = this;
-					evt._childObject = object;
+					evt._ancestor = this;
+					evt._child    = object;
 					currParent.dispatchEvent(evt);
 				}
 				
@@ -450,8 +450,8 @@ package QuickB2.objects.tangibles
 			if ( object._eventFlags & INDEX_CHANGED_BIT )
 			{
 				var event:qb2ContainerEvent = getCachedEvent(qb2ContainerEvent.INDEX_CHANGED);
-				event._childObject  = object;
-				event._parentObject = this;
+				event._child    = object;
+				event._ancestor = this;
 				object.dispatchEvent(event);
 			}
 			

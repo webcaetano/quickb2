@@ -43,8 +43,8 @@ package QuickB2.events
 		public static const REMOVED_FROM_WORLD:String        = "removedFromWorld";
 		public static const INDEX_CHANGED:String             = "indexChanged";
 		
-		qb2_friend var _childObject:qb2Object;
-		qb2_friend var _parentObject:qb2ObjectContainer;
+		qb2_friend var _child:qb2Object;
+		qb2_friend var _ancestor:qb2ObjectContainer;
 		
 		public function qb2ContainerEvent(type:String) 
 		{
@@ -54,19 +54,19 @@ package QuickB2.events
 		public override function clone():Event
 		{
 			var evt:qb2ContainerEvent = new qb2ContainerEvent(type);
-			evt._childObject  = _childObject;
-			evt._parentObject = _parentObject;
+			evt._child    = _child;
+			evt._ancestor = _ancestor;
 			return evt;
 		}
 		
 		public function get childObject():qb2Object
 		{
-			return _childObject;
+			return _child;
 		}
 		
-		public function get parentObject():qb2ObjectContainer
+		public function get ancestor():qb2ObjectContainer
 		{
-			return _parentObject;
+			return _ancestor;
 		}
 		
 		public override function toString():String 

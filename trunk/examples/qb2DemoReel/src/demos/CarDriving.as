@@ -215,7 +215,7 @@ package demos
 				this.world.gravity.set(0, 0);
 				this.world.gravityZ = 9.8;
 				
-				stageWalls.contactCollidesWith = 0; // disable all contacts for the stage walls.
+				stageWalls.contactMaskFlags = 0; // disable all contacts for the stage walls.
 				(this.actor as DisplayObjectContainer).addChildAt(debugPanel, 0);
 				debugPanel.alpha = 1;
 				debugPanel.y = stageHeight - debugPanel.height;
@@ -223,14 +223,14 @@ package demos
 			else
 			{
 				//--- Leave the world's gravity the way we found it.
-				this.world.gravity.copy(saveGravity);
-				this.world.gravityZ = 0;
+				evt.ancestor.world.gravity.copy(saveGravity);
+				evt.ancestor.world.gravityZ = 0;
 				
 				//--- Put whole demo back where it should be.
 				cameraTargetPoint.set(stageWidth / 2, stageHeight / 2);
 				cameraTargetRotation = 0;
 				
-				stageWalls.contactCollidesWith = 0xffffff; // reenable all contacts for the stage walls.
+				stageWalls.contactMaskFlags = 0xffffff; // reenable all contacts for the stage walls.
 				(this.actor as DisplayObjectContainer).removeChild(debugPanel);
 			}
 		}

@@ -46,9 +46,6 @@ package QuickB2.effects
 		
 		public var applyPerShape:Boolean = false;
 		
-		private var _master:qb2EffectField;
-		qb2_friend var _slaves:Vector.<qb2EffectField>;
-		
 		public function qb2EffectField()
 		{
 			isGhost = true;
@@ -58,8 +55,7 @@ package QuickB2.effects
 			addEventListener(qb2ContainerEvent.ADDED_OBJECT,              childrenChanged, false, 0, true);
 			addEventListener(qb2ContainerEvent.REMOVED_OBJECT,            childrenChanged, false, 0, true);
 			
-			addEventListener(qb2ContainerEvent.ADDED_TO_WORLD,            addedOrRemoved,  false, 0, true);
-			addEventListener(qb2ContainerEvent.REMOVED_FROM_WORLD,        addedOrRemoved,  false, 0, true);
+			addContainerEventListeners();
 			
 			if ( (this as Object).constructor == qb2EffectField )  throw qb2_errors.ABSTRACT_CLASS_ERROR;
 		}
@@ -106,42 +102,19 @@ package QuickB2.effects
 			
 		}
 		
-		private static const utilArray:Vector.<qb2EffectField> = new Vector.<qb2EffectField>();
-		
 		protected function postUpdate(evt:qb2UpdateEvent):void
 		{
 			if ( !_shapeCount )  return;
 			
 			var contactDict:Dictionary = applyPerShape ? shapeContactDict : bodyContactDict;
 			
-			//--- Here we apply not only this effect fields, but all this effect field's slaves (and their slaves, and so on).
-			//--- Only slaves that don't have shape geometry are applied here.  Those slaves (and sub slaves, and so on) that 
-			//--- *have* geometry will process things in their own 
-			utilArray.length = 0;
-			utilArray.push(this);
-			while ( utilArray.length )
+			for ( var key:* in contactDict )
 			{
-				var field:qb2EffectField = utilArray.shift();
+				var rigid:qb2IRigidObject = key as qb2IRigidObject;
 				
-				for ( var key:* in contactDict )
+				if ( !this.isDisabledForInstance(rigid as qb2Tangible) )
 				{
-					var rigid:qb2IRigidObject = key as qb2IRigidObject;
-					
-					if ( !field.isDisabledForInstance(rigid as qb2Tangible) )
-					{
-						field.applyToRigid(rigid);
-					}
-				}
-				
-				if ( field._slaves )
-				{
-					for (var i:int = 0; i < field._slaves.length; i++) 
-					{
-						if ( !field._slaves[i]._shapeCount )
-						{
-							utilArray.push(field._slaves[i]);
-						}
-					}
+					this.applyToRigid(rigid);
 				}
 			}
 		}
@@ -163,6 +136,7 @@ package QuickB2.effects
 					{
 						if ( _shapeCount == 0 )
 						{
+							removeContainerEventListeners();
 							addContactEventListeners();
 						}
 						
@@ -172,6 +146,7 @@ package QuickB2.effects
 					{
 						if ( _shapeCount == 1 )
 						{
+							addContainerEventListeners();
 							removeContactEventListeners();
 						}
 						
@@ -236,40 +211,18 @@ package QuickB2.effects
 		{
 			if ( evt.type == qb2ContainerEvent.ADDED_TO_WORLD )
 			{
-				_master = getAncestorOfType(qb2EffectField) as qb2EffectField;
-				
-				if ( _master )
-				{
-					_master._slaves = _master._slaves ? _master._slaves : new Vector.<qb2EffectField>();
-					_master._slaves.push(this);
-				}
-				else if( !_shapeCount )
-				{
-					parent._effectFields = parent._effectFields ? parent._effectFields : new Vector.<qb2EffectField>();
-					parent._effectFields.push(this);
-				}
+				parent._effectFields = parent._effectFields ? parent._effectFields : new Vector.<qb2EffectField>();
+				parent._effectFields.push(this);
 			}
 			else
 			{
-				if ( _master )
+				if ( parent._effectFields )
 				{
-					var slaveIndex:int = _master._slaves.indexOf(this);
-					if ( slaveIndex >= 0 ) // can't see how this could ever be false, but who knows.
+					var index:int = parent._effectFields.indexOf(this);
+					
+					if ( index >= 0 )
 					{
-						_master._slaves.splice(slaveIndex, 1);
-					}
-					_master = null;
-				}
-				else if( !_shapeCount )
-				{
-					if ( parent._effectFields )
-					{
-						var index:int = parent._effectFields.indexOf(this);
-						
-						if ( index >= 0 )
-						{
-							parent._effectFields.splice(index, 1);
-						}
+						parent._effectFields.splice(index, 1);
 					}
 				}
 			}
@@ -277,10 +230,22 @@ package QuickB2.effects
 		
 		/*public function get ubiquitous():Boolean
 			{  return _shapeCount ? false : true;  }*/
-		
-		private function addContactEventListeners():void
+			
+		private function addContainerEventListeners():void
 		{
-			if ( parent && !_master )
+			if ( parent  )
+			{
+				parent._effectFields = parent._effectFields ? parent._effectFields : new Vector.<qb2EffectField>();
+				parent._effectFields.push(this);
+			}
+			
+			addEventListener(qb2ContainerEvent.ADDED_TO_WORLD,            addedOrRemoved,  false, 0, true);
+			addEventListener(qb2ContainerEvent.REMOVED_FROM_WORLD,        addedOrRemoved,  false, 0, true);
+		}
+		
+		private function removeContainerEventListeners():void
+		{
+			if ( parent )
 			{
 				if ( parent._effectFields )
 				{
@@ -292,6 +257,12 @@ package QuickB2.effects
 				}
 			}
 			
+			removeEventListener(qb2ContainerEvent.ADDED_TO_WORLD,            addedOrRemoved,  false);
+			removeEventListener(qb2ContainerEvent.REMOVED_FROM_WORLD,        addedOrRemoved,  false);
+		}
+		
+		private function addContactEventListeners():void
+		{
 			addEventListener(qb2UpdateEvent.POST_UPDATE, postUpdate, false, 0, true);
 			
 			//--- Create (and fill) contact dictionary.
@@ -344,13 +315,7 @@ package QuickB2.effects
 		}
 		
 		private function removeContactEventListeners():void
-		{
-			if ( parent && !_master )
-			{
-				parent._effectFields = parent._effectFields ? parent._effectFields : new Vector.<qb2EffectField>();
-				parent._effectFields.push(this);
-			}
-			
+		{			
 			removeEventListener(qb2UpdateEvent.POST_UPDATE, postUpdate, false);
 			
 			//--- Clean up contact dictionary, removing this effects from all shapes in contact.

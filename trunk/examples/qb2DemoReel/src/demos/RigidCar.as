@@ -60,6 +60,8 @@ package demos
 			
 			//--- Make a keyboard, or make sure it exists.
 			qb2Keyboard.makeSingleton(this.stage);
+			
+			car.addEventListener(qb2UpdateEvent.POST_UPDATE, updateCar);
 		}
 		
 		private function updateCar(evt:qb2UpdateEvent):void
@@ -82,14 +84,6 @@ package demos
 					(object as qb2CircleShape).applyTorque(torque);
 				}
 			}
-		}
-		
-		protected override function addedOrRemoved(evt:qb2ContainerEvent):void
-		{
-			if ( evt.type == qb2ContainerEvent.ADDED_TO_WORLD )
-				car.addEventListener(qb2UpdateEvent.POST_UPDATE, updateCar);
-			else
-				car.removeEventListener(qb2UpdateEvent.POST_UPDATE, updateCar);
 		}
 	}
 }
