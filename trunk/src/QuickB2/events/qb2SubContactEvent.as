@@ -64,10 +64,8 @@ package QuickB2.events
 			evt._shape1        = _shape1;
 			evt._shape2        = _shape2;
 			evt._ancestorGroup = _ancestorGroup;
-			evt._contactPoint  = _contactPoint;
-			evt._contactNormal = _contactNormal;
-			evt._contactWidth  = _contactWidth;
 			evt._contactB2     = _contactB2;
+			evt._world         = _world;
 			return evt;
 		}
 		

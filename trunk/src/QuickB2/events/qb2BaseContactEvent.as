@@ -23,8 +23,11 @@
 package QuickB2.events 
 {
 	import As3Math.geo2d.*;
+	import Box2DAS.Collision.b2WorldManifold;
+	import Box2DAS.Common.V2;
 	import Box2DAS.Dynamics.Contacts.*;
 	import QuickB2.*;
+	import QuickB2.objects.tangibles.qb2World;
 	use namespace qb2_friend;
 	
 	/**
@@ -41,16 +44,41 @@ package QuickB2.events
 		}
 		
 		public function get contactPoint():amPoint2d
-			{  return _contactPoint;  }
+			{  refreshContactInfo();  return _contactPoint;  }
 		qb2_friend var _contactPoint:amPoint2d;
 		
 		public function get contactNormal():amVector2d
-			{  return _contactNormal;  }
+			{  refreshContactInfo();  return _contactNormal;  }
 		qb2_friend var _contactNormal:amVector2d;
 		
 		public function get contactWidth():Number
-			{  return _contactWidth;  }
+			{  refreshContactInfo();  return _contactWidth;  }
 		qb2_friend var _contactWidth:Number = 0;
+		
+		qb2_friend var _world:qb2World = null;
+		
+		private function refreshContactInfo():void
+		{
+			//--- Get contact points and normals.
+			var pixelsPerMeter:Number = _world.pixelsPerMeter;
+			var worldMani:b2WorldManifold = new b2WorldManifold();
+			_contactB2.GetWorldManifold(worldMani);
+			var pnt:V2 = worldMani.GetPoint();
+			var point:amPoint2d = pnt && !isNaN(pnt.x) && !isNaN(pnt.y) ? new amPoint2d(pnt.x * pixelsPerMeter, pnt.y * pixelsPerMeter) : null;
+			var normal:amVector2d = worldMani.normal && !isNaN(worldMani.normal.x) && !isNaN(worldMani.normal.y)? new amVector2d(worldMani.normal.x, worldMani.normal.y) : null;
+			var numPoints:int = _contactB2.m_manifold.pointCount;
+			var width:Number = 0;
+			if ( numPoints > 1 )
+			{
+				var diffX:Number = worldMani.points[0].x - worldMani.points[1].x;
+				var diffY:Number = worldMani.points[0].y - worldMani.points[1].y;
+				width = Math.sqrt(diffX * diffX + diffY * diffY) * pixelsPerMeter;
+			}
+			
+			_contactPoint  = point;
+			_contactNormal = normal;
+			_contactWidth  = width;
+		}
 		
 		public function get b2_contact():b2Contact
 			{  return _contactB2;  }
