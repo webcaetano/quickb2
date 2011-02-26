@@ -22,7 +22,7 @@
 
 package TopDown.carparts
 {
-	import TopDown.td_friend;
+	import TopDown.*;
 	use namespace td_friend;
 
 	/**

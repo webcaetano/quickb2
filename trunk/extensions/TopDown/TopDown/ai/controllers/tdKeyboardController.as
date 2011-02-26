@@ -25,10 +25,10 @@ package TopDown.ai.controllers
 	import flash.display.*;
 	import flash.events.*;
 	import flash.ui.*;
+	import QuickB2.*;
 	import QuickB2.misc.*;
-	import QuickB2.qb2_errors;
 	
-	import TopDown.td_friend;
+	import TopDown.*;
 	use namespace td_friend;
 
 	/**

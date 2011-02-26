@@ -50,7 +50,7 @@
 		//--- All the demo classes to cycle through.
 		private static const demoClasses:Vector.<Class> = Vector.<Class>
 		([
-		Carving, EffectFields, StockSofts, CarDriving, RigidCar, JelloCar, StockRigids, StressTest,
+			Carving, EffectFields, StockSofts, CarDriving, RigidCar, JelloCar, StockRigids, StressTest,
 			BubblePop, Cup, Actors, ShapeTransformation, Drawing, Joints, Distance
 		]);
 		
@@ -64,9 +64,6 @@
 
 		private function init(e:Event = null):void 
 		{
-			var loader:qb2FlashLoader = new qb2FlashLoader();
-			loader.loadObject(null);
-			
 			removeEventListener(Event.ADDED_TO_STAGE, init);
 			
 			_singleton = this;

@@ -27,15 +27,14 @@ package QuickB2.loaders
 	import flash.display.*;
 	import flash.geom.*;
 	import flash.utils.*;
+	import QuickB2.*;
 	import QuickB2.events.*;
 	import QuickB2.loaders.proxies.*;
 	import QuickB2.loaders.proxies.geoproxies.*;
-	import QuickB2.loaders.proxies.*;
 	import QuickB2.objects.*;
 	import QuickB2.objects.joints.*;
 	import QuickB2.objects.tangibles.*;
 	import QuickB2.stock.*;
-	import QuickB2.*;
 	
 	use namespace qb2_friend;
 	

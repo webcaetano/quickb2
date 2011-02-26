@@ -22,8 +22,8 @@
 
 package TopDown.internals 
 {
-	import TopDown.ai.tdTrack;
-	import TopDown.td_friend;
+	import TopDown.*;
+	import TopDown.ai.*;
 	use namespace td_friend;
 	
 	/**

@@ -22,13 +22,10 @@
 
 package TopDown.ai.controllers 
 {
-	import As3Math.general.amUtils;
-	import As3Math.geo2d.amVector2d;
-	import flash.display.Stage;
-	import flash.events.KeyboardEvent;
-	import flash.ui.Keyboard;
-	import TopDown.objects.tdCarBody;
-	import TopDown.objects.tdCharacterBody;
+	import As3Math.geo2d.*;
+	import flash.display.*;
+	import flash.ui.*;
+	import TopDown.objects.*;
 	
 	/**
 	 * ...

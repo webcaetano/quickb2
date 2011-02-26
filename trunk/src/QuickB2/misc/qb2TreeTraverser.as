@@ -22,9 +22,9 @@
 
 package QuickB2.misc 
 {
-	import QuickB2.objects.qb2Object;
-	import QuickB2.objects.tangibles.qb2ObjectContainer;
-	import QuickB2.qb2_friend;
+	import QuickB2.objects.*;
+	import QuickB2.objects.tangibles.*;
+	import QuickB2.*;
 	use namespace qb2_friend;
 	
 	/**

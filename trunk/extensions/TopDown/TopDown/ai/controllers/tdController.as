@@ -22,12 +22,11 @@
 
 package TopDown.ai.controllers 
 {	
-	import Box2DAS.Dynamics.Joints.b2RevoluteJointDef;
-	import QuickB2.qb2_errors;
-	import TopDown.ai.tdBrainPort;
-	import TopDown.ai.brains.tdControllerBrain;
-	import TopDown.objects.tdSmartBody;
-	import TopDown.td_friend;
+	import QuickB2.*;
+	import TopDown.*;
+	import TopDown.ai.*;
+	import TopDown.ai.brains.*;
+	import TopDown.objects.*;
 	use namespace td_friend;
 
 	/**

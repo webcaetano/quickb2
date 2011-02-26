@@ -1,18 +1,13 @@
 package QuickB2.stock 
 {
-	import As3Math.general.amUtils;
-	import flash.display.Graphics;
-	import flash.utils.Dictionary;
-	import QuickB2.debugging.qb2_debugDrawSettings;
-	import QuickB2.events.qb2ContainerEvent;
-	import QuickB2.events.qb2ContactEvent;
-	import QuickB2.events.qb2MassEvent;
-	import QuickB2.objects.qb2Object;
-	import QuickB2.objects.tangibles.qb2Body;
-	import QuickB2.objects.tangibles.qb2ObjectContainer;
-	import QuickB2.objects.tangibles.qb2Shape;
-	import QuickB2.objects.tangibles.qb2Tangible;
-	import SoundTree.objects.stSoundObject;
+	import As3Math.general.*;
+	import flash.display.*;
+	import flash.utils.*;
+	import QuickB2.debugging.*;
+	import QuickB2.events.*;
+	import QuickB2.objects.*;
+	import QuickB2.objects.tangibles.*;
+	import SoundTree.objects.*;
 	
 	public class qb2SoundEmitter extends qb2Body
 	{

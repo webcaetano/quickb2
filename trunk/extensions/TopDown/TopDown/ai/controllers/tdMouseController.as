@@ -22,15 +22,11 @@
 
 package TopDown.ai.controllers 
 {
-	import As3Math.consts.AM_PI;
-	import As3Math.geo2d.amPoint2d;
-	import As3Math.geo2d.amVector2d;
-	import flash.display.DisplayObject;
-	import flash.display.InteractiveObject;
-	import flash.display.Stage;
-	import flash.events.MouseEvent;
-	import QuickB2.misc.qb2Mouse;
-	import QuickB2.qb2_errors;
+	import As3Math.geo2d.*;
+	import flash.display.*;
+	import flash.events.*;
+	import QuickB2.*;
+	import QuickB2.misc.*;
 	
 	/**
 	 * ...

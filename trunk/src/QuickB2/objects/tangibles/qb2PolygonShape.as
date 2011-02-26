@@ -22,26 +22,21 @@
 
 package QuickB2.objects.tangibles
 {
-	import As3Math.general.amEntity;
-	import As3Math.general.amUpdateEvent;
+	import As3Math.general.*;
 	import As3Math.geo2d.*;
 	import Box2DAS.Collision.Shapes.*;
 	import Box2DAS.Common.*;
 	import Box2DAS.Dynamics.*;
-	import Box2DAS.Dynamics.Joints.b2FrictionJoint;
-	import Box2DAS.Dynamics.Joints.b2FrictionJointDef;
+	import Box2DAS.Dynamics.Joints.*;
 	import flash.display.*;
-	import flash.events.Event;
 	import QuickB2.*;
 	import QuickB2.debugging.*;
-	import QuickB2.misc.qb2_flags;
-	import QuickB2.misc.qb2_props;
-	import QuickB2.objects.qb2Object;
-	import QuickB2.stock.qb2Terrain;
+	import QuickB2.misc.*;
+	import QuickB2.objects.*;
 	
 	use namespace qb2_friend;
 	
-	import As3Math.am_friend;
+	import As3Math.*;
 	use namespace am_friend;
 
 	/**

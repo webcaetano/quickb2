@@ -22,10 +22,9 @@
 
 package TopDown.internals 
 {
-	import As3Math.geo2d.amPoint2d;
-	import flash.display.Sprite;
+	import As3Math.geo2d.*;
+	import TopDown.*;
 	
-	import TopDown.td_friend;
 	use namespace td_friend;
 	
 	/**

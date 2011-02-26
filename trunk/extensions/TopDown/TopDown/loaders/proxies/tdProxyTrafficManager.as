@@ -22,7 +22,7 @@
 
 package TopDown.loaders.proxies
 {
-	import QuickB2.loaders.proxies.qb2ProxyUserObject;
+	import QuickB2.loaders.proxies.*;
 	
 	/**
 	 * ...

@@ -23,12 +23,12 @@
 package QuickB2.objects.tangibles 
 {
 	import As3Math.geo2d.*;
-	import Box2DAS.Dynamics.b2Body;
+	import Box2DAS.Dynamics.*;
 	import flash.display.*;
 	import flash.events.*;
 	import QuickB2.effects.*;
+	import QuickB2.objects.*;
 	import QuickB2.objects.joints.*;
-	import QuickB2.objects.qb2Object;
 	import QuickB2.objects.tangibles.*;
 	
 	/**

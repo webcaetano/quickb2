@@ -24,10 +24,10 @@ package QuickB2.events
 {
 	import flash.events.*;
 	import QuickB2.*;
-	import QuickB2.debugging.qb2DebugTraceUtils;
+	import QuickB2.debugging.*;
 	import QuickB2.objects.*;
 	import QuickB2.objects.tangibles.*;
-	import QuickB2.stock.qb2TripSensor;
+	import QuickB2.stock.*;
 	
 	use namespace qb2_friend;
 	

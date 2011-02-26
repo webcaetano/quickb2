@@ -26,9 +26,9 @@ package TopDown.carparts
 	import As3Math.general.*;
 	import As3Math.geo2d.*;
 	import flash.display.*;
-	import flash.events.Event;
+	import flash.events.*;
 	import QuickB2.debugging.*;
-	import QuickB2.events.qb2ContainerEvent;
+	import QuickB2.events.*;
 	import QuickB2.misc.*;
 	import QuickB2.objects.*;
 	import TopDown.*;

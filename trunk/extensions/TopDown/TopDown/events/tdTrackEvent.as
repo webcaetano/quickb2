@@ -24,14 +24,13 @@ package TopDown.events
 {
 	import flash.events.*;
 	import QuickB2.*;
-	import QuickB2.events.qb2Event;
+	import QuickB2.events.*;
 	import QuickB2.objects.*;
-	import QuickB2.objects.tangibles.qb2ObjectContainer;
-	import TopDown.ai.tdTrack;
-	import TopDown.objects.tdMap;
+	import TopDown.*;
+	import TopDown.ai.*;
+	import TopDown.objects.*;
 	use namespace qb2_friend;
 	
-	import TopDown.td_friend;
 	use namespace td_friend;
 	
 	/**

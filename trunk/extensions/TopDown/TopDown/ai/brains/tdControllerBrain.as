@@ -22,14 +22,11 @@
 
 package TopDown.ai.brains
 {
-	import As3Math.general.amUtils;
-	import QuickB2.events.qb2ContainerEvent;
-	import TopDown.ai.controllers.tdController;
-	import TopDown.ai.tdBrainPort;
-	import TopDown.objects.*;
 	import TopDown.*;
+	import TopDown.ai.*;
+	import TopDown.ai.controllers.*;
+	import TopDown.objects.*;
 	
-	import TopDown.td_friend;
 	use namespace td_friend;
 
 	/**

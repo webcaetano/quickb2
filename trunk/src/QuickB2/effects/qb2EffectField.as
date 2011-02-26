@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Copyright (c) 2010 Johnson Center for Simulation at Pine Technical College
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -22,20 +22,16 @@
 
 package QuickB2.effects 
 {
-	import adobe.utils.CustomActions;
-	import Box2DAS.Dynamics.b2Fixture;
-	import Box2DAS.Dynamics.b2World;
-	import Box2DAS.Dynamics.Contacts.b2Contact;
-	import flash.display.Graphics;
-	import flash.utils.Dictionary;
+	import Box2DAS.Dynamics.*;
+	import Box2DAS.Dynamics.Contacts.*;
+	import flash.display.*;
+	import flash.utils.*;
+	import QuickB2.*;
 	import QuickB2.debugging.*;
-	import QuickB2.events.qb2ContactEvent;
-	import QuickB2.events.qb2ContainerEvent;
-	import QuickB2.events.qb2UpdateEvent;
+	import QuickB2.events.*;
 	import QuickB2.misc.*;
-	import QuickB2.objects.qb2Object;
+	import QuickB2.objects.*;
 	import QuickB2.objects.tangibles.*;
-	import QuickB2.qb2_errors;
 	
 	/**
 	 * ...

@@ -22,14 +22,12 @@
 
 package QuickB2.internals 
 {
-	import Box2DAS.Dynamics.b2DestructionListener;
-	import Box2DAS.Dynamics.b2Fixture;
-	import Box2DAS.Dynamics.Joints.b2FrictionJoint;
-	import Box2DAS.Dynamics.Joints.b2Joint;
-	import QuickB2.objects.joints.qb2Joint;
-	import QuickB2.objects.tangibles.qb2Shape;
-	
+	import Box2DAS.Dynamics.*;
+	import Box2DAS.Dynamics.Joints.*;
 	import QuickB2.*;
+	import QuickB2.objects.joints.*;
+	import QuickB2.objects.tangibles.*;
+	
 	use namespace qb2_friend;
 	
 	/**

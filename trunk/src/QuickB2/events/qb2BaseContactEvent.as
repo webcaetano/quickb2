@@ -22,11 +22,9 @@
 
 package QuickB2.events 
 {
-	import As3Math.geo2d.amPoint2d;
-	import As3Math.geo2d.amVector2d;
-	import Box2DAS.Dynamics.Contacts.b2Contact;
-	import QuickB2.qb2_errors;
-	import QuickB2.qb2_friend;
+	import As3Math.geo2d.*;
+	import Box2DAS.Dynamics.Contacts.*;
+	import QuickB2.*;
 	use namespace qb2_friend;
 	
 	/**

@@ -29,7 +29,7 @@ package TopDown.ai.brains
 	import flash.utils.*;
 	import QuickB2.debugging.*;
 	import QuickB2.events.*;
-	import QuickB2.misc.qb2_flags;
+	import QuickB2.misc.*;
 	import QuickB2.objects.*;
 	import QuickB2.objects.tangibles.*;
 	import QuickB2.stock.*;

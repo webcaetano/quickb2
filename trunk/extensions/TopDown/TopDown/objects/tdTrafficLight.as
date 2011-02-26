@@ -22,7 +22,7 @@
 
 package TopDown.objects 
 {
-	import QuickB2.objects.tangibles.qb2Body;
+	import QuickB2.objects.tangibles.*;
 	
 	/**
 	 * ...

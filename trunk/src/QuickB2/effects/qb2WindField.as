@@ -22,11 +22,10 @@
 
 package QuickB2.effects 
 {
-	import As3Math.geo2d.amVector2d;
-	import QuickB2.debugging.qb2DebugTraceUtils;
-	import QuickB2.objects.qb2Object;
-	import QuickB2.objects.tangibles.qb2IRigidObject;
-	import QuickB2.objects.tangibles.qb2Tangible;
+	import As3Math.geo2d.*;
+	import QuickB2.debugging.*;
+	import QuickB2.objects.*;
+	import QuickB2.objects.tangibles.*;
 	
 	/**
 	 * ...

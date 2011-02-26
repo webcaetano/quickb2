@@ -22,17 +22,15 @@
 
 package QuickB2.objects.joints
 {
-	import As3Math.general.amUpdateEvent;
+	import As3Math.general.*;
 	import As3Math.geo2d.*;
 	import Box2DAS.Common.*;
 	import Box2DAS.Dynamics.Joints.*;
-	import flash.display.Graphics;
+	import flash.display.*;
 	import QuickB2.*;
-	import QuickB2.debugging.qb2_debugDrawFlags;
-	import QuickB2.debugging.qb2_debugDrawSettings;
-	import QuickB2.debugging.qb2DebugTraceUtils;
-	import QuickB2.events.qb2ContainerEvent;
-	import QuickB2.misc.qb2_flags;
+	import QuickB2.debugging.*;
+	import QuickB2.events.*;
+	import QuickB2.misc.*;
 	import QuickB2.objects.*;
 	import QuickB2.objects.tangibles.*;
 	

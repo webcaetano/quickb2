@@ -22,16 +22,13 @@
 
 package TopDown.objects
 {
-	import As3Math.geo2d.amPoint2d;
-	import flash.display.Graphics;
-	import QuickB2.objects.qb2Object;
-	import QuickB2.objects.tangibles.qb2Body;
-	import QuickB2.qb2_errors;
+	import QuickB2.*;
+	import QuickB2.objects.*;
+	import QuickB2.objects.tangibles.*;
 	import TopDown.*;
-	import TopDown.ai.brains.tdBrain;
-	import TopDown.ai.tdBrainPort;
+	import TopDown.ai.*;
+	import TopDown.ai.brains.*;
 	
-	import TopDown.td_friend;
 	use namespace td_friend;
 
 	/**

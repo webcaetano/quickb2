@@ -22,19 +22,17 @@
 
 package QuickB2.internals
 {
-	import As3Math.geo2d.amPoint2d;
-	import As3Math.geo2d.amVector2d;
+	import As3Math.geo2d.*;
 	import Box2DAS.Collision.*;
-	import Box2DAS.Common.V2;
+	import Box2DAS.Common.*;
 	import Box2DAS.Dynamics.*;
 	import Box2DAS.Dynamics.Contacts.*;
-	import flash.events.Event;
 	import flash.utils.*;
 	import QuickB2.events.*;
 	import QuickB2.objects.*;
 	import QuickB2.objects.tangibles.*;
 
-	import QuickB2.qb2_friend;
+	import QuickB2.*;
 	use namespace qb2_friend;
 
 	/**

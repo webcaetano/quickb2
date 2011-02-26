@@ -1,11 +1,8 @@
 ﻿package QuickB2.internals 
 {
-	import As3Math.consts.AM_PI;
-	import As3Math.general.amUtils;
+	import As3Math.consts.*;
 	import As3Math.geo2d.*;
-	import As3Math.misc.am_intersectionFlags;
-	import Box2DAS.Collision.b2AABB;
-	import Box2DAS.Collision.Shapes.b2Shape;
+	import As3Math.misc.*;
 	import Box2DAS.Common.*;
 	import Box2DAS.Dynamics.*;
 	import flash.utils.*;

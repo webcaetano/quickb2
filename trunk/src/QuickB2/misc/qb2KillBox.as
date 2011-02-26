@@ -22,8 +22,7 @@
 
 package QuickB2.misc 
 {
-	import As3Math.geo2d.amBoundBox2d;
-	import As3Math.geo2d.amPoint2d;
+	import As3Math.geo2d.*;
 	
 	/**
 	 * ...

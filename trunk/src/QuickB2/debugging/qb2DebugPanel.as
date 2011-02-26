@@ -23,20 +23,15 @@
 package QuickB2.debugging 
 {
 	import com.bit101.components.*;
-	import flash.display.Bitmap;
-	import flash.display.DisplayObject;
-	import flash.display.Sprite;
+	import flash.display.*;
 	import flash.events.*;
-	import flash.net.navigateToURL;
-	import flash.net.SharedObject;
-	import flash.net.URLRequest;
-	import flash.system.System;
-	import flash.utils.Dictionary;
-	import flash.utils.getTimer;
+	import flash.net.*;
+	import flash.system.*;
+	import flash.utils.*;
+	import QuickB2.*;
 	import QuickB2.objects.*;
 	import QuickB2.objects.tangibles.*;
 	
-	import QuickB2.qb2_friend;
 	use namespace qb2_friend;
 	
 	/**

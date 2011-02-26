@@ -22,11 +22,9 @@
 
 package QuickB2.events 
 {
-	import flash.events.Event;
-	import flash.events.EventDispatcher;
-	import QuickB2.debugging.qb2DebugTraceUtils;
-	import QuickB2.qb2_errors;
-	import QuickB2.qb2_friend;
+	import flash.events.*;
+	import QuickB2.*;
+	import QuickB2.debugging.*;
 	
 	use namespace qb2_friend;
 	

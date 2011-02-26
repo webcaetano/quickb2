@@ -22,8 +22,7 @@
 
 package TopDown.loaders.proxies 
 {
-	import QuickB2.loaders.proxies.qb2ProxyBody;
-	import QuickB2.loaders.proxies.qb2ProxyTerrain;
+	import QuickB2.loaders.proxies.*;
 	
 	/**
 	 * ...
