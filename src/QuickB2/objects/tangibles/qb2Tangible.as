@@ -195,7 +195,7 @@ package QuickB2.objects.tangibles
 			}
 		}
 		
-		private var massFreezeStack:Vector.<Boolean>;
+		private var massFreezeTracker:int = 0;
 		
 		qb2_friend function pushMassFreeze():void
 		{
@@ -208,23 +208,16 @@ package QuickB2.objects.tangibles
 				_ancestorBody._bodyB2.SetType(b2Body.b2_staticBody);
 			}
 			
-			if ( !massFreezeStack )
-				massFreezeStack = new Vector.<Boolean>();
-			massFreezeStack.push(true);
+			massFreezeTracker++;
 		}
 		
 		qb2_friend function popMassFreeze():void
 		{
-			if ( massFreezeStack )
-			{
-				massFreezeStack.pop();
-				if ( massFreezeStack.length == 0 )
-					massFreezeStack = null;
-			}
+			massFreezeTracker--;
 		}
 		
 		private function get massUpdateFrozen():Boolean
-			{  return massFreezeStack ? true : false;  }
+			{  return massFreezeTracker ? true : false;  }
 			
 		qb2_friend function updateMassProps(massDiff:Number, areaDiff:Number, skipFirst:Boolean = false ):void
 		{
