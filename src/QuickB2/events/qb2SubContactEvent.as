@@ -23,10 +23,9 @@
 package QuickB2.events 
 {
 	import As3Math.geo2d.*;
-	import Box2DAS.Dynamics.Contacts.b2Contact;
 	import flash.events.*;
 	import QuickB2.*;
-	import QuickB2.debugging.qb2DebugTraceUtils;
+	import QuickB2.debugging.*;
 	import QuickB2.objects.*;
 	import QuickB2.objects.tangibles.*;
 	

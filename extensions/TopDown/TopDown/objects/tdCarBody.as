@@ -22,25 +22,20 @@
 
 package TopDown.objects
 {
-	import As3Math.consts.TO_DEG;
+	import As3Math.consts.*;
 	import As3Math.general.*;
 	import As3Math.geo2d.*;
-	import Box2DAS.Dynamics.b2Body;
-	import flash.display.Graphics;
-	import flash.utils.Dictionary;
+	import flash.utils.*;
 	import QuickB2.*;
-	import QuickB2.events.qb2ContactEvent;
-	import QuickB2.events.qb2ContainerEvent;
-	import QuickB2.events.qb2MassEvent;
-	import QuickB2.misc.qb2TreeTraverser;
+	import QuickB2.events.*;
+	import QuickB2.misc.*;
 	import QuickB2.objects.*;
-	import QuickB2.objects.tangibles.qb2Tangible;
-	import QuickB2.stock.qb2Terrain;
+	import QuickB2.objects.tangibles.*;
+	import QuickB2.stock.*;
 	import TopDown.*;
 	import TopDown.ai.*;
-	import TopDown.debugging.td_debugDrawSettings;
-	import TopDown.internals.tdInternalAxleLayout;
 	import TopDown.carparts.*;
+	import TopDown.internals.*;
 	
 	use namespace td_friend;
 	

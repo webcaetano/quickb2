@@ -22,27 +22,18 @@
 
 package TopDown.ai 
 {
-	import adobe.utils.CustomActions;
-	import As3Math.general.amUtils;
-	import As3Math.geo2d.amBoundBox2d;
-	import As3Math.geo2d.amLine2d;
-	import As3Math.geo2d.amPoint2d;
-	import As3Math.geo2d.amVector2d;
-	import flash.system.ApplicationDomain;
-	import flash.utils.Dictionary;
-	import flash.utils.getDefinitionByName;
-	import QuickB2.events.qb2ContainerEvent;
-	import QuickB2.events.qb2EventDispatcher;
-	import QuickB2.objects.qb2Object;
-	import QuickB2.objects.tangibles.qb2Group;
-	import QuickB2.objects.tangibles.qb2Tangible;
-	import TopDown.ai.brains.tdBrain;
-	import TopDown.ai.brains.tdTrackBrain;
-	import TopDown.loaders.proxies.tdProxyCarBody;
-	import TopDown.loaders.tdFlashLoader;
-	import TopDown.objects.tdCarBody;
-	import TopDown.objects.tdMap;
-	import TopDown.td_friend;
+	import As3Math.general.*;
+	import As3Math.geo2d.*;
+	import flash.system.*;
+	import flash.utils.*;
+	import QuickB2.events.*;
+	import QuickB2.objects.*;
+	import QuickB2.objects.tangibles.*;
+	import TopDown.*;
+	import TopDown.ai.brains.*;
+	import TopDown.loaders.*;
+	import TopDown.loaders.proxies.*;
+	import TopDown.objects.*;
 	
 	use namespace td_friend;
 	

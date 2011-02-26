@@ -22,22 +22,19 @@
 
 package TopDown.loaders 
 {
-	import As3Math.consts.TO_RAD;
 	import As3Math.geo2d.*;
 	import flash.display.*;
-	import flash.geom.Matrix;
-	import flash.geom.Point;
-	import flash.geom.Rectangle;
+	import flash.geom.*;
 	import QuickB2.loaders.*;
 	import QuickB2.loaders.proxies.*;
-	import QuickB2.misc.qb2UnitConverter;
+	import QuickB2.misc.*;
 	import QuickB2.objects.*;
 	import TopDown.ai.*;
+	import TopDown.carparts.*;
 	import TopDown.loaders.proxies.*;
 	import TopDown.objects.*;
-	import TopDown.carparts.*;
 	
-	import TopDown.td_friend;
+	import TopDown.*;
 	use namespace td_friend;
 	
 	/**

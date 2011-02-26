@@ -22,8 +22,8 @@
 
 package TopDown.carparts
 {
-	import QuickB2.misc.qb2UnitConverter;
-	import TopDown.td_friend;
+	import QuickB2.misc.*;
+	import TopDown.*;
 	use namespace td_friend;
 	
 	/**

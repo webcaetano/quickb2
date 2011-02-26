@@ -35,15 +35,13 @@ package QuickB2.objects.tangibles
 	import flash.utils.*;
 	import QuickB2.*;
 	import QuickB2.debugging.*;
-	import QuickB2.effects.qb2EffectField;
+	import QuickB2.effects.*;
 	import QuickB2.events.*;
 	import QuickB2.internals.*;
-	import QuickB2.loaders.proxies.qb2ProxyMouseJoint;
-	import QuickB2.misc.qb2_flags;
-	import QuickB2.misc.qb2TreeTraverser;
+	import QuickB2.misc.*;
 	import QuickB2.objects.*;
 	import QuickB2.objects.joints.*;
-	import QuickB2.stock.qb2Terrain;
+	import QuickB2.stock.*;
 	
 	use namespace qb2_friend;
 	

@@ -22,11 +22,10 @@
 
 package TopDown.ai.brains
 {
-	import flash.display.Graphics;
-	import QuickB2.events.qb2ContainerEvent;
-	import QuickB2.misc.qb2_flags;
-	import QuickB2.objects.qb2Object;
-	import QuickB2.qb2_errors;
+	import QuickB2.*;
+	import QuickB2.events.*;
+	import QuickB2.misc.*;
+	import QuickB2.objects.*;
 	import TopDown.*;
 	import TopDown.objects.*;
 	

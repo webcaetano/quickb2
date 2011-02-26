@@ -22,12 +22,10 @@
 
 package QuickB2.misc
 {
-	import As3Math.geo2d.amPoint2d;
-	import flash.display.InteractiveObject;
-	import flash.display.Stage;
-	import flash.events.EventDispatcher;
-	import flash.events.MouseEvent;
-	import QuickB2.events.qb2EventDispatcher;
+	import As3Math.geo2d.*;
+	import flash.display.*;
+	import flash.events.*;
+	import QuickB2.events.*;
 	
 	[Event(name="mouseDown", type="flash.events.MouseEvent")]
 	[Event(name="mouseUp",   type="flash.events.MouseEvent")]

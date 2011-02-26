@@ -22,11 +22,11 @@
 
 package TopDown.carparts
 {
-	import QuickB2.misc.qb2UnitConverter;
-	import QuickB2.objects.qb2Object;
-	import TopDown.objects.tdCarBody;
+	import QuickB2.misc.*;
+	import QuickB2.objects.*;
+	import TopDown.*;
+	import TopDown.objects.*;
 	
-	import TopDown.td_friend;
 	use namespace td_friend;
 	
 	/**

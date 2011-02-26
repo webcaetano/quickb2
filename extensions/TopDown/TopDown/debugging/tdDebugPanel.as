@@ -23,14 +23,14 @@
 package TopDown.debugging 
 {
 	import com.bit101.components.*;
-	import flash.display.DisplayObject;
+	import flash.display.*;
 	import flash.events.*;
-	import flash.net.SharedObject;
-	import QuickB2.debugging.qb2DebugPanel;
+	import flash.net.*;
+	import QuickB2.debugging.*;
 	import QuickB2.objects.*;
 	import QuickB2.objects.tangibles.*;
 	
-	import QuickB2.qb2_friend;
+	import QuickB2.*;
 	use namespace qb2_friend;
 	
 	/**

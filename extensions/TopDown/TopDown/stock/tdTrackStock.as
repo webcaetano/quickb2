@@ -22,9 +22,9 @@
 
 package TopDown.stock 
 {
-	import As3Math.geo2d.amPoint2d;
-	import QuickB2.objects.qb2Object;
-	import TopDown.ai.tdTrack;
+	import As3Math.geo2d.*;
+	import QuickB2.objects.*;
+	import TopDown.ai.*;
 	
 	/**
 	 * ...

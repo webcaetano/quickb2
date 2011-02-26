@@ -29,17 +29,15 @@ package QuickB2.objects.tangibles
 	import Box2DAS.Collision.Shapes.*;
 	import Box2DAS.Common.*;
 	import Box2DAS.Dynamics.*;
-	import Box2DAS.Dynamics.Joints.b2FrictionJoint;
-	import Box2DAS.Dynamics.Joints.b2FrictionJointDef;
-	import flash.display.Graphics;
-	import flash.utils.Dictionary;
+	import Box2DAS.Dynamics.Joints.*;
+	import flash.display.*;
+	import flash.utils.*;
 	import QuickB2.*;
-	import QuickB2.debugging.qb2_debugDrawFlags;
-	import QuickB2.debugging.qb2_debugDrawSettings;
+	import QuickB2.debugging.*;
 	import QuickB2.misc.*;
+	import QuickB2.objects.*;
 	import QuickB2.objects.joints.*;
-	import QuickB2.objects.qb2Object;
-	import QuickB2.stock.qb2Terrain;
+	import QuickB2.stock.*;
 	
 	use namespace qb2_friend;
 	

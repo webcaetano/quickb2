@@ -22,15 +22,14 @@
 
 package QuickB2.effects 
 {
-	import As3Math.consts.AM_PI;
-	import As3Math.general.amUtils;
-	import As3Math.geo2d.amVector2d;
-	import flash.utils.Dictionary;
-	import QuickB2.debugging.qb2DebugTraceUtils;
-	import QuickB2.misc.qb2_props;
-	import QuickB2.objects.qb2Object;
-	import QuickB2.objects.tangibles.qb2IRigidObject;
-	import QuickB2.objects.tangibles.qb2Tangible;
+	import As3Math.consts.*;
+	import As3Math.general.*;
+	import As3Math.geo2d.*;
+	import flash.utils.*;
+	import QuickB2.debugging.*;
+	import QuickB2.misc.*;
+	import QuickB2.objects.*;
+	import QuickB2.objects.tangibles.*;
 	
 	/**
 	 * ...

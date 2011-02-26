@@ -23,16 +23,16 @@
 package QuickB2.objects.tangibles
 {
 	import As3Math.consts.*;
-	import As3Math.general.amUpdateEvent;
+	import As3Math.general.*;
 	import As3Math.geo2d.*;
 	import Box2DAS.Collision.Shapes.*;
 	import Box2DAS.Common.*;
 	import Box2DAS.Dynamics.*;
 	import flash.display.*;
 	import QuickB2.*;
-	import QuickB2.debugging.qb2DebugTraceUtils;
+	import QuickB2.debugging.*;
 	import QuickB2.events.*;
-	import QuickB2.misc.qb2_flags;
+	import QuickB2.misc.*;
 	import QuickB2.objects.*;
 	import QuickB2.objects.joints.*;
 	

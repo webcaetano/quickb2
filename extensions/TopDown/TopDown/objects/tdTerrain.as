@@ -22,20 +22,17 @@
 
 package TopDown.objects 
 {
-	import As3Math.geo2d.amPoint2d;
-	import flash.display.CapsStyle;
-	import flash.display.Graphics;
-	import flash.utils.Dictionary;
-	import QuickB2.events.qb2ContactEvent;
-	import QuickB2.objects.qb2Object;
-	import QuickB2.objects.tangibles.qb2ObjectContainer;
-	import QuickB2.objects.tangibles.qb2Shape;
-	import QuickB2.stock.qb2Terrain;
-	import TopDown.debugging.td_debugDrawFlags;
-	import TopDown.debugging.td_debugDrawSettings;
-	import TopDown.internals.tdInternalSkidEntry;
+	import As3Math.geo2d.*;
+	import flash.display.*;
+	import flash.utils.*;
+	import QuickB2.events.*;
+	import QuickB2.objects.*;
+	import QuickB2.objects.tangibles.*;
+	import QuickB2.stock.*;
+	import TopDown.debugging.*;
+	import TopDown.internals.*;
 	
-	import TopDown.td_friend;
+	import TopDown.*;
 	use namespace td_friend;
 	
 	/**

@@ -26,7 +26,7 @@ package QuickB2.objects.joints
 	import As3Math.general.*;
 	import As3Math.geo2d.*;
 	import Box2DAS.Common.*;
-	import Box2DAS.Dynamics.b2Body;
+	import Box2DAS.Dynamics.*;
 	import Box2DAS.Dynamics.Joints.*;
 	import flash.display.*;
 	import QuickB2.*;

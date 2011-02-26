@@ -22,7 +22,7 @@
 
 package QuickB2.effects 
 {
-	import QuickB2.debugging.qb2DebugTraceUtils;
+	import QuickB2.debugging.*;
 	
 	/**
 	 * ...

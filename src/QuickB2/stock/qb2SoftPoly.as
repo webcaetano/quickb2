@@ -27,7 +27,7 @@ package QuickB2.stock
 	import As3Math.geo2d.*;
 	import flash.display.*;
 	import QuickB2.debugging.*;
-	import QuickB2.misc.qb2_props;
+	import QuickB2.misc.*;
 	import QuickB2.objects.*;
 	import QuickB2.objects.joints.*;
 	import QuickB2.objects.tangibles.*;

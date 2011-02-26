@@ -22,11 +22,10 @@
 
 package QuickB2.misc 
 {
-	import flash.display.Stage;
-	import flash.events.EventDispatcher;
-	import flash.events.KeyboardEvent;
-	import flash.utils.Dictionary;
-	import QuickB2.events.qb2EventDispatcher;
+	import flash.display.*;
+	import flash.events.*;
+	import flash.utils.*;
+	import QuickB2.events.*;
 	
 	[Event(name="keyDown", type="flash.events.KeyboardEvent")]
 	[Event(name="keyUp",   type="flash.events.KeyboardEvent")]

@@ -23,18 +23,14 @@
 package TopDown.objects 
 {
 	import As3Math.geo2d.*;
-	import flash.display.Graphics;
-	import flash.events.Event;
+	import flash.display.*;
 	import flash.utils.*;
-	import QuickB2.events.qb2ContainerEvent;
-	import QuickB2.objects.qb2Object;
+	import QuickB2.objects.*;
 	import QuickB2.objects.tangibles.*;
+	import TopDown.*;
 	import TopDown.ai.*;
-	import TopDown.debugging.td_debugDrawSettings;
-	import TopDown.events.tdTrackEvent;
 	import TopDown.internals.*;
 	
-	import TopDown.td_friend;
 	use namespace td_friend;
 	
 	/**

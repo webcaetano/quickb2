@@ -38,20 +38,16 @@ package QuickB2.objects.tangibles
 	import QuickB2.debugging.*;
 	import QuickB2.effects.*;
 	import QuickB2.events.*;
-	import QuickB2.internals.qb2InternalContactListener;
-	import QuickB2.internals.qb2InternalLineIntersectionFinder;
-	import QuickB2.internals.qb2InternalSliceUtility;
+	import QuickB2.internals.*;
 	import QuickB2.loaders.proxies.*;
-	import QuickB2.misc.qb2_flags;
-	import QuickB2.misc.qb2_props;
-	import QuickB2.misc.qb2_sliceFlags;
+	import QuickB2.misc.*;
 	import QuickB2.objects.*;
 	import QuickB2.objects.joints.*;
 	import QuickB2.stock.*;
-	import As3Math.am_friend;
 	
 	use namespace qb2_friend;
 	
+	import As3Math.*;
 	use namespace am_friend;
 	
 	[Event(name="preSolve",       type="QuickB2.events.qb2ContactEvent")]

@@ -1,16 +1,11 @@
 package QuickB2.internals 
 {
-	import As3Math.geo2d.amCircle2d;
-	import As3Math.geo2d.amLine2d;
-	import As3Math.geo2d.amPoint2d;
-	import flash.utils.Dictionary;
-	import QuickB2.misc.qb2TreeTraverser;
-	import QuickB2.objects.qb2Object;
-	import QuickB2.objects.tangibles.qb2CircleShape;
-	import QuickB2.objects.tangibles.qb2PolygonShape;
-	import QuickB2.objects.tangibles.qb2Shape;
-	import QuickB2.objects.tangibles.qb2Tangible;
-	import QuickB2.qb2_friend;
+	import As3Math.geo2d.*;
+	import flash.utils.*;
+	import QuickB2.*;
+	import QuickB2.misc.*;
+	import QuickB2.objects.*;
+	import QuickB2.objects.tangibles.*;
 	use namespace qb2_friend;
 	
 	/**

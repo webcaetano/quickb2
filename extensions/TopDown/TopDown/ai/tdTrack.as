@@ -24,15 +24,12 @@ package TopDown.ai
 {
 	import As3Math.general.*;
 	import As3Math.geo2d.*;
-	import flash.display.Graphics;
-	import flash.events.EventDispatcher;
-	import QuickB2.debugging.qb2_debugDrawSettings;
-	import QuickB2.events.qb2EventDispatcher;
-	import QuickB2.objects.qb2Object;
+	import flash.display.*;
+	import QuickB2.debugging.*;
+	import QuickB2.objects.*;
 	import TopDown.*;
-	import TopDown.debugging.td_debugDrawFlags;
-	import TopDown.debugging.td_debugDrawSettings;
-	import TopDown.events.tdTrackEvent;
+	import TopDown.debugging.*;
+	import TopDown.events.*;
 	import TopDown.internals.*;
 	import TopDown.objects.*;
 	

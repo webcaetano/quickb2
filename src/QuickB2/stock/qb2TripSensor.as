@@ -22,20 +22,16 @@
 
 package QuickB2.stock
 {
-	import adobe.utils.CustomActions;
 	import As3Math.geo2d.*;
-	import flash.display.Graphics;
+	import flash.display.*;
 	import flash.utils.*;
-	import QuickB2.debugging.qb2_debugDrawSettings;
-	import QuickB2.debugging.qb2DebugTraceUtils;
+	import QuickB2.*;
+	import QuickB2.debugging.*;
 	import QuickB2.events.*;
 	import QuickB2.internals.*;
-	import QuickB2.objects.qb2Object;
-	import QuickB2.objects.tangibles.qb2Body;
-	import QuickB2.objects.tangibles.qb2Shape;
-	import QuickB2.objects.tangibles.qb2Tangible;
+	import QuickB2.objects.*;
+	import QuickB2.objects.tangibles.*;
 	
-	import QuickB2.qb2_friend;
 	use namespace qb2_friend;
 	
 	[Event(name="sensorTripped", type="QuickB2.events.qb2TripSensorEvent")]

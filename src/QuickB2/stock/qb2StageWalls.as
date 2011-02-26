@@ -22,18 +22,13 @@
 
 package QuickB2.stock 
 {
-	import As3Math.general.amUtils;
-	import As3Math.geo2d.amPoint2d;
-	import flash.display.LoaderInfo;
-	import flash.display.Sprite;
-	import flash.display.Stage;
-	import flash.display.StageAlign;
-	import flash.display.StageScaleMode;
-	import flash.events.Event;
-	import flash.utils.setTimeout;
-	import QuickB2.debugging.qb2DebugTraceUtils;
-	import QuickB2.misc.qb2_flags;
-	import QuickB2.objects.tangibles.qb2Group;
+	import As3Math.general.*;
+	import As3Math.geo2d.*;
+	import flash.display.*;
+	import flash.events.*;
+	import QuickB2.debugging.*;
+	import QuickB2.misc.*;
+	import QuickB2.objects.tangibles.*;
 	
 	/**
 	 * ...

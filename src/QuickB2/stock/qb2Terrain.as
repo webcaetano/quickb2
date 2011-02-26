@@ -24,12 +24,11 @@ package QuickB2.stock
 {
 	import flash.display.*;
 	import flash.utils.*;
+	import QuickB2.*;
 	import QuickB2.debugging.*;
 	import QuickB2.events.*;
-	import QuickB2.misc.qb2_flags;
 	import QuickB2.objects.*;
 	import QuickB2.objects.tangibles.*;
-	import QuickB2.*;
 	
 	use namespace qb2_friend;
 	

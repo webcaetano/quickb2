@@ -29,7 +29,6 @@ package QuickB2.objects
 	import QuickB2.*;
 	import QuickB2.events.*;
 	import QuickB2.internals.*;
-	import QuickB2.loaders.proxies.qb2ProxyObjectContainer;
 	import QuickB2.misc.*;
 	import QuickB2.objects.joints.*;
 	import QuickB2.objects.tangibles.*;

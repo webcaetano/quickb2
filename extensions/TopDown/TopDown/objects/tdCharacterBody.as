@@ -22,7 +22,7 @@
 
 package TopDown.objects 
 {
-	import As3Math.geo2d.amVector2d;
+	import As3Math.geo2d.*;
 	
 	/**
 	 * ...

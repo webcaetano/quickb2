@@ -26,17 +26,14 @@ package QuickB2.objects.tangibles
 	import As3Math.consts.*;
 	import As3Math.geo2d.*;
 	import Box2DAS.Collision.Shapes.*;
-	import Box2DAS.Common.V2;
 	import Box2DAS.Dynamics.*;
-	import Box2DAS.Dynamics.Joints.b2FrictionJoint;
-	import Box2DAS.Dynamics.Joints.b2FrictionJointDef;
+	import Box2DAS.Dynamics.Joints.*;
 	import flash.display.*;
 	import QuickB2.*;
 	import QuickB2.debugging.*;
-	import QuickB2.misc.qb2_flags;
-	import QuickB2.misc.qb2_props;
+	import QuickB2.misc.*;
+	import QuickB2.objects.*;
 	import QuickB2.objects.joints.*;
-	import QuickB2.objects.qb2Object;
 	import QuickB2.stock.*;
 	
 	use namespace qb2_friend;

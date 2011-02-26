@@ -22,7 +22,7 @@
 
 package QuickB2.misc 
 {
-	import As3Math.consts.AM_PI;
+	import As3Math.consts.*;
 	
 	/**
 	 * ...
