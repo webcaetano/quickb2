@@ -33,50 +33,44 @@ package QuickB2.effects
 	 */
 	public class qb2WindField extends qb2EffectField
 	{
-		/** The wind direction and speed.
+		/** 
+		 * The wind direction and speed.
 		 * @default zero-length vector.
 		 */
 		public var windVector:amVector2d = new amVector2d();
 		
-		/** The air density in kg/m^3, which effects how strong the wind is.
-		 * @default 1.22521 kg/m^3 (standard air density at 15 degrees Celcius at sea level.
+		/**
+		 * Basically dictates how strong the wind is.
 		 */
-		public var airDensity:Number = 1.22521;
+		public var airDensity:Number = 1;
 		
-		public override function apply(toObject:qb2Tangible):void
+		private var forceVec:amVector2d = new amVector2d();
+		
+		public override function applyToRigid(rigid:qb2IRigidObject):void
 		{
-			if ( !shouldApply(toObject) )  return;
+			var worldVel:amVector2d = rigid.getLinearVelocityAtPoint(rigid.centerOfMass);
 			
-			utilTraverser.root = toObject;
-			
-			while (utilTraverser.hasNext )
+			if ( !worldVel.lengthSquared )
 			{
-				var currObject:qb2Object = utilTraverser.currentObject;
-				
-				if ( !(currObject is qb2Tangible) )
-				{
-					utilTraverser.next(false);
-					continue;
-				}
-				else if ( currObject is qb2IRigidObject )
-				{
-					var asRigid:qb2IRigidObject = currObject as qb2IRigidObject;
-					
-					if ( asRigid.ancestorBody )
-					{
-						asRigid.ancestorBody.applyForce(asRigid.parent.getWorldPoint(asRigid.centerOfMass), gravityVector.scaledBy(asRigid.mass));
-					}
-					else
-					{
-						asRigid.applyForce(asRigid.centerOfMass, gravityVector.scaledBy(asRigid.mass));
-					}
-					
-					utilTraverser.next(false);
-				}
-				else
-				{
-					utilTraverser.next(true);
-				}
+				forceVec.copy(windVector).scaleBy(airDensity);
+			}
+			else
+			{
+				forceVec.copy(windVector).normalize();
+				var dot:Number = worldVel.dotProduct(forceVec);
+				var worldVelProjection:amVector2d = forceVec.scaledBy(dot);
+				forceVec.copy(windVector);
+				forceVec.subtract(worldVelProjection);
+				forceVec.scaleBy(airDensity);
+			}
+			
+			if ( rigid.ancestorBody )
+			{
+				rigid.ancestorBody.applyForce(rigid.parent.getWorldPoint(rigid.centerOfMass), forceVec);
+			}
+			else
+			{
+				rigid.applyForce(rigid.centerOfMass, forceVec);
 			}
 		}
 		
