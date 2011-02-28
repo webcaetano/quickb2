@@ -22,14 +22,29 @@
 
 package QuickB2.effects 
 {
+	import As3Math.geo2d.amVector2d;
 	import QuickB2.debugging.*;
+	import QuickB2.objects.qb2Object;
+	import QuickB2.objects.tangibles.qb2IRigidObject;
 	
 	/**
 	 * ...
 	 * @author Doug Koellmer
 	 */
 	public class qb2VortexField extends qb2EffectField
-	{		
+	{
+		
+		public override function applyToRigid(rigid:qb2IRigidObject):void
+		{
+		}
+		
+		public override function clone():qb2Object
+		{
+			var cloned:qb2VortexField = super.clone() as qb2VortexField;
+			
+			return cloned;
+		}
+		
 		public override function toString():String
 			{  return qb2DebugTraceUtils.formatToString(this, "qb2VortexField");  }
 		

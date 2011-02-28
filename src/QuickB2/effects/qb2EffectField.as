@@ -60,9 +60,9 @@ package QuickB2.effects
 			if ( (this as Object).constructor == qb2EffectField )  throw qb2_errors.ABSTRACT_CLASS_ERROR;
 		}
 		
-		public function apply(toObject:qb2Tangible):void
+		public function apply(toTangible:qb2Tangible):void
 		{
-			utilTraverser.root = toObject;
+			utilTraverser.root = toTangible;
 			
 			while (utilTraverser.hasNext )
 			{
@@ -81,7 +81,7 @@ package QuickB2.effects
 				else if ( currObject is qb2IRigidObject )
 				{
 					var asRigid:qb2IRigidObject = currObject as qb2IRigidObject;
-					var isBody:Boolean = asRigid is qb2IRigidObject;
+					var isBody:Boolean = asRigid is qb2Body;
 					
 					if ( isBody && !applyPerShape || !isBody /*(isShape)*/ && applyPerShape )
 					{

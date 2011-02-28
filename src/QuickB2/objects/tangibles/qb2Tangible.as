@@ -1281,6 +1281,7 @@ package QuickB2.objects.tangibles
 			
 			// TODO analyze current stack and somehow halt further propogration of fields that are disabled for this instance
 			//      Then you have to smoehow get rid of the halt thing when calling popEffects()
+			//      ALSO disable if an effect on the stack is this object itself.
 			
 			if ( _world && _effectFields )
 			{

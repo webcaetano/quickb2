@@ -50,7 +50,7 @@ package QuickB2.effects
 		public var scaleImpulsesByMass:Boolean = true;
 		public var minImpulse:Number = 5;
 		public var maxImpulse:Number = 5;
-		public var impulseNormal:amVector2d = new amVector2d(0, 1);
+		public var impulseNormal:amVector2d = new amVector2d(1, 0);
 		public var randomizeImpulse:Boolean = false;
 		
 		private static const impulseVector:amVector2d = new amVector2d();

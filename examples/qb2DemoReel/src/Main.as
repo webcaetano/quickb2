@@ -50,8 +50,8 @@
 		//--- All the demo classes to cycle through.
 		private static const demoClasses:Vector.<Class> = Vector.<Class>
 		([
-			Carving, EffectFields, StockSofts, CarDriving, RigidCar, JelloCar, StockRigids, StressTest,
-			BubblePop, Cup, Actors, ShapeTransformation, Drawing, Joints, Distance
+			/*Carving, */StockSofts, CarDriving, RigidCar, JelloCar, StockRigids, StressTest,
+			EffectFields, Planets, BubblePop, Cup, Actors, ShapeTransformation, Drawing, Joints, Distance
 		]);
 		
 		private var _demos:Vector.<Demo> = new Vector.<Demo>();
@@ -91,7 +91,8 @@
 			world.start(); // sets up an ENTER_FRAME loop automatically.  Manual 'step()' method can also be used.
 			world.addEventListener(qb2UpdateEvent.POST_UPDATE, update);
 			
-			//--- Make various depth-specific things be drawn relative to the demo's space initially.
+			//--- Make various depth-specific things be drawn relative to the demo's level in the world tree initially.
+			//--- The user can change which level the bounding reps are drawn for with qb2DebugPanel.
 			qb2_debugDrawSettings.boundBoxStartDepth = qb2_debugDrawSettings.boundBoxEndDepth = 2;
 			qb2_debugDrawSettings.centroidStartDepth = qb2_debugDrawSettings.centroidEndDepth = 2;
 			qb2_debugDrawSettings.boundCircleStartDepth = qb2_debugDrawSettings.boundCircleEndDepth = 2;

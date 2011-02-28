@@ -22,14 +22,102 @@
 
 package QuickB2.effects 
 {
+	import As3Math.general.amUtils;
+	import As3Math.geo2d.amPoint2d;
+	import As3Math.geo2d.amVector2d;
+	import Box2DAS.Common.V2;
+	import com.greensock.loading.core.DisplayObjectLoader;
+	import flash.utils.Dictionary;
 	import QuickB2.debugging.*;
+	import QuickB2.events.qb2UpdateEvent;
+	import QuickB2.objects.qb2Object;
+	import QuickB2.objects.tangibles.qb2IRigidObject;
+	import QuickB2.objects.tangibles.qb2Tangible;
 	
 	/**
 	 * ...
 	 * @author Doug Koellmer
 	 */
 	public class qb2PlanetaryGravityField extends qb2EffectField
-	{		
+	{
+		/// A constant by which to multiply the force.
+		public var gravConstant:Number = 1000;
+		
+		public function qb2PlanetaryGravityField()
+		{
+			addEventListener(qb2UpdateEvent.POST_UPDATE, processAccumulator, false, 0, true);
+		}
+		
+		private var accumArray:Vector.<qb2IRigidObject> = new Vector.<qb2IRigidObject>();
+		private var accumDict:Dictionary = new Dictionary(true);
+		
+		private function processAccumulator(evt:qb2UpdateEvent):void
+		{
+			for (var i:int = 0; i < accumArray.length; i++) 
+			{
+				var ithRigid:qb2IRigidObject = accumArray[i];
+				
+				for (var j:int = i+1; j < accumArray.length; j++)
+				{
+					var jthRigid:qb2IRigidObject = accumArray[j];
+			
+					var ithWorldPoint:amPoint2d = ithRigid.ancestorBody  ? ithRigid.parent.getWorldPoint(ithRigid.centerOfMass, ancestorBody.parent) : ithRigid.centerOfMass;
+					var jthWorldPoint:amPoint2d = jthRigid.ancestorBody  ? jthRigid.parent.getWorldPoint(jthRigid.centerOfMass, ancestorBody.parent) : jthRigid.centerOfMass;
+					
+					var vector:amVector2d = ithWorldPoint.minus(jthWorldPoint);
+					
+					var force:Number = gravConstant * ( (ithRigid.mass * jthRigid.mass) / vector.lengthSquared);
+					
+					var forceVec:amVector2d = vector.normalize().scaleBy(force);
+					
+					if ( jthRigid.ancestorBody )
+					{
+						jthRigid.ancestorBody.applyForce(jthWorldPoint, forceVec);
+					}
+					else
+					{
+						jthRigid.applyForce(jthWorldPoint, forceVec);
+					}
+					
+					if ( ithRigid.ancestorBody )
+					{
+						ithRigid.ancestorBody.applyForce(ithWorldPoint, forceVec.negate());
+					}
+					else
+					{
+						ithRigid.applyForce(ithWorldPoint, forceVec.negate());
+					}
+				}
+				
+				delete accumDict[ithRigid];
+			}
+			
+			accumArray.length = 0;
+		}
+		
+		public override function apply(toTangible:qb2Tangible):void
+		{
+			super.apply(toTangible);
+			processAccumulator(null);
+		}
+		
+		public override function applyToRigid(rigid:qb2IRigidObject):void
+		{
+			if ( accumDict[rigid] )  return;
+			
+			accumDict[rigid] = true;
+			accumArray.push(rigid);
+		}
+		
+		public override function clone():qb2Object
+		{
+			var cloned:qb2PlanetaryGravityField = super.clone() as qb2PlanetaryGravityField;
+			
+			cloned.gravConstant = this.gravConstant;	
+			
+			return cloned;
+		}
+		
 		public override function toString():String 
 			{  return qb2DebugTraceUtils.formatToString(this, "qb2PlanetaryGravityField");  }
 		
