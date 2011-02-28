@@ -20,7 +20,7 @@
  * THE SOFTWARE.
  */
 
-package QuickB2.events 
+package QuickB2.events
 {
 	import flash.events.*;
 	import QuickB2.*;
