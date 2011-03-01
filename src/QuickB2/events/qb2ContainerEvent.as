@@ -59,7 +59,7 @@ package QuickB2.events
 			return evt;
 		}
 		
-		public function get childObject():qb2Object
+		public function get child():qb2Object
 		{
 			return _child;
 		}

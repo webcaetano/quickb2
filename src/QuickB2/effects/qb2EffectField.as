@@ -125,7 +125,7 @@ package QuickB2.effects
 		{
 			var addEvent:Boolean = evt.type == qb2ContainerEvent.ADDED_OBJECT || evt.type == qb2ContainerEvent.DESCENDANT_ADDED_OBJECT;
 			
-			utilTraverser.root = evt.childObject;
+			utilTraverser.root = evt.child;
 			
 			while ( utilTraverser.hasNext )
 			{

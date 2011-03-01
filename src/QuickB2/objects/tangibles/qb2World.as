@@ -549,7 +549,7 @@ package QuickB2.objects.tangibles
 		
 		private function terrainIndexChanged(evt:qb2ContainerEvent):void
 		{
-			var terrain:qb2Terrain = evt.childObject as qb2Terrain;
+			var terrain:qb2Terrain = evt.child as qb2Terrain;
 			
 			_globalTerrainList.splice(_globalTerrainList.indexOf(terrain), 1);
 			

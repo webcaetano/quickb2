@@ -561,7 +561,7 @@ package TopDown.ai.brains
 		
 		private function trackChanged(evt:qb2ContainerEvent):void
 		{
-			var track:tdTrack = evt.childObject as tdTrack;
+			var track:tdTrack = evt.child as tdTrack;
 			
 			if ( !track )  return;
 			
