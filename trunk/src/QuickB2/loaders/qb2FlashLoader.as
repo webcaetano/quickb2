@@ -642,8 +642,6 @@ package QuickB2.loaders
 			if ( !defaultValue(proxy.className) )
 				return proxy.className;
 			
-			if ( !tags )  return null;
-			
 			if ( tags )
 			{
 				for (var i:int = tags.length-1; i >= 0; i--) // hit the highest z-order tags first
@@ -714,20 +712,20 @@ package QuickB2.loaders
 
 		protected virtual function foundUserProxy(host:qb2Object, proxy:qb2ProxyUserObject):void  { }
 		
-		private function processList(xmlList:XMLList, object:qb2Object, tag:qb2Proxy):void
+		private function processList(varList:Vector.<String>, object:qb2Object, tag:qb2Proxy):void
 		{
-			var listLen:int = xmlList.length();
+			var listLen:int = varList.length;
 			var tagAsObject:Object = tag;
 			for (var i:int = 0; i < listLen; i++) 
 			{
-				var proxyVarName:String = xmlList[i].@name;
+				var proxyVarName:String = varList[i];
 				
 				//--- Skip this variable if it's reserved or is defined by MovieClip or its super classes.
 				if ( reservedVars[proxyVarName] || movieClipVars[proxyVarName] )  continue;
 				
 				if ( (tag[proxyVarName] is String) && proxyVarName.charAt(0) == DELIMITER_STRING )
 				{
-					if ( !tag[proxyVarName] || tag[proxyVarName] == DEFAULT_STRING )  continue;
+					if ( tag[proxyVarName] == "" || tag[proxyVarName] == DEFAULT_STRING )  continue;
 					
 					var split:Array = proxyVarName.split(DELIMITER_STRING);
 					split.shift();
@@ -739,37 +737,47 @@ package QuickB2.loaders
 					var varPrefix:String = split[0];
 					var varName:String   = split[1];
 					
-					if ( varPrefix == BOOL_STRING )
+					try
 					{
-						object[varName] = tag[proxyVarName] == TRUE_STRING;
-					}
-					else if ( varPrefix == UINT_STRING )
-					{
-						object[varName] = parseInt(tag[proxyVarName]) as uint;
-					}
-					else if ( varPrefix == INT_STRING )
-					{
-						object[varName] = parseInt(tag[proxyVarName]) as int;
-					}
-					else if ( varPrefix == FLOAT_STRING )
-					{
-						object[varName] = parseFloat(tag[proxyVarName]);
-					}
-					else if ( varPrefix == HANDLER_STRING )
-					{
-						var listener:Function = null; (tag.parent && tag.parent[tag[proxyVarName]] ? tag.parent[tag[proxyVarName]] : tag[proxyVarName]) as Function;
-						
-						if ( listener != null )
+						if ( varPrefix == BOOL_STRING )
 						{
-							object.addEventListener(varName, listener, false, 0, true);
+							object[varName] = tag[proxyVarName] == TRUE_STRING;
 						}
+						else if ( varPrefix == UINT_STRING )
+						{
+							object[varName] = parseInt(tag[proxyVarName]) as uint;
+						}
+						else if ( varPrefix == INT_STRING )
+						{
+							object[varName] = parseInt(tag[proxyVarName]) as int;
+						}
+						else if ( varPrefix == FLOAT_STRING )
+						{
+							object[varName] = parseFloat(tag[proxyVarName]);
+						}
+						else if ( varPrefix == HANDLER_STRING )
+						{
+							var listener:Function = (tag.parent && tag.parent[tag[proxyVarName]] ? tag.parent[tag[proxyVarName]] : tag[proxyVarName]) as Function;
+							
+							if ( listener != null )
+							{
+								object.addEventListener(varName, listener, false, 0, true);
+							}
+						}
+					}
+					catch (err:Error)
+					{
 					}
 				}
 				else
 				{
 					try
 					{
-						object[proxyVarName] = tag[proxyVarName];
+						var isString:Boolean = tag[proxyVarName] is String;
+						if ( isString && tag[proxyVarName] && tag[proxyVarName] != DEFAULT_STRING || !isString )
+						{
+							object[proxyVarName] = tag[proxyVarName];
+						}
 					}
 					catch(err:Error)
 					{
@@ -779,10 +787,30 @@ package QuickB2.loaders
 			}
 		}
 		
+		private static const varListCache:Dictionary = new Dictionary();
+		
 		protected function applyTag(object:qb2Object, tag:qb2Proxy):void
 		{
-			var xml:XML = describeType(tag);
-			processList(xml.variable, object, tag);
+			var classDef:Class = (tag as Object).constructor;
+			var varList:Vector.<String> = varListCache[classDef];
+			
+			if ( !varList )
+			{
+				var xmlList:XMLList = describeType(tag).variable;
+				var xmlListLen:int = xmlList.length();
+				varList = new Vector.<String>(xmlListLen, true);
+				for (var i:int = 0; i < xmlListLen; i++) 
+				{
+					varList[i] = xmlList[i].@name;
+				}
+				
+				varListCache[classDef] = varList;
+			}
+			else
+			{
+			}
+			
+			processList(varList, object, tag);
 			//processList(xml.accessor); proxies shouldn't really have accessor's
 		}
 		

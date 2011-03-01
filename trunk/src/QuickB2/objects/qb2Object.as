@@ -775,6 +775,10 @@ package QuickB2.objects
 				delete _world.postEventers[this];
 				
 			_world = null;
+			if ( ancestor == this._parent ) // this is redundant because qb2ObjectContainer takes care of it also, but we don't want parent available in the event handler.
+			{
+				this._parent = null;
+			}
 			
 			if ( eventFlags & REMOVED_FROM_WORLD_BIT )
 			{

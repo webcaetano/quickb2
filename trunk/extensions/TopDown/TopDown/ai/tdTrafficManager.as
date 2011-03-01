@@ -134,7 +134,7 @@ package TopDown.ai
 		
 		private function mapAddedOrRemovedSomething(evt:qb2ContainerEvent):void
 		{
-			var object:qb2Object = evt.childObject;
+			var object:qb2Object = evt.child;
 			if ( object is tdCarBody )
 			{
 				if( evt.type == qb2ContainerEvent.ADDED_OBJECT || evt.type == qb2ContainerEvent.DESCENDANT_ADDED_OBJECT )

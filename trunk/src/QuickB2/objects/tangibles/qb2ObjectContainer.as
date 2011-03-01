@@ -286,8 +286,8 @@ package QuickB2.objects.tangibles
 				flushAncestorBody(tangible);
 			}
 
-			objectRemoved._parent = null;
 			if ( _world )  objectRemoved.destroy(this);
+			objectRemoved._parent = null;
 			
 			if ( eventFlags & REMOVED_OBJECT_BIT )
 			{
