@@ -155,7 +155,7 @@ package QuickB2.objects.tangibles
 			}
 		}
 		
-		qb2_friend function cloneActor():DisplayObject
+		private function cloneActor():DisplayObject
 		{
 			var actorClone:DisplayObject = new (Object(this._actor).constructor as Class) as DisplayObject;
 			actorClone.transform.matrix = actor.transform.matrix.clone();
@@ -290,8 +290,18 @@ package QuickB2.objects.tangibles
 		}
 		qb2_friend var _actor:DisplayObject;
 		
-		//public override function clone():qb2Object
-		//	{  return baseClone(super.clone() as qb2Tangible, true, true);  }
+		public override function clone():qb2Object
+		{
+			var cloned:qb2Tangible = super.clone() as qb2Tangible;
+			
+			cloned.copyTangibleProps(this);
+			if ( actor )
+			{
+				cloned.actor = cloneActor();
+			}
+			
+			return cloned;
+		}
 			
 		qb2_friend function copyTangibleProps(source:qb2Tangible, massPropsToo:Boolean = true ):void
 		{
@@ -1176,17 +1186,16 @@ package QuickB2.objects.tangibles
 		{
 			// NOTE: qb2Object doesn't implement update(), so there's no reason to call it.
 			
-			var numEffectsOnStack:int = _world._effectFieldStack.length;
 			var asRigid:qb2IRigidObject = this as qb2IRigidObject;  // assuming a little, but the only classes to call this super function are qb2Body and qb2Shape anyway...
 			var isShape:Boolean = this is qb2Shape;
 			
-			for (var i:int = 0; i < numEffectsOnStack; i++) 
+			for ( var i:int = 0; i < _world._effectFieldStack.length; i++ )
 			{
 				var field:qb2EffectField = _world._effectFieldStack[i];
 				
 				if ( field.applyPerShape && isShape || !field.applyPerShape && this._bodyB2 )
 				{
-					if ( !field.isDisabledForInstance(this) )
+					if ( !field.isDisabledFor(this, true) )
 					{
 						field.applyToRigid(asRigid);
 					}
@@ -1279,22 +1288,18 @@ package QuickB2.objects.tangibles
 		{
 			var numPushed:int = 0;
 			
-			// TODO analyze current stack and somehow halt further propogration of fields that are disabled for this instance
-			//      Then you have to smoehow get rid of the halt thing when calling popEffects()
-			//      ALSO disable if an effect on the stack is this object itself.
-			
-			if ( _world && _effectFields )
+			if ( _world  )
 			{
-				//--- Push all of this object's field (and its fields' slaves) to the effects stack.
-				for (var i:int = 0; i < _effectFields.length; i++) 
+				if ( _effectFields )
 				{
-					var ithfield:qb2EffectField = _effectFields[i];
-					
-					if ( !ithfield.isDisabledForInstance(this) )
+					//--- Push all of this object's fields to the effects stack.
+					for (var i:int = 0; i < _effectFields.length; i++) 
 					{
-						_world._effectFieldStack.push(ithfield);
+						var ithField:qb2EffectField = _effectFields[i];
+						
+						_world._effectFieldStack.push(ithField);
 						numPushed++;
-					}			
+					}
 				}
 			}
 			
@@ -1305,7 +1310,7 @@ package QuickB2.objects.tangibles
 		{
 			for (var i:int = 0; i < numToPop; i++) 
 			{
-				_world._effectFieldStack.pop();
+				var field:qb2EffectField = _world._effectFieldStack.pop();
 			}
 		}
 		

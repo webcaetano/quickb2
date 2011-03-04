@@ -38,7 +38,7 @@ package demos
 			var normalHeight:Number = -stageHeight / 8;
 			var inc:Number = stageWidth / 4 / 5;
 			var left:Number = -stageWidth / 8;
-			var poly:qb2PolygonShape = rectCarving.lastObject() as qb2PolygonShape;
+			/*var poly:qb2PolygonShape = rectCarving.lastObject() as qb2PolygonShape;
 			poly.getVertexAt(0).y = parHeight
 			poly.getVertexAt(1).y = parHeight;
 			poly.insertVertexAt(1,
@@ -50,7 +50,7 @@ package demos
 				new amPoint2d(left+inc*3, normalHeight),
 				new amPoint2d(left+inc*4, normalHeight),
 				new amPoint2d(left+inc * 4, parHeight)
-			);
+			);*/
 			rectCarving.position.y += 20;
 			rectCarving.position.x -= 30;
 				
@@ -69,17 +69,34 @@ package demos
 		{
 			super.update();
 			
-			updateCrosshairs();
-			
 			//--- Make this one demo's code non-selectable, cause it's just annoying.
 			CodeBlocks.singleton.currentBlock.editable = false;
 			CodeBlocks.singleton.currentBlock.selectable = false;
 		}
 		
-		public override function drawDebug(graphics:Graphics):void
+		private const CROSSHAIRS_LEAD_MULT:Number = 1;
+		
+		private function updateCrosshairs(evt:Event = null):void
 		{
-			super.drawDebug(graphics);
+			if ( _dragging )
+			{
+				_endDrag.x = _startDrag.x + (actor.mouseX - _startDrag.x) * CROSSHAIRS_LEAD_MULT;
+				_endDrag.y = _startDrag.y + (actor.mouseY - _startDrag.y) * CROSSHAIRS_LEAD_MULT;
+				crosshairs.x = _endDrag.x;
+				crosshairs.y = _endDrag.y;
+			}
+			else
+			{
+				crosshairs.x = actor.mouseX;
+				crosshairs.y = actor.mouseY;
+			}
 			
+			var graphics:Graphics = world.debugDrawContext;
+			if ( !world.running )
+			{
+				graphics.clear();
+				drawDebug(graphics);
+			}
 			if ( _dragging )
 			{
 				graphics.lineStyle(.1, 0, .75);
@@ -97,24 +114,6 @@ package demos
 				{
 					_pulses.splice(i--, 1);
 				}
-			}
-		}
-		
-		private const CROSSHAIRS_LEAD_MULT:Number = 1;
-		
-		private function updateCrosshairs():void
-		{
-			if ( _dragging )
-			{
-				_endDrag.x = _startDrag.x + (actor.mouseX - _startDrag.x) * CROSSHAIRS_LEAD_MULT;
-				_endDrag.y = _startDrag.y + (actor.mouseY - _startDrag.y) * CROSSHAIRS_LEAD_MULT;
-				crosshairs.x = _endDrag.x;
-				crosshairs.y = _endDrag.y;
-			}
-			else
-			{
-				crosshairs.x = actor.mouseX;
-				crosshairs.y = actor.mouseY;
 			}
 		}
 		
@@ -229,6 +228,8 @@ package demos
 				mouse.addEventListener(MouseEvent.MOUSE_DOWN, mouseEvent);
 				mouse.addEventListener(MouseEvent.MOUSE_UP,   mouseEvent);
 				stage.addEventListener(Event.MOUSE_LEAVE,     mouseEvent);
+				
+				this.actor.addEventListener(Event.ENTER_FRAME, updateCrosshairs);
 			}
 			else
 			{
@@ -238,6 +239,8 @@ package demos
 				mouse.removeEventListener(MouseEvent.MOUSE_UP,   mouseEvent);
 				stage.removeEventListener(Event.MOUSE_LEAVE,     mouseEvent);
 				stage.removeEventListener(MouseEvent.MOUSE_MOVE, mouseEvent);
+				
+				this.actor.removeEventListener(Event.ENTER_FRAME, updateCrosshairs);
 			}
 		}
 	}

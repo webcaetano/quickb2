@@ -10,7 +10,10 @@
 	import QuickB2.misc.*;
 	import QuickB2.objects.*;
 	import QuickB2.objects.tangibles.*;
+	import As3Math.*;
+	
 	use namespace qb2_friend;
+	use namespace am_friend;
 
 	/**
 	 * The "slice" implementation is put here so that qb2Tangible::slice() doesn't add another gagillion lines of code to an already too-long file.
@@ -44,7 +47,7 @@
 				}
 				
 				//--- Proceed down tree and continue until we find a sliceable shape.
-				//--- Ancestor containers of shapes that have IS_SLICEABLE turned off will cause the traverser the skip that branch.
+				//--- Ancestor containers of shapes that have IS_SLICEABLE turned off will cause the traverser to skip that branch.
 				//--- This means that even if a shape itself at a leaf having IS_SLICEABLE on still won't be sliced.
 				var asTang:qb2Tangible = currObject as qb2Tangible;
 				if( !asTang.isSliceFlagOn(qb2_sliceFlags.IS_SLICEABLE) )
@@ -69,10 +72,12 @@
 				var localSliceLineInf:amLine2d = new amLine2d(localSliceLineBeg, localSliceLine.point2.clone(), localSliceLine.lineType);
 				qb2InternalLineIntersectionFinder.intersectsLine(currObject as qb2Tangible, localSliceLineInf, intPoints, true);
 				
-				//--- Search for doubled points and correct their indeces.  This usually happens when a slice line encounters an internal
-				//--- seam of a polygon.  The seam, in turn, is generally caused by a partial slice into a circle or polygon.
-				if ( intPoints.length > 1 )
+				//--- Search for doubled points and either remove them or correct their indeces.  This usually happens when a slice line encounters
+				//--- internal seam of a polygon.  The seam, in turn, is generally caused by a partial slice into a circle or polygon.
+				if ( intPoints.length > 1 && (currObject is qb2PolygonShape) )
 				{
+					var verts:Vector.<amPoint2d> = (currObject as qb2PolygonShape).polygon.verts;
+					
 					for (var m:int = 0; m < intPoints.length-1; m++) 
 					{
 						var mthPoint:amPoint2d        = intPoints[m]
@@ -80,7 +85,29 @@
 						
 						if ( mthPoint.equals(mthPlusOnePoint, DIST_TOLERANCE) )
 						{
-							
+							if ( mthPoint.userData & am_intersectionFlags.CURVE_TO_POINT && mthPlusOnePoint.userData & am_intersectionFlags.CURVE_TO_POINT )
+							{
+								intPoints.splice(m, 2);
+								m -= 2;
+							}
+							else
+							{
+								var polyIndex1:uint = mthPoint.userData >> 16;
+								var polyIndex2:uint = mthPlusOnePoint.userData >> 16;
+								var vert1:amPoint2d = verts[polyIndex1];
+								var vert2:amPoint2d = verts[polyIndex2];
+								var vector:amVector2d = vert2.minus(vert1);
+								var sliceLineVec:amVector2d = localSliceLine.asVector();
+								var angle:Number = vector.clockwiseAngleTo(sliceLineVec);
+								
+								if ( angle >= 0 && angle <= AM_PI )
+								{
+									//--- Faster just to swap data rather than swapping places in the array...probably
+									var tempUserData:uint = mthPoint.userData;
+									mthPoint.userData = mthPlusOnePoint.userData;
+									mthPlusOnePoint.userData = tempUserData;
+								}
+							}
 						}
 					}
 				}

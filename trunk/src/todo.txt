@@ -21,7 +21,11 @@
 
 - make a qb2MouseEvent to wrap MouseEvent types, and also to have the stage enter/stage leave events
 
+- make laser smoother
 
+- check up on .swc exposing friends, and see if @private fixes it.
+
+- convert qb2_props.IS_KINEMATIC to qb2_prop_isKinematic
 
 
 TESTING
@@ -75,8 +79,6 @@ TESTING
 - implement get inertia for all tangibles
 
 - triangle mapping utilities of some kind
-
-- effects implementation
 
 - expose AABB query
 

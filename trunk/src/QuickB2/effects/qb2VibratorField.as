@@ -50,7 +50,7 @@ package QuickB2.effects
 		public var scaleImpulsesByMass:Boolean = true;
 		public var minImpulse:Number = 5;
 		public var maxImpulse:Number = 5;
-		public var impulseNormal:amVector2d = new amVector2d(1, 0);
+		public var vector:amVector2d = new amVector2d(1, 0);
 		public var randomizeImpulse:Boolean = false;
 		
 		private static const impulseVector:amVector2d = new amVector2d();
@@ -73,7 +73,7 @@ package QuickB2.effects
 			
 			if ( elapsed > frequencyHz )
 			{
-				impulseVector.copy(impulseNormal);
+				impulseVector.copy(vector);
 				impulseVector.scaleBy(amUtils.getRandFloat(minImpulse, maxImpulse) * sign * modifier);
 				
 				if ( randomizeImpulse )
@@ -106,7 +106,7 @@ package QuickB2.effects
 			cloned.minImpulse = this.minImpulse;
 			cloned.maxImpulse = this.maxImpulse;
 			cloned.scaleImpulsesByMass = this.scaleImpulsesByMass;
-			cloned.impulseNormal = this.impulseNormal ? this.impulseNormal.clone() : null;
+			cloned.vector = this.vector ? this.vector.clone() : null;
 			cloned.randomizeImpulse = this.randomizeImpulse;
 			
 			return cloned;

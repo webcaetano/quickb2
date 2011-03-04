@@ -161,6 +161,11 @@ package QuickB2.objects.tangibles
 			rigid_propertyChanged(propertyName); // sets body properties if this body has a b2Body
 		}
 		
+		protected override function flagsChanged(affectedFlags:uint):void
+		{
+			rigid_flagsChanged(affectedFlags); // sets body properties if this body has a b2Body
+		}
+		
 		protected override function update():void
 		{
 			var numToPop:int = pushToEffectsStack();

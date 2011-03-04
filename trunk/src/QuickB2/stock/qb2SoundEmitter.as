@@ -26,7 +26,7 @@ package QuickB2.stock
 		{
 			if ( evt.type == qb2ContainerEvent.ADDED_TO_WORLD )
 			{
-				globalSoundFieldList.unshift(evt.childObject);
+				globalSoundFieldList.unshift(evt.child);
 			}
 			else
 			{
@@ -112,21 +112,21 @@ package QuickB2.stock
 				
 				if ( continueToNext )  continue;
 
-				var soundField_inContactWithEar:Boolean = false;
+				var soundEmitter_inContactWithEar:Boolean = false;
 				for (var key:* in soundField.shapeContactList ) 
 				{
 					var shape:qb2Shape = key as qb2Shape;
 					
 					if ( shape == ear )
 					{
-						soundField_inContactWithEar = true;
+						soundEmitter_inContactWithEar = true;
 						break;
 					}
 					else if ( ear is qb2ObjectContainer )
 					{
 						if ( shape.isDescendantOf(ear as qb2ObjectContainer) )
 						{
-							soundField_inContactWithEar = true;
+							soundEmitter_inContactWithEar = true;
 							break;
 						}
 					}
@@ -244,9 +244,9 @@ package QuickB2.stock
 		
 		public override function drawDebug(graphics:Graphics):void
 		{
-			debugFillColorStack.push(qb2_debugDrawSettings.soundFieldFillColor);
+			pushDebugFillColor(qb2_debugDrawSettings.soundEmitterFillColor);
 				super.drawDebug(graphics);
-			debugFillColorStack.pop();
+			popDebugFillColor();
 			
 			if ( _horizonTang )
 			{

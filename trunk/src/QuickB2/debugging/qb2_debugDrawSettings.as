@@ -76,7 +76,7 @@ package QuickB2.debugging
 		
 		public static var terrainFillColor:uint      = 0x006600;
 		public static var tripSensorFillColor:uint   = 0x990099;
-		public static var soundFieldFillColor:uint   = 0xFFFF66;
+		public static var soundEmitterFillColor:uint   = 0xFFFF66;
 		public static var effectFieldFillColor:uint  = 0xFF6666;
 	}
 }
