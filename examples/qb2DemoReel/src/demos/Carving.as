@@ -65,15 +65,6 @@ package demos
 			addObject(carvingBlocks);
 		}
 		
-		protected override function update():void
-		{
-			super.update();
-			
-			//--- Make this one demo's code non-selectable, cause it's just annoying.
-			CodeBlocks.singleton.currentBlock.editable = false;
-			CodeBlocks.singleton.currentBlock.selectable = false;
-		}
-		
 		private const CROSSHAIRS_LEAD_MULT:Number = 1;
 		
 		private function updateCrosshairs(evt:Event = null):void

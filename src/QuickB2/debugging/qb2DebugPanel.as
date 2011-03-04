@@ -98,7 +98,7 @@ package QuickB2.debugging
 			const left:Number = 7;
 			
 			// FLAG CHECK BOXES
-			var startY:Number = 30, incY:Number = 17;
+			var startY:Number = 10, incY:Number = 17;
 			outlines = new CheckBox(this, left, startY, "Draw Lines", checkBoxChange);
 			fills = new CheckBox(this, left, outlines.y+incY, "Draw Fills", checkBoxChange);
 			verts = new CheckBox(this, left, fills.y+incY, "Draw Vertices", checkBoxChange);
@@ -122,7 +122,7 @@ package QuickB2.debugging
 			objToString[decomposition] = "decomposition";
 			
 			// SLIDERS
-			alphaSlider = new VUISlider(this, 110, 30, "Alpha", alphaChange);
+			alphaSlider = new VUISlider(this, 110, 10, "Alpha", alphaChange);
 			alphaSlider.labelPrecision = 2;
 			alphaSlider.tick = .05;
 			alphaSlider.height = 155;
@@ -159,27 +159,28 @@ package QuickB2.debugging
 			centroidRangeLabel.x = this.width / 2 - centroidRangeLabel.width / 2;
 			
 			var heightOffset:Number = -5;
+			var bottom:Number = 368;
 			polyCount = new Label(this, left, centroidRangeLabel.y + centroidRangeLabel.height + 10, "0" + polyStart);
 			circCount = new Label(this, left, polyCount.y + polyCount.height + heightOffset, "0" + circStart);
 			jointCount = new Label(this, left, circCount.y + circCount.height + heightOffset, "0" + jointStart);
-			fps = new Label(this,    left, 390, "FPS: ");
+			fps = new Label(this,    left, bottom+2, "FPS: ");
 			
 			ram = new Label(this, left, fps.y - fps.height-heightOffset, "RAM: ");
 			//fps.y = this.height - fps.height;
 			
-			pausePlay = new PushButton(this, 0, 390, "Pause", buttonPushed);
+			pausePlay = new PushButton(this, 0, bottom, "Pause", buttonPushed);
 			pausePlay.width *= .5;
-			pausePlay.x = this.width - pausePlay.width - 5;
+			pausePlay.x = this.width - pausePlay.width - left;
 			
-			stepButton = new PushButton(this, 0, 390, "Step", buttonPushed);
+			stepButton = new PushButton(this, 0, bottom, "Step", buttonPushed);
 			stepButton.width *= .5;
 			stepButton.x = pausePlay.x;
-			stepButton.y = pausePlay.y - stepButton.height - 5;
+			stepButton.y = pausePlay.y - stepButton.height - left;
 			
 			logo.addChild(logoBitmap);
 			//logo.scaleX = logo.scaleY = .5;
 			logo.x = stepButton.x + stepButton.width / 2 - logo.width / 2;
-			logo.y = stepButton.y - logo.height - 10;
+			logo.y = stepButton.y - logo.height - 7;
 			addChild(logo);
 			logo.buttonMode = true;
 			logo.mouseChildren = false;

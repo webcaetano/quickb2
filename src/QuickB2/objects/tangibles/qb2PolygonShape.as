@@ -602,13 +602,16 @@ package QuickB2.objects.tangibles
 				
 				if ( drawVertices && numVerts )
 				{
-					///graphics.lineStyle(qb2_debugDrawSettings.lineThickness, debugOutlineColor, qb2_debugDrawSettings.outlineAlpha);
+					graphics.lineStyle();
+					graphics.beginFill(0, 1);
 					
 					for (var i:int = 0; i < numVerts; i++) 
 					{
 						var vertex:amPoint2d = (_parent is qb2Body ) ? (_parent as qb2Body ).getWorldPoint(getVertexAt(i)) : getVertexAt(i);
-						vertex.draw(graphics, qb2_debugDrawSettings.pointRadius, true);
+						vertex.draw(graphics, qb2_debugDrawSettings.pointRadius, false);
 					}
+					
+					graphics.endFill();
 				}
 			}
 			

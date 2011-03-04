@@ -13,8 +13,6 @@
 
 - have a isTouching type function
 
-- change how booleans for joints are handled in applyTag thing now that the components have been changed to default, false, true, and add optimizedSpring thing too and isRope
-
 - have one click build for all .swc and documentation builds...maybe examples too.
 
 - upgrade to latest min comps
