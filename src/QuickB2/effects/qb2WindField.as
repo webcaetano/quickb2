@@ -37,40 +37,58 @@ package QuickB2.effects
 		 * The wind direction and speed.
 		 * @default zero-length vector.
 		 */
-		public var windVector:amVector2d = new amVector2d();
+		public var vector:amVector2d = new amVector2d();
 		
 		/**
-		 * Basically dictates how strong the wind is.
+		 * If true, even a zero-length wind vector will make this field apply forces if an object is moving relative to the "air" and airDensity is > 0.
+		 * This is the most realistic way to simulate things, but for a game it can make your object look "floaty".  Keeping this false will only apply
+		 * forces in the direction of the wind vector.  
+		 */
+		public var simulateDrag:Boolean = false;
+		
+		/**
+		 * Basically affects how strong the wind is.
 		 */
 		public var airDensity:Number = 1;
 		
-		private var forceVec:amVector2d = new amVector2d();
+		private var utilVec:amVector2d = new amVector2d();
 		
 		public override function applyToRigid(rigid:qb2IRigidObject):void
 		{
-			var worldVel:amVector2d = rigid.getLinearVelocityAtPoint(rigid.centerOfMass);
+			var rigidWorldVel:amVector2d = rigid.getLinearVelocityAtPoint(rigid.centerOfMass);
 			
-			if ( !worldVel.lengthSquared )
+			if ( simulateDrag )
 			{
-				forceVec.copy(windVector).scaleBy(airDensity);
+				utilVec.copy(vector);
+				
+				var relToAir:amVector2d = utilVec.subtract(rigidWorldVel);
+				
+				utilVec.copy(relToAir.square().scaleBy(.5 * airDensity));
 			}
 			else
 			{
-				forceVec.copy(windVector).normalize();
-				var dot:Number = worldVel.dotProduct(forceVec);
-				var worldVelProjection:amVector2d = forceVec.scaledBy(dot);
-				forceVec.copy(windVector);
-				forceVec.subtract(worldVelProjection);
-				forceVec.scaleBy(airDensity);
+				if ( !rigidWorldVel.lengthSquared )
+				{
+					utilVec.copy(vector).scaleBy(airDensity);
+				}
+				else
+				{
+					utilVec.copy(vector).normalize();
+					var dot:Number = rigidWorldVel.dotProduct(utilVec);
+					var worldVelProjection:amVector2d = utilVec.scaledBy(dot);
+					utilVec.copy(vector);
+					utilVec.subtract(worldVelProjection);
+					utilVec.scaleBy(airDensity);
+				}
 			}
 			
 			if ( rigid.ancestorBody )
 			{
-				rigid.ancestorBody.applyForce(rigid.parent.getWorldPoint(rigid.centerOfMass), forceVec);
+				rigid.ancestorBody.applyForce(rigid.parent.getWorldPoint(rigid.centerOfMass), utilVec);
 			}
 			else
 			{
-				rigid.applyForce(rigid.centerOfMass, forceVec);
+				rigid.applyForce(rigid.centerOfMass, utilVec);
 			}
 		}
 		
@@ -78,8 +96,9 @@ package QuickB2.effects
 		{
 			var cloned:qb2WindField = super.clone() as qb2WindField;
 			
-			cloned.windVector.copy(this.windVector);
+			cloned.vector.copy(this.vector);
 			cloned.airDensity = this.airDensity;
+			cloned.simulateDrag = this.simulateDrag;
 			
 			return cloned;
 		}

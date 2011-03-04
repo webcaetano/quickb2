@@ -50,7 +50,7 @@
 		//--- All the demo classes to cycle through.
 		private static const demoClasses:Vector.<Class> = Vector.<Class>
 		([
-			/*Carving, */StockSofts, CarDriving, RigidCar, JelloCar, StockRigids, StressTest,
+			Carving, StockSofts, CarDriving, RigidCar, JelloCar, StockRigids, StressTest,
 			EffectFields, Planets, BubblePop, Cup, Actors, ShapeTransformation, Drawing, Joints, Distance
 		]);
 		

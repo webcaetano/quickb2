@@ -115,7 +115,7 @@ package QuickB2.objects.tangibles
 		{
 			b2Base.initialize(true);
 			
-			b2World.defaultContactListener = qb2InternalContactListener;
+			b2World.defaultContactListener     = qb2InternalContactListener;
 			b2World.defaultDestructionListener = qb2InternalDestructionListener;
 			_worldB2 = new b2World(new V2(), true);
 			_world = this;

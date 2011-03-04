@@ -33,17 +33,17 @@ package QuickB2.effects
 	 */
 	public class qb2GravityField extends qb2EffectField
 	{
-		public var gravityVector:amVector2d = new amVector2d();
+		public var vector:amVector2d = new amVector2d();
 		
 		public override function applyToRigid(rigid:qb2IRigidObject):void
 		{
 			if ( rigid.ancestorBody )
 			{
-				rigid.ancestorBody.applyForce(rigid.parent.getWorldPoint(rigid.centerOfMass), gravityVector.scaledBy(rigid.mass));
+				rigid.ancestorBody.applyForce(rigid.parent.getWorldPoint(rigid.centerOfMass), vector.scaledBy(rigid.mass));
 			}
 			else
 			{
-				rigid.applyForce(rigid.centerOfMass, gravityVector.scaledBy(rigid.mass));
+				rigid.applyForce(rigid.centerOfMass, vector.scaledBy(rigid.mass));
 			}
 		}
 		
@@ -51,7 +51,7 @@ package QuickB2.effects
 		{
 			var cloned:qb2GravityField = super.clone() as qb2GravityField;
 			
-			cloned.gravityVector.copy(this.gravityVector);
+			cloned.vector.copy(this.vector);
 			
 			return cloned;
 		}

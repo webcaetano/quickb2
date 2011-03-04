@@ -66,13 +66,7 @@ package QuickB2.objects.tangibles
 			
 			var newCircleShape:qb2CircleShape = super.clone() as qb2CircleShape;
 			newCircleShape.set(_position.clone(), _radius, _rotation);
-			newCircleShape.copyTangibleProps(this);
 
-			if ( actorToo && actor )
-			{
-				newCircleShape.actor = cloneActor();
-			}
-			
 			return newCircleShape;
 		}
 		

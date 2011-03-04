@@ -178,6 +178,8 @@ package QuickB2.objects.tangibles
 		{
 			if ( !this.fixtures.length )  return;
 			
+			rigid_flagsChanged(affectedFlags);
+			
 			if ( affectedFlags & qb2_flags.IS_GHOST )
 			{
 				var isAGhost:Boolean = isGhost;

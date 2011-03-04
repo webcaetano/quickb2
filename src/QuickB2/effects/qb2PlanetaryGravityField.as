@@ -26,7 +26,6 @@ package QuickB2.effects
 	import As3Math.geo2d.amPoint2d;
 	import As3Math.geo2d.amVector2d;
 	import Box2DAS.Common.V2;
-	import com.greensock.loading.core.DisplayObjectLoader;
 	import flash.utils.Dictionary;
 	import QuickB2.debugging.*;
 	import QuickB2.events.qb2UpdateEvent;

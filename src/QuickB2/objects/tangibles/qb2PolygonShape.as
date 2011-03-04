@@ -240,13 +240,7 @@ package QuickB2.objects.tangibles
 			var newPolyShape:qb2PolygonShape = super.clone() as qb2PolygonShape;
 			newPolyShape.set(polygon.asPoints(), _position.clone());
 			newPolyShape._rotation = this._rotation;
-			newPolyShape.copyTangibleProps(this);
 			newPolyShape._closed = this._closed;
-			
-			if ( actorToo && actor )
-			{
-				newPolyShape.actor = cloneActor();
-			}
 			
 			return newPolyShape;
 		}

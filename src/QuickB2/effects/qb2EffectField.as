@@ -73,7 +73,7 @@ package QuickB2.effects
 					utilTraverser.next(false);
 					continue;
 				}
-				else if ( isDisabledForInstance(currObject as qb2Tangible) )
+				else if ( isDisabledFor(currObject as qb2Tangible) )
 				{
 					utilTraverser.next(false);
 					continue;
@@ -112,7 +112,7 @@ package QuickB2.effects
 			{
 				var rigid:qb2IRigidObject = key as qb2IRigidObject;
 				
-				if ( !this.isDisabledForInstance(rigid as qb2Tangible) )
+				if ( !this.isDisabledFor(rigid as qb2Tangible, true) )
 				{
 					this.applyToRigid(rigid);
 				}
@@ -158,86 +158,107 @@ package QuickB2.effects
 		
 		private static const WEAK_KEYS:Boolean = true;
 		
-		public function disableForType(type:Class):void
+		public function disableFor(instanceOrClass:*):void
 		{
-			typeFilter = typeFilter ? typeFilter : new Dictionary(WEAK_KEYS);
-			typeFilter[type] = false;
-		}
-		
-		public function enableForType(type:Class):void
-		{
-			if ( !typeFilter )  return;
-			
-			if ( typeFilter[type] )
+			if ( instanceOrClass is Class )
 			{
-				delete typeFilter[type];
+				typeFilter = typeFilter ? typeFilter : new Dictionary(WEAK_KEYS);
+				typeFilter[instanceOrClass] = true;
+			}
+			else
+			{
+				instanceFilter = instanceFilter ? instanceFilter : new Dictionary(WEAK_KEYS);
+				instanceFilter[instanceOrClass] = true;
 			}
 		}
 		
-		public function disableForInstance(object:qb2Tangible):void
+		public function enableFor(instanceOrClass:*):void
 		{
-			instanceFilter = instanceFilter ? instanceFilter : new Dictionary(WEAK_KEYS);
-			instanceFilter[object] = false;
-		}
-		
-		public function enableForInstance(object:qb2Tangible):void
-		{
-			instanceFilter = instanceFilter ? instanceFilter : new Dictionary(WEAK_KEYS);
-			instanceFilter[object] = true;
-		}
-		
-		public final function isDisabledForInstance(toObject:qb2Tangible):Boolean
-		{
-			if ( instanceFilter && instanceFilter[toObject] )
+			if ( instanceOrClass is Class )
 			{
-				return instanceFilter[toObject];
-			}
-			
-			if ( typeFilter )
-			{
-				for ( var key:* in typeFilter )
+				if ( !typeFilter )  return;
+				
+				if ( typeFilter[instanceOrClass] )
 				{
-					if ( toObject is (key as Class) )
-					{
-						return typeFilter[key] as Boolean;
-					}
+					delete typeFilter[instanceOrClass];
 				}
 			}
+			else
+			{
+				instanceFilter = instanceFilter ? instanceFilter : new Dictionary(WEAK_KEYS);
+				instanceFilter[instanceOrClass] = false;
+			}
+		}
+		
+		public final function isDisabledFor(tang:qb2Tangible, checkAncestry:Boolean = true):Boolean
+		{
+			if ( !instanceFilter && !typeFilter )  return false;
+			
+			var currObject:qb2Tangible = tang;
+			do
+			{
+				if ( instanceFilter && instanceFilter[currObject] != null )
+				{
+					return instanceFilter[currObject] as Boolean;
+				}
+				
+				if ( typeFilter )
+				{
+					for ( var key:* in typeFilter )
+					{
+						if ( currObject is (key as Class) )
+						{
+							return typeFilter[key] as Boolean
+						}
+					}
+				}
+				
+				currObject = currObject.parent;
+			}
+			while (checkAncestry && currObject)
 			
 			return false;
+		}
+		
+		private function addSelfToSystem():void
+		{
+			if ( parent && world )
+			{
+				parent._effectFields = parent._effectFields ? parent._effectFields : new Vector.<qb2EffectField>();
+				parent._effectFields.push(this);
+			}
+		}
+		
+		private function removeSelfFromSystem(thisParent:qb2ObjectContainer, thisWorld:qb2World):void
+		{
+			if ( !thisParent )  return;
+			
+			if ( thisParent._effectFields )
+			{
+				var index:int = thisParent._effectFields.indexOf(this);
+				
+				if ( index >= 0 )
+				{
+					thisParent._effectFields.splice(index, 1);
+				}
+			}
 		}
 		
 		private function addedOrRemoved(evt:qb2ContainerEvent):void
 		{
 			if ( evt.type == qb2ContainerEvent.ADDED_TO_WORLD )
 			{
-				parent._effectFields = parent._effectFields ? parent._effectFields : new Vector.<qb2EffectField>();
-				parent._effectFields.push(this);
+				addSelfToSystem();
 			}
 			else
 			{
-				if ( parent._effectFields )
-				{
-					var index:int = parent._effectFields.indexOf(this);
-					
-					if ( index >= 0 )
-					{
-						parent._effectFields.splice(index, 1);
-					}
-				}
+				removeSelfFromSystem(parent ? parent : evt.ancestor, evt.ancestor.world);
 			}
 		}
-		
-		/*public function get ubiquitous():Boolean
-			{  return _shapeCount ? false : true;  }*/
 			
 		private function addContainerEventListeners():void
 		{
-			if ( parent  )
-			{
-				parent._effectFields = parent._effectFields ? parent._effectFields : new Vector.<qb2EffectField>();
-				parent._effectFields.push(this);
-			}
+			addSelfToSystem();
 			
 			addEventListener(qb2ContainerEvent.ADDED_TO_WORLD,            addedOrRemoved,  false, 0, true);
 			addEventListener(qb2ContainerEvent.REMOVED_FROM_WORLD,        addedOrRemoved,  false, 0, true);
@@ -245,17 +266,7 @@ package QuickB2.effects
 		
 		private function removeContainerEventListeners():void
 		{
-			if ( parent )
-			{
-				if ( parent._effectFields )
-				{
-					var index:int = parent._effectFields.indexOf(this);
-					if ( index >= 0 )
-					{
-						parent._effectFields.splice(index, 1);
-					}
-				}
-			}
+			removeSelfFromSystem(parent, world);
 			
 			removeEventListener(qb2ContainerEvent.ADDED_TO_WORLD,            addedOrRemoved,  false);
 			removeEventListener(qb2ContainerEvent.REMOVED_FROM_WORLD,        addedOrRemoved,  false);

@@ -71,7 +71,7 @@
   </compileTargets>
   <!-- Paths to exclude from the Project Explorer tree -->
   <hiddenPaths>
-    <!-- example: <hidden path="..." /> -->
+    <hidden path="..\..\..\src\Box2D\Box2DAS\achacks.as" />
   </hiddenPaths>
   <!-- Executed before build -->
   <preBuildCommand />

@@ -34,7 +34,7 @@ package demos
 			var gravField:qb2GravityField = new qb2GravityField();
 			gravField.position.set(stageWidth / 4, stageHeight / 4);
 			gravField.addObject(qb2Stock.newRectBody(new amPoint2d(), fieldWidth, fieldHeight));
-			gravField.gravityVector.y = -10;
+			gravField.vector.y = -10;
 			
 			//--- Edit the field's geometry a bit to make it into a bow tie shape.
 			//--- All the other fields will use a clone of this geometry as well.
@@ -58,13 +58,13 @@ package demos
 			var windField:qb2WindField = new qb2WindField();
 			windField.position.set(stageWidth / 4, stageHeight * .75);
 			windField.addObject(gravField.lastObject().clone());
-			windField.windVector.set( -5, 0);
+			windField.vector.set( -5, 0);
 			windField.airDensity = 2;
 			
 			//--- Another linear gravity field, but notice how the vibrator and wind fields are added to this field.
 			//--- This effectively stacks the fields, conveniently giving the vibrator/wind fields gravity also.
 			var anotherGravField:qb2GravityField = new qb2GravityField();
-			anotherGravField.gravityVector.y = 10;
+			anotherGravField.vector.y = 10;
 			anotherGravField.addObject(vibratorField);
 			anotherGravField.addObject(windField);
 			addObject(anotherGravField);

@@ -64,10 +64,11 @@ package QuickB2.objects.tangibles
 			var deep:Boolean = true;
 			
 			var newContainer:qb2ObjectContainer = super.clone() as qb2ObjectContainer;
-			newContainer.removeAllObjects(); // in case the constructor adds some objects.
+			newContainer.removeAllObjects(); // in case the constructor adds some objects, which it generally shouldn't, but you never know.
 			if ( newContainer is qb2Body )
+			{
 				(newContainer as qb2Body).setTransform(_position.clone(), _rotation);
-			newContainer.copyTangibleProps(this);
+			}
 			
 			var deepCloneBit:uint = qb2_flags.JOINS_IN_DEEP_CLONING;
 			
@@ -146,12 +147,7 @@ package QuickB2.objects.tangibles
 					baseClone_rigids = null;
 				}
 			}
-			
-			if ( actorToo && actor )
-			{
-				newContainer.actor = cloneActor();
-			}
-			
+
 			return newContainer;
 		}
 		
