@@ -44,20 +44,20 @@ package
 			dataLoader.addEventListener(LoaderEvent.IO_ERROR, ioError);
 			dataLoader.load();
 			
-			this._tf.styleSheet = null;
+			//this._tf.styleSheet = null;
 		}
 		
 		private function ioError(evt:Event):void
 		{
-			// blah;
+			// this is just here to prevent erros from popping up
 		}
 		
 		private var _geshi:GeshiThing;
 		
 		private function completed(evt:Event):void
 		{
-			//selectable = false;
-			editable = true;
+			selectable = false;
+			editable = false;
 			
 			var dataLoader:DataLoader = evt.currentTarget as DataLoader;
 			dataLoader.removeEventListener(LoaderEvent.COMPLETE, completed);
@@ -77,10 +77,10 @@ package
 		{
 			_geshi.removeEventListener(GeshiThing.SOURCE_LOADED, prettified);
 			
-			html = true;
-			this.text = _geshi.htmlText;
-			this.draw();
+			//html = true;
 			this._tf.styleSheet = _geshi.styleSheet;
+			this._tf.htmlText = _geshi.htmlText;
+			//this.draw();
 		}
 		
 		protected override function onMouseWheel(event:MouseEvent):void
