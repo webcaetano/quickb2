@@ -533,9 +533,14 @@ package QuickB2.objects.tangibles
 			return super.removeObject(object);
 		}
 		
-		public override function clone():qb2Object
+		public override function cloneShallow():qb2Object
 		{
-			throw new Error("A qb2World cannot be cloned.");
+			throw qb2_errors.CLONE_ERROR;
+		}
+		
+		public override function cloneDeep():qb2Object
+		{
+			throw qb2_errors.CLONE_ERROR;
 		}
 		
 		qb2_friend const _effectFieldStack:Vector.<qb2EffectField> = new Vector.<qb2EffectField>();

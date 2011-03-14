@@ -55,10 +55,20 @@ package QuickB2.stock
 			upperLimit =  RAD_10;
 		}
 		
-		public override function clone():qb2Object
+		public override function cloneShallow():qb2Object
 		{
+			var jelloPoly:qb2SoftPoly = super.cloneShallow() as qb2SoftPoly;
+			
+			jelloPoly.drawSplinarOutlines = this.drawSplinarOutlines;
+			
+			return jelloPoly;
+		}
+		
+		public override function cloneDeep():qb2Object
+		{
+			var jelloPoly:qb2SoftPoly = super.cloneDeep() as qb2SoftPoly;
+			
 			//--- Here we have to make sure to populate the shapes array so that the draw function has something to go off of.
-			var jelloPoly:qb2SoftPoly = super.clone() as qb2SoftPoly;
 			var numObjects:uint = jelloPoly.numObjects;
 			for (var i:int = 0; i < numObjects; i++)
 			{
@@ -71,7 +81,6 @@ package QuickB2.stock
 			jelloPoly._isCircle    = this._isCircle;
 			jelloPoly._numVertices = this._numVertices;
 			jelloPoly._subdivision = this._subdivision;
-			jelloPoly.drawSplinarOutlines = this.drawSplinarOutlines;
 			
 			return jelloPoly;
 		}
@@ -331,9 +340,10 @@ package QuickB2.stock
 			if ( !revJoints.length )  return;
 			
 			var drawFlags:uint = qb2_debugDrawSettings.flags;
-			var drawDecomp:Boolean = drawFlags & qb2_debugDrawFlags.DECOMPOSITION ? true : false;
-			var drawOutlines:Boolean = drawFlags & qb2_debugDrawFlags.OUTLINES ? true : false;
-			var drawFills:Boolean = drawFlags & qb2_debugDrawFlags.FILLS ? true : false;
+			var drawDecomp:Boolean   = drawFlags & qb2_debugDrawFlags.DECOMPOSITION ? true : false;
+			var drawOutlines:Boolean = drawFlags & qb2_debugDrawFlags.OUTLINES ?      true : false;
+			var drawFills:Boolean    = drawFlags & qb2_debugDrawFlags.FILLS ?         true : false;
+			var drawVerts:Boolean    = drawFlags & qb2_debugDrawFlags.VERTICES ?      true : false;
 
 			if ( drawOutlines || drawFills )
 			{
@@ -346,6 +356,21 @@ package QuickB2.stock
 					graphics.beginFill(debugFillColor, qb2_debugDrawSettings.fillAlpha);
 					
 				draw(graphics);
+				
+				graphics.endFill();
+			}
+			
+			if ( drawVerts && !_isCircle )
+			{
+				graphics.lineStyle();
+				graphics.beginFill(qb2_debugDrawSettings.vertexColor, qb2_debugDrawSettings.vertexAlpha);
+					
+				var numJoints:int = revJoints.length / _subdivision;
+				for (var i:int = 0; i < numJoints; i++) 
+				{
+					var worldPoint:amPoint2d = revJoints[i*_subdivision].getWorldAnchor();
+					worldPoint.draw(graphics, qb2_debugDrawSettings.pointRadius, false);
+				}
 				
 				graphics.endFill();
 			}
@@ -365,7 +390,7 @@ package QuickB2.stock
 					];
 					
 					var fourth:int = revJoints.length / 4;
-					for (var i:int = 0; i < spokeFlags.length; i++) 
+					for ( i = 0; i < spokeFlags.length; i++) 
 					{
 						if ( drawFlags & spokeFlags[i] )
 						{

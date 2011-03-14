@@ -160,9 +160,9 @@ package QuickB2.objects.joints
 		private function get joint():b2WeldJoint
 			{  return jointB2 ? jointB2 as b2WeldJoint : null;  }
 			
-		public override function clone():qb2Object
+		public override function cloneShallow():qb2Object
 		{
-			var weldJoint:qb2WeldJoint = super.clone() as qb2WeldJoint;
+			var weldJoint:qb2WeldJoint = super.cloneShallow() as qb2WeldJoint;
 			
 			weldJoint._localAnchor1._x = this._localAnchor1._x;
 			weldJoint._localAnchor1._y = this._localAnchor1._y;

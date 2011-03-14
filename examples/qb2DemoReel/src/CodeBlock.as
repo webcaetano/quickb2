@@ -83,6 +83,16 @@ package
 			//this.draw();
 		}
 		
+		public override function draw():void
+		{
+			var ss:StyleSheet = this._tf.styleSheet;
+			this._tf.styleSheet = null;
+			
+			super.draw();
+			
+			this._tf.styleSheet = ss;
+		}
+		
 		protected override function onMouseWheel(event:MouseEvent):void
 		{
 			super.onMouseWheel(event);

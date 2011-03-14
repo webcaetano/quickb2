@@ -60,9 +60,9 @@ package TopDown.carparts
 		
 		td_friend var _carBody:tdCarBody;
 		
-		public override function clone():qb2Object
+		public override function cloneShallow():qb2Object
 		{
-			var tranny:tdTransmission = super.clone() as tdTransmission;
+			var tranny:tdTransmission = super.cloneShallow() as tdTransmission;
 			
 			tranny.torqueConversion = torqueConversion;
 			tranny.differential = differential;

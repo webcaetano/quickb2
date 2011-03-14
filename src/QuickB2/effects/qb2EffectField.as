@@ -394,9 +394,9 @@ package QuickB2.effects
 		
 		private static var utilTraverser:qb2TreeTraverser = new qb2TreeTraverser();
 		
-		public override function clone():qb2Object
+		public override function cloneShallow():qb2Object
 		{
-			var cloned:qb2EffectField = super.clone() as qb2EffectField;
+			var cloned:qb2EffectField = super.cloneShallow() as qb2EffectField;
 			
 			cloned.applyPerShape = this.applyPerShape;
 			

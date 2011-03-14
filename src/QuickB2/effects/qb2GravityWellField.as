@@ -78,9 +78,9 @@ package QuickB2.effects
 			}
 		}
 		
-		public override function clone():qb2Object
+		public override function cloneShallow():qb2Object
 		{
-			var cloned:qb2GravityWellField = super.clone() as qb2GravityWellField;
+			var cloned:qb2GravityWellField = super.cloneShallow() as qb2GravityWellField;
 			
 			cloned.gravConstant = this.gravConstant;
 			cloned.minHorizon   = this.minHorizon;

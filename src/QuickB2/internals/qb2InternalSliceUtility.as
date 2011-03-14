@@ -295,6 +295,11 @@
 									}
 								}
 								
+								if ( flipPoints )
+								{
+									break;
+								}
+								
 								numSteps++;
 							}
 							
@@ -425,6 +430,7 @@
 			for (var i:int = 0; i < editArray.length; i++) 
 			{
 				var ithIndex:int = editArray[i] is int ? editArray[i] as int : (editArray[i] as amPoint2d).userData as int;
+				
 				if ( index < ithIndex )
 				{
 					editArray.splice(i, 0, point ? point : index);

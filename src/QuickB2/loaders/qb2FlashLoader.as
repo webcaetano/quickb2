@@ -84,7 +84,7 @@ package QuickB2.loaders
 				{
 					_loadingInProgress = false;
 					var cachedObject:qb2Object = cache[newSource] as qb2Object;
-					var clone:qb2Object = cachedObject is qb2Joint ? (cachedObject as qb2Joint).clone() : (cachedObject as qb2Tangible).clone();
+					var clone:qb2Object = cachedObject is qb2Joint ? (cachedObject as qb2Joint).cloneDeep() : (cachedObject as qb2Tangible).cloneDeep();
 					finishObject(clone);
 					return clone;
 				}
@@ -461,7 +461,7 @@ package QuickB2.loaders
 			if ( newSource is Class )
 			{
 				//--- Object is now cached, meaning further calls to loadObject from any qb2FlashLoader instance using the same Class as the source will be much more efficient.
-				cache[newSource] = returnObject is qb2Joint ? (returnObject as qb2Joint).clone() : (returnObject as qb2Tangible).clone();
+				cache[newSource] = returnObject is qb2Joint ? (returnObject as qb2Joint).cloneDeep() : (returnObject as qb2Tangible).cloneDeep();
 			}
 			
 			proxyDict = null;

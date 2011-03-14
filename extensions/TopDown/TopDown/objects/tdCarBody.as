@@ -121,9 +121,9 @@ package TopDown.objects
 			}
 		}
 		
-		public override function clone():qb2Object
+		public override function cloneShallow():qb2Object
 		{
-			var cloned:tdCarBody = super.clone() as tdCarBody;
+			var cloned:tdCarBody = super.cloneShallow() as tdCarBody;
 			
 			cloned.parked = this.parked;
 			cloned.maxTurnAngle = this.maxTurnAngle;

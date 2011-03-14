@@ -106,9 +106,9 @@ package QuickB2.stock
 			}
 		}
 		
-		public override function clone():qb2Object
+		public override function cloneShallow():qb2Object
 		{
-			var cloned:qb2FollowBody = super.clone() as qb2FollowBody;
+			var cloned:qb2FollowBody = super.cloneShallow() as qb2FollowBody;
 			
 			cloned.targetPoint = this.targetPoint ? this.targetPoint.clone() : null;
 			cloned.targetRotation = this.targetRotation;

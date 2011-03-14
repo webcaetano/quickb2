@@ -100,7 +100,7 @@ package QuickB2.objects.tangibles
 			if ( (this as Object).constructor == qb2Tangible )  throw qb2_errors.ABSTRACT_CLASS_ERROR;
 			
 			//--- Set up default values for various properties.
-			turnFlagOn(qb2_flags.IS_DEBUG_DRAGGABLE | qb2_flags.ALLOW_SLEEPING, false);
+			turnFlagOn(qb2_flags.IS_DEBUG_DRAGGABLE | qb2_flags.ALLOW_SLEEPING | qb2_flags.ALLOW_COMPLEX_POLYGONS, false);
 			setProperty(qb2_props.CONTACT_CATEGORY_FLAGS, 0x0001 as uint, false);
 			setProperty(qb2_props.CONTACT_MASK_FLAGS,     0xFFFF as uint, false);
 			setProperty(qb2_props.FRICTION,              .2,              false);
@@ -290,11 +290,19 @@ package QuickB2.objects.tangibles
 		}
 		qb2_friend var _actor:DisplayObject;
 		
-		public override function clone():qb2Object
+		public override function cloneShallow():qb2Object
 		{
-			var cloned:qb2Tangible = super.clone() as qb2Tangible;
+			var cloned:qb2Tangible = super.cloneShallow() as qb2Tangible;
 			
 			cloned.copyTangibleProps(this);
+			
+			return cloned;
+		}
+		
+		public override function cloneDeep():qb2Object
+		{
+			var cloned:qb2Tangible = super.cloneDeep() as qb2Tangible;
+			
 			if ( actor )
 			{
 				cloned.actor = cloneActor();
@@ -661,6 +669,16 @@ package QuickB2.objects.tangibles
 				turnFlagOn(qb2_flags.HAS_FIXED_ROTATION);
 			else
 				turnFlagOff(qb2_flags.HAS_FIXED_ROTATION);
+		}
+		
+		public function get allowComplexPolygons():Boolean
+			{  return _flags & qb2_flags.ALLOW_COMPLEX_POLYGONS ? true : false;  }
+		public function set allowComplexPolygons(bool:Boolean):void
+		{
+			if ( bool )
+				turnFlagOn(qb2_flags.ALLOW_COMPLEX_POLYGONS);
+			else
+				turnFlagOff(qb2_flags.ALLOW_COMPLEX_POLYGONS);
 		}
 		
 		public function get isBullet():Boolean

@@ -108,9 +108,9 @@ package QuickB2.effects
 			accumArray.push(rigid);
 		}
 		
-		public override function clone():qb2Object
+		public override function cloneShallow():qb2Object
 		{
-			var cloned:qb2PlanetaryGravityField = super.clone() as qb2PlanetaryGravityField;
+			var cloned:qb2PlanetaryGravityField = super.cloneShallow() as qb2PlanetaryGravityField;
 			
 			cloned.gravConstant = this.gravConstant;	
 			

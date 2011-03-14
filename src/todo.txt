@@ -15,8 +15,6 @@
 
 - have one click build for all .swc and documentation builds...maybe examples too.
 
-- upgrade to latest min comps
-
 - make a qb2MouseEvent to wrap MouseEvent types, and also to have the stage enter/stage leave events
 
 - make laser smoother
