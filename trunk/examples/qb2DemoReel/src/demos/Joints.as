@@ -39,7 +39,7 @@ package demos
 			
 			//--- Make a spring that attaches two rectangles and syncs their rotations.
 			rect1 = qb2Stock.newRectShape(new amPoint2d(currX, currY + jointLengths / 2), rectWidth, rectHeight, 1);
-			rect2 = rect1.clone() as qb2PolygonShape;
+			rect2 = rect1.cloneDeep() as qb2PolygonShape;
 			rect2.position.y -= jointLengths;
 			var pistonJoint:qb2PistonJoint = new qb2PistonJoint(rect1, rect2);
 			pistonJoint.springK = 30;
@@ -50,11 +50,11 @@ package demos
 			//--- Make an identical spring, but one that lets the second object spin freely
 			//--- This is like b2LineJoint in Box2D, but wrapped into one joint with a simple flag.
 			currX += incX;
-			rect1 = rect1.clone() as qb2PolygonShape;
-			rect2 = rect2.clone() as qb2PolygonShape;
+			rect1 = rect1.cloneDeep() as qb2PolygonShape;
+			rect2 = rect2.cloneDeep() as qb2PolygonShape;
 			rect1.position.x = currX;
 			rect2.position.x = currX;
-			pistonJoint = pistonJoint.clone() as qb2PistonJoint;
+			pistonJoint = pistonJoint.cloneDeep() as qb2PistonJoint;
 			pistonJoint.object1 = rect1;
 			pistonJoint.object2 = rect2;
 			pistonJoint.freeRotation = true;  // b2LineJoint with one line of code!
@@ -62,8 +62,8 @@ package demos
 			
 			//--- A distance joint keeps two objects a certain distance apart.
 			currX += incX;
-			rect1 = rect1.clone() as qb2PolygonShape;
-			rect2 = rect2.clone() as qb2PolygonShape;
+			rect1 = rect1.cloneDeep() as qb2PolygonShape;
+			rect2 = rect2.cloneDeep() as qb2PolygonShape;
 			rect1.position.x = currX;
 			rect2.position.x = currX;
 			var distanceJoint:qb2DistanceJoint = new qb2DistanceJoint(rect1, rect2);
@@ -72,11 +72,11 @@ package demos
 			//--- A distance joint can also be configured to not have a minimum constraint.
 			//--- This is like b2RopeJoint in Box2D, which is here toggled with a flag.
 			currX += incX;
-			rect1 = rect1.clone() as qb2PolygonShape;
-			rect2 = rect2.clone() as qb2PolygonShape;
+			rect1 = rect1.cloneDeep() as qb2PolygonShape;
+			rect2 = rect2.cloneDeep() as qb2PolygonShape;
 			rect1.position.x = currX;
 			rect2.position.x = currX;
-			distanceJoint = distanceJoint.clone() as qb2DistanceJoint;
+			distanceJoint = distanceJoint.cloneDeep() as qb2DistanceJoint;
 			distanceJoint.object1 = rect1;
 			distanceJoint.object2 = rect2;
 			distanceJoint.isRope = true;  // like b2RopeJoint.
@@ -87,8 +87,8 @@ package demos
 			currY += incY;
 			
 			//--- A revolute joint can be used for things like axels, motors, and angular springs.
-			rect1 = rect1.clone() as qb2PolygonShape;
-			rect2 = rect2.clone() as qb2PolygonShape;
+			rect1 = rect1.cloneDeep() as qb2PolygonShape;
+			rect2 = rect2.cloneDeep() as qb2PolygonShape;
 			rect1.position.set(currX, currY);
 			rect2.position.set(currX, currY-jointLengths/2);
 			var revJoint:qb2RevoluteJoint = new qb2RevoluteJoint(rect1, rect2);
@@ -98,8 +98,8 @@ package demos
 			
 			//--- Weld joint is pretty basic, just fixes two objects together as tight as possible.
 			currX += incX;
-			rect1 = rect1.clone() as qb2PolygonShape;
-			rect2 = rect2.clone() as qb2PolygonShape;
+			rect1 = rect1.cloneDeep() as qb2PolygonShape;
+			rect2 = rect2.cloneDeep() as qb2PolygonShape;
 			rect1.position.set(currX-rectWidth/2, currY-rectHeight/2);
 			rect2.position.set(currX+rectWidth/2, currY+rectHeight/2);
 			var weldJoint:qb2WeldJoint = new qb2WeldJoint(rect1, rect2, new amPoint2d(currX, currY));
@@ -109,7 +109,7 @@ package demos
 			currX += incX;
 			mouseJointCenter = new amPoint2d(currX, currY);
 			mouseJointTarget = new amPoint2d(currX, currY - jointLengths);
-			rect1 = rect1.clone() as qb2PolygonShape;
+			rect1 = rect1.cloneDeep() as qb2PolygonShape;
 			rect1.position.set(currX, currY);
 			var mouseJoint:qb2MouseJoint = new qb2MouseJoint(rect1, new amPoint2d(currX + rectWidth / 2, currY));
 			mouseJoint.worldTarget = mouseJointTarget;

@@ -57,16 +57,6 @@ package QuickB2.objects.tangibles
 			polygon.addEventListener(amUpdateEvent.ENTITY_UPDATED, polygonUpdated);
 		}
 		
-		public function get allowComplexPolygons():Boolean
-			{  return _flags & qb2_flags.ALLOW_COMPLEX_POLYGONS ? true : false;  }
-		public function set allowComplexPolygons(bool:Boolean):void
-		{
-			if ( bool )
-				turnFlagOn(qb2_flags.ALLOW_COMPLEX_POLYGONS);
-			else
-				turnFlagOff(qb2_flags.ALLOW_COMPLEX_POLYGONS);
-		}
-		
 		private var _sessionTracker:int;
 		
 		public function beginEditSession():void
@@ -78,12 +68,21 @@ package QuickB2.objects.tangibles
 		{
 			_sessionTracker--;
 			
-			if ( _sessionTracker <= 0 )
+			if ( _sessionTracker == 0 )
 			{
 				rigid_flushShapes();
 				
 				_sessionTracker = 0;
 			}
+			else if ( _sessionTracker < 0 )
+			{
+				_sessionTracker = 0;
+			}
+		}
+		
+		public function get inEditingSession():Boolean
+		{
+			return _sessionTracker ? true : false;
 		}
 		
 		qb2_friend override function flushShapesWrapper(newMass:Number, newArea:Number):void
@@ -232,15 +231,24 @@ package QuickB2.objects.tangibles
 			return this;
 		}
 			
-		public override function clone():qb2Object
+		public override function cloneShallow():qb2Object
 		{
 			var actorToo:Boolean = true;
 			var deep:Boolean = true;
 			
-			var newPolyShape:qb2PolygonShape = super.clone() as qb2PolygonShape;
-			newPolyShape.set(polygon.asPoints(), _position.clone());
+			var newPolyShape:qb2PolygonShape = super.cloneShallow() as qb2PolygonShape;
 			newPolyShape._rotation = this._rotation;
 			newPolyShape._closed = this._closed;
+			newPolyShape.position.copy(this.position);
+			
+			return newPolyShape;
+		}
+		
+		public override function cloneDeep():qb2Object
+		{
+			var newPolyShape:qb2PolygonShape = super.cloneDeep() as qb2PolygonShape;
+			
+			newPolyShape.set(polygon.asPoints(), _position.clone());
 			
 			return newPolyShape;
 		}
@@ -603,7 +611,7 @@ package QuickB2.objects.tangibles
 				if ( drawVertices && numVerts )
 				{
 					graphics.lineStyle();
-					graphics.beginFill(0, 1);
+					graphics.beginFill(qb2_debugDrawSettings.vertexColor, qb2_debugDrawSettings.vertexAlpha);
 					
 					for (var i:int = 0; i < numVerts; i++) 
 					{

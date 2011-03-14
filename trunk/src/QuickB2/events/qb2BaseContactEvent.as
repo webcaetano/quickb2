@@ -25,6 +25,7 @@ package QuickB2.events
 	import As3Math.geo2d.*;
 	import Box2DAS.Collision.b2WorldManifold;
 	import Box2DAS.Common.V2;
+	import Box2DAS.Dynamics.b2World;
 	import Box2DAS.Dynamics.Contacts.*;
 	import QuickB2.*;
 	import QuickB2.objects.tangibles.qb2World;
@@ -57,11 +58,14 @@ package QuickB2.events
 		
 		qb2_friend var _world:qb2World = null;
 		
+		private static const worldMani:b2WorldManifold = new b2WorldManifold();
+		
 		private function refreshContactInfo():void
 		{
 			//--- Get contact points and normals.
 			var pixelsPerMeter:Number = _world.pixelsPerMeter;
-			var worldMani:b2WorldManifold = new b2WorldManifold();
+			worldMani.points.length = 0;
+			worldMani.normal = null;
 			_contactB2.GetWorldManifold(worldMani);
 			var pnt:V2 = worldMani.GetPoint();
 			var point:amPoint2d = pnt && !isNaN(pnt.x) && !isNaN(pnt.y) ? new amPoint2d(pnt.x * pixelsPerMeter, pnt.y * pixelsPerMeter) : null;

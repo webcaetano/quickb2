@@ -59,12 +59,12 @@ package QuickB2.objects.tangibles
 		public function set arcApproximation(value:Number):void
 			{  setProperty(qb2_props.ARC_APPROXIMATION, value);  }
 			
-		public override function clone():qb2Object
+		public override function cloneShallow():qb2Object
 		{
 			var actorToo:Boolean = true;
 			var deep:Boolean = true;
 			
-			var newCircleShape:qb2CircleShape = super.clone() as qb2CircleShape;
+			var newCircleShape:qb2CircleShape = super.cloneShallow() as qb2CircleShape;
 			newCircleShape.set(_position.clone(), _radius, _rotation);
 
 			return newCircleShape;

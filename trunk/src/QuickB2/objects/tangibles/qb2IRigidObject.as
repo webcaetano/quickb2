@@ -235,7 +235,9 @@ package QuickB2.objects.tangibles
 		
 		function drawDebug(graphics:Graphics):void;
 		
-		function clone():qb2Object;
+		function cloneShallow():qb2Object;
+		
+		function cloneDeep():qb2Object;
 		
 		function isDescendantOf(possibleAncestor:qb2ObjectContainer):Boolean;
 		

@@ -196,9 +196,9 @@ package QuickB2.objects.joints
 		private function get joint():b2MouseJoint
 			{  return jointB2 ? jointB2 as b2MouseJoint : null;  }
 			
-		public override function clone():qb2Object
+		public override function cloneShallow():qb2Object
 		{
-			var mouseJoint:qb2MouseJoint = super.clone() as qb2MouseJoint;
+			var mouseJoint:qb2MouseJoint = super.cloneShallow() as qb2MouseJoint;
 			
 			mouseJoint._localAnchor2._x = this._localAnchor2._x;
 			mouseJoint._localAnchor2._y = this._localAnchor2._y;

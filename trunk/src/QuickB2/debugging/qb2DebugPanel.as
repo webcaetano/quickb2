@@ -436,7 +436,7 @@ package QuickB2.debugging
 		
 		private function alphaChange(evt:Event):void
 		{
-			qb2_debugDrawSettings.fillAlpha = qb2_debugDrawSettings.outlineAlpha = qb2_debugDrawSettings.boundBoxAlpha = qb2_debugDrawSettings.centroidAlpha = alphaSlider.value;
+			qb2_debugDrawSettings.vertexAlpha = qb2_debugDrawSettings.fillAlpha = qb2_debugDrawSettings.outlineAlpha = qb2_debugDrawSettings.boundBoxAlpha = qb2_debugDrawSettings.centroidAlpha = alphaSlider.value;
 			setSharedData("alphaSliderValue", alphaSlider.value);
 		}
 		

@@ -268,9 +268,9 @@ package QuickB2.objects.joints
 		private function get ropeJoint():b2RopeJoint
 			{  return jointB2 ? jointB2 as b2RopeJoint : null;  }
 			
-		public override function clone():qb2Object
+		public override function cloneShallow():qb2Object
 		{
-			var distJoint:qb2DistanceJoint = super.clone() as qb2DistanceJoint;
+			var distJoint:qb2DistanceJoint = super.cloneShallow() as qb2DistanceJoint;
 			
 			distJoint._localAnchor1._x = this._localAnchor1._x;
 			distJoint._localAnchor1._y = this._localAnchor1._y;

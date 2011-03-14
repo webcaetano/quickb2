@@ -789,22 +789,38 @@ package QuickB2.objects
 			}
 		}
 		
-		/// Virtual method for drawing this object.  You can override this if you want, or leave it unimplemented.
+		/**
+		 * Virtual method for drawing this object.  You can override this if you want, or leave it unimplemented.
+		 */
 		public virtual function draw(graphics:Graphics):void      {}
 		
-		/// Virtual method for drawing debug graphics for this object.  You can override this if you want, or leave it unimplemented.
-		/// A general use for this function is to set fill/stroke on the Graphics object, and then call draw().
+		/**
+		 *  Virtual method for drawing debug graphics for this object.  You can override this if you want, or leave it unimplemented.
+		 * A general use for this function is to set fill/stroke on the Graphics object, and then call draw().
+		 */
 		public virtual function drawDebug(graphics:Graphics):void {}
 		
-		/// Returns a new object that is a clone of this object.  Properties, flags, and their ownerships are transferred to the new copy.
-		/// Subclasses are responsible for overriding this function and ammending whatever they need to the clone.
-		public function clone():qb2Object
+		/**
+		 * Returns a new instance that is a clone of this object.  Properties, flags, and their ownerships are copied to the new instance.
+		 * Subclasses are responsible for overriding this function and ammending whatever they need to the clone.
+		 */
+		public function cloneShallow():qb2Object
 		{
 			var cloned:qb2Object = new (this as Object).constructor;
 		
 			cloned.copyPropertiesAndFlags(this);
 			
 			return cloned;
+		}
+		
+		/**
+		 * Returns a new instance that is a deep clone of this object.  For qb2Object this is the same as cloneShallow().  It is up to subclasses
+		 * to determine what "deep" means.  For example, calling cloneDeep() on a qb2ObjectContainer will also clone all of the container's
+		 * descendants, whereas just calling cloneShallow on the same container will only copy the container's properties.
+		 */
+		public function cloneDeep():qb2Object
+		{
+			return cloneShallow();
 		}
 		
 		qb2_friend function copyPropertiesAndFlags(source:qb2Object):void
@@ -823,7 +839,10 @@ package QuickB2.objects
 			}
 		}
 		
-		/// A convenience function for getting the world's pixelsPerMeter property.  If the object isn't in a world, function returns 1.
+		/**
+		 * A convenience function for getting the world's pixelsPerMeter property.
+		 * If the object isn't in a world, function returns 1.
+		 */
 		public function get worldPixelsPerMeter():Number
 			{  return _world ? _world.pixelsPerMeter : 1  }
 	}

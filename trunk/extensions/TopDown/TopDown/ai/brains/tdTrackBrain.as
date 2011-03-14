@@ -109,9 +109,9 @@ package TopDown.ai.brains
 		
 		private static const antennaDict:Dictionary = new Dictionary(true);
 		
-		public override function clone():qb2Object
+		public override function cloneShallow():qb2Object
 		{
-			var clone:tdTrackBrain = super.clone() as tdTrackBrain;
+			var clone:tdTrackBrain = super.cloneShallow() as tdTrackBrain;
 			
 			clone._temper = this._temper;
 		

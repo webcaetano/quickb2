@@ -643,7 +643,7 @@ package QuickB2.objects.tangibles
 				{
 					graphics.lineStyle();
 					graphics.beginFill(qb2_debugDrawSettings.frictionPointColor, qb2_debugDrawSettings.frictionPointAlpha);
-					var frictionPointRadius:Number = qb2_debugDrawSettings.frictionPointRadius
+					var frictionPointRadius:Number = qb2_debugDrawSettings.pointRadius;
 					
 					var theBodyB2:b2Body = fixtures[0].m_body;
 					var transform:b2Transform = theBodyB2.m_xf;

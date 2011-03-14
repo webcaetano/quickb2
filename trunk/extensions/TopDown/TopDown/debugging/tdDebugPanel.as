@@ -66,7 +66,7 @@ package TopDown.debugging
 			var left:Number = 5;
 			
 			// FLAG CHECK BOXES
-			var startY:Number = 25, incY:Number = 15;
+			var startY:Number = 5, incY:Number = 15;
 			tires = new CheckBox(this, left, startY, "Draw Tires", checkBoxChange);
 			tireLoads = new CheckBox(this, left, tires.y+incY, "Draw Tire Loads", checkBoxChange);
 			skids = new CheckBox(this, left, tireLoads.y + incY, "Draw Skid Marks", checkBoxChange);

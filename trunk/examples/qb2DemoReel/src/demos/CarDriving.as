@@ -111,7 +111,7 @@ package demos
 			map.addObject(playerCar);
 			
 			//--- Make a plow looking car-thing.
-			var plowCar:tdCarBody = playerCar.clone() as tdCarBody;
+			var plowCar:tdCarBody = playerCar.cloneDeep() as tdCarBody;
 			var boundBox:amBoundBox2d = plowCar.getBoundBox(plowCar);
 			var plowHead:qb2PolygonShape = qb2Stock.newRectShape(new amPoint2d(0, -boundBox.height / 2), boundBox.width * 1.5, 10, 1);
 			plowHead.insertVertexAt(1, new amPoint2d(0, -boundBox.height / 2 - 5));
@@ -120,21 +120,21 @@ package demos
 			plowCar.addObject(plowHead);
 			
 			//--- Make a peanut looking car.
-			var peanutCar:tdCarBody = playerCar.clone() as tdCarBody;
+			var peanutCar:tdCarBody = playerCar.cloneDeep() as tdCarBody;
 			peanutCar.removeObjectAt(0);
-			peanutCar.addObjectAt((peanutCar.getObjectAt(0).clone() as qb2Shape), 0);
+			peanutCar.addObjectAt((peanutCar.getObjectAt(0).cloneDeep() as qb2Shape), 0);
 			(peanutCar.getObjectAt(0) as qb2Shape).position.y = -(peanutCar.getObjectAt(0) as qb2Shape).position.y;
 			
 			//--- Make some kind of weird hoop car with additional back wheels and one front wheel;
-			var hoopCar:tdCarBody = playerCar.clone() as tdCarBody;
+			var hoopCar:tdCarBody = playerCar.cloneDeep() as tdCarBody;
 			hoopCar.removeObjectAt(0);
 			hoopCar.removeObjectAt(0);
 			hoopCar.removeObjectAt(0);
 			(hoopCar.getObjectAt(0) as tdTire).position.x = 0;
 			(hoopCar.getObjectAt(0) as tdTire).position.y -= 30;
 			hoopCar.addObjectAt(qb2Stock.newEllipticalArcBody(new amPoint2d(), new amVector2d(0, -70), 30, 12, 0, AM_PI * 2, 10, 1000), 0);
-			hoopCar.addObject(hoopCar.lastObject(2).clone());
-			hoopCar.addObject(hoopCar.lastObject(4).clone());
+			hoopCar.addObject(hoopCar.lastObject(2).cloneDeep());
+			hoopCar.addObject(hoopCar.lastObject(4).cloneDeep());
 			(hoopCar.lastObject() as tdTire).position.y -= 25;
 			(hoopCar.lastObject(1) as tdTire).position.y -= 25;
 			

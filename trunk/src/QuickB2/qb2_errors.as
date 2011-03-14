@@ -56,5 +56,7 @@ package QuickB2
 		public static const NUMBER_PROPERTY_SLOTS_FULL:Error = new Error("No more inheritable number properties can be made.");
 		
 		public static const NOT_IN_WORLD:Error = new Error("Object must be in-world.");
+		
+		public static const CLONE_ERROR:Error = new Error("This object cannot be cloned.");
 	}
 }

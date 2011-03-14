@@ -81,6 +81,14 @@ package QuickB2.loaders.proxies
 		[Inspectable(defaultValue="default",enumeration="default,true,false", name='isKinematic (default=false)')]
 		public var _bool_isKinematic:String = "default";
 		
+		[Inspectable(defaultValue="default",enumeration="default,true,false", name='allowComplexPolygons (default=true)')]
+		public var _bool_allowComplexPolygons:String = "default";
+		
+		[Inspectable(defaultValue="default",enumeration="default,true,false", name='isDebugDraggable (default=true)')]
+		public var _bool_isDebugDraggable:String = "default";
+		
+		
+		
 		
 		
 		// HANDLERS

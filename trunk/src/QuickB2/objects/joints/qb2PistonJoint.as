@@ -570,9 +570,9 @@ package QuickB2.objects.joints
 		private function get lineJoint():b2LineJoint
 			{  return jointB2 ? jointB2 as b2LineJoint : null;  }
 			
-		public override function clone():qb2Object
+		public override function cloneShallow():qb2Object
 		{
-			var pistJoint:qb2PistonJoint = super.clone() as qb2PistonJoint;
+			var pistJoint:qb2PistonJoint = super.cloneShallow() as qb2PistonJoint;
 			
 			pistJoint._localAnchor1._x = this._localAnchor1._x;
 			pistJoint._localAnchor1._y = this._localAnchor1._y;

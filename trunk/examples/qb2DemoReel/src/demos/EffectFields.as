@@ -46,18 +46,18 @@ package demos
 			//--- A gravity well field can be used to make a black hole or something in your game.
 			var wellField:qb2GravityWellField = new qb2GravityWellField();
 			wellField.position.set(stageWidth * .75, stageHeight / 4);
-			wellField.addObject(gravField.lastObject().clone()); // the power of cloning :)
+			wellField.addObject(gravField.lastObject().cloneDeep()); // the power of cloning :)
 			addObject(wellField);
 			
 			//--- A vibrator field uses impulses to shake stuff around.
 			var vibratorField:qb2VibratorField = new qb2VibratorField();
 			vibratorField.position.set(stageWidth * .75, stageHeight * .75);
-			vibratorField.addObject(gravField.lastObject().clone());
+			vibratorField.addObject(gravField.lastObject().cloneDeep());
 			
 			//--- A wind field uses forces to blow stuff around.
 			var windField:qb2WindField = new qb2WindField();
 			windField.position.set(stageWidth / 4, stageHeight * .75);
-			windField.addObject(gravField.lastObject().clone());
+			windField.addObject(gravField.lastObject().cloneDeep());
 			windField.vector.set( -5, 0);
 			windField.airDensity = 2;
 			

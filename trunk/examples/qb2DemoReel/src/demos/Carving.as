@@ -38,7 +38,7 @@ package demos
 			var normalHeight:Number = -stageHeight / 8;
 			var inc:Number = stageWidth / 4 / 5;
 			var left:Number = -stageWidth / 8;
-			/*var poly:qb2PolygonShape = rectCarving.lastObject() as qb2PolygonShape;
+			var poly:qb2PolygonShape = rectCarving.lastObject() as qb2PolygonShape;
 			poly.getVertexAt(0).y = parHeight
 			poly.getVertexAt(1).y = parHeight;
 			poly.insertVertexAt(1,
@@ -50,7 +50,7 @@ package demos
 				new amPoint2d(left+inc*3, normalHeight),
 				new amPoint2d(left+inc*4, normalHeight),
 				new amPoint2d(left+inc * 4, parHeight)
-			);*/
+			);
 			rectCarving.position.y += 20;
 			rectCarving.position.x -= 30;
 				

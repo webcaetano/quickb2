@@ -3,6 +3,7 @@ package
 	import com.bit101.components.*;
 	import flash.display.*;
 	import flash.events.*;
+	import flash.text.StyleSheet;
 	
 	public class CodeBlocks extends Sprite
 	{

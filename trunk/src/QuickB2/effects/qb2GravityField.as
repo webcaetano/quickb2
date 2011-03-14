@@ -47,9 +47,9 @@ package QuickB2.effects
 			}
 		}
 		
-		public override function clone():qb2Object
+		public override function cloneShallow():qb2Object
 		{
-			var cloned:qb2GravityField = super.clone() as qb2GravityField;
+			var cloned:qb2GravityField = super.cloneShallow() as qb2GravityField;
 			
 			cloned.vector.copy(this.vector);
 			

@@ -82,9 +82,9 @@ package QuickB2.stock
 		
 		private static var eventsInitialized:Boolean = false;
 		
-		public override function clone():qb2Object
+		public override function cloneShallow():qb2Object
 		{
-			var cloned:qb2TripSensor = super.clone() as qb2TripSensor;
+			var cloned:qb2TripSensor = super.cloneShallow() as qb2TripSensor;
 			
 			cloned.tripTime = this.tripTime;
 			
