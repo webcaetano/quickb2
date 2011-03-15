@@ -745,15 +745,15 @@ package QuickB2.loaders
 						}
 						else if ( varPrefix == UINT_STRING )
 						{
-							object[varName] = parseInt(tag[proxyVarName]) as uint;
+							object[varName] = modifyUnsignedInt(parseInt(tag[proxyVarName]) as uint, varName);
 						}
 						else if ( varPrefix == INT_STRING )
 						{
-							object[varName] = parseInt(tag[proxyVarName]) as int;
+							object[varName] = modifySignedInt(parseInt(tag[proxyVarName]) as int, varName);
 						}
 						else if ( varPrefix == FLOAT_STRING )
 						{
-							object[varName] = parseFloat(tag[proxyVarName]);
+							object[varName] = modifyFloat(parseFloat(tag[proxyVarName]), varName);
 						}
 						else if ( varPrefix == HANDLER_STRING )
 						{
@@ -785,6 +785,21 @@ package QuickB2.loaders
 					}
 				}
 			}
+		}
+		
+		protected function modifyUnsignedInt(value:uint, variableName:String):uint
+		{
+			return value;
+		}
+		
+		protected function modifySignedInt(value:int, variableName:String):int
+		{
+			return value;
+		}
+		
+		protected function modifyFloat(value:Number, variableName:String):Number
+		{
+			return value;
 		}
 		
 		private static const varListCache:Dictionary = new Dictionary();

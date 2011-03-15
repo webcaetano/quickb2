@@ -22,9 +22,11 @@
 
 package TopDown.loaders 
 {
+	import As3Math.consts.TO_RAD;
 	import As3Math.geo2d.*;
 	import flash.display.*;
 	import flash.geom.*;
+	import flashx.textLayout.utils.NavigationUtil;
 	import QuickB2.loaders.*;
 	import QuickB2.loaders.proxies.*;
 	import QuickB2.misc.*;
@@ -184,6 +186,18 @@ package TopDown.loaders
 				if ( !seed )  continue;
 				existingSeeds.push(seed);
 			}
+		}
+		
+		private static const MAX_TURN_ANGLE:String = "maxTurnAngle";
+		
+		protected override function modifyFloat(value:Number, variableName:String):Number
+		{
+			if ( variableName == MAX_TURN_ANGLE )
+			{
+				return value *= TO_RAD;
+			}
+			
+			return value;
 		}
 		
 		protected override function finishObject(object:qb2Object):void
