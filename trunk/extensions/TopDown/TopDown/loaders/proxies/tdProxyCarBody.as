@@ -34,7 +34,7 @@ package TopDown.loaders.proxies
 		}
 		
 		[Inspectable(defaultValue="default", type='String', name='maxTurnAngle (default=45 degrees)')]
-		public var _bool_maxTurnAngle:String = "default";
+		public var _float_maxTurnAngle:String = "default";
 		
 		[Inspectable(defaultValue="default", type='String', name='zCenterOfMass (default=1 meter above ground)')]
 		public var _float_zCenterOfMass:String = "default";
