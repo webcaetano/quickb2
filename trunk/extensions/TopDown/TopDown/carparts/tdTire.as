@@ -113,9 +113,9 @@ package TopDown.carparts
 			{  return _carBody;  }
 		td_friend var _carBody:tdCarBody;
 		
-		public override function cloneShallow():qb2Object
+		public override function clone(deep:Boolean = true):qb2Object
 		{
-			var tire:tdTire = super.cloneShallow() as tdTire;
+			var tire:tdTire = super.clone(deep) as tdTire;
 			
 			tire.position.copy(this.position);
 			tire.canBrake = this.canBrake;

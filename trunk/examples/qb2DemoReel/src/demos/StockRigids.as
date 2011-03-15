@@ -80,7 +80,7 @@ package demos
 			starBody.addObject(initialArm);
 			for (var i:int = 1; i < numArms; i++) 
 			{
-				var clone:qb2Body = initialArm.cloneDeep() as qb2Body;
+				var clone:qb2Body = initialArm.clone() as qb2Body;
 				clone.rotateBy(i * ((AM_PI) / numArms));
 				starBody.addObject(clone);
 			}

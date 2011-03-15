@@ -157,9 +157,9 @@ package TopDown.objects
 			}
 		}
 		
-		public override function cloneShallow():qb2Object
+		public override function clone(deep:Boolean = true):qb2Object
 		{
-			var cloned:tdTerrain = super.cloneShallow() as tdTerrain;
+			var cloned:tdTerrain = super.clone(deep) as tdTerrain;
 			
 			cloned.rollingFrictionZMultiplier = this.rollingFrictionZMultiplier;
 			cloned.rollingSkidColor           = this.rollingSkidColor;

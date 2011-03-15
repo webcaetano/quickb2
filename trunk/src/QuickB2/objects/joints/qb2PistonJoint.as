@@ -483,7 +483,7 @@ package QuickB2.objects.joints
 		
 		qb2_friend override function objectsUpdated():void
 		{
-			if ( _object1 &&_object2 )  referenceAngle = _object2._rotation - _object1._rotation;
+			if ( _object1 &&_object2 )  referenceAngle = _object2._rigidImp._rotation - _object1._rigidImp._rotation;
 			updateDirectionAndSpringLength();
 		}
 		
@@ -570,9 +570,9 @@ package QuickB2.objects.joints
 		private function get lineJoint():b2LineJoint
 			{  return jointB2 ? jointB2 as b2LineJoint : null;  }
 			
-		public override function cloneShallow():qb2Object
+		public override function clone(deep:Boolean = true):qb2Object
 		{
-			var pistJoint:qb2PistonJoint = super.cloneShallow() as qb2PistonJoint;
+			var pistJoint:qb2PistonJoint = super.clone(deep) as qb2PistonJoint;
 			
 			pistJoint._localAnchor1._x = this._localAnchor1._x;
 			pistJoint._localAnchor1._y = this._localAnchor1._y;

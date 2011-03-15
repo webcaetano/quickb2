@@ -185,7 +185,7 @@ package QuickB2.objects.tangibles
 						{
 							if ( tang is qb2IRigidObject )
 							{
-								if ( !killBox.containsPoint(tang._position) )
+								if ( !killBox.containsPoint(tang._rigidImp._position) )
 								{
 									removeObjectAt(i--);
 									continue;

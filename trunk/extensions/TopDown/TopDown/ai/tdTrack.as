@@ -155,9 +155,9 @@ package TopDown.ai
 			{  return _length;  }
 		private var _length:Number = 0;
 		
-		public override function cloneShallow():qb2Object
+		public override function clone(deep:Boolean = true):qb2Object
 		{
-			var newTrack:tdTrack = super.cloneShallow() as tdTrack;
+			var newTrack:tdTrack = super.clone(deep) as tdTrack;
 			newTrack.start.copy(this.start);
 			newTrack.end.copy(this.end);
 			newTrack.speedLimit = this.speedLimit;

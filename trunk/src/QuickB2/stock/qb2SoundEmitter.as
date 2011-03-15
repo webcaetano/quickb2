@@ -254,9 +254,9 @@ package QuickB2.stock
 			}
 		}
 		
-		public override function clone():qb2Object
+		public override function cloneShallow():qb2Object
 		{
-			var clone:qb2SoundEmitter = super.clone() as qb2SoundEmitter;
+			var clone:qb2SoundEmitter = super.cloneShallow() as qb2SoundEmitter;
 			
 			clone._horizon = this._horizon; // don't use setter, cause horizonTang gets made through the clone.
 			clone.sound = this.sound;

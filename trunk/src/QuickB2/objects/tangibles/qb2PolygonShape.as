@@ -70,7 +70,7 @@ package QuickB2.objects.tangibles
 			
 			if ( _sessionTracker == 0 )
 			{
-				rigid_flushShapes();
+				flushShapes();
 				
 				_sessionTracker = 0;
 			}
@@ -106,7 +106,7 @@ package QuickB2.objects.tangibles
 			if ( _closed != bool )
 			{
 				_closed = bool;
-				rigid_flushShapes(); // don't need to do wrapper thing here case mass/area isn't changing.
+				flushShapes(); // don't need to do wrapper thing here case mass/area isn't changing.
 				updateMassProps(0, 0);
 			}
 		}
@@ -135,7 +135,7 @@ package QuickB2.objects.tangibles
 			}
 			
 			lagPoint.copy(registrationPoint);
-			lagRot = _rotation = 0;
+			lagRot = _rigidImp._rotation = 0;
 			
 			position = registrationPoint;
 			
@@ -215,11 +215,11 @@ package QuickB2.objects.tangibles
 			super.scaleBy(xValue, yValue, origin, scaleMass, scaleJointAnchors);
 			
 			freezeFlush = true;
-				_position.scaleBy(xValue, yValue, origin);
+				_rigidImp._position.scaleBy(xValue, yValue, origin);
 			freezeFlush = false;
 			
 			polygon.removeEventListener(amUpdateEvent.ENTITY_UPDATED, polygonUpdated);
-				polygon.scaleBy(xValue, yValue, _position);
+				polygon.scaleBy(xValue, yValue, _rigidImp._position);
 			polygon.addEventListener(amUpdateEvent.ENTITY_UPDATED, polygonUpdated);
 			
 			var newArea:Number = polygon.area;
@@ -231,29 +231,25 @@ package QuickB2.objects.tangibles
 			return this;
 		}
 			
-		public override function cloneShallow():qb2Object
+		public override function clone(deep:Boolean = true):qb2Object
 		{
 			var actorToo:Boolean = true;
 			var deep:Boolean = true;
 			
-			var newPolyShape:qb2PolygonShape = super.cloneShallow() as qb2PolygonShape;
-			newPolyShape._rotation = this._rotation;
+			var newPolyShape:qb2PolygonShape = super.clone(deep) as qb2PolygonShape;
+			newPolyShape._rigidImp._rotation = _rigidImp._rotation;
 			newPolyShape._closed = this._closed;
-			newPolyShape.position.copy(this.position);
+			newPolyShape._rigidImp._position.copy(_rigidImp._position);
+			
+			if ( deep )
+			{
+				newPolyShape.set(polygon.asPoints(), _rigidImp._position.clone());
+			}
 			
 			return newPolyShape;
 		}
 		
-		public override function cloneDeep():qb2Object
-		{
-			var newPolyShape:qb2PolygonShape = super.cloneDeep() as qb2PolygonShape;
-			
-			newPolyShape.set(polygon.asPoints(), _position.clone());
-			
-			return newPolyShape;
-		}
-		
-		public function asPolygon():amPolygon2d
+		public function asGeoPolygon():amPolygon2d
 		{
 			return polygon.clone() as amPolygon2d;
 		}
@@ -389,7 +385,7 @@ package QuickB2.objects.tangibles
 				var pnt:amPoint2d = reusable.copy(this.getVertexAt(i));
 				if ( !_ancestorBody )
 				{
-					pnt.rotateBy( -_rotation, _position).subtract(_position);
+					pnt.rotateBy( -_rigidImp._rotation, _rigidImp._position).subtract(_rigidImp._position);
 				}
 				else
 				{

@@ -127,7 +127,7 @@ package QuickB2.objects.joints
 		qb2_friend override function objectsUpdated():void
 		{
 			if ( _object1 && _object2 )
-				referenceAngle = _object2._rotation - _object1._rotation;
+				referenceAngle = _object2._rigidImp._rotation - _object1._rigidImp._rotation;
 		}
 		
 		qb2_friend override function makeJointB2(theWorld:qb2World):void
@@ -160,9 +160,9 @@ package QuickB2.objects.joints
 		private function get joint():b2WeldJoint
 			{  return jointB2 ? jointB2 as b2WeldJoint : null;  }
 			
-		public override function cloneShallow():qb2Object
+		public override function clone(deep:Boolean = true):qb2Object
 		{
-			var weldJoint:qb2WeldJoint = super.cloneShallow() as qb2WeldJoint;
+			var weldJoint:qb2WeldJoint = super.clone(deep) as qb2WeldJoint;
 			
 			weldJoint._localAnchor1._x = this._localAnchor1._x;
 			weldJoint._localAnchor1._y = this._localAnchor1._y;

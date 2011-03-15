@@ -59,102 +59,98 @@ package QuickB2.objects.tangibles
 		private static var baseClone_rigids:Dictionary = null;
 		
 		
-		public override function cloneShallow():qb2Object
+		public override function clone(deep:Boolean = true):qb2Object
 		{
 			var actorToo:Boolean = true;
 			var deep:Boolean = true;
 			
-			var newContainer:qb2ObjectContainer = super.cloneShallow() as qb2ObjectContainer;
+			var newContainer:qb2ObjectContainer = super.clone(deep) as qb2ObjectContainer;
 			newContainer.removeAllObjects(); // in case the constructor adds some objects, which it generally shouldn't, but you never know.
 			if ( newContainer is qb2Body )
 			{
-				(newContainer as qb2Body).setTransform(_position.clone(), _rotation);
+				(newContainer as qb2Body).setTransform(_rigidImp._position.clone(), _rigidImp._rotation);
 			}
 			
-			return newContainer;
-		}
-		
-		public override function cloneDeep():qb2Object
-		{
-			var newContainer:qb2ObjectContainer = super.cloneDeep() as qb2ObjectContainer;
-			
-			var deepCloneBit:uint = qb2_flags.JOINS_IN_DEEP_CLONING;
-			var thisIsCloneRoot:Boolean = false;
-			if ( !baseClone_rigids )
+			if ( deep )
 			{
-				thisIsCloneRoot = true;
-				baseClone_rigids = new Dictionary(true);
-				baseClone_joints = new Dictionary(true);
-			}
-			
-			var propertyFlushAlreadyCancelled:Boolean = cancelPropertyInheritance;
-			cancelPropertyInheritance = true; // this stops all objects being added here from inheriting properties from their ancestors...their properties will be set with qb2Tangible::copyProps(), thus preventing double traversals through the world tree.
-			{
-				newContainer.pushMassFreeze();
+				var deepCloneBit:uint = qb2_flags.JOINS_IN_DEEP_CLONING;
+				var thisIsCloneRoot:Boolean = false;
+				if ( !baseClone_rigids )
 				{
-					for (var i:int = 0; i < _objects.length; i++) 
+					thisIsCloneRoot = true;
+					baseClone_rigids = new Dictionary(true);
+					baseClone_joints = new Dictionary(true);
+				}
+				
+				var propertyFlushAlreadyCancelled:Boolean = cancelPropertyInheritance;
+				cancelPropertyInheritance = true; // this stops all objects being added here from inheriting properties from their ancestors...their properties will be set with qb2Tangible::copyProps(), thus preventing double traversals through the world tree.
+				{
+					newContainer.pushMassFreeze();
 					{
-						var object:qb2Object = _objects[i];
-						
-						if ( !(object._flags & deepCloneBit) )  continue;
-						
-						if ( object is qb2Tangible )
+						for (var i:int = 0; i < _objects.length; i++) 
 						{
-							var physObject:qb2Tangible = object as qb2Tangible;
-							var clonedObj:qb2Tangible = physObject.cloneDeep() as qb2Tangible
-							newContainer.addObject(clonedObj);
+							var object:qb2Object = _objects[i];
 							
-							if ( object is qb2IRigidObject )
+							if ( !(object._flags & deepCloneBit) )  continue;
+							
+							if ( object is qb2Tangible )
 							{
-								baseClone_rigids[physObject] = clonedObj;
+								var physObject:qb2Tangible = object as qb2Tangible;
+								var clonedObj:qb2Tangible = physObject.clone(deep) as qb2Tangible
+								newContainer.addObject(clonedObj);
+								
+								if ( object is qb2IRigidObject )
+								{
+									baseClone_rigids[physObject] = clonedObj;
+								}
+							}
+							else if ( object is qb2Joint )
+							{
+								var joint:qb2Joint = object as qb2Joint;
+								var clonedJoint:qb2Joint = joint.clone(deep) as qb2Joint
+								newContainer.addObject(clonedJoint);
+								
+								baseClone_joints[joint] = clonedJoint
+							}
+							else
+							{
+								newContainer.addObject(object.clone(deep));
 							}
 						}
-						else if ( object is qb2Joint )
+						
+						for ( var key:* in baseClone_joints )
 						{
-							var joint:qb2Joint = object as qb2Joint;
-							var clonedJoint:qb2Joint = joint.cloneDeep() as qb2Joint
-							newContainer.addObject(clonedJoint);
+							joint = key as qb2Joint;
+							var clonedObject1:qb2IRigidObject = baseClone_rigids[joint._object1] as qb2IRigidObject;
+							var clonedObject2:qb2IRigidObject = baseClone_rigids[joint._object2] as qb2IRigidObject;
 							
-							baseClone_joints[joint] = clonedJoint
-						}
-						else
-						{
-							newContainer.addObject(object.cloneDeep());
-						}
-					}
-					
-					for ( var key:* in baseClone_joints )
-					{
-						joint = key as qb2Joint;
-						var clonedObject1:qb2IRigidObject = baseClone_rigids[joint._object1] as qb2IRigidObject;
-						var clonedObject2:qb2IRigidObject = baseClone_rigids[joint._object2] as qb2IRigidObject;
-						
-						clonedJoint = baseClone_joints[joint];
-						
-						if ( !clonedJoint._object1 && clonedObject1 )
-							clonedJoint.setObject1(clonedObject1, false);
-						if ( !clonedJoint._object2 && clonedObject2 )
-							clonedJoint.setObject2(clonedObject2, false);
-						
-						if ( clonedJoint.hasObjectsSet() )
-						{
-							delete baseClone_joints[joint];
+							clonedJoint = baseClone_joints[joint];
+							
+							if ( !clonedJoint._object1 && clonedObject1 )
+								clonedJoint.setObject1(clonedObject1, false);
+							if ( !clonedJoint._object2 && clonedObject2 )
+								clonedJoint.setObject2(clonedObject2, false);
+							
+							if ( clonedJoint.hasObjectsSet() )
+							{
+								delete baseClone_joints[joint];
+							}
 						}
 					}
+					newContainer.popMassFreeze();
 				}
-				newContainer.popMassFreeze();
+				cancelPropertyInheritance = propertyFlushAlreadyCancelled; // if the property flush was already cancelled, presumably by a deep clone of some ancestor, then the cancelled property flush should remain in effect.
+				
+				if ( thisIsCloneRoot )
+				{
+					baseClone_joints = null;
+					baseClone_rigids = null;
+				}
 			}
-			cancelPropertyInheritance = propertyFlushAlreadyCancelled; // if the property flush was already cancelled, presumably by a deep clone of some ancestor, then the cancelled property flush should remain in effect.
 			
-			if ( thisIsCloneRoot )
-			{
-				baseClone_joints = null;
-				baseClone_rigids = null;
-			}
-
 			return newContainer;
 		}
-		
+
 		qb2_friend override function setAncestorBody(aBody:qb2Body):void
 		{
 			_ancestorBody = aBody;
@@ -733,12 +729,14 @@ package QuickB2.objects.tangibles
 			return totMass ? new amPoint2d(totX / totMass, totY / totMass) : new amPoint2d();
 		}
 		
-		qb2_friend override function rigid_flushShapes():void
+		qb2_friend override function flushShapes():void
 		{
 			for (var i:int = 0; i < _objects.length; i++) 
 			{
-				if( _objects[i] is qb2Tangible )
-				(_objects[i] as qb2Tangible).rigid_flushShapes();
+				if ( _objects[i] is qb2Tangible )
+				{
+					(_objects[i] as qb2Tangible).flushShapes();
+				}
 			}
 		}
 		

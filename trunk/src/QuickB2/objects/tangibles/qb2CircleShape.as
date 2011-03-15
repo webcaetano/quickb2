@@ -59,13 +59,13 @@ package QuickB2.objects.tangibles
 		public function set arcApproximation(value:Number):void
 			{  setProperty(qb2_props.ARC_APPROXIMATION, value);  }
 			
-		public override function cloneShallow():qb2Object
+		public override function clone(deep:Boolean = true):qb2Object
 		{
 			var actorToo:Boolean = true;
 			var deep:Boolean = true;
 			
-			var newCircleShape:qb2CircleShape = super.cloneShallow() as qb2CircleShape;
-			newCircleShape.set(_position.clone(), _radius, _rotation);
+			var newCircleShape:qb2CircleShape = super.clone(deep) as qb2CircleShape;
+			newCircleShape.set(_rigidImp._position.clone(), _radius, _rigidImp._rotation);
 
 			return newCircleShape;
 		}
@@ -73,9 +73,9 @@ package QuickB2.objects.tangibles
 		public function convertToPoly(transferJoints:Boolean = true, switchPlaces:Boolean = true, numSides:int = -1, startPoint:amPoint2d = null ):qb2PolygonShape
 		{
 			numSides = numSides > 0 ? numSides : Math.max(perimeter / arcApproximation, 3);
-			var majorAxis:amVector2d = startPoint ? startPoint.minus(_position) : new amVector2d(0, -_radius);
-			var poly:qb2PolygonShape = qb2Stock.newEllipseShape(_position.clone(), majorAxis, _radius, numSides);
-			poly._rotation = this._rotation;
+			var majorAxis:amVector2d = startPoint ? startPoint.minus(_rigidImp._position) : new amVector2d(0, -_radius);
+			var poly:qb2PolygonShape = qb2Stock.newEllipseShape(_rigidImp._position.clone(), majorAxis, _radius, numSides);
+			poly._rigidImp._rotation = this._rigidImp._rotation;
 			
 			poly.copyTangibleProps(this);
 			poly.copyPropertiesAndFlags(this);
@@ -86,11 +86,11 @@ package QuickB2.objects.tangibles
 				_parent.setObjectAt(index, poly);
 			}
 				
-			if ( transferJoints && _attachedJoints )
+			if ( transferJoints && _rigidImp._attachedJoints )
 			{
-				for (var i:int = 0; i < _attachedJoints.length; i++) 
+				for (var i:int = 0; i < _rigidImp._attachedJoints.length; i++) 
 				{
-					var joint:qb2Joint = _attachedJoints[i--];
+					var joint:qb2Joint = _rigidImp._attachedJoints[i--];
 					
 					if ( joint._object1 == this )
 					{
@@ -101,7 +101,7 @@ package QuickB2.objects.tangibles
 						joint.setObject2(poly);
 					}
 					
-					if ( !_attachedJoints )  break; // qb2Joint will nullify this array if the number of attached joints becomes zero, which in this case should always happen.
+					if ( !_rigidImp._attachedJoints )  break; // qb2Joint will nullify this array if the number of attached joints becomes zero, which in this case should always happen.
 				}
 			}
 			
@@ -113,7 +113,7 @@ package QuickB2.objects.tangibles
 			position = newPosition;
 			
 			_radius = newRadius;
-			_rotation = newRotation;
+			_rigidImp._rotation = newRotation;
 	
 			var newArea:Number = (_radius * _radius) * Math.PI;
 			flushShapesWrapper(_mass, newArea);
@@ -126,20 +126,20 @@ package QuickB2.objects.tangibles
 		public function get radius():Number
 			{  return _radius;  }
 		public function set radius(value:Number):void
-			{  set(_position, value);  }
+			{  set(_rigidImp._position, value);  }
 			
 		public override function get perimeter():Number
 			{  return 2 * AM_PI * _radius; }
 
 		public override function get centerOfMass():amPoint2d
-			{  return _position.clone();  }
+			{  return _rigidImp._position.clone();  }
 		
 		public override function scaleBy(xValue:Number, yValue:Number, origin:amPoint2d = null, scaleMass:Boolean = true, scaleJointAnchors:Boolean = true, scaleActor:Boolean = true):qb2Tangible
 		{
 			super.scaleBy(xValue, yValue, origin, scaleMass, scaleJointAnchors);
 			
 			freezeFlush = true;
-				_position.scaleBy(xValue, yValue, origin);
+				_rigidImp._position.scaleBy(xValue, yValue, origin);
 			freezeFlush = false;
 			
 			_radius *= (xValue + yValue)/2;
@@ -153,8 +153,8 @@ package QuickB2.objects.tangibles
 			return this;
 		}
 		
-		public function asCircle():amCircle2d
-			{  return new amCircle2d(_position.clone(), _radius);  }
+		public function asGeoCircle():amCircle2d
+			{  return new amCircle2d(_rigidImp._position.clone(), _radius);  }
 			
 		qb2_friend override function makeShapeB2(theWorld:qb2World):void
 		{
@@ -173,7 +173,7 @@ package QuickB2.objects.tangibles
 			}
 			else
 			{
-				var ancestorBodyLocalPosition:amPoint2d = _parent == _ancestorBody ? _position : _ancestorBody.getLocalPoint(_parent.getWorldPoint(_position));
+				var ancestorBodyLocalPosition:amPoint2d = _parent == _ancestorBody ? _rigidImp._position : _ancestorBody.getLocalPoint(_parent.getWorldPoint(_rigidImp._position));
 				circShape.m_p.x = ancestorBodyLocalPosition.x / conversion;
 				circShape.m_p.y = ancestorBodyLocalPosition.y / conversion;
 			}
@@ -221,13 +221,13 @@ package QuickB2.objects.tangibles
 			}
 			else
 			{
-				return point.distanceTo(_position) <= radius;
+				return point.distanceTo(_rigidImp._position) <= radius;
 			}
 		}
 		
 		public override function draw(graphics:Graphics):void
-		{			
-			var vertex:amPoint2d = (_parent is qb2Body ) ? (_parent as qb2Body ).getWorldPoint(_position) : _position
+		{
+			var vertex:amPoint2d = _parent ? _parent.getWorldPoint(_rigidImp._position) : _rigidImp._position;
 			graphics.drawCircle(vertex.x, vertex.y, _radius);
 		}
 		
@@ -251,8 +251,8 @@ package QuickB2.objects.tangibles
 			if ( (drawFlags & qb2_debugDrawFlags.OUTLINES) && (drawFlags & qb2_debugDrawFlags.CIRCLE_SPOKES) )
 			{
 				//graphics.lineStyle(qb2_debugDrawSettings.lineThickness, staticShape ? qb2_debugDrawSettings.staticOutlineColor : qb2_debugDrawSettings.dynamicOutlineColor, qb2_debugDrawSettings.outlineAlpha);
-				var vertex:amPoint2d = _parent ? _parent.getWorldPoint(_position) : _position;
-				var upVec:amVector2d = amVector2d.newRotVector(0, -1, _rotation).scaleBy(_radius);
+				var vertex:amPoint2d = _parent ? _parent.getWorldPoint(_rigidImp._position) : _rigidImp._position;
+				var upVec:amVector2d = amVector2d.newRotVector(0, -1, _rigidImp._rotation).scaleBy(_radius);
 				var vec:amVector2d = _parent ? _parent.getWorldVector(upVec) : upVec;
 				var inc:Number = 0;
 				

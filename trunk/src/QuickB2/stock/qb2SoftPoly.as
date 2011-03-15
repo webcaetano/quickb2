@@ -55,32 +55,28 @@ package QuickB2.stock
 			upperLimit =  RAD_10;
 		}
 		
-		public override function cloneShallow():qb2Object
+		public override function clone(deep:Boolean = true):qb2Object
 		{
-			var jelloPoly:qb2SoftPoly = super.cloneShallow() as qb2SoftPoly;
+			var jelloPoly:qb2SoftPoly = super.clone(deep) as qb2SoftPoly;
 			
 			jelloPoly.drawSplinarOutlines = this.drawSplinarOutlines;
 			
-			return jelloPoly;
-		}
-		
-		public override function cloneDeep():qb2Object
-		{
-			var jelloPoly:qb2SoftPoly = super.cloneDeep() as qb2SoftPoly;
-			
-			//--- Here we have to make sure to populate the shapes array so that the draw function has something to go off of.
-			var numObjects:uint = jelloPoly.numObjects;
-			for (var i:int = 0; i < numObjects; i++)
+			if ( deep )
 			{
-				var ithObj:qb2Object = jelloPoly.getObjectAt(i);
-				if( ithObj is qb2RevoluteJoint )
-					jelloPoly.revJoints.push(ithObj as qb2RevoluteJoint);
+				//--- Here we have to make sure to populate the shapes array so that the draw function has something to go off of.
+				var numObjects:uint = jelloPoly.numObjects;
+				for (var i:int = 0; i < numObjects; i++)
+				{
+					var ithObj:qb2Object = jelloPoly.getObjectAt(i);
+					if( ithObj is qb2RevoluteJoint )
+						jelloPoly.revJoints.push(ithObj as qb2RevoluteJoint);
+				}
+				jelloPoly.revJoints.unshift(jelloPoly.revJoints.pop());  // move the last joint to the beginning...just makes looping more intuitive
+				
+				jelloPoly._isCircle    = this._isCircle;
+				jelloPoly._numVertices = this._numVertices;
+				jelloPoly._subdivision = this._subdivision;
 			}
-			jelloPoly.revJoints.unshift(jelloPoly.revJoints.pop());  // move the last joint to the beginning...just makes looping more intuitive
-			
-			jelloPoly._isCircle    = this._isCircle;
-			jelloPoly._numVertices = this._numVertices;
-			jelloPoly._subdivision = this._subdivision;
 			
 			return jelloPoly;
 		}

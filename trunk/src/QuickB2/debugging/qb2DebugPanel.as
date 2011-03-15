@@ -57,7 +57,7 @@ package QuickB2.debugging
 			bounds         : qb2_debugDrawFlags.BOUND_BOXES,
 			boundCircles   : qb2_debugDrawFlags.BOUND_CIRCLES,
 			joints         : qb2_debugDrawFlags.JOINTS,
-			frictionPoints : qb2_debugDrawFlags.FRICTION_POINTS,
+			frictionPoints : qb2_debugDrawFlags.FRICTION_Z_POINTS,
 			decomposition  : qb2_debugDrawFlags.DECOMPOSITION
 		};
 		

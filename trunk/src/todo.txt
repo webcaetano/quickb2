@@ -1,8 +1,6 @@
 
 - bound circles
 
-- make the rigid implementation a seperate internal  class that gets its calls routed from the qb2IRigidObejct implementers...instead of qb2Tangible holding all the code.
-
 - virtual function on qb2Object that is overloaded by subclasses to determine what it contributes as far as geometry for bounding reps (maybe).
 
 - have explode preserve velocities correctly.
@@ -19,9 +17,9 @@
 
 - make laser smoother
 
-- check up on .swc exposing friends, and see if @private fixes it.
+- fix .swc so qb2_friend members aren't exposed.
 
-- convert qb2_props.IS_KINEMATIC to qb2_prop_isKinematic
+- convert qb2_props.IS_KINEMATIC to qb2_prop_isKinematic...maybe
 
 
 TESTING
