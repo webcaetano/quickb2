@@ -92,9 +92,9 @@ package QuickB2.effects
 			}
 		}
 		
-		public override function cloneShallow():qb2Object
+		public override function clone(deep:Boolean = true):qb2Object
 		{
-			var cloned:qb2WindField = super.cloneShallow() as qb2WindField;
+			var cloned:qb2WindField = super.clone(deep) as qb2WindField;
 			
 			cloned.vector.copy(this.vector);
 			cloned.airDensity = this.airDensity;

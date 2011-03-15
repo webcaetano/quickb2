@@ -141,9 +141,9 @@ package QuickB2.stock
 			popDebugFillColor();
 		}
 		
-		public override function cloneShallow():qb2Object
+		public override function clone(deep:Boolean = true):qb2Object
 		{
-			var cloned:qb2Terrain = super.cloneShallow() as qb2Terrain;
+			var cloned:qb2Terrain = super.clone(deep) as qb2Terrain;
 			
 			cloned.frictionZMultiplier = this.frictionZMultiplier;
 			cloned._ubiquitous = this._ubiquitous;

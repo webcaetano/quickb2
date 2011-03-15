@@ -22,6 +22,7 @@
 
 package QuickB2.objects.tangibles
 {
+	import As3Math.*;
 	import As3Math.consts.*;
 	import As3Math.general.*;
 	import As3Math.geo2d.*;
@@ -47,7 +48,6 @@ package QuickB2.objects.tangibles
 	
 	use namespace qb2_friend;
 	
-	import As3Math.*;
 	use namespace am_friend;
 	
 	[Event(name="preSolve",       type="QuickB2.events.qb2ContactEvent")]
@@ -62,43 +62,30 @@ package QuickB2.objects.tangibles
 	 * @author Doug Koellmer
 	 */
 	public class qb2Tangible extends qb2Object
-	{
-		qb2_friend static const diffTol:Number = .0000000001;
-		qb2_friend static const rotTol:Number  = .0000001;
-		
-		public function get ancestorBody():qb2Body
-			{  return _ancestorBody;  }
-		qb2_friend function setAncestorBody(aBody:qb2Body):void
-			{  _ancestorBody = aBody;  }
-		qb2_friend var _ancestorBody:qb2Body;
-		
-		//--- These are used for qb2IRigidObject's "implementation".  Since qb2IRigidObject is only an interface, it can't store variables.
-		//--- It's a bit of a waste of space to have these member references here when this object isn't necessarily a qb2IRigidObject (i.e. when it's a qb2Group
-		//--- or qb2World), but most objects in a simulation will be qb2IRigidObjects anyway, and the only other alternatives are (A) store them in
-		//--- a "mixin" file like qb2InternalRigidBody_impl.as, which makes more sense conceptually and memory-wise, but would mean that here in qb2Tangible
-		//--- you'd have to get access to these variables by reflection in some cases, e.g. this["_linearVelocity"], which sucks, AND messes up code completion,
-		//--- or (B) to have completely identical code in qb2IRigidObject's two implementers, qb2Body and qb2Shape, which is bad for what should be obvious reasons.
-		qb2_friend var _bodyB2:b2Body;
-		qb2_friend var _attachedJoints:Vector.<qb2Joint> = null;
-		qb2_friend var _linearVelocity:amVector2d = null;
-		qb2_friend var _angularVelocity:Number = 0;
-		qb2_friend var _position:amPoint2d = null;
-		qb2_friend var _rotation:Number = 0;
-		qb2_friend var _calledFromPointUpdated:Boolean = false;
+	{		
+		qb2_friend var _rigidImp:qb2InternalIRigidImplementation;
 		
 		public function qb2Tangible():void
 		{
-			if ( this is qb2IRigidObject )
-			{
-				var rigid:qb2IRigidObject = this as qb2IRigidObject;
-				_position = new amPoint2d();
-				_position.addEventListener(amUpdateEvent.ENTITY_UPDATED, rigid_pointUpdated);
-				_linearVelocity = new amVector2d();
-				_linearVelocity.addEventListener(amUpdateEvent.ENTITY_UPDATED, rigid_vectorUpdated);
-			}
+			initRigidImp();
+			
+			super();
 			
 			if ( (this as Object).constructor == qb2Tangible )  throw qb2_errors.ABSTRACT_CLASS_ERROR;
 			
+			initProps();
+		}
+		
+		private function initRigidImp():void
+		{
+			if ( this is qb2IRigidObject )
+			{
+				_rigidImp = new qb2InternalIRigidImplementation(this);
+			}
+		}
+		
+		private function initProps():void
+		{			
 			//--- Set up default values for various properties.
 			turnFlagOn(qb2_flags.IS_DEBUG_DRAGGABLE | qb2_flags.ALLOW_SLEEPING | qb2_flags.ALLOW_COMPLEX_POLYGONS, false);
 			setProperty(qb2_props.CONTACT_CATEGORY_FLAGS, 0x0001 as uint, false);
@@ -107,53 +94,18 @@ package QuickB2.objects.tangibles
 			setProperty(qb2_props.SLICE_FLAGS,            0xFFFFFFFF,     false);
 		}
 		
+		qb2_friend function get _bodyB2():b2Body
+		{
+			return _rigidImp ? _rigidImp._bodyB2 : null;
+		}
+		
+		public function get ancestorBody():qb2Body
+			{  return _ancestorBody;  }
+		qb2_friend function setAncestorBody(aBody:qb2Body):void
+			{  _ancestorBody = aBody;  }
+		qb2_friend var _ancestorBody:qb2Body;
+		
 		qb2_friend virtual function updateContactReporting(bits:uint):void { }
-		
-		qb2_friend function rigid_flagsChanged(affectedFlags:uint):void
-		{
-			//--- Make actual changes to a simulating body if the property has an actual effect.
-			if ( this._bodyB2 )
-			{
-				if ( affectedFlags & qb2_flags.IS_KINEMATIC )
-				{
-					rigid_recomputeBodyB2Mass();
-					updateFrictionJoints();
-				}
-				
-				if ( affectedFlags & qb2_flags.HAS_FIXED_ROTATION )
-				{
-					this._bodyB2.SetFixedRotation(hasFixedRotation );
-					this._bodyB2.SetAwake(true);
-					(this as qb2IRigidObject).angularVelocity = 0; // object won't stop spinning if we don't stop it manually, because now it has infinite intertia.
-				}
-				
-				if ( affectedFlags & qb2_flags.IS_BULLET )
-				{
-					this._bodyB2.SetBullet(isBullet);
-				}
-				
-				if ( affectedFlags & qb2_flags.ALLOW_SLEEPING )
-				{
-					this._bodyB2.SetSleepingAllowed(allowSleeping);
-				}
-			}
-		}
-		
-		qb2_friend final function rigid_propertyChanged(propertyName:String):void
-		{
-			//--- Make actual changes to a simulating body if the property has an actual effect.
-			if ( this._bodyB2 )
-			{
-				if ( propertyName == qb2_props.LINEAR_DAMPING )
-				{
-					this._bodyB2.m_linearDamping = linearDamping;
-				}
-				else if ( propertyName == qb2_props.ANGULAR_DAMPING )
-				{
-					this._bodyB2.m_angularDamping = angularDamping;
-				}
-			}
-		}
 		
 		private function cloneActor():DisplayObject
 		{
@@ -199,13 +151,16 @@ package QuickB2.objects.tangibles
 		
 		qb2_friend function pushMassFreeze():void
 		{
-			if ( _bodyB2 )
+			if ( !massFreezeTracker )
 			{
-				_bodyB2.SetType(b2Body.b2_staticBody);
-			}
-			else if( _ancestorBody && _ancestorBody._bodyB2 )
-			{
-				_ancestorBody._bodyB2.SetType(b2Body.b2_staticBody);
+				if ( _bodyB2 )
+				{
+					_bodyB2.SetType(b2Body.b2_staticBody);
+				}
+				else if( _ancestorBody && _ancestorBody._bodyB2 )
+				{
+					_ancestorBody._bodyB2.SetType(b2Body.b2_staticBody);
+				}
 			}
 			
 			massFreezeTracker++;
@@ -240,7 +195,7 @@ package QuickB2.objects.tangibles
 				
 				if ( currParent._bodyB2 )
 				{
-					currParent.rigid_recomputeBodyB2Mass();
+					currParent._rigidImp.recomputeBodyB2Mass();
 					currParent._bodyB2.SetAwake(true);
 				}
 				else if ( currParent._ancestorBody && currParent._ancestorBody._bodyB2 )
@@ -270,11 +225,6 @@ package QuickB2.objects.tangibles
 			}
 		}
 		
-		//--- I think exposing the effectFields array for user use is just confusing, so I've made it unavailable.
-		/*public function get effectFields():Vector.<qb2EffectField>
-			{ return _effectFields; }
-		public function set effectFields(array:Vector.<qb2EffectField>):void 
-			{  _effectFields = array;  }*/
 		qb2_friend var _effectFields:Vector.<qb2EffectField>;
 		
 		public function get actor():DisplayObject
@@ -290,20 +240,13 @@ package QuickB2.objects.tangibles
 		}
 		qb2_friend var _actor:DisplayObject;
 		
-		public override function cloneShallow():qb2Object
+		public override function clone(deep:Boolean = true):qb2Object
 		{
-			var cloned:qb2Tangible = super.cloneShallow() as qb2Tangible;
+			var cloned:qb2Tangible = super.clone(deep) as qb2Tangible;
 			
 			cloned.copyTangibleProps(this);
 			
-			return cloned;
-		}
-		
-		public override function cloneDeep():qb2Object
-		{
-			var cloned:qb2Tangible = super.cloneDeep() as qb2Tangible;
-			
-			if ( actor )
+			if ( deep && actor )
 			{
 				cloned.actor = cloneActor();
 			}
@@ -323,15 +266,13 @@ package QuickB2.objects.tangibles
 			//--- Copy velocities.
 			if ( (this is qb2IRigidObject) && (source is qb2IRigidObject) )
 			{
-				this._linearVelocity._x = source._linearVelocity._x;
-				this._linearVelocity._y = source._linearVelocity._y;
-				this._angularVelocity   = source._angularVelocity;
+				_rigidImp._linearVelocity._x = source._rigidImp._linearVelocity._x;
+				_rigidImp._linearVelocity._y = source._rigidImp._linearVelocity._y;
+				_rigidImp._angularVelocity   = source._rigidImp._angularVelocity;
 			}
 		}
 		
 		public virtual function testPoint(point:amPoint2d):Boolean  { return false; }
-		
-		public virtual function rotateBy(radians:Number, origin:amPoint2d = null):qb2Tangible { return null; }
 		
 		public function scaleBy(xValue:Number, yValue:Number, origin:amPoint2d = null, scaleMass:Boolean = true, scaleJointAnchors:Boolean = true, scaleActor:Boolean = true):qb2Tangible
 		{
@@ -350,199 +291,11 @@ package QuickB2.objects.tangibles
 		
 		public virtual function translateBy(vector:amVector2d):qb2Tangible { return null; }
 		
-		public function distanceTo(otherTangible:qb2Tangible, outputVector:amVector2d = null, outputPointThis:amPoint2d = null, outputPointOther:amPoint2d = null, ... excludes):Number
+		public virtual function rotateBy(radians:Number, origin:amPoint2d = null):qb2Tangible { return null; }
+		
+		public function distanceTo(otherTangible:qb2Tangible, outputVector:amVector2d = null, outputPointThis:amPoint2d = null, outputPointOther:amPoint2d = null, excludes:Array = null):Number
 		{
-			//--- Do a bunch of checks for whether this is a legal operation in the first place.
-			if ( !this.world || !otherTangible.world )
-			{
-				throw qb2_errors.BAD_DISTANCE_QUERY;
-				return NaN;
-			}
-			if ( this == otherTangible )
-			{
-				throw qb2_errors.BAD_DISTANCE_QUERY;
-				return NaN;
-			}
-			if ( this is qb2ObjectContainer )
-			{
-				if ( otherTangible.isDescendantOf(this as qb2ObjectContainer) )
-				{
-					throw qb2_errors.BAD_DISTANCE_QUERY;
-					return NaN;
-				}
-			}
-			if ( otherTangible is qb2ObjectContainer )
-			{
-				if ( this.isDescendantOf(otherTangible as qb2ObjectContainer) )
-				{
-					throw qb2_errors.BAD_DISTANCE_QUERY;
-					return NaN;
-				}
-			}
-			
-			var fixtures1:Array = distanceTo_getFixtures(this, excludes);
-			var fixtures2:Array = distanceTo_getFixtures(otherTangible, excludes);
-			
-			var numFixtures1:int = fixtures1.length;
-			var smallest:Number = Number.MAX_VALUE;
-			var vec:V2 = null;
-			var pointA:amPoint2d = new amPoint2d();
-			var pointB:amPoint2d = new amPoint2d();
-			
-			var din:b2DistanceInput = b2Def.distanceInput;
-			var dout:b2DistanceOutput = b2Def.distanceOutput;
-			distanceTo_pointShape = distanceTo_pointShape ? distanceTo_pointShape : new b2CircleShape();
-			
-			for (var i:int = 0; i < numFixtures1; i++) 
-			{
-				var ithFixture:* = fixtures1[i];
-				
-				if ( ithFixture is b2Fixture )
-				{
-					var asFix:b2Fixture = ithFixture as b2Fixture;
-					din.proxyA.Set( asFix.m_shape);
-					din.transformA.xf = asFix.m_body.GetTransform();
-				}
-				else
-				{
-					din.proxyA.Set( distanceTo_pointShape);
-					din.transformA.xf = ithFixture as XF;
-				}
-				
-				var numFixtures2:int = fixtures2.length;
-				for (var j:int = 0; j < numFixtures2; j++) 
-				{
-					var jthFixture:* = fixtures2[j];
-					
-					if ( jthFixture is b2Fixture )
-					{
-						asFix = jthFixture as b2Fixture;
-						din.proxyB.Set( (jthFixture as b2Fixture).m_shape);
-						din.transformB.xf = asFix.m_body.GetTransform();
-					}
-					else
-					{
-						din.proxyB.Set( distanceTo_pointShape);
-						din.transformB.xf = jthFixture as XF;
-					}
-					
-					din.useRadii = true;
-					b2Def.simplexCache.count = 0;
-					b2Distance();
-					var seperation:V2 = dout.pointB.v2.subtract(dout.pointA.v2);
-					var distance:Number = seperation.lengthSquared();
-					
-					if ( distance < smallest )
-					{
-						smallest = distance;
-						vec = seperation;
-						pointA.set(dout.pointA.x, dout.pointA.y);
-						pointB.set(dout.pointB.x, dout.pointB.y);
-					}
-				}					
-			}
-			
-			if ( !vec )
-			{
-				throw qb2_errors.BAD_DISTANCE_QUERY;
-				return NaN;
-			}
-			
-			var physScale:Number = worldPixelsPerMeter;
-			
-			vec.multiplyN(physScale);
-			
-			if ( outputVector )
-			{
-				outputVector.set(vec.x, vec.y);
-			}
-			if ( outputPointThis )
-			{
-				pointA.scaleBy(physScale, physScale);
-				outputPointThis.copy(pointA);
-			}
-			if ( outputPointOther )
-			{
-				pointB.scaleBy(physScale, physScale);
-				outputPointOther.copy(pointB);
-			}
-		
-			return vec.length();
-		}
-		
-		private static var distanceTo_pointShape:b2CircleShape;
-		
-		private static function distanceTo_getFixtures(tang:qb2Tangible, excludes:Array):Array
-		{
-			var returnFixtures:Array = [];
-			
-			var queue:Vector.<qb2Object> = new Vector.<qb2Object>();
-			queue.unshift(tang);
-			while ( queue.length )
-			{
-				var object:qb2Object = queue.shift();
-				
-				for (var k:int = 0; k < excludes.length; k++) 
-				{
-					var exclude:* = excludes[k];
-					if ( exclude is Class )
-					{
-						var asClass:Class = exclude as Class;
-						if ( object is asClass )
-						{
-							continue;
-						}
-					}
-					else if ( object == exclude )
-					{
-						continue;
-					}
-				}
-				
-				if ( object is qb2Shape )
-				{
-					var shapeFixtures:Vector.<b2Fixture> = (object as qb2Shape).fixtures;
-					
-					for (var i:int = 0; i < shapeFixtures.length; i++) 
-					{
-						returnFixtures.push(shapeFixtures[i]);
-					}
-				}
-				else if ( object is qb2ObjectContainer )
-				{
-					var asContainer:qb2ObjectContainer = object as qb2ObjectContainer;
-					var numObjects:int = asContainer._objects.length;
-					var hasTangChildren:Boolean = false;
-					for (var j:int = 0; j < numObjects; j++) 
-					{
-						var jth:qb2Object = asContainer._objects[j];
-						if ( jth is qb2Tangible )
-						{
-							queue.push(jth);
-							
-							hasTangChildren = true;
-						}
-					}
-					
-					if ( !hasTangChildren )
-					{
-						if ( asContainer._bodyB2 )
-						{
-							returnFixtures.push(asContainer._bodyB2.GetTransform());
-						}
-						else
-						{
-							var worldPnt:amPoint2d = asContainer.getWorldPoint(new amPoint2d());
-							var xf:XF = new XF();
-							xf.p.x = worldPnt.x / asContainer.worldPixelsPerMeter;
-							xf.p.y = worldPnt.y / asContainer.worldPixelsPerMeter;
-							returnFixtures.push(xf);
-						}
-					}
-				}
-			}
-			
-			return returnFixtures;
+			return qb2InternalDistanceQuery.distanceTo(this, otherTangible, outputVector, outputPointThis, outputPointOther, excludes);
 		}
 		
 		public function get density():Number
@@ -616,13 +369,14 @@ package QuickB2.objects.tangibles
 		public function set sliceFlags(value:uint):void
 			{  setProperty(qb2_props.SLICE_FLAGS, value);  }
 			
-	
 		public function turnSliceFlagOn(sliceFlagOrFlags:uint):qb2Tangible
 			{	sliceFlags |= sliceFlagOrFlags;  return this;  }
+			
 		public function turnSliceFlagOff(sliceFlagOrFlags:uint):qb2Tangible
 			{	sliceFlags &= ~sliceFlagOrFlags;  return this;  }
 		public function isSliceFlagOn(sliceFlagOrFlags:uint):Boolean
 			{  return sliceFlags & sliceFlagOrFlags ? true : false;  }
+			
 		public function setSliceFlag(bool:Boolean, sliceFlagOrFlags:uint):qb2Tangible
 		{
 			if ( bool )
@@ -636,90 +390,46 @@ package QuickB2.objects.tangibles
 			
 			return this;
 		}
-		
-		
-		
-		
-		
+
 		public function get isGhost():Boolean
 			{  return _flags & qb2_flags.IS_GHOST ? true : false;  }
 		public function set isGhost(bool:Boolean):void
-		{
-			if ( bool )
-				turnFlagOn(qb2_flags.IS_GHOST);
-			else
-				turnFlagOff(qb2_flags.IS_GHOST);
-		}
+			{  setFlag(bool, qb2_flags.IS_GHOST);  }
 		
 		public function get isKinematic():Boolean
 			{  return _flags & qb2_flags.IS_KINEMATIC ? true : false;  }
 		public function set isKinematic(bool:Boolean):void
-		{
-			if ( bool )
-				turnFlagOn(qb2_flags.IS_KINEMATIC);
-			else
-				turnFlagOff(qb2_flags.IS_KINEMATIC);
-		}
+			{  setFlag(bool, qb2_flags.IS_KINEMATIC);  }
 	
 		public function get hasFixedRotation():Boolean
 			{  return _flags & qb2_flags.HAS_FIXED_ROTATION ? true : false;  }
 		public function set hasFixedRotation(bool:Boolean):void
-		{
-			if ( bool )
-				turnFlagOn(qb2_flags.HAS_FIXED_ROTATION);
-			else
-				turnFlagOff(qb2_flags.HAS_FIXED_ROTATION);
-		}
+			{  setFlag(bool, qb2_flags.HAS_FIXED_ROTATION);  }
 		
 		public function get allowComplexPolygons():Boolean
 			{  return _flags & qb2_flags.ALLOW_COMPLEX_POLYGONS ? true : false;  }
 		public function set allowComplexPolygons(bool:Boolean):void
-		{
-			if ( bool )
-				turnFlagOn(qb2_flags.ALLOW_COMPLEX_POLYGONS);
-			else
-				turnFlagOff(qb2_flags.ALLOW_COMPLEX_POLYGONS);
-		}
+			{  setFlag(bool, qb2_flags.ALLOW_COMPLEX_POLYGONS);  }
 		
 		public function get isBullet():Boolean
 			{  return _flags & qb2_flags.IS_BULLET ? true : false;  }
 		public function set isBullet(bool:Boolean):void
-		{
-			if ( bool )
-				turnFlagOn(qb2_flags.IS_BULLET);
-			else
-				turnFlagOff(qb2_flags.IS_BULLET);
-		}
+			{  setFlag(bool, qb2_flags.IS_BULLET);  }
 		
 		public function get allowSleeping():Boolean
 			{  return _flags & qb2_flags.ALLOW_SLEEPING ? true : false;  }
 		public function set allowSleeping(bool:Boolean):void
-		{
-			if ( bool )
-				turnFlagOn(qb2_flags.ALLOW_SLEEPING);
-			else
-				turnFlagOff(qb2_flags.ALLOW_SLEEPING);
-		}
+			{  setFlag(bool, qb2_flags.ALLOW_SLEEPING);  }
 		
 		public function get sleepingWhenAdded():Boolean
 			{  return _flags & qb2_flags.SLEEPING_WHEN_ADDED ? true : false;  }
 		public function set sleepingWhenAdded(bool:Boolean):void
-		{
-			if ( bool )
-				turnFlagOn(qb2_flags.SLEEPING_WHEN_ADDED);
-			else
-				turnFlagOff(qb2_flags.SLEEPING_WHEN_ADDED);
-		}
+			{  setFlag(bool, qb2_flags.SLEEPING_WHEN_ADDED);  }
 		
 		public function get isDebugDraggable():Boolean
 			{  return _flags & qb2_flags.IS_DEBUG_DRAGGABLE ? true : false;  }
 		public function set isDebugDraggable(bool:Boolean):void
-		{
-			if ( bool )
-				turnFlagOn(qb2_flags.IS_DEBUG_DRAGGABLE);
-			else
-				turnFlagOff(qb2_flags.IS_DEBUG_DRAGGABLE);
-		}
+			{  setFlag(bool, qb2_flags.IS_DEBUG_DRAGGABLE);  }
 
 		
 		
@@ -751,8 +461,8 @@ package QuickB2.objects.tangibles
 			if ( _bodyB2 )
 			{
 				_bodyB2.ApplyImpulse(new V2(impulseVector.x, impulseVector.y), new V2(atPoint.x / worldPixelsPerMeter, atPoint.y / worldPixelsPerMeter));
-				_linearVelocity._x = _bodyB2.m_linearVelocity.x;
-				_linearVelocity._y = _bodyB2.m_linearVelocity.y;
+				_rigidImp._linearVelocity._x = _bodyB2.m_linearVelocity.x;
+				_rigidImp._linearVelocity._y = _bodyB2.m_linearVelocity.y;
 			}
 			else if ( _ancestorBody && _ancestorBody._bodyB2 )
 				_ancestorBody.applyImpulse(_parent.getWorldPoint(atPoint), _parent.getWorldVector(impulseVector));
@@ -782,13 +492,17 @@ package QuickB2.objects.tangibles
 				//--- NOTE: since qb2Groups don't have transforms, they can be skipped in our walk up the tree.
 				if ( currParent is qb2IRigidObject )
 				{
-					worldPnt._x += currParent._position._x;
-					worldPnt._y += currParent._position._y;
+					var currParentX:Number = currParent._rigidImp._position._x;
+					var currParentY:Number = currParent._rigidImp._position._y;
+					var currParentRot:Number = currParent._rigidImp._rotation;
 					
-					var sinRad:Number = Math.sin(currParent._rotation);
-					var cosRad:Number = Math.cos(currParent._rotation);
-					var newVertX:Number = currParent._position._x + cosRad * (worldPnt._x - currParent._position._x) - sinRad * (worldPnt._y - currParent._position._y);
-					var newVertY:Number = currParent._position._y + sinRad * (worldPnt._x - currParent._position._x) + cosRad * (worldPnt._y - currParent._position._y);
+					worldPnt._x += currParentX;
+					worldPnt._y += currParentY;
+					
+					var sinRad:Number = Math.sin(currParentRot);
+					var cosRad:Number = Math.cos(currParentRot);
+					var newVertX:Number = currParentX + cosRad * (worldPnt._x - currParentX) - sinRad * (worldPnt._y - currParentY);
+					var newVertY:Number = currParentY + sinRad * (worldPnt._x - currParentX) + cosRad * (worldPnt._y - currParentY);
 					
 					worldPnt._x = newVertX;
 					worldPnt._y = newVertY;
@@ -822,11 +536,11 @@ package QuickB2.objects.tangibles
 				//--- NOTE: since qb2Groups don't have transforms, they can be skipped in our walk down the tree.
 				if ( space is qb2IRigidObject )
 				{
-					localPnt._x -= space._position._x;
-					localPnt._y -= space._position._y;
+					localPnt._x -= space._rigidImp._position._x;
+					localPnt._y -= space._rigidImp._position._y;
 					
-					var sinRad:Number = Math.sin(-space._rotation);
-					var cosRad:Number = Math.cos(-space._rotation);
+					var sinRad:Number = Math.sin(-space._rigidImp._rotation);
+					var cosRad:Number = Math.cos(-space._rigidImp._rotation);
 					var newVertX:Number = cosRad * (localPnt._x) - sinRad * (localPnt._y);
 					var newVertY:Number = sinRad * (localPnt._x) + cosRad * (localPnt._y);
 					
@@ -848,8 +562,8 @@ package QuickB2.objects.tangibles
 				//--- NOTE: since qb2Groups don't have transforms, they can be skipped in our walk up the tree.
 				if ( currParent is qb2IRigidObject )
 				{
-					var sinRad:Number = Math.sin(currParent._rotation);
-					var cosRad:Number = Math.cos(currParent._rotation);
+					var sinRad:Number = Math.sin(currParent._rigidImp._rotation);
+					var cosRad:Number = Math.cos(currParent._rigidImp._rotation);
 					var newVecX:Number = worldVector._x * cosRad - worldVector._y * sinRad;
 					var newVecY:Number = worldVector._x * sinRad + worldVector._y * cosRad;
 					
@@ -885,8 +599,8 @@ package QuickB2.objects.tangibles
 				//--- NOTE: since qb2Groups don't have transforms, they can be skipped in our walk down the tree.
 				if ( space is qb2IRigidObject )
 				{
-					var sinRad:Number = Math.sin(-space._rotation);
-					var cosRad:Number = Math.cos(-space._rotation);
+					var sinRad:Number = Math.sin(-space._rigidImp._rotation);
+					var cosRad:Number = Math.cos(-space._rigidImp._rotation);
 					var newVecX:Number = localVector._x * cosRad - localVector._y * sinRad;
 					var newVecY:Number = localVector._x * sinRad + localVector._y * cosRad;
 					
@@ -908,7 +622,7 @@ package QuickB2.objects.tangibles
 				//--- NOTE: since qb2Groups don't have transforms, they can be skipped in our walk up the tree.
 				if ( currParent is qb2IRigidObject )
 				{
-					worldRotation += currParent._rotation;
+					worldRotation += currParent._rigidImp._rotation;
 				}
 				
 				currParent = currParent._parent;
@@ -938,7 +652,7 @@ package QuickB2.objects.tangibles
 				//--- NOTE: since qb2Groups don't have transforms, they can be skipped in our walk down the tree.
 				if ( space is qb2IRigidObject )
 				{
-					localRotation -= space._rotation;
+					localRotation -= space._rigidImp._rotation;
 				}
 			}
 			
@@ -1015,16 +729,11 @@ package QuickB2.objects.tangibles
 			
 			if ( !boxSet && (this is qb2Body) )
 			{
-				var worldPos:amPoint2d = getWorldPoint( (this as qb2Body)._position, worldSpace);
+				var worldPos:amPoint2d = getWorldPoint( (this as qb2Body)._rigidImp._position, worldSpace);
 				box.setByCopy(worldPos, worldPos);
 			}
 			
 			return box;
-		}
-		
-		public function getConvexHull(worldSpace:qb2Tangible = null):amPolygon2d
-		{
-			return null;
 		}
 		
 		public function getBoundCircle(worldSpace:qb2Tangible = null):amBoundCircle2d
@@ -1202,8 +911,6 @@ package QuickB2.objects.tangibles
 		
 		protected override function update():void
 		{
-			// NOTE: qb2Object doesn't implement update(), so there's no reason to call it.
-			
 			var asRigid:qb2IRigidObject = this as qb2IRigidObject;  // assuming a little, but the only classes to call this super function are qb2Body and qb2Shape anyway...
 			var isShape:Boolean = this is qb2Shape;
 			
@@ -1332,229 +1039,8 @@ package QuickB2.objects.tangibles
 			}
 		}
 		
-		private static function rigid_shouldTransform(oldPos:amPoint2d, newPos:amPoint2d, oldRot:Number, newRot:Number):Boolean
-		{
-			//--- Return true if oldPos and newPos reference the same object, cause in this case it's likely that pointUpdated was invoked, and _position was changed.
-			return !oldPos.equals(newPos, diffTol) || !amUtils.isWithin(oldRot, newRot - rotTol, newRot + rotTol);
-		}
+		qb2_friend virtual function updateFrictionJoints():void { }
 		
-		qb2_friend function rigid_makeBodyB2(theWorld:qb2World):void
-		{
-			if ( theWorld.processingBox2DStuff )
-			{
-				theWorld.addDelayedCall(this, rigid_makeBodyB2, theWorld);
-				return;
-			}
-			
-			var rigid:qb2IRigidObject = this as qb2IRigidObject;
-			var conversion:Number = theWorld._pixelsPerMeter;
-			
-			//--- Populate body def.  
-			var bodDef:b2BodyDef  = b2Def.body;
-			bodDef.allowSleep     = this.allowSleeping;
-			bodDef.fixedRotation  = this.hasFixedRotation;
-			bodDef.bullet         = this.isBullet;
-			bodDef.awake          = !this.sleepingWhenAdded;
-			bodDef.linearDamping  = this.linearDamping;
-			bodDef.angularDamping = this.angularDamping;
-			//bodDef.type         = NOTE: type is taken care of in recomputeB2Mass, which will be called after this function some time.
-			bodDef.position.x     = rigid.position.x / conversion;
-			bodDef.position.y     = rigid.position.y / conversion;
-			bodDef.angle          = rigid.rotation;
-			
-			_bodyB2 = theWorld._worldB2.CreateBody(bodDef);
-			_bodyB2.m_linearVelocity.x = rigid.linearVelocity.x;
-			_bodyB2.m_linearVelocity.y = rigid.linearVelocity.y;
-			_bodyB2.m_angularVelocity  = rigid.angularVelocity;
-			_bodyB2.SetUserData(this);
-		}
-		
-		qb2_friend function rigid_destroyBodyB2():void
-		{
-			_bodyB2.SetUserData(null);
-			
-			if ( _world.processingBox2DStuff )
-			{
-				_world.addDelayedCall(this, _world._worldB2.DestroyBody, _bodyB2);
-			}
-			else
-			{
-				_world._worldB2.DestroyBody(_bodyB2);
-			}
-			
-			_bodyB2 = null;
-		}
-		
-		qb2_friend virtual function updateFrictionJoints():void
-		{
-		}
-		
-		qb2_friend function rigid_recomputeBodyB2Mass():void
-		{
-			var thisIsKinematic:Boolean = this.isKinematic;
-			
-			//--- Box2D gets pissed sometimes if you change a body from dynamic to static/kinematic within a contact callback.
-			//--- So whenever this happen's the call is delayed until after the physics step, which shouldn't affect the simulation really.
-			var theWorld:qb2World = qb2World.worldDict[_bodyB2.m_world] as qb2World;
-			var changingToZeroMass:Boolean = !_mass || thisIsKinematic;
-			if ( _bodyB2.GetType() == b2Body.b2_dynamicBody && changingToZeroMass && theWorld.processingBox2DStuff )
-			{
-				theWorld.addDelayedCall(null, this.rigid_recomputeBodyB2Mass);
-				return;
-			}
-			
-			_bodyB2.SetType(thisIsKinematic ? b2Body.b2_kinematicBody : (_mass ? b2Body.b2_dynamicBody : b2Body.b2_staticBody));
-			//_bodyB2.ResetMassData(); // this is called by SetType(), so was redundant, but i'm still afraid that commenting it out would break something, so it's here for now.
-			
-			//--- The mechanism by which we save some costly b2Body::ResetMassData() calls (by setting the body to static until all shapes are done adding),
-			//--- causes the body's velocities to be zeroed out, so here we just set them back to what they were.
-			if ( _bodyB2.m_type != b2Body.b2_staticBody )
-			{
-				_bodyB2.m_linearVelocity.x = _linearVelocity._x;
-				_bodyB2.m_linearVelocity.y = _linearVelocity._y;
-				_bodyB2.m_angularVelocity  = _angularVelocity;
-			}
-		}
-		
-		qb2_friend virtual function rigid_flushShapes():void  {}
-		
-		qb2_friend function rigid_update():void
-		{
-			if ( _bodyB2 )
-			{
-				//--- Clear forces.  This isn't done right after b2World::Step() with b2World::ClearForces(),
-				//--- because we would have to go through the whole list of bodies twice.
-				_bodyB2.m_force.x = _bodyB2.m_force.y = 0;
-				_bodyB2.m_torque = 0;
-				
-				//--- Get new position/angle.
-				const pixPerMeter:Number = worldPixelsPerMeter;
-				var newRotation:Number = _bodyB2.GetAngle();
-				var newPosition:amPoint2d = new amPoint2d(_bodyB2.GetPosition().x * pixPerMeter, _bodyB2.GetPosition().y * pixPerMeter);
-				
-				//--- Check if the new transform invalidates the bound box.
-				if ( rigid_shouldTransform( _position, newPosition, _rotation, newRotation) )
-				{
-					if ( this is qb2PolygonShape ) // sloppy, but not doing this in qb2PolygonShape::update() saves a decent amount of double-checking
-					{
-						(this as qb2PolygonShape).updateFromLagPoints(newPosition, newRotation);
-					}
-				}
-				
-				//--- Update the transform, without invoking pointUpdated
-				_position._x = newPosition._x;
-				_position._y = newPosition._y;
-				_rotation    = newRotation;
-				
-				//--- Update velocities, again without invoking callbacks.
-				_linearVelocity._x = _bodyB2.m_linearVelocity.x;
-				_linearVelocity._y = _bodyB2.m_linearVelocity.y;
-				_angularVelocity   = _bodyB2.m_angularVelocity;
-				
-				(this as qb2IRigidObject).updateActor();
-			}
-			
-			super.update();
-		}
-		
-		qb2_friend function rigid_setTransform(point:amPoint2d, rotationInRadians:Number):qb2IRigidObject
-		{
-			var asRigid:qb2IRigidObject = this as qb2IRigidObject;
-			
-			/*if ( _calledFromPointUpdated || rigid_shouldTransform(_position, point, _rotation, rotationInRadians) )
-			{
-				invalidateBoundBox();
-			}*/
-			
-			if ( point != _position ) // if e.g. rotateBy or pointUpdated() calls this function, 'point' and '_position' refer to the same point object, otherwise _position must be made to refer to the new object
-			{
-				if ( _position )  _position.removeEventListener(amUpdateEvent.ENTITY_UPDATED, rigid_pointUpdated);
-				_position = point;
-				_position.addEventListener(amUpdateEvent.ENTITY_UPDATED, rigid_pointUpdated);
-			}
-			
-			_rotation = rotationInRadians;
-			
-			if ( _bodyB2 )
-			{
-				if ( _world.processingBox2DStuff )
-				{
-					_world.addDelayedCall(this, _bodyB2.SetTransform, new V2(point.x / worldPixelsPerMeter, point.y / worldPixelsPerMeter), rotationInRadians);
-				}
-				else
-				{
-					_bodyB2.SetTransform(new V2(point.x / worldPixelsPerMeter, point.y / worldPixelsPerMeter), rotationInRadians);
-				}
-			}
-			
-			asRigid.updateActor();
-			
-			wakeUp();
-			
-			if ( _ancestorBody ) // (if this object is a child of some body whose only other ancestors are qb2Groups...)
-			{
-				pushMassFreeze(); // this is only done to prevent b2Body::ResetMassData() from being effectively called more than necessary by setting body type to static.
-					rigid_flushShapes();
-				popMassFreeze();
-				
-				//--- Skip the first object (this) in the tree because only parent object's mass properties will be affected.
-				updateMassProps(0, 0, true); // we just assume that some kind of center of mass change took place here, even though it didnt *for sure* happen
-				
-				for (var i:int = 0; i < asRigid.numAttachedJoints; i++) 
-				{
-					var attachedJoint:qb2Joint = asRigid.getAttachedJointAt(i);
-					attachedJoint.correctLocals();
-				}
-			}		
-			
-			return asRigid;
-		}
-		
-		qb2_friend function rigid_vectorUpdated(evt:amUpdateEvent):void
-		{
-			if ( _bodyB2 )
-			{
-				_bodyB2.m_linearVelocity.x = _linearVelocity.x;
-				_bodyB2.m_linearVelocity.y = _linearVelocity.y;
-				_bodyB2.SetAwake(true);
-			}
-		}
-
-		qb2_friend function rigid_pointUpdated(evt:amUpdateEvent):void
-		{
-			_calledFromPointUpdated = true;
-				(this as qb2IRigidObject).setTransform(_position, _rotation);
-			_calledFromPointUpdated = false;
-		}
-		
-		qb2_friend function get rigid_attachedMass():Number
-		{
-			if ( !_attachedJoints )  return 0;
-			
-			var totalMass:Number = 0;
-			var queue:Vector.<qb2IRigidObject> = new Vector.<qb2IRigidObject>();
-			queue.unshift(this as qb2IRigidObject);
-			var alreadyVisited:Dictionary = new Dictionary(true);
-			while ( queue.length )
-			{
-				var rigid:qb2IRigidObject = queue.shift();
-				
-				if ( alreadyVisited[rigid] || !rigid.world )  continue;
-				
-				totalMass += rigid.mass;
-				alreadyVisited[rigid] = true;
-				
-				for (var i:int = 0; i < rigid.numAttachedJoints; i++) 
-				{
-					var joint:qb2Joint = rigid.getAttachedJointAt(i);
-					
-					var otherObject:qb2Tangible = joint._object1 == rigid ? joint._object2 : joint._object1;
-					
-					if ( otherObject )  queue.unshift(otherObject as qb2IRigidObject);
-				}
-			}
-			
-			return totalMass - this.mass;
-		}
+		qb2_friend virtual function flushShapes():void  {}
 	}
 }

@@ -51,9 +51,9 @@ package TopDown.carparts
 		
 		td_friend var _carBody:tdCarBody;
 		
-		public override function cloneShallow():qb2Object
+		public override function clone(deep:Boolean = true):qb2Object
 		{
-			var engine:tdEngine = super.cloneShallow() as tdEngine;
+			var engine:tdEngine = super.clone(deep) as tdEngine;
 			engine.cancelThrottleWhenShifting = this.cancelThrottleWhenShifting;
 			engine.torqueCurve = this.torqueCurve;
 			engine.constrainRPMs = this.constrainRPMs;

@@ -127,7 +127,7 @@ package QuickB2.objects.tangibles
 			//--- Just manually set this stuff, since this body isn't technically part of the world hierarchy.
 			_background._world = this;
 			_background._parent = this;
-			_background._bodyB2 = _worldB2.m_groundBody;
+			_background._rigidImp._bodyB2 = _worldB2.m_groundBody;
 		}
 		
 		/** The box2d world that qb2World wraps.  This object has lower-level properties and functions that might not
@@ -492,7 +492,7 @@ package QuickB2.objects.tangibles
 					
 				if ( object is qb2Tangible && (object as qb2Tangible)._bodyB2 )
 				{
-					(object as qb2Tangible).rigid_recomputeBodyB2Mass();
+					(object as qb2Tangible)._rigidImp.recomputeBodyB2Mass();
 				}
 			}
 			delayedCalls.length = 0;
@@ -533,12 +533,7 @@ package QuickB2.objects.tangibles
 			return super.removeObject(object);
 		}
 		
-		public override function cloneShallow():qb2Object
-		{
-			throw qb2_errors.CLONE_ERROR;
-		}
-		
-		public override function cloneDeep():qb2Object
+		public override function clone(deep:Boolean = true):qb2Object
 		{
 			throw qb2_errors.CLONE_ERROR;
 		}

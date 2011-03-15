@@ -165,7 +165,7 @@ package TopDown.ai
 			}
 			else if ( seed is tdCarBody )
 			{
-				var clone:tdCarBody = (seed as tdCarBody).cloneDeep() as tdCarBody;
+				var clone:tdCarBody = (seed as tdCarBody).clone() as tdCarBody;
 				clone.linearVelocity.set();
 				clone.angularVelocity = 0;
 				
@@ -253,7 +253,7 @@ package TopDown.ai
 				}
 				else if( prototype is tdBrain )
 				{
-					return (prototype as tdBrain).cloneDeep() as tdTrackBrain;
+					return (prototype as tdBrain).clone() as tdTrackBrain;
 				}
 			}
 			else

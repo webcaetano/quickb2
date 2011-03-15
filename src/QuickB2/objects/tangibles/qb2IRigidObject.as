@@ -89,7 +89,7 @@ package QuickB2.objects.tangibles
 		
 		function translateBy(vector:amVector2d):qb2Tangible;
 		
-		function distanceTo(otherTangible:qb2Tangible, outputVector:amVector2d = null, outputPointThis:amPoint2d = null, outputPointOther:amPoint2d = null, ... excludes):Number
+		function distanceTo(otherTangible:qb2Tangible, outputVector:amVector2d = null, outputPointThis:amPoint2d = null, outputPointOther:amPoint2d = null, excludes:Array = null):Number;
 		
 		function get ancestorBody():qb2Body;
 		
@@ -235,9 +235,7 @@ package QuickB2.objects.tangibles
 		
 		function drawDebug(graphics:Graphics):void;
 		
-		function cloneShallow():qb2Object;
-		
-		function cloneDeep():qb2Object;
+		function clone(deep:Boolean = true):qb2Object;
 		
 		function isDescendantOf(possibleAncestor:qb2ObjectContainer):Boolean;
 		

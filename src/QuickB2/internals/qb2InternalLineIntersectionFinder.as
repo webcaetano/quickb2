@@ -62,7 +62,7 @@ package QuickB2.internals
 				else
 				{
 					var asCircle:qb2CircleShape = currObject as qb2CircleShape;
-					var geoCircle:amCircle2d = asCircle.asCircle();
+					var geoCircle:amCircle2d = asCircle.asGeoCircle();
 					if ( localSliceLine.intersectsCircle(geoCircle, outputPoints ? utilArray : null, INT_TOLERANCE) )
 					{
 						if ( !outputPoints )

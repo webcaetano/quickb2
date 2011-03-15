@@ -5,7 +5,7 @@
   <FlexIncludeASI>false</FlexIncludeASI>
   <MakeCS3>false</MakeCS3>
   <MakeMXI>false</MakeMXI>
-  <IntegrateAsDoc>true</IntegrateAsDoc>
+  <IntegrateAsDoc>false</IntegrateAsDoc>
   <LaunchAEM>false</LaunchAEM>
   <MXIVersion />
   <MXPIncludeASI>false</MXPIncludeASI>
@@ -21,4 +21,7 @@
   <CS3_ComponentIconFile />
   <CS3_PreviewType>None</CS3_PreviewType>
   <CS3_PreviewResource />
+  <includeNamespaces> 
+    <namespace>qb2_friend</namespace> 
+  </includeNamespaces> 
 </SWCProject>

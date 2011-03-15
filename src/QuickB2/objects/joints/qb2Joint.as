@@ -82,8 +82,8 @@ package QuickB2.objects.joints
 		
 		private function registerObject(object:qb2Tangible):void
 		{
-			if ( !object._attachedJoints )  object._attachedJoints = new Vector.<qb2Joint>();
-			object._attachedJoints.push(this);
+			if ( !object._rigidImp._attachedJoints )  object._rigidImp._attachedJoints = new Vector.<qb2Joint>();
+			object._rigidImp._attachedJoints.push(this);
 			object.addEventListener(qb2ContainerEvent.ADDED_TO_WORLD,     addedOrRemoved, false, 0, true);
 			object.addEventListener(qb2ContainerEvent.REMOVED_FROM_WORLD, addedOrRemoved, false, 0, true);
 			
@@ -92,9 +92,9 @@ package QuickB2.objects.joints
 		
 		private function unregisterObject(object:qb2Tangible):void
 		{
-			var index:int = object._attachedJoints.indexOf(this);
-			object._attachedJoints.splice(index, 1);
-			if ( object._attachedJoints.length == 0 )  object._attachedJoints = null;
+			var index:int = object._rigidImp._attachedJoints.indexOf(this);
+			object._rigidImp._attachedJoints.splice(index, 1);
+			if ( object._rigidImp._attachedJoints.length == 0 )  object._rigidImp._attachedJoints = null;
 			object.removeEventListener(qb2ContainerEvent.ADDED_TO_WORLD,     addedOrRemoved);
 			object.removeEventListener(qb2ContainerEvent.REMOVED_FROM_WORLD, addedOrRemoved);
 			

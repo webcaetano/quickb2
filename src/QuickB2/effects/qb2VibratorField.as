@@ -99,9 +99,9 @@ package QuickB2.effects
 			}
 		}
 		
-		public override function cloneShallow():qb2Object
+		public override function clone(deep:Boolean = true):qb2Object
 		{
-			var cloned:qb2VibratorField = super.cloneShallow() as qb2VibratorField;
+			var cloned:qb2VibratorField = super.clone(deep) as qb2VibratorField;
 			
 			cloned.minImpulse = this.minImpulse;
 			cloned.maxImpulse = this.maxImpulse;

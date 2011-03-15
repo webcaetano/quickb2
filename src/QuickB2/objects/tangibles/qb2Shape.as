@@ -115,16 +115,10 @@ package QuickB2.objects.tangibles
 		public virtual function get perimeter():Number { return NaN; }
 		public function get metricPerimeter():Number
 			{ return perimeter / worldPixelsPerMeter; }
-			
-		//--- Various properties that have real effects on shapes that are simulating in the world.
-		qb2_friend static const PROPS_FOR_SHAPES:Object =
-		{
-			friction:true, restitution:true, contactCategory:true, contactCollidesWith:true, contactGroupIndex:true//, isGhost:true
-		}
-		
+	
 		protected override function propertyChanged(propertyName:String):void
 		{
-			rigid_propertyChanged(propertyName); // sets body properties if this shape is flying solo and has a b2Body
+			_rigidImp.propertyChanged(propertyName); // sets body properties if this shape is flying solo and has a b2Body
 			
 			if ( !this.fixtures.length )  return;
 				
@@ -178,7 +172,7 @@ package QuickB2.objects.tangibles
 		{
 			if ( !this.fixtures.length )  return;
 			
-			rigid_flagsChanged(affectedFlags);
+			_rigidImp.flagsChanged(affectedFlags);
 			
 			if ( affectedFlags & qb2_flags.IS_GHOST )
 			{
@@ -217,13 +211,13 @@ package QuickB2.objects.tangibles
 			_mass = newMass;
 			_surfaceArea = newArea;
 			
-			rigid_flushShapes();
+			flushShapes();
 			
 			_mass = oldMass;
 			_surfaceArea = oldArea;
 		}
 		
-		qb2_friend override function rigid_flushShapes():void
+		qb2_friend override function flushShapes():void
 		{
 			if ( freezeFlush )  return;
 		
@@ -333,14 +327,14 @@ package QuickB2.objects.tangibles
 			//--- If this is a lone shape being added to the world, internally it must have its own body.
 			if ( !_ancestorBody )
 			{
-				rigid_makeBodyB2(theWorld);
+				_rigidImp.makeBodyB2(theWorld);
 			}
 			
 			makeShapeB2(theWorld);
 			
 			if ( _bodyB2 )
 			{
-				rigid_recomputeBodyB2Mass();
+				_rigidImp.recomputeBodyB2Mass();
 			}
 			
 			theWorld._terrainRevisionDict[this]  = 0 as int;
@@ -413,7 +407,7 @@ package QuickB2.objects.tangibles
 		{
 			if ( _bodyB2 )
 			{
-				rigid_destroyBodyB2();
+				_rigidImp.destroyBodyB2();
 			}
 			
 			destroyShapeB2();
@@ -472,8 +466,7 @@ package QuickB2.objects.tangibles
 		{
 			var numToPop:int = pushToEffectsStack();
 			
-			rigid_update();
-			
+			_rigidImp.update();
 			super.update();
 			
 			if ( _world._gravityZRevisionDict[this] != _world._globalGravityZRevision || frictionJoints && _world._terrainRevisionDict[this] != _world._globalTerrainRevision )
@@ -568,78 +561,66 @@ package QuickB2.objects.tangibles
 		private static var terrainIterator:qb2TreeTraverser = new qb2TreeTraverser();
 
 		public override function translateBy(vector:amVector2d):qb2Tangible
-			{  _position.translateBy(vector);  return this;  }
+			{  _rigidImp._position.translateBy(vector);  return this;  }
 
 		public override function rotateBy(radians:Number, origin:amPoint2d = null):qb2Tangible 
-			{  return setTransform(_position.rotateBy(radians, origin), rotation + radians) as qb2Tangible;  }
+			{  return setTransform(_rigidImp._position.rotateBy(radians, origin), rotation + radians) as qb2Tangible;  }
 
 		public function setTransform(point:amPoint2d, rotationInRadians:Number):qb2IRigidObject
-			{  return rigid_setTransform(point, rotationInRadians);  }
+			{  return _rigidImp.setTransform(point, rotationInRadians);  }
 
 		public function updateActor():void
 		{
 			if ( _actor )
 			{
-				_actor.x = _position.x;  _actor.y = _position.y;
+				_actor.x = _rigidImp._position.x;  _actor.y = _rigidImp._position.y;
 				_actor.rotation = rotation * TO_DEG;
 			}
 		}
 
 		public function get numAttachedJoints():uint
-			{  return _attachedJoints ? _attachedJoints.length : 0;  }
+			{  return _rigidImp._attachedJoints ? _rigidImp._attachedJoints.length : 0;  }
 
 		public function getAttachedJointAt(index:uint):qb2Joint
-			{  return _attachedJoints ? _attachedJoints[index] : null;  }
+			{  return _rigidImp._attachedJoints ? _rigidImp._attachedJoints[index] : null;  }
 			
 		public function get attachedMass():Number
-			{  return rigid_attachedMass;  }
+			{  return _rigidImp.attachedMass;  }
 
 		public function get position():amPoint2d
-			{  return _position;  }
+			{  return _rigidImp._position;  }
 		public function set position(newPoint:amPoint2d):void
 			{  setTransform(newPoint, rotation);  }
 			
 		public function getMetricPosition():amPoint2d
 		{
 			const pixPer:Number = worldPixelsPerMeter;
-			return new amPoint2d(_position.x / pixPer, _position.y / pixPer);
+			return new amPoint2d(_rigidImp._position.x / pixPer, _rigidImp._position.y / pixPer);
 		}
 
 		public function get linearVelocity():amVector2d
-			{  return _linearVelocity;  }
+			{  return _rigidImp._linearVelocity;  }
 		public function set linearVelocity(newVector:amVector2d):void
-		{
-			if ( _linearVelocity )  _linearVelocity.removeEventListener(amUpdateEvent.ENTITY_UPDATED, rigid_vectorUpdated);
-			_linearVelocity = newVector;
-			_linearVelocity.addEventListener(amUpdateEvent.ENTITY_UPDATED, rigid_vectorUpdated);
-			rigid_vectorUpdated(null);
-		}
+			{  _rigidImp.setLinearVelocity(newVector);  }
+			
+		public function get angularVelocity():Number
+			{  return _rigidImp._angularVelocity;  }
+		public function set angularVelocity(radsPerSec:Number):void
+			{  _rigidImp.setAngularVelocity(radsPerSec);  }
 
 		public function getNormal():amVector2d
 			{  return amVector2d.newRotVector(0, -1, rotation);  }
 
 		public function get rotation():Number
-			{  return _rotation; }
+			{  return _rigidImp._rotation; }
 		public function set rotation(value:Number):void
-			{  setTransform(_position, value);  }
+			{  setTransform(_rigidImp._position, value);  }
 
-		public function get angularVelocity():Number
-			{  return _angularVelocity;  }
-		public function set angularVelocity(radsPerSec:Number):void
-		{
-			_angularVelocity = radsPerSec;
-			if ( _bodyB2 )
-			{
-				_bodyB2.m_angularVelocity = radsPerSec;
-				_bodyB2.SetAwake(true);
-			}
-		}
-		
 		public override function drawDebug(graphics:Graphics):void
 		{
 			if ( frictionJoints && fixtures.length )
 			{
-				if ( qb2_debugDrawSettings.flags & qb2_debugDrawFlags.FRICTION_POINTS )
+				if ( qb2_debugDrawSettings.flags & qb2_debugDrawFlags.FRICTION_Z_POINTS )
 				{
 					graphics.lineStyle();
 					graphics.beginFill(qb2_debugDrawSettings.frictionPointColor, qb2_debugDrawSettings.frictionPointAlpha);

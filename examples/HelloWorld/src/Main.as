@@ -5,7 +5,8 @@ package
 	import QuickB2.objects.tangibles.*;
 	import QuickB2.stock.*;
 	
-	/** Really simple example that pulls in the precompiled QuickB2.swc.
+	/** 
+	 * Really simple example that pulls in the precompiled QuickB2.swc.
 	 * 
 	 * @author Doug Koellmer
 	 */

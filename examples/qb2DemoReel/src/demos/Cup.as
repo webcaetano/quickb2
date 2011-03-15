@@ -103,7 +103,7 @@ package demos
 				var proposedPoint:amPoint2d = new amPoint2d(stage.mouseX, stage.mouseY);
 				
 				//--- Get a polygon representation with which to test self-intersection.
-				var polygon:amPolygon2d = cup.asPolygon();
+				var polygon:amPolygon2d = cup.asGeoPolygon();
 				var ithVertex:amPoint2d = polygon.getVertexAt(currDrag.index);
 				ithVertex.copy(proposedPoint);
 				

@@ -118,7 +118,7 @@ package QuickB2.objects.tangibles
 			//--- Only bodies owned by non-rigid containers (i.e. qb2Groups) have bodies.
 			if ( !_ancestorBody )
 			{
-				rigid_makeBodyB2(theWorld);
+				_rigidImp.makeBodyB2(theWorld);
 			}
 			
 			//--- Here we temporarily make the body static so that its mass data won't be reset internally for each shape addition
@@ -135,7 +135,7 @@ package QuickB2.objects.tangibles
 			//--- updateMassProps() isn't called because we're just interested in the internal b2Body's mass properties being updated.
 			if ( _bodyB2 )
 			{
-				rigid_recomputeBodyB2Mass();
+				_rigidImp.recomputeBodyB2Mass();
 			}
 			
 			super.make(theWorld, ancestor); // just fires qb2ContainerEvents
@@ -145,7 +145,7 @@ package QuickB2.objects.tangibles
 		{
 			if ( _bodyB2 )
 			{
-				rigid_destroyBodyB2();
+				_rigidImp.destroyBodyB2();
 			}
 			
 			for ( var i:int = 0; i < _objects.length; i++ )
@@ -158,20 +158,19 @@ package QuickB2.objects.tangibles
 		
 		protected override function propertyChanged(propertyName:String):void
 		{
-			rigid_propertyChanged(propertyName); // sets body properties if this body has a b2Body
+			_rigidImp.propertyChanged(propertyName); // sets body properties if this body has a b2Body
 		}
 		
 		protected override function flagsChanged(affectedFlags:uint):void
 		{
-			rigid_flagsChanged(affectedFlags); // sets body properties if this body has a b2Body
+			_rigidImp.flagsChanged(affectedFlags); // sets body properties if this body has a b2Body
 		}
 		
 		protected override function update():void
 		{
 			var numToPop:int = pushToEffectsStack();
 			
-			rigid_update();
-			
+			_rigidImp.update();
 			super.update();
 			
 			var updateLoopBit:uint = qb2_flags.JOINS_IN_UPDATE_CHAIN;
@@ -188,72 +187,60 @@ package QuickB2.objects.tangibles
 		}
 
 		public override function translateBy(vector:amVector2d):qb2Tangible
-			{  _position.translateBy(vector);  return this;  }
+			{  _rigidImp._position.translateBy(vector);  return this;  }
 
 		public override function rotateBy(radians:Number, origin:amPoint2d = null):qb2Tangible 
-			{  return setTransform(_position.rotateBy(radians, origin), rotation + radians) as qb2Tangible;  }
+			{  return setTransform(_rigidImp._position.rotateBy(radians, origin), rotation + radians) as qb2Tangible;  }
 
 		public function setTransform(point:amPoint2d, rotationInRadians:Number):qb2IRigidObject
-			{  return rigid_setTransform(point, rotationInRadians);  }
+			{  return _rigidImp.setTransform(point, rotationInRadians);  }
 
 		public function updateActor():void
 		{
 			if ( _actor )
 			{
-				_actor.x = _position.x;  _actor.y = _position.y;
+				_actor.x = _rigidImp._position.x;  _actor.y = _rigidImp._position.y;
 				_actor.rotation = rotation * TO_DEG;
 			}
 		}
 
 		public function get numAttachedJoints():uint
-			{  return _attachedJoints ? _attachedJoints.length : 0;  }
+			{  return _rigidImp._attachedJoints ? _rigidImp._attachedJoints.length : 0;  }
 
 		public function getAttachedJointAt(index:uint):qb2Joint
-			{  return _attachedJoints ? _attachedJoints[index] : null;  }
+			{  return _rigidImp._attachedJoints ? _rigidImp._attachedJoints[index] : null;  }
 			
 		public function get attachedMass():Number
-			{  return rigid_attachedMass;  }
+			{  return _rigidImp.attachedMass;  }
 
 		public function get position():amPoint2d
-			{  return _position;  }
+			{  return _rigidImp._position;  }
 		public function set position(newPoint:amPoint2d):void
 			{  setTransform(newPoint, rotation);  }
 			
 		public function getMetricPosition():amPoint2d
 		{
 			const pixPer:Number = worldPixelsPerMeter;
-			return new amPoint2d(_position.x / pixPer, _position.y / pixPer);
+			return new amPoint2d(_rigidImp._position.x / pixPer, _rigidImp._position.y / pixPer);
 		}
 
 		public function get linearVelocity():amVector2d
-			{  return _linearVelocity;  }
+			{  return _rigidImp._linearVelocity;  }
 		public function set linearVelocity(newVector:amVector2d):void
-		{
-			if ( _linearVelocity )  _linearVelocity.removeEventListener(amUpdateEvent.ENTITY_UPDATED, rigid_vectorUpdated);
-			_linearVelocity = newVector;
-			_linearVelocity.addEventListener(amUpdateEvent.ENTITY_UPDATED, rigid_vectorUpdated);
-			rigid_vectorUpdated(null);
-		}
+			{  _rigidImp.setLinearVelocity(newVector);  }
+			
+		public function get angularVelocity():Number
+			{  return _rigidImp._angularVelocity;  }
+		public function set angularVelocity(radsPerSec:Number):void
+			{  _rigidImp.setAngularVelocity(radsPerSec);  }
 
 		public function getNormal():amVector2d
 			{  return amVector2d.newRotVector(0, -1, rotation);  }
 
 		public function get rotation():Number
-			{  return _rotation; }
+			{  return _rigidImp._rotation; }
 		public function set rotation(value:Number):void
-			{  setTransform(_position, value);  }
-
-		public function get angularVelocity():Number
-			{  return _angularVelocity;  }
-		public function set angularVelocity(radsPerSec:Number):void
-		{
-			_angularVelocity = radsPerSec;
-			if ( _bodyB2 )
-			{
-				_bodyB2.m_angularVelocity = radsPerSec;
-				_bodyB2.SetAwake(true);
-			}
-		}
+			{  setTransform(_rigidImp._position, value);  }
 		
 		public function asTangible():qb2Tangible
 			{  return this as qb2Tangible;  }

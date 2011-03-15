@@ -98,8 +98,10 @@ package QuickB2.objects
 			return this;
 		}
 		
-		/// Turns a flag (or flags) on.  For example turnFlagOn(qb2_flags.JOINS_IN_DEBUG_DRAWING)
-		/// will tell this object to draw debug graphics.
+		/**
+		 * Turns a flag (or flags) on.  For example turnFlagOn(qb2_flags.JOINS_IN_DEBUG_DRAWING)
+		 * will tell this object to draw debug graphics.
+		 */
 		public final function turnFlagOn(flag:uint, takeOwnership:Boolean = true):qb2Object
 		{
 			var oldFlags:uint = _flags;
@@ -124,7 +126,7 @@ package QuickB2.objects
 			return this;
 		}
 		
-		qb2_friend final function setFlag(bool:Boolean, flag:uint, takeOwnership:Boolean = true):qb2Object
+		public final function setFlag(bool:Boolean, flag:uint, takeOwnership:Boolean = true):qb2Object
 		{
 			if ( bool )
 			{
@@ -168,7 +170,8 @@ package QuickB2.objects
 		
 		/**
 		 * Sets the property value for a given property name.
-		 * @param value The value associated with the property name.  This is generally a Number, int, or uint.
+		 * 
+		 * @param value The value associated with the property name.  This is generally a Number, int, uint, or qb2CustomProperty.
 		 * @return this
 		 */
 		public final function setProperty(propertyName:String, value:*, takeOwnership:Boolean = true):qb2Object
@@ -724,7 +727,7 @@ package QuickB2.objects
 			}
 		}
 		
-		protected static var reusableV2:V2 = new V2();
+		//protected static var reusableV2:V2 = new V2();
 		
 		private function collectAncestorEventFlags():uint
 		{
@@ -802,25 +805,17 @@ package QuickB2.objects
 		
 		/**
 		 * Returns a new instance that is a clone of this object.  Properties, flags, and their ownerships are copied to the new instance.
-		 * Subclasses are responsible for overriding this function and ammending whatever they need to the clone.
+		 * Subclasses are responsible for overriding this function and ammending whatever they need to the clone.  It is up to subclasses
+		 * to determine what "deep" means.  For example, calling clone(true) on a qb2ObjectContainer will also clone all of the container's
+		 * descendants, whereas just calling clone(false) on the same container will only copy the container's properties.
 		 */
-		public function cloneShallow():qb2Object
+		public function clone(deep:Boolean = true):qb2Object
 		{
 			var cloned:qb2Object = new (this as Object).constructor;
 		
 			cloned.copyPropertiesAndFlags(this);
 			
 			return cloned;
-		}
-		
-		/**
-		 * Returns a new instance that is a deep clone of this object.  For qb2Object this is the same as cloneShallow().  It is up to subclasses
-		 * to determine what "deep" means.  For example, calling cloneDeep() on a qb2ObjectContainer will also clone all of the container's
-		 * descendants, whereas just calling cloneShallow on the same container will only copy the container's properties.
-		 */
-		public function cloneDeep():qb2Object
-		{
-			return cloneShallow();
 		}
 		
 		qb2_friend function copyPropertiesAndFlags(source:qb2Object):void
