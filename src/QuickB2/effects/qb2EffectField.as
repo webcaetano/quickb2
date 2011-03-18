@@ -32,6 +32,7 @@ package QuickB2.effects
 	import QuickB2.misc.*;
 	import QuickB2.objects.*;
 	import QuickB2.objects.tangibles.*;
+	import surrender.srGraphics2d;
 	
 	use namespace qb2_friend;
 	
@@ -423,7 +424,7 @@ package QuickB2.effects
 			return cloned;
 		}
 		
-		public override function drawDebug(graphics:Graphics):void
+		public override function drawDebug(graphics:srGraphics2d):void
 		{
 			pushDebugFillColor(qb2_debugDrawSettings.effectFieldFillColor);
 				super.drawDebug(graphics);

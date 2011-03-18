@@ -27,6 +27,7 @@ package TopDown.ai
 	import flash.display.*;
 	import QuickB2.debugging.*;
 	import QuickB2.objects.*;
+	import surrender.srGraphics2d;
 	import TopDown.*;
 	import TopDown.debugging.*;
 	import TopDown.events.*;
@@ -271,17 +272,17 @@ package TopDown.ai
 			return this;
 		}
 		
-		public override function draw(graphics:Graphics):void
+		public override function draw(graphics:srGraphics2d):void
 		{
-			lineRep.asVector().draw(graphics, lineRep.getStartPoint(), 0, td_debugDrawSettings.trackArrowSize, 1);
+			//lineRep.asVector().draw(graphics, lineRep.getStartPoint(), 0, td_debugDrawSettings.trackArrowSize, 1);
 		}
 		
-		public override function drawDebug(graphics:Graphics):void
+		public override function drawDebug(graphics:srGraphics2d):void
 		{
 			if ( !(td_debugDrawSettings.flags & td_debugDrawFlags.TRACKS) )
 				return;
 				
-			graphics.lineStyle(td_debugDrawSettings.trackThickness, td_debugDrawSettings.trackColor, qb2_debugDrawSettings.outlineAlpha);
+			graphics.setLineStyle(td_debugDrawSettings.trackThickness, td_debugDrawSettings.trackColor, qb2_debugDrawSettings.outlineAlpha);
 			draw(graphics);
 		}
 	}

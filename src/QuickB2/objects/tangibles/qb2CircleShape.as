@@ -35,6 +35,7 @@ package QuickB2.objects.tangibles
 	import QuickB2.objects.*;
 	import QuickB2.objects.joints.*;
 	import QuickB2.stock.*;
+	import surrender.srGraphics2d;
 	
 	use namespace qb2_friend;
 	use namespace am_friend;
@@ -225,22 +226,22 @@ package QuickB2.objects.tangibles
 			}
 		}
 		
-		public override function draw(graphics:Graphics):void
+		public override function draw(graphics:srGraphics2d):void
 		{
 			var vertex:amPoint2d = _parent ? _parent.getWorldPoint(_rigidImp._position) : _rigidImp._position;
 			graphics.drawCircle(vertex.x, vertex.y, _radius);
 		}
 		
-		public override function drawDebug(graphics:Graphics):void
+		public override function drawDebug(graphics:srGraphics2d):void
 		{
 			var staticShape:Boolean = mass == 0;
 			
 			var drawFlags:uint = qb2_debugDrawSettings.flags;
 			
 			if ( drawFlags & qb2_debugDrawFlags.OUTLINES )
-				graphics.lineStyle(qb2_debugDrawSettings.lineThickness, debugOutlineColor, qb2_debugDrawSettings.outlineAlpha);
+				graphics.setLineStyle(qb2_debugDrawSettings.lineThickness, debugOutlineColor, qb2_debugDrawSettings.outlineAlpha);
 			else
-				graphics.lineStyle();
+				graphics.setLineStyle();
 			if ( drawFlags & qb2_debugDrawFlags.FILLS )
 				graphics.beginFill(debugFillColor, qb2_debugDrawSettings.fillAlpha);
 				

@@ -42,6 +42,7 @@ package QuickB2.objects.tangibles
 	import QuickB2.objects.*;
 	import QuickB2.objects.joints.*;
 	import QuickB2.stock.*;
+	import surrender.srGraphics2d;
 	
 	use namespace qb2_friend;
 	
@@ -189,7 +190,7 @@ package QuickB2.objects.tangibles
 		 * This is not meant as a production-level rendering solution, but is very useful for quick debugging.
 		 * @default null
 		 */
-		public var debugDrawContext:Graphics = null;
+		public var debugDrawGraphics:srGraphics2d = null;
 		
 		/** If set, debug mouse dragging is enabled using the mouseX/Y of the given object. This makes every dynamic object draggable (except if the object has isDebugDraggable set to false.
 		 * It is called debug because it is not meant as a robust solution for most games or simulations. Usually you set this to the stage or another high-level display list object.
@@ -499,10 +500,10 @@ package QuickB2.objects.tangibles
 			
 			update();
 			
-			if ( debugDrawContext )
+			if ( debugDrawGraphics )
 			{
-				debugDrawContext.clear();
-				drawDebug(debugDrawContext);
+				debugDrawGraphics.clear();
+				drawDebug(debugDrawGraphics);
 			}
 			
 			//--- Give the user a chance to do some logic.

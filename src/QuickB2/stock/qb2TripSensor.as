@@ -31,6 +31,7 @@ package QuickB2.stock
 	import QuickB2.internals.*;
 	import QuickB2.objects.*;
 	import QuickB2.objects.tangibles.*;
+	import surrender.srGraphics2d;
 	
 	use namespace qb2_friend;
 	
@@ -250,7 +251,7 @@ package QuickB2.stock
 			return _numTrippedVisitors;
 		}
 		
-		public override function drawDebug(graphics:Graphics):void
+		public override function drawDebug(graphics:srGraphics2d):void
 		{
 			pushDebugFillColor(qb2_debugDrawSettings.tripSensorFillColor);
 				super.drawDebug(graphics);

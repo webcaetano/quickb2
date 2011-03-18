@@ -242,7 +242,7 @@ package QuickB2.stock
 			return null;
 		}
 		
-		public override function drawDebug(graphics:Graphics):void
+		public override function drawDebug(graphics:srGraphics2d):void
 		{
 			pushDebugFillColor(qb2_debugDrawSettings.soundEmitterFillColor);
 				super.drawDebug(graphics);

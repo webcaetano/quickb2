@@ -19,6 +19,7 @@
 	import QuickB2.objects.*;
 	import QuickB2.objects.tangibles.*;
 	import QuickB2.stock.*;
+	import surrender.srVectorGraphics2d;
 	
 	/**
 	 * ...
@@ -82,7 +83,7 @@
 			world.actor = addChild(new Sprite());
 			var debugDrawSprite:Sprite = (addChild(new Sprite()) as Sprite);
 			debugDrawSprite.mouseEnabled = false; // so physics drawing doesn't interfere with gui.
-			world.debugDrawContext = debugDrawSprite.graphics;
+			world.debugDrawGraphics = new srVectorGraphics2d(debugDrawSprite.graphics);
 			world.realtimeUpdate = true;
 			world.maximumRealtimeStep = 1.0 / 10.0 // make it so a simulation step is never longer than this.
 			world.gravity.y = 10;

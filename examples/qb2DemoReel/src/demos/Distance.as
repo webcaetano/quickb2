@@ -10,6 +10,7 @@ package demos
 	import QuickB2.stock.qb2SoftPoly;
 	import QuickB2.stock.qb2Stock;
 	import As3Math.consts.RAD_15;
+	import surrender.srGraphics2d;
 	
 	/**
 	 * Simple demo showing how to use the qb2Tangible::distanceTo() function.  Also how you can override functions
@@ -39,12 +40,12 @@ package demos
 			jello.distanceTo(rect, vector, pointA, pointB);
 		}
 		
-		public override function drawDebug(graphics:Graphics):void
+		public override function drawDebug(graphics:srGraphics2d):void
 		{
 			super.drawDebug(graphics);
 			
 			var distanceColor:uint = 0xff0000;
-			graphics.lineStyle(0, 0, 0);
+			graphics.setLineStyle(0, 0, 0);
 			graphics.beginFill(distanceColor, qb2_debugDrawSettings.fillAlpha);
 			pointA.draw(graphics, 5, false);
 			pointB.draw(graphics, 5, false);
@@ -52,7 +53,7 @@ package demos
 			
 			if ( vector.lengthSquared )
 			{
-				graphics.lineStyle(2, distanceColor, qb2_debugDrawSettings.outlineAlpha);
+				graphics.setLineStyle(2, distanceColor, qb2_debugDrawSettings.outlineAlpha);
 				vector.draw(graphics, pointA, 0, 0);
 			}
 		}

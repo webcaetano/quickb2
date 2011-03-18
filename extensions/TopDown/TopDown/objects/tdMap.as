@@ -27,6 +27,7 @@ package TopDown.objects
 	import flash.utils.*;
 	import QuickB2.objects.*;
 	import QuickB2.objects.tangibles.*;
+	import surrender.srGraphics2d;
 	import TopDown.*;
 	import TopDown.ai.*;
 	import TopDown.internals.*;
@@ -118,7 +119,7 @@ package TopDown.objects
 			}
 		}
 
-		public override function drawDebug(graphics:Graphics):void
+		public override function drawDebug(graphics:srGraphics2d):void
 		{
 			super.drawDebug(graphics);
 		}

@@ -30,6 +30,7 @@ package QuickB2.stock
 	import QuickB2.misc.*;
 	import QuickB2.objects.*;
 	import QuickB2.objects.tangibles.*;
+	import surrender.srGraphics2d;
 
 	/**
 	 * ...
@@ -416,13 +417,13 @@ package QuickB2.stock
 			return body;
 		}
 		
-		public static function newDebugWorld(gravity:amVector2d = null, debugDrawContext:Graphics = null, debugDragSource:InteractiveObject = null, stageToMakeWalls:Stage = null):qb2World
+		public static function newDebugWorld(gravity:amVector2d = null, debugDrawGraphics:srGraphics2d = null, debugDragSource:InteractiveObject = null, stageToMakeWalls:Stage = null):qb2World
 		{
 			var world:qb2World = new qb2World();
 			if ( gravity )
 				world.gravity = gravity;
 				
-			world.debugDrawContext = debugDrawContext;
+			world.debugDrawGraphics = debugDrawGraphics;
 			world.debugDragSource = debugDragSource;
 			
 			if ( stageToMakeWalls )

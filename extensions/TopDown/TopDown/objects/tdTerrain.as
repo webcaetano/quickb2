@@ -29,6 +29,7 @@ package TopDown.objects
 	import QuickB2.objects.*;
 	import QuickB2.objects.tangibles.*;
 	import QuickB2.stock.*;
+	import surrender.srGraphics2d;
 	import TopDown.debugging.*;
 	import TopDown.internals.*;
 	
@@ -81,14 +82,14 @@ package TopDown.objects
 		
 		private var skidEntries:Dictionary = new Dictionary(false);
 		
-		public override function draw(graphics:Graphics):void
+		public override function draw(graphics:srGraphics2d):void
 		{
 			super.draw(graphics);
 			
 			drawSkids(graphics);
 		}
 		
-		public override function drawDebug(graphics:Graphics):void
+		public override function drawDebug(graphics:srGraphics2d):void
 		{
 			super.drawDebug(graphics);
 			
@@ -98,7 +99,7 @@ package TopDown.objects
 			}
 		}
 		
-		public function drawSkids(graphics:Graphics):void
+		public function drawSkids(graphics:srGraphics2d):void
 		{
 			var time:Number = world.clock;
 			
@@ -115,7 +116,7 @@ package TopDown.objects
 				else
 				{
 					var alpha:Number = startAlpha * (1 - (time - entry.startTime) / skidDuration );
-					graphics.lineStyle(entry.thickness, color, alpha, false, "normal", CapsStyle.NONE);
+					graphics.setLineStyle(entry.thickness, color, alpha);
 					//trace(entry.thickness, entry.color, alpha, entry.start, entry.end);
 					graphics.moveTo(entry.start.x, entry.start.y);
 					graphics.lineTo(entry.end.x, entry.end.y);

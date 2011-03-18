@@ -32,6 +32,8 @@ package QuickB2.objects
 	import QuickB2.misc.*;
 	import QuickB2.objects.joints.*;
 	import QuickB2.objects.tangibles.*;
+	import surrender.srGraphics2d;
+	import surrender.srIDebugDrawable2d;
 	use namespace qb2_friend;
 	
 	[Event(name="preUpdate",        type="QuickB2.events.qb2UpdateEvent")]
@@ -45,7 +47,7 @@ package QuickB2.objects
 	 * ...
 	 * @author Doug Koellmer
 	 */
-	public class qb2Object extends qb2EventDispatcher
+	public class qb2Object extends qb2EventDispatcher implements srIDebugDrawable2d
 	{
 		/// A place to put any kind of data you want to be associated with this object.
 		public var userData:*;
@@ -795,13 +797,13 @@ package QuickB2.objects
 		/**
 		 * Virtual method for drawing this object.  You can override this if you want, or leave it unimplemented.
 		 */
-		public virtual function draw(graphics:Graphics):void      {}
+		public virtual function draw(graphics:srGraphics2d):void      {}
 		
 		/**
-		 *  Virtual method for drawing debug graphics for this object.  You can override this if you want, or leave it unimplemented.
-		 * A general use for this function is to set fill/stroke on the Graphics object, and then call draw().
+		 * Virtual method for drawing debug graphics for this object.  You can override this if you want, or leave it unimplemented.
+		 * A common use for this function is to set fill/line-style on the srGraphics2dObject object, and then call draw().
 		 */
-		public virtual function drawDebug(graphics:Graphics):void {}
+		public virtual function drawDebug(graphics:srGraphics2d):void {}
 		
 		/**
 		 * Returns a new instance that is a clone of this object.  Properties, flags, and their ownerships are copied to the new instance.

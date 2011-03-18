@@ -31,6 +31,7 @@ package QuickB2.objects.tangibles
 	import QuickB2.misc.*;
 	import QuickB2.objects.*;
 	import QuickB2.objects.joints.*;
+	import surrender.srGraphics2d;
 	
 	use namespace qb2_friend;
 	
@@ -679,7 +680,7 @@ package QuickB2.objects.tangibles
 			return this;
 		}
 		
-		public override function draw(graphics:Graphics):void
+		public override function draw(graphics:srGraphics2d):void
 		{
 			for (var i:int = 0; i < _objects.length; i++) 
 			{
@@ -687,7 +688,7 @@ package QuickB2.objects.tangibles
 			}
 		}
 		
-		public override function drawDebug(graphics:Graphics):void
+		public override function drawDebug(graphics:srGraphics2d):void
 		{
 			var debugDrawBit:uint = qb2_flags.JOINS_IN_DEBUG_DRAWING;
 			

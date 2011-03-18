@@ -31,6 +31,7 @@ package TopDown.carparts
 	import QuickB2.events.*;
 	import QuickB2.misc.*;
 	import QuickB2.objects.*;
+	import surrender.srGraphics2d;
 	import TopDown.*;
 	import TopDown.debugging.*;
 	import TopDown.internals.*;
@@ -316,7 +317,7 @@ package TopDown.carparts
 			{  return qb2UnitConverter.radsPerSec_to_RPM(radsPerSec);  }
 			
 			
-		public override function drawDebug(graphics:Graphics):void
+		public override function drawDebug(graphics:srGraphics2d):void
 		{
 			var drawFlags:uint = td_debugDrawSettings.flags;
 			var drawTires:Boolean = drawFlags & td_debugDrawFlags.TIRES ? true : false;
@@ -341,7 +342,7 @@ package TopDown.carparts
 				if ( drawTires )
 				{
 					graphics.beginFill(td_debugDrawSettings.tireFillColor, qb2_debugDrawSettings.fillAlpha);
-					graphics.lineStyle(qb2_debugDrawSettings.lineThickness, td_debugDrawSettings.tireOutlineColor, qb2_debugDrawSettings.outlineAlpha);
+					graphics.setLineStyle(qb2_debugDrawSettings.lineThickness, td_debugDrawSettings.tireOutlineColor, qb2_debugDrawSettings.outlineAlpha);
 					
 					graphics.moveTo(worldPoint.x, worldPoint.y);
 					
@@ -381,7 +382,7 @@ package TopDown.carparts
 					}
 					
 					graphics.beginFill(td_debugDrawSettings.tireLoadColor, loadAlpha);
-					graphics.lineStyle();
+					graphics.setLineStyle();
 					
 					graphics.moveTo(worldPoint.x, worldPoint.y);
 					
@@ -404,7 +405,7 @@ package TopDown.carparts
 				
 				if ( numRotLines ) // this block draws the tire rotation lines.
 				{
-					graphics.lineStyle(qb2_debugDrawSettings.lineThickness, td_debugDrawSettings.tireOutlineColor, qb2_debugDrawSettings.outlineAlpha);
+					graphics.setLineStyle(qb2_debugDrawSettings.lineThickness, td_debugDrawSettings.tireOutlineColor, qb2_debugDrawSettings.outlineAlpha);
 					
 					sideVec.negate();
 					worldPoint.translateBy(sideVec).translateBy(worldVec.negated().scaleBy(.5));
@@ -436,7 +437,7 @@ package TopDown.carparts
 			}
 		}
 			
-		public override function draw(graphics:Graphics):void
+		public override function draw(graphics:srGraphics2d):void
 		{
 			
 		}

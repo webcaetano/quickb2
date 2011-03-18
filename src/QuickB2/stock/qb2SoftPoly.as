@@ -31,6 +31,7 @@ package QuickB2.stock
 	import QuickB2.objects.*;
 	import QuickB2.objects.joints.*;
 	import QuickB2.objects.tangibles.*;
+	import surrender.srGraphics2d;
 	
 	/**
 	 * ...
@@ -275,7 +276,7 @@ package QuickB2.stock
 			return _isCircle;
 		}
 		
-		public override function draw(graphics:Graphics):void
+		public override function draw(graphics:srGraphics2d):void
 		{
 			if ( !drawSplinarOutlines )
 			{
@@ -331,7 +332,7 @@ package QuickB2.stock
 			}
 		}
 		
-		public override function drawDebug(graphics:Graphics):void
+		public override function drawDebug(graphics:srGraphics2d):void
 		{
 			if ( !revJoints.length )  return;
 			
@@ -344,9 +345,9 @@ package QuickB2.stock
 			if ( drawOutlines || drawFills )
 			{
 				if ( drawOutlines )
-					graphics.lineStyle(qb2_debugDrawSettings.lineThickness, debugOutlineColor, qb2_debugDrawSettings.outlineAlpha);
+					graphics.setLineStyle(qb2_debugDrawSettings.lineThickness, debugOutlineColor, qb2_debugDrawSettings.outlineAlpha);
 				else
-					graphics.lineStyle();
+					graphics.setLineStyle();
 					
 				if ( drawFills )
 					graphics.beginFill(debugFillColor, qb2_debugDrawSettings.fillAlpha);
@@ -358,14 +359,14 @@ package QuickB2.stock
 			
 			if ( drawVerts && !_isCircle )
 			{
-				graphics.lineStyle();
+				graphics.setLineStyle();
 				graphics.beginFill(qb2_debugDrawSettings.vertexColor, qb2_debugDrawSettings.vertexAlpha);
 					
 				var numJoints:int = revJoints.length / _subdivision;
 				for (var i:int = 0; i < numJoints; i++) 
 				{
-					var worldPoint:amPoint2d = revJoints[i*_subdivision].getWorldAnchor();
-					worldPoint.draw(graphics, qb2_debugDrawSettings.pointRadius, false);
+					var worldPoint:amPoint2d = revJoints[i * _subdivision].getWorldAnchor();
+					graphics.drawCircle(worldPoint.x, worldPoint.y, qb2_debugDrawSettings.pointRadius);
 				}
 				
 				graphics.endFill();
@@ -400,7 +401,7 @@ package QuickB2.stock
 			
 			if ( drawDecomp )
 			{
-				graphics.lineStyle(qb2_debugDrawSettings.lineThickness, debugOutlineColor, qb2_debugDrawSettings.outlineAlpha);
+				graphics.setLineStyle(qb2_debugDrawSettings.lineThickness, debugOutlineColor, qb2_debugDrawSettings.outlineAlpha);
 				
 				for (var j:int = 0; j < numObjects; j++) 
 				{

@@ -11,6 +11,7 @@ package demos
 	import QuickB2.objects.tangibles.qb2Body;
 	import QuickB2.objects.tangibles.qb2PolygonShape;
 	import QuickB2.stock.qb2Stock;
+	import surrender.srGraphics2d;
 	
 	/**
 	 * Stressing the engine.  Debug draw is ignored for this one demo, using bitmaps instead to maximize performance.
@@ -57,19 +58,20 @@ package demos
 			return body;
 		}
 		
-		private var saveContext:Graphics = null;
+		private var saveContext:srGraphics2d = null;
+		
 		protected override function addedOrRemoved(evt:qb2ContainerEvent):void
 		{
 			//--- Since we're really want low overhead, don't make the world even attempt to draw anything for debug.
 			if ( evt.type == qb2ContainerEvent.ADDED_TO_WORLD )
 			{
-				saveContext = world.debugDrawContext;
+				saveContext = world.debugDrawGraphics;
 				saveContext.clear();
-				world.debugDrawContext = null;
+				world.debugDrawGraphics = null;
 			}
 			else
 			{
-				evt.ancestor.world.debugDrawContext = saveContext;
+				evt.ancestor.world.debugDrawGraphics = saveContext;
 				saveContext = null;
 			}			
 		}

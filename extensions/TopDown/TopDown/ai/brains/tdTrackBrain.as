@@ -33,6 +33,7 @@ package TopDown.ai.brains
 	import QuickB2.objects.*;
 	import QuickB2.objects.tangibles.*;
 	import QuickB2.stock.*;
+	import surrender.srGraphics2d;
 	import TopDown.*;
 	import TopDown.ai.*;
 	import TopDown.debugging.*;
@@ -766,11 +767,11 @@ package TopDown.ai.brains
 			return axlePos;
 		}
 		
-		public override function drawDebug(graphics:Graphics):void
+		public override function drawDebug(graphics:srGraphics2d):void
 		{
 			if ( _antenna && (td_debugDrawSettings.flags & td_debugDrawFlags.ANTENNAS) )
 			{
-				graphics.lineStyle();
+				graphics.setLineStyle();
 				graphics.beginFill(td_debugDrawSettings.antennaColor, qb2_debugDrawSettings.fillAlpha);
 				_antenna.draw(graphics);
 				graphics.endFill();
@@ -788,7 +789,7 @@ package TopDown.ai.brains
 				
 				var axlePos:amPoint2d = turnAxis;
 				var tetherVec:amVector2d = _currPoint.minus(axlePos);
-				graphics.lineStyle(td_debugDrawSettings.tetherThickness, td_debugDrawSettings.tetherColor, td_debugDrawSettings.tetherAlpha);
+				graphics.setLineStyle(td_debugDrawSettings.tetherThickness, td_debugDrawSettings.tetherColor, td_debugDrawSettings.tetherAlpha);
 				tetherVec.draw(graphics, axlePos, 0, 0, 1);
 			}
 		}
