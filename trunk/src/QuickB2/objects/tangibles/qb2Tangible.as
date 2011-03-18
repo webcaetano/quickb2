@@ -978,7 +978,7 @@ package QuickB2.objects.tangibles
 					if ( centroid )
 					{
 						graphics.beginFill(qb2_debugDrawSettings.centroidColor, qb2_debugDrawSettings.centroidAlpha);
-							graphics.drawCircle(point.x, point.y, qb2_debugDrawSettings.pointRadius);
+							graphics.drawCircle(centroid.x, centroid.y, qb2_debugDrawSettings.pointRadius);
 						graphics.endFill();
 					}
 				}
