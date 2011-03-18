@@ -33,6 +33,7 @@ package QuickB2.objects.joints
 	import QuickB2.misc.*;
 	import QuickB2.objects.*;
 	import QuickB2.objects.tangibles.*;
+	import surrender.srGraphics2d;
 	
 	use namespace qb2_friend;
 
@@ -339,12 +340,12 @@ package QuickB2.objects.joints
 				return rigid.position;
 		}
 		
-		public override function drawDebug(graphics:Graphics):void
+		public override function drawDebug(graphics:srGraphics2d):void
 		{
 			var flags:uint = qb2_debugDrawSettings.flags;
 			if ( flags & qb2_debugDrawFlags.JOINTS )
 			{
-				graphics.lineStyle(qb2_debugDrawSettings.jointLineThickness, qb2_debugDrawSettings.jointOutlineColor, qb2_debugDrawSettings.outlineAlpha);
+				graphics.setLineStyle(qb2_debugDrawSettings.jointLineThickness, qb2_debugDrawSettings.jointOutlineColor, qb2_debugDrawSettings.outlineAlpha);
 					
 				graphics.beginFill(qb2_debugDrawSettings.jointFillColor, qb2_debugDrawSettings.fillAlpha);
 				draw(graphics);
@@ -357,7 +358,7 @@ package QuickB2.objects.joints
 		protected static var reusableDrawPoint:amPoint2d = new amPoint2d();
 		protected static var reusableV2:V2 = new V2();
 		
-		qb2_friend function drawAnchors(graphics:Graphics):Vector.<V2>
+		qb2_friend function drawAnchors(graphics:srGraphics2d):Vector.<V2>
 		{
 			var worldAnchors:Vector.<V2> = jointB2 ? getWorldAnchors() : null;
 			
@@ -365,7 +366,7 @@ package QuickB2.objects.joints
 			{
 				for (var i:int = 0; i < worldAnchors.length; i++) 
 				{
-					reusableDrawPoint.set( worldAnchors[i].x, worldAnchors[i].y).draw(graphics, anchorDrawRadius, false);
+					graphics.drawCircle(worldAnchors[i].x, worldAnchors[i].y, anchorDrawRadius);
 				}
 			}
 			

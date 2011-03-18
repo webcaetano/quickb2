@@ -33,6 +33,7 @@ package QuickB2.objects.tangibles
 	import QuickB2.debugging.*;
 	import QuickB2.misc.*;
 	import QuickB2.objects.*;
+	import surrender.srGraphics2d;
 	
 	use namespace qb2_friend;
 	
@@ -517,7 +518,7 @@ package QuickB2.objects.tangibles
 			}
 		}
 		
-		public override function draw(graphics:Graphics):void
+		public override function draw(graphics:srGraphics2d):void
 		{
 			if ( !_world )
 			{
@@ -578,7 +579,7 @@ package QuickB2.objects.tangibles
 			}
 		}
 		
-		public override function drawDebug(graphics:Graphics):void
+		public override function drawDebug(graphics:srGraphics2d):void
 		{
 			const drawFlags:uint = qb2_debugDrawSettings.flags;
 			var drawOutlines:Boolean = drawFlags & qb2_debugDrawFlags.OUTLINES ? true : false;
@@ -590,9 +591,9 @@ package QuickB2.objects.tangibles
 				var staticShape:Boolean = _mass == 0;
 		
 				if ( drawOutlines )
-					graphics.lineStyle(qb2_debugDrawSettings.lineThickness, debugOutlineColor, qb2_debugDrawSettings.outlineAlpha);
+					graphics.setLineStyle(qb2_debugDrawSettings.lineThickness, debugOutlineColor, qb2_debugDrawSettings.outlineAlpha);
 				else
-					graphics.lineStyle();
+					graphics.setLineStyle();
 					
 				if ( _closed && drawFill )
 					graphics.beginFill(debugFillColor, qb2_debugDrawSettings.fillAlpha);
@@ -606,7 +607,7 @@ package QuickB2.objects.tangibles
 				
 				if ( drawVertices && numVerts )
 				{
-					graphics.lineStyle();
+					graphics.setLineStyle();
 					graphics.beginFill(qb2_debugDrawSettings.vertexColor, qb2_debugDrawSettings.vertexAlpha);
 					
 					for (var i:int = 0; i < numVerts; i++) 
@@ -623,14 +624,25 @@ package QuickB2.objects.tangibles
 			{
 				if ( qb2_debugDrawSettings.flags & qb2_debugDrawFlags.DECOMPOSITION )
 				{
-					graphics.lineStyle(qb2_debugDrawSettings.lineThickness, debugOutlineColor, qb2_debugDrawSettings.outlineAlpha);
+					graphics.setLineStyle(qb2_debugDrawSettings.lineThickness, debugOutlineColor, qb2_debugDrawSettings.outlineAlpha);
 					
 					var pixPer:Number = worldPixelsPerMeter;
 					var xf:XF = fixtures[0].m_body.GetTransform();
 					for (var j:int = 0; j < shapeB2s.length; j++) 
 					{
 						var polygonShape:b2PolygonShape = shapeB2s[j] as b2PolygonShape;
-						polygonShape.Draw(graphics, xf, pixPer);
+						
+						var vertices:Vector.<V2> = polygonShape.m_vertices;
+						var vertexCount:int = polygonShape.m_vertexCount;
+						var v:V2 = xf.multiply(vertices[0]);
+						graphics.moveTo(v.x * pixPer, v.y * pixPer);
+						
+						for( i = 1; i < vertexCount; ++i) {
+							v = xf.multiply(vertices[i]);
+							graphics.lineTo(v.x * pixPer, v.y * pixPer);
+						}
+						v = xf.multiply(vertices[0]);
+						graphics.lineTo(v.x * pixPer, v.y * pixPer);
 					}
 				}
 			}

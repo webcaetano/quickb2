@@ -33,6 +33,7 @@ package QuickB2.objects.joints
 	import QuickB2.misc.*;
 	import QuickB2.objects.*;
 	import QuickB2.objects.tangibles.*;
+	import surrender.srGraphics2d;
 	
 	use namespace am_friend;
 	use namespace qb2_friend;
@@ -208,7 +209,7 @@ package QuickB2.objects.joints
 		
 		public static var arrowDrawSize:Number = 8;
 		
-		public override function draw(graphics:Graphics):void
+		public override function draw(graphics:srGraphics2d):void
 		{
 			var worldPoints:Vector.<V2> = drawAnchors(graphics);
 			
@@ -220,8 +221,10 @@ package QuickB2.objects.joints
 			
 			var diff:amVector2d = worldTarget.minus(world1);
 			
-			if ( diff.lengthSquared > 1 ) // Not checking for this would causes some sloppy graphics.
+			if ( diff.lengthSquared > 1 ) // Not checking for this causes some glitchy graphics.
+			{
 				diff.draw(graphics, world1, 0, arrowDrawSize);
+			}
 		}
 		
 		qb2_friend override function getWorldAnchors():Vector.<V2>

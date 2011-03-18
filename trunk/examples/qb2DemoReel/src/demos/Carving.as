@@ -9,6 +9,7 @@ package demos
 	import QuickB2.misc.*;
 	import QuickB2.objects.tangibles.*;
 	import QuickB2.stock.*;
+	import surrender.srGraphics2d;
 	
 	/**
 	 * How to use the slice function to add delicious destruction to your project.
@@ -82,7 +83,7 @@ package demos
 				crosshairs.y = actor.mouseY;
 			}
 			
-			var graphics:Graphics = world.debugDrawContext;
+			var graphics:srGraphics2d = world.debugDrawGraphics;
 			if ( !world.running )
 			{
 				graphics.clear();
@@ -90,7 +91,7 @@ package demos
 			}
 			if ( _dragging )
 			{
-				graphics.lineStyle(.1, 0, .75);
+				graphics.setLineStyle(.1, 0, .75);
 				graphics.moveTo(_startDrag.x, _startDrag.y);
 				graphics.lineTo(_endDrag.x, _endDrag.y);
 			}
@@ -239,6 +240,8 @@ package demos
 
 import As3Math.geo2d.*;
 import flash.display.*;
+import surrender.srGraphics2d;
+import surrender.srIDrawable2d;
 
 class Crosshairs extends Sprite
 {
@@ -260,13 +263,13 @@ class Crosshairs extends Sprite
 	}
 }
 
-class LaserPulse
+class LaserPulse implements srIDrawable2d
 {
 	public var state:Number = 4;
 	public var points:Vector.<amPoint2d>;
 	private static const BASE_COLOR:uint = 0xff0000;
 	
-	public function draw(graphics:Graphics):void
+	public function draw(graphics:srGraphics2d):void
 	{
 		var mode:int = 0;
 		
@@ -291,11 +294,11 @@ class LaserPulse
 			
 			if ( mode == 0 )
 			{
-				graphics.lineStyle(state, BASE_COLOR, .75);
+				graphics.setLineStyle(state, BASE_COLOR, .75);
 			}
 			else
 			{
-				graphics.lineStyle(.5, 0);
+				graphics.setLineStyle(.5, 0);
 			}
 			
 			graphics.moveTo(beg.x, beg.y);

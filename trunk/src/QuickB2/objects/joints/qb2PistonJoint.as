@@ -34,6 +34,7 @@ package QuickB2.objects.joints
 	import QuickB2.misc.*;
 	import QuickB2.objects.*;
 	import QuickB2.objects.tangibles.*;
+	import surrender.srGraphics2d;
 	
 	use namespace am_friend;
 	use namespace qb2_friend;
@@ -589,7 +590,7 @@ package QuickB2.objects.joints
 		public static var pistonBaseDrawWidth:Number = anchorDrawRadius * 2;
 		public static var springDrawWidth:Number = pistonBaseDrawWidth * 1.5;
 		
-		public override function draw(graphics:Graphics):void
+		public override function draw(graphics:srGraphics2d):void
 		{
 			var worldPoints:Vector.<V2> = drawAnchors(graphics);
 			

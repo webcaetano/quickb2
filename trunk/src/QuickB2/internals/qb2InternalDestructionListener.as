@@ -49,12 +49,17 @@ package QuickB2.internals
 				{
 					var asShape:qb2Shape = userData as qb2Shape;
 					
-					asShape.frictionJoints.splice(asShape.frictionJoints.indexOf(j), 1);
-					
-					if ( asShape.frictionJoints.length == 0 )
+					if ( asShape.frictionJoints )
 					{
-						asShape.frictionJoints = null;
+						asShape.frictionJoints.splice(asShape.frictionJoints.indexOf(j), 1);
+						
+						if ( asShape.frictionJoints.length == 0 )
+						{
+							asShape.frictionJoints = null;
+						}
 					}
+					
+					j.SetUserData(null);
 					
 					return;
 				}

@@ -47,8 +47,11 @@ package QuickB2.debugging
 		public static var fillAlpha:Number           = DEFAULT_ALPHA;
 		public static var outlineAlpha:Number        = DEFAULT_ALPHA;
 		
-		public static var vertexColor:Number         = 0x000000;
+		public static var vertexColor:uint           = 0x000000;
 		public static var vertexAlpha:Number         = DEFAULT_ALPHA;
+		
+		public static var positionColor:uint         = 0x000000;
+		public static var positionAlpha:Number       = DEFAULT_ALPHA;
 		
 		public static var boundBoxColor:uint         = 0x006633;
 		public static var boundBoxAlpha:Number       = DEFAULT_ALPHA;

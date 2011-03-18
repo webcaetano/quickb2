@@ -45,6 +45,7 @@ package QuickB2.objects.tangibles
 	import QuickB2.objects.*;
 	import QuickB2.objects.joints.*;
 	import QuickB2.stock.*;
+	import surrender.srGraphics2d;
 	
 	use namespace qb2_friend;
 	
@@ -928,15 +929,17 @@ package QuickB2.objects.tangibles
 			}
 		}
 		
-		qb2_friend function drawDebugExtras(graphics:Graphics):void
+		qb2_friend function drawDebugExtras(graphics:srGraphics2d):void
 		{
 			//--- Draw positions for rigid objects.
 			if ( (this is qb2IRigidObject) && (qb2_debugDrawSettings.flags & qb2_debugDrawFlags.POSITIONS) )
 			{
 				var rigid:qb2IRigidObject = this as qb2IRigidObject;
 				var point:amPoint2d = _parent ? _parent.getWorldPoint(rigid.position) : rigid.position;
-				graphics.lineStyle(qb2_debugDrawSettings.lineThickness, debugOutlineColor, qb2_debugDrawSettings.outlineAlpha);
-				point.draw(graphics, qb2_debugDrawSettings.pointRadius, true);
+				
+				graphics.beginFill(qb2_debugDrawSettings.positionColor, qb2_debugDrawSettings.positionAlpha);
+					graphics.drawCircle(point.x, point.y, qb2_debugDrawSettings.pointRadius);
+				graphics.endFill();
 			}
 		
 			var flags:uint = qb2_debugDrawSettings.flags;
@@ -953,8 +956,8 @@ package QuickB2.objects.tangibles
 			{
 				if ( amUtils.isWithin(depth, qb2_debugDrawSettings.boundBoxStartDepth, qb2_debugDrawSettings.boundBoxEndDepth) )
 				{
-					graphics.lineStyle(qb2_debugDrawSettings.lineThickness, qb2_debugDrawSettings.boundBoxColor, qb2_debugDrawSettings.boundBoxAlpha);
-					getBoundBox().draw(graphics);
+					graphics.setLineStyle(qb2_debugDrawSettings.lineThickness, qb2_debugDrawSettings.boundBoxColor, qb2_debugDrawSettings.boundBoxAlpha);
+					//getBoundBox().draw(graphics);
 				}
 			}
 			
@@ -962,8 +965,8 @@ package QuickB2.objects.tangibles
 			{
 				if ( amUtils.isWithin(depth, qb2_debugDrawSettings.boundCircleStartDepth, qb2_debugDrawSettings.boundCircleEndDepth) )
 				{
-					graphics.lineStyle(qb2_debugDrawSettings.lineThickness, qb2_debugDrawSettings.boundCircleColor, qb2_debugDrawSettings.boundCircleAlpha);
-					getBoundCircle().draw(graphics);
+					graphics.setLineStyle(qb2_debugDrawSettings.lineThickness, qb2_debugDrawSettings.boundCircleColor, qb2_debugDrawSettings.boundCircleAlpha);
+					//getBoundCircle().draw(graphics);
 				}
 			}
 			
@@ -971,9 +974,13 @@ package QuickB2.objects.tangibles
 			{
 				if ( amUtils.isWithin(depth, qb2_debugDrawSettings.centroidStartDepth, qb2_debugDrawSettings.centroidEndDepth) )
 				{
-					graphics.lineStyle(qb2_debugDrawSettings.lineThickness, qb2_debugDrawSettings.centroidColor, qb2_debugDrawSettings.centroidAlpha);
 					var centroid:amPoint2d = centerOfMass;
-					if( centroid )  centroid.draw(graphics, qb2_debugDrawSettings.pointRadius, true);
+					if ( centroid )
+					{
+						graphics.beginFill(qb2_debugDrawSettings.centroidColor, qb2_debugDrawSettings.centroidAlpha);
+							graphics.drawCircle(point.x, point.y, qb2_debugDrawSettings.pointRadius);
+						graphics.endFill();
+					}
 				}
 			}
 		}

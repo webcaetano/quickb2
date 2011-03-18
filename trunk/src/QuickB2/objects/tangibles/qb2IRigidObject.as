@@ -30,12 +30,13 @@ package QuickB2.objects.tangibles
 	import QuickB2.objects.*;
 	import QuickB2.objects.joints.*;
 	import QuickB2.objects.tangibles.*;
+	import surrender.srIDebugDrawable2d;
 	
 	/**
 	 * ...
 	 * @author Doug Koellmer
 	 */
-	public interface qb2IRigidObject extends IEventDispatcher
+	public interface qb2IRigidObject extends IEventDispatcher, srIDebugDrawable2d
 	{
 		// INTERFACE FUNCTIONS
 		function updateActor():void;
@@ -230,10 +231,6 @@ package QuickB2.objects.tangibles
 		function get world():qb2World;
 		
 		function removeFromParent():void;
-		
-		function draw(graphics:Graphics):void;
-		
-		function drawDebug(graphics:Graphics):void;
 		
 		function clone(deep:Boolean = true):qb2Object;
 		

@@ -20,6 +20,7 @@
     <class path="..\..\dependencies\src\Box2D" />
     <class path="..\..\extensions\TopDown" />
     <class path="..\..\dependencies\src\SoundTree" />
+    <class path="..\..\dependencies\src\surRender" />
   </classpaths>
   <!-- Build options -->
   <build>

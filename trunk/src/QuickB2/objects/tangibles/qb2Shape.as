@@ -38,6 +38,7 @@ package QuickB2.objects.tangibles
 	import QuickB2.objects.*;
 	import QuickB2.objects.joints.*;
 	import QuickB2.stock.*;
+	import surrender.srGraphics2d;
 	
 	use namespace qb2_friend;
 	
@@ -112,7 +113,9 @@ package QuickB2.objects.tangibles
 			updateMassProps(value - _mass, 0);
 		}
 			
-		public virtual function get perimeter():Number { return NaN; }
+		public virtual function get perimeter():Number
+			{ return NaN; }
+		
 		public function get metricPerimeter():Number
 			{ return perimeter / worldPixelsPerMeter; }
 	
@@ -124,6 +127,7 @@ package QuickB2.objects.tangibles
 				
 			var i:int;
 			var value:* = _propertyMap[propertyName];
+			
 			if ( propertyName == qb2_props.RESTITUTION )
 			{
 				for ( i = 0; i < this.fixtures.length; i++ )
@@ -232,6 +236,8 @@ package QuickB2.objects.tangibles
 			}
 		}
 		
+		qb2_friend var frictionJoints:Vector.<b2FrictionJoint>;
+		
 		qb2_friend override function updateFrictionJoints():void
 		{
 			var needJoints:Boolean = true;
@@ -264,8 +270,6 @@ package QuickB2.objects.tangibles
 			_world._gravityZRevisionDict[this] = _world._globalGravityZRevision;
 		}
 		
-		qb2_friend var frictionJoints:Vector.<b2FrictionJoint>;
-		
 		qb2_friend final function populateFrictionJointArray(numPoints:int):void
 		{
 			if ( frictionJoints )  return;
@@ -284,10 +288,7 @@ package QuickB2.objects.tangibles
 			}
 		}
 		
-		qb2_friend virtual function makeFrictionJoints():void
-		{
-			
-		}
+		qb2_friend virtual function makeFrictionJoints():void  {}
 		
 		qb2_friend final function destroyFrictionJoints():void
 		{
@@ -616,13 +617,13 @@ package QuickB2.objects.tangibles
 		public function set rotation(value:Number):void
 			{  setTransform(_rigidImp._position, value);  }
 
-		public override function drawDebug(graphics:Graphics):void
+		public override function drawDebug(graphics:srGraphics2d):void
 		{
 			if ( frictionJoints && fixtures.length )
 			{
 				if ( qb2_debugDrawSettings.flags & qb2_debugDrawFlags.FRICTION_Z_POINTS )
 				{
-					graphics.lineStyle();
+					graphics.setLineStyle();
 					graphics.beginFill(qb2_debugDrawSettings.frictionPointColor, qb2_debugDrawSettings.frictionPointAlpha);
 					var frictionPointRadius:Number = qb2_debugDrawSettings.pointRadius;
 					
