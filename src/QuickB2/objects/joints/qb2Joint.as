@@ -184,8 +184,6 @@ package QuickB2.objects.joints
 			anchorUpdated(evt.entity as amPoint2d);
 		}
 		
-		
-		
 		qb2_friend function hasObjectsSet():Boolean
 		{
 			return requiresTwoRigids && _object1 && _object2 || !requiresTwoRigids && _object2;
@@ -198,12 +196,7 @@ package QuickB2.objects.joints
 		public function get collideConnected():Boolean
 			{  return _flags & qb2_flags.COLLIDE_CONNECTED ? true : false;  }
 		public function set collideConnected(bool:Boolean):void
-		{
-			if ( bool )
-				turnFlagOn(qb2_flags.COLLIDE_CONNECTED);
-			else
-				turnFlagOff(qb2_flags.COLLIDE_CONNECTED);
-		}
+			{  setFlag(bool, qb2_flags.COLLIDE_CONNECTED);  }
 		
 		qb2_friend var jointDef:b2JointDef = null; // this is assigned in make() in subclasses, then nullified again in the base make() function.
 		

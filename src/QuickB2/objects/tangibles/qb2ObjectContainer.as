@@ -230,7 +230,6 @@ package QuickB2.objects.tangibles
 		
 		private function addObjectToArray(object:qb2Object, index:uint, collection:qb2InternalPropertyAndFlagCollection):void
 		{
-			if ( !object )         throw qb2_errors.ADDING_NULL_ERROR;
 			if ( object._parent )  throw qb2_errors.ALREADY_HAS_PARENT_ERROR;
 			
 			if ( index == _objects.length )
