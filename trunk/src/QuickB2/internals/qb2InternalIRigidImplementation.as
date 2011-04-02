@@ -166,12 +166,11 @@ package QuickB2.internals
 				theWorld.addDelayedCall(null, freezeBodyB2);
 				return;
 			}
+			_linearVelocity._x = _bodyB2.m_linearVelocity.x;
+			_linearVelocity._y = _bodyB2.m_linearVelocity.y;
+			_angularVelocity   = _bodyB2.m_angularVelocity;
 			
 			_bodyB2.SetType(b2Body.b2_staticBody);
-			
-			_bodyB2.m_linearVelocity.x = _linearVelocity._x;
-			_bodyB2.m_linearVelocity.y = _linearVelocity._y;
-			_bodyB2.m_angularVelocity  = _angularVelocity;
 		}
 		
 		qb2_friend function recomputeBodyB2Mass():void
