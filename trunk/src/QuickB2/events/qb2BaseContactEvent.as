@@ -88,6 +88,18 @@ package QuickB2.events
 			{  return _contactB2;  }
 		qb2_friend var _contactB2:b2Contact;
 		
+		public function get normalImpulse():Number
+		{
+			var manifoldPoints:Array = _contactB2.GetManifold().points;
+			return (manifoldPoints[0].normalImpulse + manifoldPoints[1].normalImpulse) / 2.0;
+		}
+		
+		public function get tangentImpulse():Number
+		{
+			var manifoldPoints:Array = _contactB2.GetManifold().points;
+			return (manifoldPoints[0].tangentImpulse + manifoldPoints[1].tangentImpulse) / 2.0;
+		}
+		
 		public function disableContact():void
 		{
 			checkForError();
