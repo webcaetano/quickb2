@@ -84,10 +84,12 @@ package TopDown.objects
 
 		public function tdCarBody()
 		{
-			addEventListener(qb2ContainerEvent.ADDED_TO_WORLD,     addedOrRemoved, false, 0, true);
-			addEventListener(qb2ContainerEvent.REMOVED_FROM_WORLD, addedOrRemoved, false, 0, true);
-			addEventListener(qb2ContainerEvent.INDEX_CHANGED,      indexChanged, false, 0, true);
-			addEventListener(qb2MassEvent.MASS_PROPS_CHANGED,      massPropsUpdated, false, 0, true);
+			addEventListener(qb2ContainerEvent.ADDED_TO_WORLD,     addedOrRemoved,    false, 0, true);
+			addEventListener(qb2ContainerEvent.REMOVED_FROM_WORLD, addedOrRemoved,    false, 0, true);
+			addEventListener(qb2ContainerEvent.INDEX_CHANGED,      indexChanged,      false, 0, true);
+			addEventListener(qb2MassEvent.MASS_PROPS_CHANGED,      massPropsUpdated,  false, 0, true);
+			addEventListener(qb2ContainerEvent.ADDED_OBJECT,       justAddedObject,   false, 0, true);
+			addEventListener(qb2ContainerEvent.REMOVED_OBJECT,     justRemovedObject, false, 0, true);
 		}
 		
 		private function addedOrRemoved(evt:qb2ContainerEvent):void
@@ -153,9 +155,9 @@ package TopDown.objects
 		public function get currTurnAngle():Number
 			{  return _currTurnAngle;  }
 			
-		protected override function justAddedObject(object:qb2Object):void
+		private function justAddedObject(evt:qb2ContainerEvent):void
 		{
-			super.justAddedObject(object);
+			var object:qb2Object = evt.child;
 			
 			if ( object is tdTire )
 			{
@@ -182,9 +184,9 @@ package TopDown.objects
 			}
 		}
 		
-		protected override function justRemovedObject(object:qb2Object):void
+		private function justRemovedObject(evt:qb2ContainerEvent):void
 		{
-			super.justRemovedObject(object);
+			var object:qb2Object = evt.child;
 			
 			if ( object is tdTire )
 			{
@@ -209,7 +211,7 @@ package TopDown.objects
 				_tranny = null;
 			}
 		}
-	
+		
 		td_friend function calcTireShares():void
 		{
 			if ( freezeTireCalc )  return;

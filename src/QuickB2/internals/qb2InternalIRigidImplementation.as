@@ -1,5 +1,6 @@
 package QuickB2.internals 
 {
+	import As3Math.consts.TO_DEG;
 	import As3Math.general.amUpdateEvent;
 	import As3Math.general.amUtils;
 	import As3Math.geo2d.amPoint2d;
@@ -8,6 +9,7 @@ package QuickB2.internals
 	import Box2DAS.Common.V2;
 	import Box2DAS.Dynamics.b2Body;
 	import Box2DAS.Dynamics.b2BodyDef;
+	import flash.geom.Matrix;
 	import flash.utils.Dictionary;
 	import QuickB2.*;
 	import QuickB2.misc.qb2_flags;
@@ -39,7 +41,6 @@ package QuickB2.internals
 		qb2_friend var _angularVelocity:Number = 0;
 		qb2_friend var _position:amPoint2d = null;
 		qb2_friend var _rotation:Number = 0;
-		qb2_friend var _calledFromPointUpdated:Boolean = false;
 		qb2_friend var _tang:qb2Tangible;
 		
 		public function qb2InternalIRigidImplementation(tang:qb2Tangible) 
@@ -127,13 +128,7 @@ package QuickB2.internals
 		}
 		
 		qb2_friend function makeBodyB2(theWorld:qb2World):void
-		{
-			if ( theWorld.processingBox2DStuff )
-			{
-				theWorld.addDelayedCall(_tang, makeBodyB2, theWorld);
-				return;
-			}
-			
+		{			
 			var conversion:Number = theWorld._pixelsPerMeter;
 			
 			//--- Populate body def.  
@@ -144,7 +139,7 @@ package QuickB2.internals
 			bodDef.awake          = !_tang.sleepingWhenAdded;
 			bodDef.linearDamping  = _tang.linearDamping;
 			bodDef.angularDamping = _tang.angularDamping;
-			//bodDef.type         = NOTE: type is taken care of in recomputeB2Mass, which will be called after this function some time.
+			bodDef.type           = b2Body.b2_staticBody; // NOTE: type is taken care of in recomputeB2Mass, which will be called after this function some time.
 			bodDef.position.x     = _position.x / conversion;
 			bodDef.position.y     = _position.y / conversion;
 			bodDef.angle          = _rotation;
@@ -156,37 +151,41 @@ package QuickB2.internals
 			_bodyB2.SetUserData(_tang);
 		}
 		
-		qb2_friend function destroyBodyB2():void
+		qb2_friend function destroyBodyB2(theWorld:qb2World):void
 		{
 			_bodyB2.SetUserData(null);
-			
-			var world:qb2World = _tang._world;
-			
-			if ( world.processingBox2DStuff )
-			{
-				world.addDelayedCall(_tang, world._worldB2.DestroyBody, _bodyB2);
-			}
-			else
-			{
-				world._worldB2.DestroyBody(_bodyB2);
-			}
-			
+			theWorld._worldB2.DestroyBody(_bodyB2);
 			_bodyB2 = null;
+		}
+		
+		qb2_friend function freezeBodyB2():void
+		{
+			var theWorld:qb2World = qb2World.worldDict[_bodyB2.m_world] as qb2World;
+			if ( theWorld.processingBox2DStuff )
+			{
+				theWorld.addDelayedCall(null, freezeBodyB2);
+				return;
+			}
+			
+			_bodyB2.SetType(b2Body.b2_staticBody);
+			
+			_bodyB2.m_linearVelocity.x = _linearVelocity._x;
+			_bodyB2.m_linearVelocity.y = _linearVelocity._y;
+			_bodyB2.m_angularVelocity  = _angularVelocity;
 		}
 		
 		qb2_friend function recomputeBodyB2Mass():void
 		{
-			var thisIsKinematic:Boolean = _tang.isKinematic;
-			
 			//--- Box2D gets pissed sometimes if you change a body from dynamic to static/kinematic within a contact callback.
 			//--- So whenever this happen's the call is delayed until after the physics step, which shouldn't affect the simulation really.
 			var theWorld:qb2World = qb2World.worldDict[_bodyB2.m_world] as qb2World;
-			var changingToZeroMass:Boolean = !_tang._mass || thisIsKinematic;
-			if ( _bodyB2.GetType() == b2Body.b2_dynamicBody && changingToZeroMass && theWorld.processingBox2DStuff )
+			if ( theWorld.processingBox2DStuff )
 			{
 				theWorld.addDelayedCall(null, this.recomputeBodyB2Mass);
 				return;
 			}
+			
+			var thisIsKinematic:Boolean = _tang.isKinematic;			
 			
 			_bodyB2.SetType(thisIsKinematic ? b2Body.b2_kinematicBody : (_tang._mass ? b2Body.b2_dynamicBody : b2Body.b2_staticBody));
 			//_bodyB2.ResetMassData(); // this is called by SetType(), so was redundant, but i'm still afraid that commenting it out would break something, so it's here for now.
@@ -198,6 +197,27 @@ package QuickB2.internals
 				_bodyB2.m_linearVelocity.x = _linearVelocity._x;
 				_bodyB2.m_linearVelocity.y = _linearVelocity._y;
 				_bodyB2.m_angularVelocity  = _angularVelocity;
+			}
+		}
+		
+		qb2_friend function scaleBy(xValue:Number, yValue:Number, origin:amPoint2d = null, scaleMass:Boolean = true, scaleJointAnchors:Boolean = true, scaleActor:Boolean = true):void
+		{
+			_position.removeEventListener(amUpdateEvent.ENTITY_UPDATED, pointUpdated);
+			{
+				_position.scaleBy(xValue, yValue, origin);
+			}
+			_position.addEventListener(amUpdateEvent.ENTITY_UPDATED, pointUpdated);
+				
+			if ( scaleJointAnchors )
+			{
+				qb2Joint.scaleJointAnchors(xValue, yValue, _tang as qb2IRigidObject);
+			}
+			
+			if ( _tang.actor && scaleActor )
+			{
+				var mat:Matrix = _tang.actor.transform.matrix;
+				mat.scale(xValue, yValue);
+				_tang.actor.transform.matrix = mat;
 			}
 		}
 		
@@ -234,19 +254,22 @@ package QuickB2.internals
 				_linearVelocity._y = _bodyB2.m_linearVelocity.y;
 				_angularVelocity   = _bodyB2.m_angularVelocity;
 				
-				(_tang as qb2IRigidObject).updateActor();
+				updateActor();
+			}
+		}
+	
+		qb2_friend function updateActor():void
+		{
+			if ( _tang._actor )
+			{
+				 _tang._actor.x = _position.x;   _tang._actor.y = _position.y;
+				_tang._actor.rotation = _rotation * TO_DEG;
 			}
 		}
 		
 		qb2_friend function setTransform(point:amPoint2d, rotationInRadians:Number):qb2IRigidObject
 		{
 			var asRigid:qb2IRigidObject = _tang as qb2IRigidObject;
-			
-			/*if ( _calledFromPointUpdated || rigid_shouldTransform(_position, point, _rotation, rotationInRadians) )
-			{
-				invalidateBoundBox();
-			}*/
-			
 			if ( point != _position ) // if e.g. rotateBy or pointUpdated() calls this function, 'point' and '_position' refer to the same point object, otherwise _position must be made to refer to the new object
 			{
 				if ( _position )  _position.removeEventListener(amUpdateEvent.ENTITY_UPDATED, pointUpdated);
@@ -271,18 +294,17 @@ package QuickB2.internals
 				}
 			}
 			
-			asRigid.updateActor();
+			updateActor();
 			
 			_tang.wakeUp();
 			
 			if ( _tang._ancestorBody ) // (if this object is a child of some body whose only other ancestors are qb2Groups...)
 			{
-				_tang.pushMassFreeze(); // this is only done to prevent b2Body::ResetMassData() from being effectively called more than necessary by setting body type to static.
-					_tang.flushShapes();
-				_tang.popMassFreeze();
-				
-				//--- Skip the first object (this) in the tree because only parent object's mass properties will be affected.
-				_tang.updateMassProps(0, 0, true); // we just assume that some kind of center of mass change took place here, even though it didnt *for sure* happen
+				_tang.pushEditSession(); // this is only done to prevent b2Body::ResetMassData() from being effectively called more than necessary by setting body type to static.
+				{
+					_tang._positionInsideAncestorBodyChangedWhileInEditSession = true;
+				}
+				_tang.popEditSession();
 				
 				for (var i:int = 0; i < asRigid.numAttachedJoints; i++) 
 				{
@@ -306,9 +328,7 @@ package QuickB2.internals
 
 		qb2_friend function pointUpdated(evt:amUpdateEvent):void
 		{
-			_calledFromPointUpdated = true;
-				(_tang as qb2IRigidObject).setTransform(_position, _rotation);
-			_calledFromPointUpdated = false;
+			(_tang as qb2IRigidObject).setTransform(_position, _rotation);
 		}
 		
 		qb2_friend function get attachedMass():Number

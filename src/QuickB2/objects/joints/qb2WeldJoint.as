@@ -131,31 +131,22 @@ package QuickB2.objects.joints
 				referenceAngle = _object2._rigidImp._rotation - _object1._rigidImp._rotation;
 		}
 		
-		qb2_friend override function makeJointB2(theWorld:qb2World):void
+		qb2_friend override function make(theWorld:qb2World):void
 		{
-			if ( theWorld && theWorld.processingBox2DStuff )
-			{
-				theWorld.addDelayedCall(this, makeJointB2, theWorld);
-				return;
-			}
+			var conversion:Number = theWorld.pixelsPerMeter;
+			var corrected1:amPoint2d    = getCorrectedLocal1(conversion, conversion);
+			var corrected2:amPoint2d    = getCorrectedLocal2(conversion, conversion);
 			
-			if ( checkForMake(theWorld) )
-			{
-				var conversion:Number = theWorld.pixelsPerMeter;
-				var corrected1:amPoint2d    = getCorrectedLocal1(conversion, conversion);
-				var corrected2:amPoint2d    = getCorrectedLocal2(conversion, conversion);
-				
-				var weldJointDef:b2WeldJointDef = b2Def.weldJoint;
-				weldJointDef.localAnchorA.x   = corrected1.x;
-				weldJointDef.localAnchorA.y   = corrected1.y;
-				weldJointDef.localAnchorB.x   = corrected2.x;
-				weldJointDef.localAnchorB.y   = corrected2.y;
-				weldJointDef.referenceAngle = this.referenceAngle;
-				
-				jointDef = weldJointDef;
-			}
+			var weldJointDef:b2WeldJointDef = b2Def.weldJoint;
+			weldJointDef.localAnchorA.x   = corrected1.x;
+			weldJointDef.localAnchorA.y   = corrected1.y;
+			weldJointDef.localAnchorB.x   = corrected2.x;
+			weldJointDef.localAnchorB.y   = corrected2.y;
+			weldJointDef.referenceAngle = this.referenceAngle;
 			
-			super.makeJointB2(theWorld);
+			jointDef = weldJointDef;
+			
+			super.make(theWorld);
 		}
 		
 		private function get joint():b2WeldJoint

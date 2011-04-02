@@ -111,15 +111,18 @@ package QuickB2.objects.tangibles
 		
 		public function set(newPosition:amPoint2d, newRadius:Number, newRotation:Number = 0 ):qb2CircleShape
 		{
-			position = newPosition;
-			
-			_radius = newRadius;
-			_rigidImp._rotation = newRotation;
-	
-			var newArea:Number = (_radius * _radius) * Math.PI;
-			flushShapesWrapper(_mass, newArea);
-			
-			updateMassProps(0, newArea - _surfaceArea);
+			pushEditSession();
+			{
+				position = newPosition;
+				
+				_radius = newRadius;
+				_rigidImp._rotation = newRotation;
+		
+				_surfaceArea = (_radius * _radius) * Math.PI;
+				
+				_geometryChangeOccuredWhileInEditSession = true;
+			}
+			popEditSession();
 			
 			return this;
 		}
@@ -136,20 +139,19 @@ package QuickB2.objects.tangibles
 			{  return _rigidImp._position.clone();  }
 		
 		public override function scaleBy(xValue:Number, yValue:Number, origin:amPoint2d = null, scaleMass:Boolean = true, scaleJointAnchors:Boolean = true, scaleActor:Boolean = true):qb2Tangible
-		{
-			super.scaleBy(xValue, yValue, origin, scaleMass, scaleJointAnchors);
-			
-			freezeFlush = true;
-				_rigidImp._position.scaleBy(xValue, yValue, origin);
-			freezeFlush = false;
-			
-			_radius *= (xValue + yValue)/2;
-			
-			var newArea:Number = (_radius * _radius) * Math.PI;
-			var newMass:Number = scaleMass ? newArea * _density : _mass;
-			flushShapesWrapper(newMass, newArea);
-			
-			updateMassProps(newMass - _mass, newArea - _surfaceArea);
+		{			
+			pushEditSession();
+			{
+				_rigidImp.scaleBy(xValue, yValue, origin, scaleMass, scaleJointAnchors);
+				
+				var scaling:Number = (xValue + yValue)/2;
+				_radius      *= scaling;
+				_mass        *= scaleMass ? scaling : 1;
+				_surfaceArea *= (_radius * _radius) * AM_PI;
+				
+				_geometryChangeOccuredWhileInEditSession = true;
+			}
+			popEditSession();
 			
 			return this;
 		}
@@ -158,13 +160,7 @@ package QuickB2.objects.tangibles
 			{  return new amCircle2d(_rigidImp._position.clone(), _radius);  }
 			
 		qb2_friend override function makeShapeB2(theWorld:qb2World):void
-		{
-			if ( theWorld.processingBox2DStuff )
-			{
-				theWorld.addDelayedCall(this, makeShapeB2, theWorld);
-				return;
-			}
-			
+		{			
 			var conversion:Number = theWorld._pixelsPerMeter;
 			var circShape:b2CircleShape = new b2CircleShape();
 			
@@ -180,11 +176,18 @@ package QuickB2.objects.tangibles
 			}
 			circShape.m_radius = this._radius / conversion;
 			
+			shapeB2s.length = 0; // just in case.
 			shapeB2s.push(circShape);
 			
-			super.makeShapeB2(theWorld); // actually creates the shape from the definition(s) created here, and recomputes mass.
-			
 			theWorld._totalNumCircles++;
+			
+			super.makeShapeB2(theWorld); // actually creates the shape from the definition(s) created here, and recomputes mass.
+		}
+		
+		qb2_friend override function destroyShapeB2(theWorld:qb2World):void
+		{
+			theWorld._totalNumCircles--;
+			super.destroyShapeB2(theWorld);
 		}
 		
 		qb2_friend override function makeFrictionJoints():void

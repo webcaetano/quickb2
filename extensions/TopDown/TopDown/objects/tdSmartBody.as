@@ -23,6 +23,7 @@
 package TopDown.objects
 {
 	import QuickB2.*;
+	import QuickB2.events.qb2ContainerEvent;
 	import QuickB2.objects.*;
 	import QuickB2.objects.tangibles.*;
 	import TopDown.*;
@@ -45,24 +46,31 @@ package TopDown.objects
 			{
 				throw qb2_errors.ABSTRACT_CLASS_ERROR;
 			}
+			
+			addEventListener(qb2ContainerEvent.ADDED_OBJECT,   justAddedObject,   false, 0, true);
+			addEventListener(qb2ContainerEvent.REMOVED_OBJECT, justRemovedObject, false, 0, true);
 		}
 		
-		protected override function justAddedObject(object:qb2Object):void
+		private function justAddedObject(evt:qb2ContainerEvent):void
 		{
+			var object:qb2Object = evt.child;
+			
 			if ( object is tdBrain )
 			{
 				setBrain(object as tdBrain);
 			}
 		}
 		
-		protected override function justRemovedObject(object:qb2Object):void
+		private function justRemovedObject(evt:qb2ContainerEvent):void
 		{
+			var object:qb2Object = evt.child;
+			
 			if ( object is tdBrain )
 			{
 				setBrain(null);
 			}
 		}
-		
+
 		private function setBrain(newBrain:tdBrain):void
 		{
 			if ( newBrain && newBrain.host )  throw td_errors.BRAIN_ALREADY_HAS_HOST_ERROR;

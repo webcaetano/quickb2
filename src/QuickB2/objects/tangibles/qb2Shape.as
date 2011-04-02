@@ -53,8 +53,6 @@ package QuickB2.objects.tangibles
 		qb2_friend const shapeB2s:Vector.<b2Shape> = new Vector.<b2Shape>();  // must be an array, because non-convex polygons can decompose to several actual shapes...in general this will be length 1 though
 		qb2_friend const fixtures:Vector.<b2Fixture> = new Vector.<b2Fixture>();
 		
-		qb2_friend var freezeFlush:Boolean = false;
-		
 		qb2_friend var flaggedForDestroy:Boolean = false;
 	
 		public function qb2Shape()
@@ -103,14 +101,34 @@ package QuickB2.objects.tangibles
 
 		public override function set density(value:Number):void
 		{
-			updateFixtureDensities( (value) / (worldPixelsPerMeter * worldPixelsPerMeter) );
-			updateMassProps(value * _surfaceArea - _mass, 0);
+			pushEditSession();
+			{
+				_mass = value * _surfaceArea;
+				updateFixtureDensities();
+			}
+			popEditSession();
 		}
 
 		public override function set mass(value:Number):void
 		{
-			updateFixtureDensities( (value / _surfaceArea) / (worldPixelsPerMeter * worldPixelsPerMeter) );
-			updateMassProps(value - _mass, 0);
+			pushEditSession();
+			{
+				_mass = value;
+				updateFixtureDensities();
+			}
+			popEditSession();
+		}
+		
+		private function updateFixtureDensities():void
+		{
+			if ( fixtures.length )
+			{
+				var newDensity:Number = this.metricDensity;
+				for ( var i:int = 0; i < fixtures.length; i++ )
+				{
+					fixtures[i].SetDensity(newDensity);
+				}
+			}
 		}
 			
 		public virtual function get perimeter():Number
@@ -173,67 +191,25 @@ package QuickB2.objects.tangibles
 		}
 		
 		protected override function flagsChanged(affectedFlags:uint):void
-		{
-			if ( !this.fixtures.length )  return;
-			
+		{			
 			_rigidImp.flagsChanged(affectedFlags);
+			
+			if ( !this.fixtures.length )  return;
 			
 			if ( affectedFlags & qb2_flags.IS_GHOST )
 			{
 				var isAGhost:Boolean = isGhost;
 				for ( var i:int = 0; i < this.fixtures.length; i++ )
+				{
 					this.fixtures[i].SetSensor(isAGhost);
+				}
 			}
-		}
-	
-		
-		public override function scaleBy(xValue:Number, yValue:Number, origin:amPoint2d = null, scaleMass:Boolean = true, scaleJointAnchors:Boolean = true, scaleActor:Boolean = true):qb2Tangible
-		{
-			super.scaleBy(xValue, yValue, origin, scaleMass, scaleJointAnchors, scaleActor);
-			
-			if ( scaleJointAnchors )
-				qb2Joint.scaleJointAnchors(xValue, yValue, this as qb2IRigidObject);
-				
-			return this;
-		}
-		
-		
-		
-		private function updateFixtureDensities(newDensity:Number):void
-		{
-			if ( fixtures.length )
-			{
-				for ( var i:int = 0; i < fixtures.length; i++ )
-					fixtures[i].SetDensity(newDensity);
-			}
-		}
-		
-		qb2_friend function flushShapesWrapper(newMass:Number, newArea:Number):void
-		{
-			var oldMass:Number = _mass;
-			var oldArea:Number = _surfaceArea;
-			_mass = newMass;
-			_surfaceArea = newArea;
-			
-			flushShapes();
-			
-			_mass = oldMass;
-			_surfaceArea = oldArea;
 		}
 		
 		qb2_friend override function flushShapes():void
 		{
-			if ( freezeFlush )  return;
-		
-			if ( _world )
-			{
-				pushMassFreeze(); // only makes it so b2Body::ResetMassData() is effectively not called...this has no effect on the freeze mass update flow in QuickB2
-				{
-					destroyShapeB2();
-					makeShapeB2(_world);
-				}
-				popMassFreeze();
-			}
+			destroyShapeB2Wrapper(_world);
+			makeShapeB2Wrapper(_world);
 		}
 		
 		qb2_friend var frictionJoints:Vector.<b2FrictionJoint>;
@@ -321,10 +297,14 @@ package QuickB2.objects.tangibles
 			}
 		}
 		
-		qb2_friend override function make(theWorld:qb2World, ancestor:qb2ObjectContainer):void
+		qb2_friend override function shouldMake():Boolean
+			{  return true;  }
+		
+		qb2_friend override function shouldDestroy():Boolean
+			{  return true;  }
+		
+		qb2_friend override function make(theWorld:qb2World):void
 		{
-			_world = theWorld;
-			
 			//--- If this is a lone shape being added to the world, internally it must have its own body.
 			if ( !_ancestorBody )
 			{
@@ -332,22 +312,40 @@ package QuickB2.objects.tangibles
 			}
 			
 			makeShapeB2(theWorld);
-			
-			if ( _bodyB2 )
+		}
+		
+		qb2_friend function makeShapeB2Wrapper(theWorld:qb2World):void
+		{
+			if ( theWorld )
 			{
-				_rigidImp.recomputeBodyB2Mass();
+				if ( theWorld.processingBox2DStuff )
+				{
+					theWorld.addDelayedCall(this, makeShapeB2Wrapper, theWorld);
+				}
+				else
+				{
+					makeShapeB2(theWorld);
+				}
 			}
-			
-			theWorld._terrainRevisionDict[this]  = 0 as int;
-			theWorld._gravityZRevisionDict[this] = 0 as int;
-			
-			super.make(theWorld, ancestor); // fire added to world events
-			
-			updateFrictionJoints();
+		}
+		
+		qb2_friend function destroyShapeB2Wrapper(theWorld:qb2World):void
+		{
+			if ( theWorld )
+			{
+				if ( theWorld.processingBox2DStuff )
+				{
+					theWorld.addDelayedCall(this, destroyShapeB2Wrapper, theWorld);
+				}
+				else
+				{
+					destroyShapeB2(theWorld);
+				}
+			}
 		}
 		
 		qb2_friend function makeShapeB2(theWorld:qb2World):void
-		{			
+		{
 			var body:b2Body = _ancestorBody ? _ancestorBody._bodyB2 : _bodyB2;
 			
 			const conversion:Number = theWorld._pixelsPerMeter;
@@ -386,6 +384,11 @@ package QuickB2.objects.tangibles
 				fixtures[i].m_reportPreSolve     = preSolve;
 				fixtures[i].m_reportPostSolve    = postSolve;
 			}
+			
+			theWorld._terrainRevisionDict[this]  = 0 as int;
+			theWorld._gravityZRevisionDict[this] = 0 as int;
+			
+			updateFrictionJoints();
 		}
 		
 		qb2_friend override function updateContactReporting(bits:uint):void
@@ -404,61 +407,43 @@ package QuickB2.objects.tangibles
 			}
 		}
 		
-		qb2_friend override function destroy(ancestor:qb2ObjectContainer):void
+		qb2_friend override function destroy(theWorld:qb2World):void
 		{
 			if ( _bodyB2 )
 			{
-				_rigidImp.destroyBodyB2();
+				_rigidImp.destroyBodyB2(theWorld);
 			}
 			
-			destroyShapeB2();
-			
-			delete _world._terrainRevisionDict[this];
-			delete _world._gravityZRevisionDict[this];
-		
-			super.destroy(ancestor);
-			
-			updateFrictionJoints();
+			destroyShapeB2(theWorld);
 		}
 		
-		private function destroyShapeB2():void
+		qb2_friend function destroyShapeB2(theWorld:qb2World):void
 		{
 			for ( var i:int = 0; i < fixtures.length; i++ )
 			{
 				var fixture:b2Fixture = fixtures[i];
-				
-				if ( _world.processingBox2DStuff )
+			
+				//--- qb2InternalDestructionListener marks any impliclity destroyed fixtures (fixtures that were destroyed because
+				//--- the body was destroyed).  So we only have to destroy the fixture here if, e.g. this shape is being removed from a body by itself.
+				if ( doNotDestroyList[fixture] )
 				{
-					_world.addDelayedCall(this, fixture.GetBody().DestroyFixture, fixture);
+					delete doNotDestroyList[fixture];
 				}
 				else
 				{
-					//--- qb2InternalDestructionListener marks any impliclity destroyed fixtures (fixtures that were destroyed because
-					//--- the body was destroyed).  So we only have to destroy the fixture here if, e.g. this shape is being removed from a body by itself.
-					if ( doNotDestroyList[fixture] )
-					{
-						delete doNotDestroyList[fixture];
-					}
-					else
-					{
-						fixture.GetBody().DestroyFixture(fixture);
-					}
+					fixture.GetBody().DestroyFixture(fixture);
 				}
 				
 				// fixture.SetUserData(null);
 				shapeB2s[i].destroy(); // this just cleans up C++ memory...supposedly...it has nothing to do with the qb2Object::destroy() function
 			}
-	
-			if ( this is qb2CircleShape )
-			{
-				_world._totalNumCircles--;
-			}
-			else
-			{
-				_world._totalNumPolygons--;
-			}
 			
 			fixtures.length = shapeB2s.length = 0;
+			
+			delete theWorld._terrainRevisionDict[this];
+			delete theWorld._gravityZRevisionDict[this];
+			
+			updateFrictionJoints();
 		}
 		
 		qb2_friend const doNotDestroyList:Dictionary = new Dictionary(true);
@@ -571,13 +556,7 @@ package QuickB2.objects.tangibles
 			{  return _rigidImp.setTransform(point, rotationInRadians);  }
 
 		public function updateActor():void
-		{
-			if ( _actor )
-			{
-				_actor.x = _rigidImp._position.x;  _actor.y = _rigidImp._position.y;
-				_actor.rotation = rotation * TO_DEG;
-			}
-		}
+			{  _rigidImp.updateActor();  }
 
 		public function get numAttachedJoints():uint
 			{  return _rigidImp._attachedJoints ? _rigidImp._attachedJoints.length : 0;  }

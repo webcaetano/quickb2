@@ -493,7 +493,7 @@ package QuickB2.objects.tangibles
 					
 				if ( object is qb2Tangible && (object as qb2Tangible)._bodyB2 )
 				{
-					(object as qb2Tangible)._rigidImp.recomputeBodyB2Mass();
+					//(object as qb2Tangible)._rigidImp.recomputeBodyB2Mass();
 				}
 			}
 			delayedCalls.length = 0;
@@ -510,7 +510,7 @@ package QuickB2.objects.tangibles
 			for ( key in postEventers)
 			{
 				dispatcher = key as qb2Object;
-				var postEvent:qb2UpdateEvent = getCachedEvent("postUpdate");
+				var postEvent:qb2UpdateEvent = getCachedEvent(qb2UpdateEvent.POST_UPDATE);
 				postEvent._object = dispatcher;
 				dispatcher.dispatchEvent(postEvent);
 			}

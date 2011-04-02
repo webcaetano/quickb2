@@ -88,7 +88,7 @@ package QuickB2.objects.joints
 			object.addEventListener(qb2ContainerEvent.ADDED_TO_WORLD,     addedOrRemoved, false, 0, true);
 			object.addEventListener(qb2ContainerEvent.REMOVED_FROM_WORLD, addedOrRemoved, false, 0, true);
 			
-			makeJointB2(_world);
+			makeWrapper(_world);
 		}
 		
 		private function unregisterObject(object:qb2Tangible):void
@@ -99,18 +99,18 @@ package QuickB2.objects.joints
 			object.removeEventListener(qb2ContainerEvent.ADDED_TO_WORLD,     addedOrRemoved);
 			object.removeEventListener(qb2ContainerEvent.REMOVED_FROM_WORLD, addedOrRemoved);
 			
-			destroyJointB2();
+			destroyWrapper(_world);
 		}
 		
 		private function addedOrRemoved(evt:qb2ContainerEvent):void
 		{
 			if ( evt.type == qb2ContainerEvent.ADDED_TO_WORLD )
 			{
-				makeJointB2(_world);
+				makeWrapper(_world);
 			}
 			else
 			{
-				destroyJointB2();
+				destroyWrapper(_world);
 			}
 		}
 		
@@ -199,20 +199,9 @@ package QuickB2.objects.joints
 			{  setFlag(bool, qb2_flags.COLLIDE_CONNECTED);  }
 		
 		qb2_friend var jointDef:b2JointDef = null; // this is assigned in make() in subclasses, then nullified again in the base make() function.
-		
-		qb2_friend override function make(theWorld:qb2World, ancestor:qb2ObjectContainer):void
+
+		qb2_friend override function shouldMake():Boolean
 		{
-			if ( !jointB2 )
-			{
-				makeJointB2(theWorld);
-			}
-			
-			super.make(theWorld, ancestor);
-		}
-		
-		qb2_friend function checkForMake(theWorld:qb2World):Boolean
-		{
-			if ( !theWorld )  return false;
 			if ( !_object2 )  return false;
 			if ( _object2._ancestorBody )
 			{
@@ -242,20 +231,13 @@ package QuickB2.objects.joints
 			return true;
 		}
 		
-		qb2_friend override function destroy(ancestor:qb2ObjectContainer):void
+		qb2_friend override function shouldDestroy():Boolean
 		{
-			if ( jointB2 )
-			{
-				destroyJointB2();
-			}
-
-			super.destroy(ancestor);
+			return jointB2 ? true : false;
 		}
 		
-		qb2_friend function makeJointB2(theWorld:qb2World):void
+		qb2_friend override function make(theWorld:qb2World):void
 		{
-			if ( !jointDef )  return;
-			
 			jointDef.bodyA = _object1._bodyB2 ? _object1._bodyB2 : _object1._ancestorBody._bodyB2;
 			jointDef.bodyB = _object2._bodyB2 ? _object2._bodyB2 : _object2._ancestorBody._bodyB2;
 			jointDef.collideConnected = collideConnected;
@@ -266,19 +248,10 @@ package QuickB2.objects.joints
 			theWorld._totalNumJoints++;
 		}
 		
-		private function destroyJointB2():void
+		qb2_friend override function destroy(theWorld:qb2World):void
 		{
-			if ( !jointB2 )  return;
-			
-			if ( _world.processingBox2DStuff )
-			{
-				_world.addDelayedCall(this, _world._worldB2.DestroyJoint, jointB2);
-			}
-			else
-			{
-				_world._worldB2.DestroyJoint(jointB2);
-				_world._totalNumJoints--;
-			}
+			theWorld._worldB2.DestroyJoint(jointB2);
+			theWorld._totalNumJoints--;
 			
 			jointB2.SetUserData(null);
 			jointB2 = null;
@@ -291,9 +264,9 @@ package QuickB2.objects.joints
 		}
 		
 		qb2_friend function flush():void
-		{		
-			destroyJointB2();
-			makeJointB2(_world);
+		{
+			destroyWrapper(_world);
+			makeWrapper(_world);
 		}
 		
 		qb2_friend static function scaleJointAnchors(xValue:Number, yValue:Number, rigid:qb2IRigidObject):void
@@ -301,7 +274,6 @@ package QuickB2.objects.joints
 			for (var i:int = 0; i < rigid.numAttachedJoints; i++) 
 			{
 				var joint:qb2Joint = rigid.getAttachedJointAt(i);
-				
 				
 				if ( joint.requiresTwoRigids )
 				{

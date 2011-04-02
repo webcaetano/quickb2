@@ -58,46 +58,14 @@ package QuickB2.objects.tangibles
 			polygon.addEventListener(amUpdateEvent.ENTITY_UPDATED, polygonUpdated);
 		}
 		
-		private var _sessionTracker:int;
-		
-		public function beginEditSession():void
-		{
-			_sessionTracker++;
-		}
-		
-		public function endEditSession():void
-		{
-			_sessionTracker--;
-			
-			if ( _sessionTracker == 0 )
-			{
-				flushShapes();
-				
-				_sessionTracker = 0;
-			}
-			else if ( _sessionTracker < 0 )
-			{
-				_sessionTracker = 0;
-			}
-		}
-		
-		public function get inEditingSession():Boolean
-		{
-			return _sessionTracker ? true : false;
-		}
-		
-		qb2_friend override function flushShapesWrapper(newMass:Number, newArea:Number):void
-		{
-			if ( !_sessionTracker )
-			{
-				super.flushShapesWrapper(newMass, newArea);
-			}
-		}
-		
 		private function polygonUpdated(evt:amUpdateEvent):void
 		{
-			flushShapesWrapper(_mass, polygon.area);
-			updateMassProps(0, polygon.area - _surfaceArea);
+			pushEditSession()
+			{
+				_geometryChangeOccuredWhileInEditSession = true;
+				_surfaceArea = polygon.area;
+			}
+			popEditSession();
 		}
 		
 		public function get closed():Boolean
@@ -107,25 +75,15 @@ package QuickB2.objects.tangibles
 			if ( _closed != bool )
 			{
 				_closed = bool;
-				flushShapes(); // don't need to do wrapper thing here case mass/area isn't changing.
-				updateMassProps(0, 0);
+				
+				pushEditSession();
+				{
+					_geometryChangeOccuredWhileInEditSession = true;
+				}
+				popEditSession();
 			}
 		}
 		private var _closed:Boolean = true;
-		
-		// TODO: Think about if it's even appropriate or useful to have a closed outline of a polygon in any circumstance.
-		/*public function get solid():Boolean
-			{  return _solid;  }
-		public function set solid(bool:Boolean):void
-		{
-			if ( _solid != bool )
-			{
-				_solid = bool;
-				rigid_flushShapes(); // don't need to do wrapper thing here case mass/area isn't changing.
-				updateMassProps(0, 0);
-			}
-		}
-		private var _solid:Boolean = true;*/
 		
 		public function set(vertices:Vector.<amPoint2d> = null, registrationPoint:amPoint2d = null, isClosed:Boolean = true):qb2PolygonShape
 		{
@@ -138,26 +96,35 @@ package QuickB2.objects.tangibles
 			lagPoint.copy(registrationPoint);
 			lagRot = _rigidImp._rotation = 0;
 			
-			position = registrationPoint;
-			
-			_closed = isClosed;
-			
-			polygon.set(vertices); // eventually gets around to calling polygonUpdated(), which calls other crap like flushShape();
+			pushEditSession();
+			{
+				position = registrationPoint;
+				
+				_closed = isClosed;
+				
+				polygon.set(vertices); // eventually gets around to calling polygonUpdated(), which changes _surfaceArea and registers a geometry change.
+			}
+			popEditSession();
 			
 			return this;
 		}
 		
-		public function addVertex(vertex1:amPoint2d, ... moreVertices):qb2PolygonShape
+		public function addVertex(vertex1:amPoint2d, ... oneOrMoreVertices):qb2PolygonShape
 		{
-			polygon.removeEventListener(amUpdateEvent.ENTITY_UPDATED, polygonUpdated);
+			//--- The listeners are removed here in order to not have to recalculate polygon surface area for every vertex.
+			pushEditSession();
 			{
-				moreVertices.push(vertex1);
-				for ( var i:int = 0; i < moreVertices.length; i++ )
-					polygon.addVertex(moreVertices[i] as amPoint2d);
+				polygon.removeEventListener(amUpdateEvent.ENTITY_UPDATED, polygonUpdated);
+				{
+					for ( var i:int = 0; i < oneOrMoreVertices.length; i++ )
+					{
+						polygon.addVertex(oneOrMoreVertices[i] as amPoint2d);
+					}
+					polygonUpdated(null); // call the event listener manually to make up for removing the listeners.
+				}
+				polygon.addEventListener(amUpdateEvent.ENTITY_UPDATED, polygonUpdated);
 			}
-			polygon.addEventListener(amUpdateEvent.ENTITY_UPDATED, polygonUpdated);
-
-			polygonUpdated(null);
+			popEditSession();
 			
 			return this;
 		}
@@ -175,19 +142,23 @@ package QuickB2.objects.tangibles
 		public function setVertexAt(index:uint, point:amPoint2d):qb2PolygonShape
 			{  polygon.setVertexAt(index, point);  return this; }
 			
-		public function insertVertexAt(index:uint, ... pointOrPoints):qb2PolygonShape
+		public function insertVertexAt(index:uint, ... oneOrMoreVertices):qb2PolygonShape
 		{
-			polygon.removeEventListener(amUpdateEvent.ENTITY_UPDATED, polygonUpdated);
+			//--- See "addVertex" for comments.
+			pushEditSession();
 			{
-				for ( var i:int = 0; i < pointOrPoints.length; i++ )
+				polygon.removeEventListener(amUpdateEvent.ENTITY_UPDATED, polygonUpdated);
 				{
-					polygon.insertVertexAt(index, pointOrPoints[i] as amPoint2d);
-					index++;
+					for ( var i:int = 0; i < oneOrMoreVertices.length; i++ )
+					{
+						polygon.insertVertexAt(index, oneOrMoreVertices[i] as amPoint2d);
+						index++;
+					}
+					polygonUpdated(null);
 				}
+				polygon.addEventListener(amUpdateEvent.ENTITY_UPDATED, polygonUpdated);
 			}
-			polygon.addEventListener(amUpdateEvent.ENTITY_UPDATED, polygonUpdated);
-
-			polygonUpdated(null);
+			popEditSession();
 			
 			return this;
 		}
@@ -213,21 +184,20 @@ package QuickB2.objects.tangibles
 		
 		public override function scaleBy(xValue:Number, yValue:Number, origin:amPoint2d = null, scaleMass:Boolean = true, scaleJointAnchors:Boolean = true, scaleActor:Boolean = true):qb2Tangible
 		{
-			super.scaleBy(xValue, yValue, origin, scaleMass, scaleJointAnchors);
-			
-			freezeFlush = true;
-				_rigidImp._position.scaleBy(xValue, yValue, origin);
-			freezeFlush = false;
-			
-			polygon.removeEventListener(amUpdateEvent.ENTITY_UPDATED, polygonUpdated);
-				polygon.scaleBy(xValue, yValue, _rigidImp._position);
-			polygon.addEventListener(amUpdateEvent.ENTITY_UPDATED, polygonUpdated);
-			
-			var newArea:Number = polygon.area;
-			var newMass:Number = scaleMass ? newArea * _density : _mass;
-			flushShapesWrapper(newMass, newArea);
-			
-			updateMassProps(newMass - _mass, newArea - _surfaceArea);
+			pushEditSession();
+			{
+				_rigidImp.scaleBy(xValue, yValue, origin, scaleMass, scaleJointAnchors);
+				
+				polygon.scaleBy(xValue, yValue, origin);
+				
+				 // "polygonUpdated" updates _surfaceArea.
+				
+				var scaling:Number = xValue * yValue;
+				_mass        *= scaleMass ? scaling : 1;
+				
+				_geometryChangeOccuredWhileInEditSession = true;
+			}
+			popEditSession();
 			
 			return this;
 		}
@@ -366,12 +336,6 @@ package QuickB2.objects.tangibles
 			
 		qb2_friend override function makeShapeB2(theWorld:qb2World):void
 		{
-			if ( theWorld.processingBox2DStuff )
-			{
-				theWorld.addDelayedCall(this, makeShapeB2, theWorld);
-				return;
-			}
-			
 			var conversion:Number = theWorld._pixelsPerMeter;
 			var inverse:Number = 1 / conversion;
 			
@@ -485,6 +449,13 @@ package QuickB2.objects.tangibles
 			super.makeShapeB2(theWorld); // actually creates the shape from the definition(s) created here, and recomputes mass.
 			
 			theWorld._totalNumPolygons++;
+		}
+		
+		qb2_friend override function destroyShapeB2(theWorld:qb2World):void
+		{
+			super.destroyShapeB2(theWorld);
+			
+			theWorld._totalNumPolygons--;
 		}
 		
 		qb2_friend override function makeFrictionJoints():void
