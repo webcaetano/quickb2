@@ -233,26 +233,6 @@ package QuickB2.objects.tangibles
 			popFromEffectsStack(numToPop);
 		}
 		
-		qb2_friend override function make(theWorld:qb2World, ancestor:qb2ObjectContainer):void
-		{
-			for ( var i:int = 0; i < _objects.length; i++ )
-			{
-				_objects[i].make(theWorld, ancestor);
-			}
-			
-			super.make(theWorld, ancestor);
-		}
-		
-		qb2_friend override function destroy(ancestor:qb2ObjectContainer):void
-		{
-			for ( var i:int = 0; i < _objects.length; i++ )
-			{
-				_objects[i].destroy(ancestor);
-			}
-			
-			super.destroy(ancestor);
-		}
-		
 		public function convertToBody(registrationPoint:amPoint2d = null, preserveVelocities:Boolean = true ):qb2Body
 		{
 			registrationPoint = registrationPoint ? registrationPoint : this.centerOfMass;
@@ -292,9 +272,6 @@ package QuickB2.objects.tangibles
 					body.angularVelocity = avgAngular
 				}
 			}
-			
-			
-
 			
 			if ( oldParent )  oldParent.addObject(body);
 			

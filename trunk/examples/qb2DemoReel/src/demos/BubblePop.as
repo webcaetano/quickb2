@@ -17,8 +17,8 @@ package demos
 		{
 			this.restitution = .75;  // make this whole group pretty bouncy.
 			
-			var numAcross:uint = 10;
-			var numDown:uint   = 6;
+			var numAcross:uint = 2;// 10;
+			var numDown:uint   = 1;// 6;
 			var radius:Number = 20;
 			
 			var startX:Number = -numAcross * radius;
@@ -36,9 +36,9 @@ package demos
 					bubbleBody.addObject(qb2Stock.newCircleShape(new amPoint2d(start.x, start.y), radius, 1));
 					start.y += radius * 2;
 				}
-				start.x += radius * 2;
+				start.x += radius * 8;
 			}
-			bubbleBody.rotateBy(RAD_45, bubbleBody.position);
+			bubbleBody.rotateBy(RAD_90, bubbleBody.position);
 			addObject(bubbleBody);
 			
 			bubbleBody.addEventListener(qb2ContactEvent.CONTACT_STARTED, contactStarted);

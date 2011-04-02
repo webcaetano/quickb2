@@ -376,7 +376,7 @@
 				//--- Polygons with CHANGES_OWN_GEOMETRY off won't have any changes accumulated in polyEdits.
 				if ( polyEdits.length )
 				{
-					asPoly.beginEditSession();
+					asPoly.pushEditSession();
 					var offset:int = 0;
 					for (var k:int = 0; k < polyEdits.length; k++) 
 					{
@@ -392,7 +392,7 @@
 							offset++;
 						}
 					}
-					asPoly.endEditSession();
+					asPoly.popEditSession();
 				}
 				
 				traverser.next();

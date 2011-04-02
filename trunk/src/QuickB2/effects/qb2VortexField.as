@@ -82,9 +82,9 @@ package QuickB2.effects
 			utilWindField.applyToRigid(rigid);
 		}
 		
-		public override function cloneShallow():qb2Object
+		public override function clone(deep:Boolean = true):qb2Object
 		{
-			var cloned:qb2VortexField = super.cloneShallow() as qb2VortexField;
+			var cloned:qb2VortexField = super.clone(true) as qb2VortexField;
 			
 			cloned.vortexSpeed       = this.vortexSpeed;
 			cloned.airDensity        = this.airDensity;

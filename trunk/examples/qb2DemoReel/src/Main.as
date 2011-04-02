@@ -51,7 +51,7 @@
 		//--- All the demo classes to cycle through.
 		private static const demoClasses:Vector.<Class> = Vector.<Class>
 		([
-			Carving, StockSofts, CarDriving, RigidCar, JelloCar, StockRigids, StressTest,
+			BubblePop, Carving, StockSofts, CarDriving, RigidCar, JelloCar, StockRigids, StressTest,
 			EffectFields, Planets, BubblePop, Cup, Actors, ShapeTransformation, Drawing, Joints, Distance
 		]);
 		
@@ -174,6 +174,8 @@
 			this.x = -cameraPoint.x;
 			this.y = -cameraPoint.y;
 			//rotationContainer.rotation = _cameraRotation;
+			
+			 trace(currDemo.mass, currDemo.surfaceArea);
 		}
 		
 		public function get stageWalls():qb2StageWalls

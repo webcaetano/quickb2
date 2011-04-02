@@ -43,11 +43,7 @@ package QuickB2.objects.tangibles
 	 * @author Doug Koellmer
 	 */
 	public class qb2Body extends qb2ObjectContainer implements qb2IRigidObject
-	{
-		public function qb2Body()
-		{
-		}
-		
+	{		
 		public function get b2_body():b2Body
 			{  return _bodyB2;  }
 		
@@ -80,7 +76,7 @@ package QuickB2.objects.tangibles
 			
 			return group;
 		}
-		
+
 		/*public function get localCenterOfMass():amPoint2d
 		{
 			if ( _bodyB2 )
@@ -111,50 +107,17 @@ package QuickB2.objects.tangibles
 			}
 		}*/
 		
-		qb2_friend override function make(theWorld:qb2World, ancestor:qb2ObjectContainer):void
-		{
-			_world = theWorld;
-			
-			//--- Only bodies owned by non-rigid containers (i.e. qb2Groups) have bodies.
-			if ( !_ancestorBody )
-			{
-				_rigidImp.makeBodyB2(theWorld);
-			}
-			
-			//--- Here we temporarily make the body static so that its mass data won't be reset internally for each shape addition
-			pushMassFreeze();
-			{
-				for ( var i:int = 0; i < _objects.length; i++ )
-				{
-					_objects[i].make(theWorld, ancestor);
-				}
-			}
-			popMassFreeze();
-			
-			//--- Set the type back to what it should be...this strategy makes it so that b2Body::ResetMassData() is effectively only called once.
-			//--- updateMassProps() isn't called because we're just interested in the internal b2Body's mass properties being updated.
-			if ( _bodyB2 )
-			{
-				_rigidImp.recomputeBodyB2Mass();
-			}
-			
-			super.make(theWorld, ancestor); // just fires qb2ContainerEvents
-		}
+		qb2_friend override function shouldMake():Boolean
+			{  return _ancestorBody ? false : true;  }
 		
-		qb2_friend override function destroy(ancestor:qb2ObjectContainer):void
-		{
-			if ( _bodyB2 )
-			{
-				_rigidImp.destroyBodyB2();
-			}
+		qb2_friend override function shouldDestroy():Boolean
+			{  return _bodyB2 ? true : false;  }
+		
+		qb2_friend override function make(theWorld:qb2World):void
+			{  _rigidImp.makeBodyB2(theWorld);  }
 			
-			for ( var i:int = 0; i < _objects.length; i++ )
-			{
-				_objects[i].destroy(ancestor);
-			}
-			
-			super.destroy(ancestor);
-		}
+		qb2_friend override function destroy(theWorld:qb2World):void
+			{  _rigidImp.destroyBodyB2(theWorld);  }
 		
 		protected override function propertyChanged(propertyName:String):void
 		{
@@ -196,13 +159,7 @@ package QuickB2.objects.tangibles
 			{  return _rigidImp.setTransform(point, rotationInRadians);  }
 
 		public function updateActor():void
-		{
-			if ( _actor )
-			{
-				_actor.x = _rigidImp._position.x;  _actor.y = _rigidImp._position.y;
-				_actor.rotation = rotation * TO_DEG;
-			}
-		}
+			{  _rigidImp.updateActor();  }
 
 		public function get numAttachedJoints():uint
 			{  return _rigidImp._attachedJoints ? _rigidImp._attachedJoints.length : 0;  }

@@ -86,7 +86,7 @@ package QuickB2.objects.tangibles
 				var propertyFlushAlreadyCancelled:Boolean = cancelPropertyInheritance;
 				cancelPropertyInheritance = true; // this stops all objects being added here from inheriting properties from their ancestors...their properties will be set with qb2Tangible::copyProps(), thus preventing double traversals through the world tree.
 				{
-					newContainer.pushMassFreeze();
+					newContainer.pushEditSession();
 					{
 						for (var i:int = 0; i < _objects.length; i++) 
 						{
@@ -138,7 +138,7 @@ package QuickB2.objects.tangibles
 							}
 						}
 					}
-					newContainer.popMassFreeze();
+					newContainer.popEditSession();
 				}
 				cancelPropertyInheritance = propertyFlushAlreadyCancelled; // if the property flush was already cancelled, presumably by a deep clone of some ancestor, then the cancelled property flush should remain in effect.
 				
@@ -150,18 +150,6 @@ package QuickB2.objects.tangibles
 			}
 			
 			return newContainer;
-		}
-
-		qb2_friend override function setAncestorBody(aBody:qb2Body):void
-		{
-			_ancestorBody = aBody;
-			for (var i:int = 0; i < _objects.length; i++) 
-			{
-				if ( _objects[i] is qb2Tangible )
-				{
-					(_objects[i] as qb2Tangible).setAncestorBody(aBody);
-				}
-			}
 		}
 		
 		qb2_friend override function updateContactReporting(bits:uint):void
@@ -187,6 +175,43 @@ package QuickB2.objects.tangibles
 			}
 		}
 		
+		private function collectAncestorFlagsAndProperties():qb2InternalPropertyAndFlagCollection
+		{
+			var currParent:qb2Object = this;
+			var booleanFlags:uint = 0;
+			var flagsTaken:uint   = 0;
+			var ancestorPropertyMapStacks:Object = { };
+			
+			while ( currParent )
+			{
+				//--- Fill in the property map with ancestor values.
+				for ( var propertyName:String in currParent._propertyMap )
+				{
+					if ( currParent._ownershipFlagsForProperties & _propertyBits[propertyName] )
+					{
+						if ( ancestorPropertyMapStacks[propertyName] )  continue;
+						
+						ancestorPropertyMapStacks[propertyName] = [currParent._propertyMap[propertyName]];
+					}
+				}
+				
+				//--- Fill in the flags.
+				var flagsThatCouldBeTaken:uint = flagsTaken | currParent._ownershipFlagsForBooleans;
+				var flagsNotYetTaken:uint      = flagsTaken ^ flagsThatCouldBeTaken;
+				booleanFlags |= flagsNotYetTaken & currParent._flags;
+				flagsTaken   |= flagsNotYetTaken;
+				
+				currParent = currParent._parent;
+			}
+			
+			var collection:qb2InternalPropertyAndFlagCollection = new qb2InternalPropertyAndFlagCollection();
+			collection.ancestorFlagOwnershipStack.push(flagsTaken);
+			collection.ancestorFlagStack.push(booleanFlags);
+			collection.ancestorPropertyMapStacks = ancestorPropertyMapStacks;
+			
+			return collection;
+		}
+		
 		private function addMultipleObjectsToArray(someObjects:Vector.<qb2Object>, startIndex:uint):qb2ObjectContainer
 		{			
 			if ( !cancelPropertyInheritance ) // only happens when cloning, where properties don't have to be inherited.
@@ -200,18 +225,18 @@ package QuickB2.objects.tangibles
 			for ( var i:int = 0; i < someObjects.length; i++ )
 			{
 				var object:qb2Object = someObjects[i];
+				var tang:qb2Tangible = object as qb2Tangible;
 				
-				if ( object is qb2Tangible )
+				if ( tang )
 				{
-					var tang:qb2Tangible = object as qb2Tangible;
-					totalArea += tang._surfaceArea;
-					totalMass += tang._mass;
-					
 					if ( !tangibleFound )
 					{
-						pushMassFreeze();
+						pushEditSession();
 						tangibleFound = true;
 					}
+					
+					_surfaceArea += tang._surfaceArea;
+					_mass        += tang._mass;
 				}
 				
 				addObjectToArray(object, startIndex, collection);
@@ -221,8 +246,7 @@ package QuickB2.objects.tangibles
 			
 			if ( tangibleFound )
 			{
-				popMassFreeze();
-				updateMassProps(totalMass, totalArea);
+				popEditSession();
 			}
 			
 			return this;
@@ -238,23 +262,14 @@ package QuickB2.objects.tangibles
 				_objects.splice(index, 0, object);
 			
 			object._parent = this;
-		
-			if ( !cancelPropertyInheritance ) // only happens when cloning, where properties don't have to be inherited.
+			
+			var asTang:qb2Tangible = object as qb2Tangible;
+			if ( asTang )
 			{
-				object.cascadeAncestorFlagsAndProperties(collection);
+				asTang.addActor();
 			}
 			
-			if ( object is qb2Tangible )
-			{
-				var tang:qb2Tangible = object as qb2Tangible;
-				tang.addActor();
-				
-				var theAncestorBody:qb2Body = this._ancestorBody ? this._ancestorBody :  ( this is qb2Body ? this as qb2Body : null);
-				if( theAncestorBody )
-					tang.setAncestorBody(theAncestorBody);
-			}
-			
-			if ( _world )  object.make(_world, this);
+			walkDownTree(object, _world, this._ancestorBody ? this._ancestorBody :  ( this is qb2Body ? this as qb2Body : null), collection, this, true);
 			
 			if ( eventFlags & ADDED_OBJECT_BIT )
 			{
@@ -265,25 +280,27 @@ package QuickB2.objects.tangibles
 			}
 			
 			processDescendantEvent(DESCENDANT_ADDED_OBJECT_BIT, getCachedEvent(qb2ContainerEvent.DESCENDANT_ADDED_OBJECT) , object);
-			
-			justAddedObject(object);
 		}
 		
 		private function removeObjectFromArray(index:uint):qb2Object
 		{
 			var objectRemoved:qb2Object = _objects.splice(index, 1)[0];
 			
-			if ( objectRemoved is qb2Tangible )
+			pushEditSession();
 			{
-				var tangible:qb2Tangible = objectRemoved as qb2Tangible
-				tangible.removeActor();
-				updateMassProps( -tangible._mass, -tangible._surfaceArea);
+				var asTang:qb2Tangible = objectRemoved as qb2Tangible;
+				if ( asTang )
+				{
+					asTang.removeActor();
+					_surfaceArea -= asTang._surfaceArea;
+					_mass        -= asTang._mass;
+				}
 				
-				flushAncestorBody(tangible);
+				objectRemoved._parent = null;
+				
+				walkDownTree(objectRemoved, _world, null, null, this, false);
 			}
-
-			if ( _world )  objectRemoved.destroy(this);
-			objectRemoved._parent = null;
+			popEditSession();
 			
 			if ( eventFlags & REMOVED_OBJECT_BIT )
 			{
@@ -294,14 +311,9 @@ package QuickB2.objects.tangibles
 			}
 			
 			processDescendantEvent(DESCENDANT_REMOVED_OBJECT_BIT, getCachedEvent(qb2ContainerEvent.DESCENDANT_REMOVED_OBJECT), objectRemoved);
-			
-			justRemovedObject(objectRemoved);
 		
 			return objectRemoved;
 		}
-		
-		protected virtual function justAddedObject(object:qb2Object):void   {}
-		protected virtual function justRemovedObject(object:qb2Object):void {}
 		
 		private function processDescendantEvent(bit:uint, cachedEvent:qb2ContainerEvent, object:qb2Object):void
 		{
@@ -318,46 +330,7 @@ package QuickB2.objects.tangibles
 				
 				currParent = currParent.parent;
 			}
-		}
-		
-		private static function flushAncestorBody(object:qb2Tangible):void
-		{
-			var queue:Vector.<qb2Object> = new Vector.<qb2Object>();
-			queue.unshift(object);
-			
-			while ( queue.length )
-			{
-				var queueObject:qb2Object = queue.shift();
-				
-				if ( queueObject is qb2Shape )
-					(queueObject as qb2Shape).setAncestorBody(null);
-				else if ( queueObject is qb2Body )
-				{
-					var objectAsBody:qb2Body = queueObject as qb2Body;
-					objectAsBody._ancestorBody = null; // manually set it here because null shouldn't be propogated down the tree.
-					for (var i:int = 0; i < objectAsBody._objects.length; i++) 
-					{
-						var ithObject:qb2Object = objectAsBody._objects[i];
-						
-						if ( ithObject is qb2Tangible )
-							(ithObject as qb2Tangible).setAncestorBody(objectAsBody);
-					}
-				}
-				else if ( queueObject is qb2Group )
-				{
-					var objectAsGroup:qb2Group = queueObject as qb2Group;
-					objectAsGroup._ancestorBody = null; // manually set it here because null shouldn't be propogated down the tree.
-					for (i = 0; i < objectAsGroup._objects.length; i++) 
-					{
-						ithObject = objectAsGroup._objects[i];
-						
-						if ( ithObject is qb2Tangible )
-							queue.push(ithObject as qb2Tangible);
-					}
-				}
-			}
-		}
-		
+		}		
 		
 		public function containsObject(object:qb2Object):Boolean
 			{  return _objects.indexOf(object) >= 0;  }
@@ -389,35 +362,36 @@ package QuickB2.objects.tangibles
 		public function setObjectAt(index:uint, replacement:qb2Object):qb2Object
 		{
 			//--- Remove the current shape at this index without recomputing mass yet...don't want to do it twice.
-			var objectRemoved:qb2Object;
-			pushMassFreeze();
+			var objectRemoved:qb2Object = _objects[index];
+			
+			var pushedSession:Boolean = false;
+			if ( (replacement as qb2Tangible) || (objectRemoved as qb2Tangible) )
+			{
+				pushedSession = true;
+				pushEditSession();
+			}
 			{
 				objectRemoved = removeObjectAt(index);
 				insertObjectAt(index, replacement);
+				
+				if ( objectRemoved as qb2Tangible )
+				{
+					var asTang:qb2Tangible = objectRemoved as qb2Tangible;
+					_mass        -= asTang._mass;
+					_surfaceArea -= asTang._surfaceArea;
+				}
+				
+				if ( replacement as qb2Tangible )
+				{
+					asTang = replacement as qb2Tangible;
+					_mass        += asTang._mass;
+					_surfaceArea += asTang._surfaceArea;
+				}
 			}
-			popMassFreeze();
-			
-			var massDiff:Number = 0, areaDiff:Number = 0;
-			
-			var physObjectFound:Boolean = false;
-			if ( objectRemoved is qb2Tangible )
+			if ( pushedSession )
 			{
-				var physObject:qb2Tangible = objectRemoved as qb2Tangible;
-				massDiff -= physObject._mass;
-				areaDiff -= physObject._surfaceArea;
-				physObjectFound = true;
+				popEditSession();
 			}
-			
-			if ( replacement is qb2Tangible )
-			{
-				physObject = replacement as qb2Tangible;
-				massDiff += physObject._mass;
-				areaDiff += physObject._surfaceArea;
-				physObjectFound = true;
-			}
-		
-			if ( physObjectFound )
-				updateMassProps(massDiff, areaDiff);
 			
 			return objectRemoved;
 		}
@@ -465,31 +439,19 @@ package QuickB2.objects.tangibles
 		
 		public function removeAllObjects():Vector.<qb2Object>
 		{
-			var toReturn:Vector.<qb2Object>;
-			var physObjectFound:Boolean = false;
+			var toReturn:Vector.<qb2Object> = new Vector.<qb2Object>();
 			
-			pushMassFreeze();
+			pushEditSession();
 			{
 				for ( var i:int = 0; i < _objects.length; i++ )
 				{
 					var startedNumObjects:uint = _objects.length;
-					
-					if ( !toReturn )
-						toReturn = new Vector.<qb2Object>();
-					var object:qb2Object = removeObjectAt(i);
+			
+					var object:qb2Object = removeObjectAt(i--);
 					toReturn.push(object);
-					
-					if ( _objects.length != startedNumObjects ) // if currently processing Box2d stuff, _objects array won't actually be touched.
-						i--;
-						
-					if ( object is qb2Tangible )
-						physObjectFound = true;
 				}
 			}
-			popMassFreeze();
-			
-			if( physObjectFound )
-				updateMassProps(-_mass, -_surfaceArea);
+			popEditSession();
 			
 			return toReturn;
 		}
@@ -594,24 +556,22 @@ package QuickB2.objects.tangibles
 		
 		public override function set density(value:Number):void
 		{
-			pushMassFreeze();
+			pushEditSession();
 			{
 				for ( var i:int = 0; i < _objects.length; i++ )
 				{
-					if ( _objects[i] is qb2Tangible )
+					if ( _objects[i] as qb2Tangible )
 					{
 						(_objects[i] as qb2Tangible).density = value;
 					}
 				}
 			}
-			popMassFreeze();
-			
-			updateMassProps(value * _surfaceArea - _mass, 0);
+			popEditSession();
 		}
 		
 		public override function set mass(value:Number):void
 		{
-			pushMassFreeze();
+			pushEditSession();
 			{
 				if ( _mass )
 				{
@@ -637,44 +597,33 @@ package QuickB2.objects.tangibles
 					}
 				}
 			}
-			popMassFreeze();
-			
-			updateMassProps(value - _mass, 0);
+			popEditSession();
 		}
 		
 		public override function scaleBy(xValue:Number, yValue:Number, origin:amPoint2d = null, scaleMass:Boolean = true, scaleJointAnchors:Boolean = true, scaleActor:Boolean = true):qb2Tangible
 		{
-			super.scaleBy(xValue, yValue, origin, scaleMass, scaleJointAnchors, scaleActor);
-			
-			if ( scaleJointAnchors && (this is qb2Body) )
-				qb2Joint.scaleJointAnchors(xValue, yValue, this as qb2IRigidObject);
-				
 			var forwardOrigin:amPoint2d = this is qb2Group ? origin : null;
 			
-			var massDiff:Number = 0, areaDiff:Number = 0;
-			pushMassFreeze();
+			pushEditSession();
 			{
+				if ( this as qb2IRigidObject )
+				{
+					_rigidImp.scaleBy(xValue, yValue, origin, scaleMass, scaleJointAnchors, scaleActor);
+				}
+				
 				var subOrigin:amPoint2d = this is qb2Body ? null : origin; // objects belonging to bodies are scaled relative to the body's origin.
 				for (var i:int = 0; i < _objects.length; i++) 
 				{
-					if ( !(_objects[i] is qb2Tangible) )  continue;
+					var tang:qb2Tangible = _objects[i] as qb2Tangible;
 					
-					var physObject:qb2Tangible = _objects[i] as qb2Tangible;
-					var prevMass:Number = physObject._mass;
-					var prevArea:Number = physObject._surfaceArea;
+					if ( !tang )  continue;
 					
-					physObject.scaleBy(xValue, yValue, forwardOrigin, scaleMass, scaleJointAnchors, scaleActor);
-					
-					massDiff += physObject._mass - prevMass;
-					areaDiff += physObject._surfaceArea - prevArea;
+					tang.scaleBy(xValue, yValue, forwardOrigin, scaleMass, scaleJointAnchors, scaleActor);
 				}
 				
-				if ( this is qb2IRigidObject )
-					(this as qb2IRigidObject).position.scaleBy(xValue, yValue, origin); // eventually calls pointUpdated(), which translates everything.
+				// NOTE: this object's surfaceArea/mass are changed by children propagating said changes up through the tree on popEditSession().
 			}
-			popMassFreeze();
-			
-			updateMassProps(massDiff, areaDiff);
+			popEditSession();
 			
 			return this;
 		}
@@ -731,7 +680,7 @@ package QuickB2.objects.tangibles
 		
 		qb2_friend override function flushShapes():void
 		{
-			for (var i:int = 0; i < _objects.length; i++) 
+			for (var i:int = 0; i < _objects.length; i++)
 			{
 				if ( _objects[i] is qb2Tangible )
 				{

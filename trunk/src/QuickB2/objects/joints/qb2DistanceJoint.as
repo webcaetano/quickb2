@@ -207,56 +207,47 @@ package QuickB2.objects.joints
 			}
 		}
 		
-		qb2_friend override function makeJointB2(theWorld:qb2World):void
+		qb2_friend override function make(theWorld:qb2World):void
 		{
-			if ( theWorld && theWorld.processingBox2DStuff )
-			{
-				theWorld.addDelayedCall(this, makeJointB2, theWorld);
-				return;
-			}
-			
 			var makingRopeJoint:Boolean = isRope;
 			
-			if ( checkForMake(theWorld) )
+			var conversion:Number = theWorld.pixelsPerMeter;
+			var corrected1:amPoint2d    = getCorrectedLocal1(conversion, conversion);
+			var corrected2:amPoint2d    = getCorrectedLocal2(conversion, conversion);
+			
+			if ( makingRopeJoint )
 			{
-				var conversion:Number = theWorld.pixelsPerMeter;
-				var corrected1:amPoint2d    = getCorrectedLocal1(conversion, conversion);
-				var corrected2:amPoint2d    = getCorrectedLocal2(conversion, conversion);
+				var ropeJointDef:b2RopeJointDef = b2Def.ropeJoint;
+				ropeJointDef.localAnchorA.x = corrected1.x;
+				ropeJointDef.localAnchorA.y = corrected1.y;
+				ropeJointDef.localAnchorB.x = corrected2.x;
+				ropeJointDef.localAnchorB.y = corrected2.y;
+				ropeJointDef.maxLength      = length / theWorld.pixelsPerMeter;
 				
-				if ( makingRopeJoint )
-				{
-					var ropeJointDef:b2RopeJointDef = b2Def.ropeJoint;
-					ropeJointDef.localAnchorA.x = corrected1.x;
-					ropeJointDef.localAnchorA.y = corrected1.y;
-					ropeJointDef.localAnchorB.x = corrected2.x;
-					ropeJointDef.localAnchorB.y = corrected2.y;
-					ropeJointDef.maxLength      = length / theWorld.pixelsPerMeter;
-					
-					//--- NOTE: b2RopeJointDef doesn't have the frequencyHz and dampingRatio properties, so it's applied to the actual joint at the end of this function.
-					// ropeJointDef.frequencyHz    = frequencyHz;
-					// ropeJointDef.dampingRatio   = dampingRatio;
-					
-					jointDef = ropeJointDef;
-				}
-				else
-				{
-					var distJointDef:b2DistanceJointDef = b2Def.distanceJoint;
-					distJointDef.localAnchorA.x = corrected1.x;
-					distJointDef.localAnchorA.y = corrected1.y;
-					distJointDef.localAnchorB.x = corrected2.x;
-					distJointDef.localAnchorB.y = corrected2.y;
-					distJointDef.length         = length / theWorld.pixelsPerMeter;
-					distJointDef.frequencyHz    = frequencyHz;
-					distJointDef.dampingRatio   = dampingRatio;
-					
-					jointDef = distJointDef;
-				}
+				//--- NOTE: b2RopeJointDef doesn't have the frequencyHz and dampingRatio properties, so it's applied to the actual joint at the end of this function.
+				// ropeJointDef.frequencyHz    = frequencyHz;
+				// ropeJointDef.dampingRatio   = dampingRatio;
+				
+				jointDef = ropeJointDef;
+			}
+			else
+			{
+				var distJointDef:b2DistanceJointDef = b2Def.distanceJoint;
+				distJointDef.localAnchorA.x = corrected1.x;
+				distJointDef.localAnchorA.y = corrected1.y;
+				distJointDef.localAnchorB.x = corrected2.x;
+				distJointDef.localAnchorB.y = corrected2.y;
+				distJointDef.length         = length / theWorld.pixelsPerMeter;
+				distJointDef.frequencyHz    = frequencyHz;
+				distJointDef.dampingRatio   = dampingRatio;
+				
+				jointDef = distJointDef;
 			}
 			
-			super.makeJointB2(theWorld);
+			super.make(theWorld);
 			
 			//--- It's these kinds of API inconsistencies in Box2D that gives QuickB2 a purpose in life.
-			if ( jointB2 && makingRopeJoint )
+			if ( makingRopeJoint )
 			{
 				ropeJoint.SetFrequency(frequencyHz);
 				ropeJoint.SetDampingRatio(dampingRatio);

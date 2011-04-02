@@ -506,63 +506,54 @@ package QuickB2.objects.joints
 		
 		
 		
-		qb2_friend override function makeJointB2(theWorld:qb2World):void
+		qb2_friend override function make(theWorld:qb2World):void
 		{
-			if ( theWorld && theWorld.processingBox2DStuff )
+			var limits:Array = getMetricLimits(theWorld.pixelsPerMeter);
+			
+			var conversion:Number = theWorld.pixelsPerMeter;
+			var corrected1:amPoint2d    = getCorrectedLocal1(conversion, conversion);
+			var corrected2:amPoint2d    = getCorrectedLocal2(conversion, conversion);
+			var correctedVec:amVector2d = getCorrectedLocalVec();
+			
+			if ( !freeRotation )
 			{
-				theWorld.addDelayedCall(this, makeJointB2, theWorld);
-				return;
+				var prisJointDef:b2PrismaticJointDef = b2Def.prismaticJoint;
+				prisJointDef.localAnchorA.x   = corrected1.x;
+				prisJointDef.localAnchorA.y   = corrected1.y;
+				prisJointDef.localAnchorB.x   = corrected2.x;
+				prisJointDef.localAnchorB.y   = corrected2.y;
+				prisJointDef.localAxis1.x     = correctedVec.x;
+				prisJointDef.localAxis1.y     = correctedVec.y;
+				prisJointDef.enableLimit      = hasLimits;
+				prisJointDef.enableMotor      = maxForce ? true : false;
+				prisJointDef.lowerTranslation = limits[0];
+				prisJointDef.upperTranslation = limits[1];
+				prisJointDef.maxMotorForce    = maxForce;
+				prisJointDef.motorSpeed       = targetSpeed;
+				prisJointDef.referenceAngle   = referenceAngle;
+				
+				jointDef = prisJointDef;
+			}
+			else
+			{
+				var lineJointDef:b2LineJointDef = b2Def.lineJoint;
+				lineJointDef.localAnchorA.x   = corrected1.x;
+				lineJointDef.localAnchorA.y   = corrected1.y;
+				lineJointDef.localAnchorB.x   = corrected2.x;
+				lineJointDef.localAnchorB.y   = corrected2.y;
+				lineJointDef.localAxisA.x     = correctedVec.x;
+				lineJointDef.localAxisA.y     = correctedVec.y;
+				lineJointDef.enableLimit      = hasLimits
+				lineJointDef.enableMotor      = maxForce ? true : false;
+				lineJointDef.lowerTranslation = limits[0];
+				lineJointDef.upperTranslation = limits[1];
+				lineJointDef.maxMotorForce    = maxForce;
+				lineJointDef.motorSpeed       = targetSpeed;
+				
+				jointDef = lineJointDef;
 			}
 			
-			if ( checkForMake(theWorld) )
-			{				
-				var limits:Array = getMetricLimits(theWorld.pixelsPerMeter);
-				
-				var conversion:Number = theWorld.pixelsPerMeter;
-				var corrected1:amPoint2d    = getCorrectedLocal1(conversion, conversion);
-				var corrected2:amPoint2d    = getCorrectedLocal2(conversion, conversion);
-				var correctedVec:amVector2d = getCorrectedLocalVec();
-				
-				if ( !freeRotation )
-				{
-					var prisJointDef:b2PrismaticJointDef = b2Def.prismaticJoint;
-					prisJointDef.localAnchorA.x   = corrected1.x;
-					prisJointDef.localAnchorA.y   = corrected1.y;
-					prisJointDef.localAnchorB.x   = corrected2.x;
-					prisJointDef.localAnchorB.y   = corrected2.y;
-					prisJointDef.localAxis1.x     = correctedVec.x;
-					prisJointDef.localAxis1.y     = correctedVec.y;
-					prisJointDef.enableLimit      = hasLimits;
-					prisJointDef.enableMotor      = maxForce ? true : false;
-					prisJointDef.lowerTranslation = limits[0];
-					prisJointDef.upperTranslation = limits[1];
-					prisJointDef.maxMotorForce    = maxForce;
-					prisJointDef.motorSpeed       = targetSpeed;
-					prisJointDef.referenceAngle   = referenceAngle;
-					
-					jointDef = prisJointDef;
-				}
-				else
-				{
-					var lineJointDef:b2LineJointDef = b2Def.lineJoint;
-					lineJointDef.localAnchorA.x   = corrected1.x;
-					lineJointDef.localAnchorA.y   = corrected1.y;
-					lineJointDef.localAnchorB.x   = corrected2.x;
-					lineJointDef.localAnchorB.y   = corrected2.y;
-					lineJointDef.localAxisA.x     = correctedVec.x;
-					lineJointDef.localAxisA.y     = correctedVec.y;
-					lineJointDef.enableLimit      = hasLimits
-					lineJointDef.enableMotor      = maxForce ? true : false;
-					lineJointDef.lowerTranslation = limits[0];
-					lineJointDef.upperTranslation = limits[1];
-					lineJointDef.maxMotorForce    = maxForce;
-					lineJointDef.motorSpeed       = targetSpeed;
-					
-					jointDef = lineJointDef;
-				}
-			}
-			
-			super.makeJointB2(theWorld);
+			super.make(theWorld);
 		}
 		
 		private function get prisJoint():b2PrismaticJoint

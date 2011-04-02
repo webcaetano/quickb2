@@ -67,33 +67,36 @@ package QuickB2.objects
 		qb2_friend var _ownershipFlagsForProperties:uint = 0;
 		qb2_friend var _ownershipFlagsForBooleans:uint   = 0;
 		
-		/** Returns the bitwise flags assigned to this object.
+		/**
+		 * Returns the bitwise flags assigned to this object.
 		 * @default qb2_flags.JOINS_IN_DEBUG_DRAWING | qb2_flags.JOINS_IN_DEEP_CLONING | qb2_flags.JOINS_IN_UPDATE_CHAIN
 		 */
 		public function get flags():uint
 			{  return _flags;  }
 		qb2_friend var _flags:uint = 0;
 		
-		/// Turns a flag (or flags) off.  For example turnFlagOff(qb2_flags.JOINS_IN_DEBUG_DRAWING)
-		/// will tell this object not to draw debug graphics.
-		public final function turnFlagOff(flag:uint, takeOwnership:Boolean = true):qb2Object
+		/**
+		 * Turns a flag (or flags) off.  For example turnFlagOff(qb2_flags.JOINS_IN_DEBUG_DRAWING)
+		 * will tell this object not to draw debug graphics.
+		 */
+		public final function turnFlagOff(flagOrFlags:uint, takeOwnership:Boolean = true):qb2Object
 		{
 			var oldFlags:uint = _flags;
-			_flags &= ~flag;
+			_flags &= ~flagOrFlags;
 			
 			if ( !takeOwnership )
 			{
-				_ownershipFlagsForBooleans &= ~flag;
+				_ownershipFlagsForBooleans &= ~flagOrFlags;
 				flagsChanged(oldFlags ^ _flags);
 			}
 			else
 			{
-				_ownershipFlagsForBooleans |= flag;
+				_ownershipFlagsForBooleans |= flagOrFlags;
 				flagsChanged(oldFlags ^ _flags);
 				
 				if ( this is qb2ObjectContainer )
 				{
-					cascadeFlags(this as qb2ObjectContainer, flag);
+					cascadeFlags(this as qb2ObjectContainer, flagOrFlags);
 				}
 			}
 			
@@ -101,60 +104,69 @@ package QuickB2.objects
 		}
 		
 		/**
-		 * Turns a flag (or flags) on.  For example turnFlagOn(qb2_flags.JOINS_IN_DEBUG_DRAWING)
+		 * Turns a flag(s) on.  For example turnFlagOn(qb2_flags.JOINS_IN_DEBUG_DRAWING)
 		 * will tell this object to draw debug graphics.
 		 */
-		public final function turnFlagOn(flag:uint, takeOwnership:Boolean = true):qb2Object
+		public final function turnFlagOn(flagOrFlags:uint, takeOwnership:Boolean = true):qb2Object
 		{
 			var oldFlags:uint = _flags;
-			_flags |= flag;
+			_flags |= flagOrFlags;
 				
 			if ( !takeOwnership )
 			{
-				_ownershipFlagsForBooleans &= ~flag;
+				_ownershipFlagsForBooleans &= ~flagOrFlags;
 				flagsChanged( oldFlags ^ _flags );
 			}
 			else
 			{
-				_ownershipFlagsForBooleans |= flag;
+				_ownershipFlagsForBooleans |= flagOrFlags;
 				flagsChanged(oldFlags ^ _flags);
 				
 				if ( this is qb2ObjectContainer )
 				{
-					cascadeFlags(this as qb2ObjectContainer, flag);
+					cascadeFlags(this as qb2ObjectContainer, flagOrFlags);
 				}
 			}
 			
 			return this;
 		}
 		
-		public final function setFlag(bool:Boolean, flag:uint, takeOwnership:Boolean = true):qb2Object
+		/**
+		 * Sets a flag(s) on or off based on a boolean value.
+		 */
+		public final function setFlag(bool:Boolean, flagOrFlags:uint, takeOwnership:Boolean = true):qb2Object
 		{
 			if ( bool )
 			{
-				turnFlagOn(flag, takeOwnership);
+				turnFlagOn(flagOrFlags, takeOwnership);
 			}
 			else
 			{
-				turnFlagOff(flag, takeOwnership);
+				turnFlagOff(flagOrFlags, takeOwnership);
 			}
 			
 			return this;
 		}
 		
-		/// Tells whether a bitwise flag(s) is on or off.
-		public final function isFlagOn(flag:uint):Boolean
+		/**
+		 * Tells whether a bitwise flag(s) is on or off.
+		 */
+		public final function isFlagOn(flagOrFlags:uint):Boolean
 		{
-			return _flags & flag ? true : false;
+			return flagOrFlags && ((_flags & flagOrFlags) == flagOrFlags);
 		}
 		
-		/// Tells whether this object owns a given flag(s).
-		public final function ownsFlag(flag:uint):Boolean
+		/**
+		 * Tells whether this object owns a given flag(s).
+		 */
+		public final function ownsFlag(flagOrFlags:uint):Boolean
 		{
-			return _ownershipFlagsForBooleans & flag ? true : false;
+			return flagOrFlags && ((_ownershipFlagsForBooleans & flagOrFlags) == flagOrFlags);
 		}
 		
-		/// Tells whether this object owns a given property.
+		/**
+		 * Tells whether this object owns a given property.
+		 */
 		public final function ownsProperty(propertyName:String):Boolean
 		{
 			var propertyBit:uint = _propertyMap[propertyName];
@@ -206,7 +218,7 @@ package QuickB2.objects
 		
 		qb2_friend var _propertyMap:Object = { };
 		
-		private static var _propertyBits:Object = { };
+		qb2_friend static var _propertyBits:Object = { };
 		private static var _currPropertyBit:uint = 0x00000001;
 		
 		private static function cascadeProperty(root:qb2Object, propertyName:String, value:*):void
@@ -281,150 +293,33 @@ package QuickB2.objects
 			}
 		}
 		
-		qb2_friend function collectAncestorFlagsAndProperties():qb2InternalPropertyAndFlagCollection
-		{
-			var currParent:qb2Object = this;
-			var booleanFlags:uint = 0;
-			var flagsTaken:uint   = 0;
-			var ancestorPropertyMapStacks:Object = { };
-			
-			while ( currParent )
-			{
-				//--- Fill in the property map with ancestor values.
-				for ( var propertyName:String in currParent._propertyMap )
-				{
-					if ( currParent._ownershipFlagsForProperties & _propertyBits[propertyName] )
-					{
-						if ( ancestorPropertyMapStacks[propertyName] )  continue;
-						
-						ancestorPropertyMapStacks[propertyName] = [currParent._propertyMap[propertyName]];
-					}
-				}
-				
-				//--- Fill in the flags.
-				var flagsThatCouldBeTaken:uint = flagsTaken | currParent._ownershipFlagsForBooleans;
-				var flagsNotYetTaken:uint      = flagsTaken ^ flagsThatCouldBeTaken;
-				booleanFlags |= flagsNotYetTaken & currParent._flags;
-				flagsTaken   |= flagsNotYetTaken;
-				
-				currParent = currParent._parent;
-			}
-			
-			var collection:qb2InternalPropertyAndFlagCollection = new qb2InternalPropertyAndFlagCollection();
-			collection.ancestorFlagOwnershipStack.push(flagsTaken);
-			collection.ancestorFlagStack.push(booleanFlags);
-			collection.ancestorPropertyMapStacks = ancestorPropertyMapStacks;
-			
-			return collection;
-		}
-		
-		qb2_friend function cascadeAncestorFlagsAndProperties(collection:qb2InternalPropertyAndFlagCollection):void
-		{
-			var redundantProps:Vector.<String> = null;
-			
-			var ancestorPropertyMapStacks:Object = collection.ancestorPropertyMapStacks;
-			var ancestorFlags:uint = collection.ancestorFlagStack[collection.ancestorFlagStack.length - 1];
-			var ancestorOwnershipFlags:uint = collection.ancestorFlagOwnershipStack[collection.ancestorFlagOwnershipStack.length - 1];
-			
-			for ( var propertyName:String in ancestorPropertyMapStacks )
-			{
-				var propertyMapStack:Array = ancestorPropertyMapStacks[propertyName];
-				
-				if ( this._ownershipFlagsForProperties & _propertyBits[propertyName] )
-				{
-					if ( !redundantProps )  redundantProps = new Vector.<String>();
-					propertyMapStack.push( this._propertyMap[propertyName] );
-				}
-				else
-				{
-					var propertyValue:Number = propertyMapStack[propertyMapStack.length - 1];
-					this._propertyMap[propertyName] = propertyValue;
-					this.propertyChanged(propertyName);
-				}
-			}
-			
-			var ancestorOwnershipFlagsToBePushed:uint = ancestorOwnershipFlags & ~this._ownershipFlagsForBooleans;
-			var ancestorFlagsToBePushed:uint = this._flags & ~ancestorOwnershipFlagsToBePushed;
-			ancestorFlagsToBePushed |= ancestorOwnershipFlagsToBePushed & ancestorFlags;
-			
-			var flagsAffected:uint = ancestorFlagsToBePushed ^ this._flags;
-			if ( flagsAffected )
-			{
-				this._flags = ancestorFlagsToBePushed;
-				this.flagsChanged(flagsAffected);
-			}
-			
-			//--- Only continue further down the tree if a property is set by an ancestor that isn't set by 'object'.
-			if ( this is qb2ObjectContainer )
-			{
-				collection.ancestorFlagStack.push(ancestorFlagsToBePushed);
-				collection.ancestorFlagOwnershipStack.push(ancestorOwnershipFlagsToBePushed);
-				
-				var asContainer:qb2ObjectContainer = this as qb2ObjectContainer;
-				for (var i:int = 0; i < asContainer.numObjects; i++) 
-				{
-					var ithObject:qb2Object = asContainer.getObjectAt(i);
-					ithObject.cascadeAncestorFlagsAndProperties(collection);
-				}
-				
-				collection.ancestorFlagStack.pop();
-				collection.ancestorFlagOwnershipStack.pop();
-			}
-			
-			//--- Have to clear any properties pushed onto the stack, cause we don't want them bleeding into peers' properties.
-			if ( redundantProps )
-			{
-				for ( i = 0; i < redundantProps.length; i++ )
-				{
-					propertyMapStack = ancestorPropertyMapStacks[redundantProps[i]];
-					propertyMapStack.pop();
-				}
-			}
-		}
-		
 		/**
-		 * Whether or not this object joins in deep clones, i.e. when an ancestor gets its clone() function called.
+		 * Whether or not this object joins in deep clones, i.e. when an ancestor gets its clone() function called with deep==true.
 		 * Direct calls to this object's clone() method will still work regardless.
 		 * @default true
 		 */
 		public function get joinsInDeepCloning():Boolean
 			{  return _flags & qb2_flags.JOINS_IN_DEEP_CLONING ? true : false;  }
 		public function set joinsInDeepCloning(bool:Boolean):void
-		{
-			if ( bool )
-				turnFlagOn(qb2_flags.JOINS_IN_DEEP_CLONING);
-			else
-				turnFlagOff(qb2_flags.JOINS_IN_DEEP_CLONING);
-		}
+			{  setFlag(bool, qb2_flags.JOINS_IN_DEEP_CLONING);  }
 		
 		/**
-		 * Whether or not this object joins in debug drawing.  Direct calls to drawDebug() will still work regardless.
+		 * Whether or not this object joins in world debug drawing.  Direct calls to drawDebug() will still work regardless.
 		 * @default true
 		 */
 		public function get joinsInDebugDrawing():Boolean
 			{  return _flags & qb2_flags.JOINS_IN_DEBUG_DRAWING ? true : false;  }
 		public function set joinsInDebugDrawing(bool:Boolean):void
-		{
-			if ( bool )
-				turnFlagOn(qb2_flags.JOINS_IN_DEBUG_DRAWING);
-			else
-				turnFlagOff(qb2_flags.JOINS_IN_DEBUG_DRAWING);
-		}
+			{  setFlag(bool, qb2_flags.JOINS_IN_DEBUG_DRAWING);  }
 		
 		/**
-		 * Whether or not this object joins in the update chain.  Setting this to false means that overriding qb2Object::update()
-		 * is meaningless.
+		 * Whether or not this object joins in the update chain.  Setting this to false means that overriding qb2Object::update() is meaningless.
 		 * @default true
 		 */
 		public function get joinsInUpdateChain():Boolean
 			{  return _flags & qb2_flags.JOINS_IN_UPDATE_CHAIN ? true : false;  }
 		public function set joinsInUpdateChain(bool:Boolean):void
-		{
-			if ( bool )
-				turnFlagOn(qb2_flags.JOINS_IN_UPDATE_CHAIN);
-			else
-				turnFlagOff(qb2_flags.JOINS_IN_UPDATE_CHAIN);
-		}
+			{  setFlag(bool, qb2_flags.JOINS_IN_UPDATE_CHAIN);  }
 		
 		qb2_friend static var cancelPropertyInheritance:Boolean = false; // this is invoked by clone functions to cancel the property flow
 		
@@ -729,8 +624,6 @@ package QuickB2.objects
 			}
 		}
 		
-		//protected static var reusableV2:V2 = new V2();
-		
 		private function collectAncestorEventFlags():uint
 		{
 			var currParent:qb2Object = this;
@@ -744,53 +637,190 @@ package QuickB2.objects
 			return flags;
 		}
 		
-		qb2_friend function make(theWorld:qb2World, ancestor:qb2ObjectContainer):void
+		qb2_friend static function walkDownTree(theObject:qb2Object, theWorld:qb2World, theAncestorBody:qb2Body, theCollection:qb2InternalPropertyAndFlagCollection, theAncestor:qb2ObjectContainer, adding:Boolean):void
 		{
-			if ( !theWorld )
-				throw new Error("World wasn't provided.");
-			
-			_world = theWorld;
-			
-			if ( eventFlags & PRE_UPDATE_BIT )
+			//--- (1) Set the ancestor body for object.
+			var asTang:qb2Tangible = theObject as qb2Tangible
+			if ( asTang )
 			{
-				if( !theWorld.preEventers[this] )  theWorld.preEventers[this] = true;
+				if ( !theAncestorBody )
+				{
+					var asBody:qb2Body = theObject as qb2Body;
+					if ( asBody )
+					{
+						theAncestorBody = asBody;
+					}
+				}
+				
+				asTang._ancestorBody = theAncestorBody == asTang ? null : theAncestorBody;
 			}
-			if ( eventFlags & POST_UPDATE_BIT )
+			
+			//--- (2) Propagate the values of properties and flags that are owned by ancestors and not owned by theObject.
+			if ( adding && theCollection )
 			{
-				if( !theWorld.postEventers[this] )  theWorld.postEventers[this] = true;
+				//--- (2a) Propagate properties.
+				var redundantProps:Vector.<String> = null;
+				var ancestorPropertyMapStacks:Object = theCollection.ancestorPropertyMapStacks;
+				for ( var propertyName:String in ancestorPropertyMapStacks )
+				{
+					var propertyMapStack:Array = ancestorPropertyMapStacks[propertyName];
+					
+					if ( theObject._ownershipFlagsForProperties & _propertyBits[propertyName] )
+					{
+						if ( !redundantProps )  redundantProps = new Vector.<String>();
+						propertyMapStack.push( theObject._propertyMap[propertyName] );
+					}
+					else
+					{
+						var propertyValue:Number = propertyMapStack[propertyMapStack.length - 1];
+						theObject._propertyMap[propertyName] = propertyValue;
+						theObject.propertyChanged(propertyName);
+					}
+				}
+				
+				//--- (2b) Propagate flags.
+				var ancestorFlags:uint = theCollection.ancestorFlagStack[theCollection.ancestorFlagStack.length - 1];
+				var ancestorOwnershipFlags:uint = theCollection.ancestorFlagOwnershipStack[theCollection.ancestorFlagOwnershipStack.length - 1];
+				var ancestorOwnershipFlagsToBePushed:uint = ancestorOwnershipFlags & ~theObject._ownershipFlagsForBooleans;
+				var ancestorFlagsToBePushed:uint = theObject._flags & ~ancestorOwnershipFlagsToBePushed;
+				ancestorFlagsToBePushed |= ancestorOwnershipFlagsToBePushed & ancestorFlags;
+				var flagsAffected:uint = ancestorFlagsToBePushed ^ theObject._flags;
+				if ( flagsAffected )
+				{
+					theObject._flags = ancestorFlagsToBePushed;
+					theObject.flagsChanged(flagsAffected);
+				}
 			}
 			
-			if ( eventFlags & ADDED_TO_WORLD_BIT )
+			//--- (3) Process added-to-world-type stuff if applicable.
+			if ( adding && theWorld )
 			{
-				var evt:qb2ContainerEvent = getCachedEvent(qb2ContainerEvent.ADDED_TO_WORLD);
-				evt._ancestor	  = ancestor;
-				evt._child  = this;
-				dispatchEvent(evt);
+				theObject._world = theWorld
+				
+				theObject.makeWrapper(theWorld);
+				
+				if ( theObject.eventFlags & PRE_UPDATE_BIT )
+				{
+					theWorld.preEventers[theObject] = true;
+				}
+				if ( theObject.eventFlags & POST_UPDATE_BIT )
+				{
+					theWorld.postEventers[theObject] = true;
+				}
+				
+				if ( theObject.eventFlags & ADDED_TO_WORLD_BIT )
+				{
+					var evt:qb2ContainerEvent = getCachedEvent(qb2ContainerEvent.ADDED_TO_WORLD);
+					evt._ancestor = theAncestor;
+					evt._child    = theObject;
+					theObject.dispatchEvent(evt);
+				}
+			}
+			
+			//--- (4) Process removed-from-world-type stuff if applicable.
+			else if ( !adding && theWorld )
+			{
+				theObject._world = null;
+				
+				theObject.destroyWrapper(theWorld);
+				
+				if ( theWorld.preEventers[theObject] )
+					delete theWorld.preEventers[theObject];
+				if ( theWorld.postEventers[theObject] )
+					delete theWorld.postEventers[theObject];
+				
+				if ( theObject.eventFlags & REMOVED_FROM_WORLD_BIT )
+				{
+					evt = getCachedEvent(qb2ContainerEvent.REMOVED_FROM_WORLD);
+					evt._ancestor = theAncestor;
+					evt._child    = theObject;
+					theObject.dispatchEvent(evt);
+				}
+			}
+			
+			var madeBody:Boolean = adding && asTang && !asTang._ancestorBody && (asTang is qb2IRigidObject);
+			if ( madeBody )
+			{
+				asTang.pushEditSession();
+			}
+			
+			//--- (5) Continue walking down the tree if theObject is a container.
+			var asContainer:qb2ObjectContainer = theObject as qb2ObjectContainer;
+			if ( asContainer )
+			{
+				if ( adding && theCollection )
+				{
+					theCollection.ancestorFlagStack.push(ancestorFlagsToBePushed);
+					theCollection.ancestorFlagOwnershipStack.push(ancestorOwnershipFlagsToBePushed);
+				}
+				
+				var num:int = asContainer._objects.length;
+				for (var i:int = 0; i < num; i++) 
+				{
+					var ithObject:qb2Object = asContainer._objects[i];
+					walkDownTree(ithObject, theWorld, theAncestorBody, theCollection, theAncestor, adding);
+				}
+				
+				if ( adding && theCollection )
+				{
+					theCollection.ancestorFlagStack.pop();
+					theCollection.ancestorFlagOwnershipStack.pop();
+				}
+			}
+			
+			if ( madeBody )
+			{
+				asTang.popEditSession();
+			}
+			
+			//--- (7) Clear any properties pushed onto the stack, cause we don't want them bleeding into peers' properties.
+			if ( adding && redundantProps )
+			{
+				for ( i = 0; i < redundantProps.length; i++ )
+				{
+					propertyMapStack = ancestorPropertyMapStacks[redundantProps[i]];
+					propertyMapStack.pop();
+				}
 			}
 		}
 		
-		qb2_friend function destroy(ancestor:qb2ObjectContainer):void
-		{
-			if ( !_world )
-				throw new Error("_world isn't defined.");
-				
-			if ( _world.preEventers[this] )
-				delete _world.preEventers[this];
-			if ( _world.postEventers[this] )
-				delete _world.postEventers[this];
-				
-			_world = null;
-			if ( ancestor == this._parent ) // this is redundant because qb2ObjectContainer takes care of it also, but we don't want parent available in the event handler.
-			{
-				this._parent = null;
-			}
+		qb2_friend function shouldMake():Boolean
+			{  return false;  }
 			
-			if ( eventFlags & REMOVED_FROM_WORLD_BIT )
+		qb2_friend function shouldDestroy():Boolean
+			{  return false;  }
+		
+		qb2_friend virtual function make(theWorld:qb2World):void { }
+		
+		qb2_friend virtual function destroy(theWorld:qb2World):void { }
+		
+		qb2_friend function makeWrapper(theWorld:qb2World):void
+		{
+			if ( theWorld && shouldMake() )
 			{
-				var evt:qb2ContainerEvent = getCachedEvent(qb2ContainerEvent.REMOVED_FROM_WORLD);
-				evt._ancestor = ancestor;
-				evt._child    = this;
-				dispatchEvent(evt);
+				if ( theWorld.processingBox2DStuff )
+				{
+					theWorld.addDelayedCall(this, makeWrapper, theWorld);
+				}
+				else
+				{
+					make(theWorld);
+				}
+			}
+		}
+		
+		qb2_friend function destroyWrapper(theWorld:qb2World):void
+		{
+			if ( theWorld && shouldDestroy() )
+			{
+				if ( theWorld.processingBox2DStuff )
+				{
+					theWorld.addDelayedCall(this, destroyWrapper, theWorld);
+				}
+				else
+				{
+					destroy(theWorld);
+				}
 			}
 		}
 		
@@ -809,7 +839,7 @@ package QuickB2.objects
 		 * Returns a new instance that is a clone of this object.  Properties, flags, and their ownerships are copied to the new instance.
 		 * Subclasses are responsible for overriding this function and ammending whatever they need to the clone.  It is up to subclasses
 		 * to determine what "deep" means.  For example, calling clone(true) on a qb2ObjectContainer will also clone all of the container's
-		 * descendants, whereas just calling clone(false) on the same container will only copy the container's properties.
+		 * descendants, whereas calling clone(false) on the same container will only copy the container's properties.
 		 */
 		public function clone(deep:Boolean = true):qb2Object
 		{

@@ -25,6 +25,7 @@ package TopDown.objects
 	import As3Math.geo2d.*;
 	import flash.display.*;
 	import flash.utils.*;
+	import QuickB2.events.qb2ContainerEvent;
 	import QuickB2.objects.*;
 	import QuickB2.objects.tangibles.*;
 	import surrender.srGraphics2d;
@@ -44,6 +45,8 @@ package TopDown.objects
 		
 		public function tdMap():void
 		{
+			addEventListener(qb2ContainerEvent.ADDED_OBJECT,   justAddedObject,   false, 0, true);
+			addEventListener(qb2ContainerEvent.REMOVED_OBJECT, justRemovedObject, false, 0, true);
 		}
 		
 		public function get trafficManager():tdTrafficManager
@@ -63,8 +66,10 @@ package TopDown.objects
 			if ( _trafficManager )  _trafficManager.relay_update();
 		}
 		
-		protected override function justAddedObject(object:qb2Object):void
+		private function justAddedObject(evt:qb2ContainerEvent):void
 		{
+			var object:qb2Object = evt.child;
+			
 			if ( object is tdTrack )
 			{
 				var track:tdTrack = object as tdTrack;
@@ -76,8 +81,10 @@ package TopDown.objects
 			}
 		}
 		
-		protected override function justRemovedObject(object:qb2Object):void
+		private function justRemovedObject(evt:qb2ContainerEvent):void
 		{
+			var object:qb2Object = evt.child;
+			
 			if ( object is tdTrack )
 			{
 				var track:tdTrack = object as tdTrack;

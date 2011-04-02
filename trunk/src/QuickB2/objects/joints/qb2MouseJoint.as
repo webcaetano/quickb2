@@ -157,39 +157,25 @@ package QuickB2.objects.joints
 		public function set object(newObject:qb2IRigidObject):void
 			{  setObject2(newObject);  }
 		
-		qb2_friend override function makeJointB2(theWorld:qb2World):void
+		qb2_friend override function make(theWorld:qb2World):void
 		{
-			if ( theWorld && theWorld.processingBox2DStuff )
-			{
-				theWorld.addDelayedCall(this, makeJointB2, theWorld);
-				return;
-			}
+			var conversion:Number = theWorld.pixelsPerMeter;
 			
-			if ( checkForMake(theWorld) )
-			{
-				var conversion:Number = theWorld.pixelsPerMeter;
-				
-				var mouseJointDef:b2MouseJointDef = b2Def.mouseJoint;
-				var worldTargetPnt:amPoint2d = _object2.getWorldPoint(_localAnchor2);
-				mouseJointDef.target.x = worldTargetPnt.x / conversion;
-				mouseJointDef.target.y = worldTargetPnt.y / conversion;
-				mouseJointDef.frequencyHz = frequencyHz;
-				mouseJointDef.dampingRatio = dampingRatio;
-				mouseJointDef.maxForce = maxForce;
-				
-				
-				jointDef = mouseJointDef;
-				_object1 = theWorld.background;  // Box2d requires another b2Body for this joint for some insane reason, so temporarily set this just to the background
-			}
+			var mouseJointDef:b2MouseJointDef = b2Def.mouseJoint;
+			var worldTargetPnt:amPoint2d = _object2.getWorldPoint(_localAnchor2);
+			mouseJointDef.target.x = worldTargetPnt.x / conversion;
+			mouseJointDef.target.y = worldTargetPnt.y / conversion;
+			mouseJointDef.frequencyHz = frequencyHz;
+			mouseJointDef.dampingRatio = dampingRatio;
+			mouseJointDef.maxForce = maxForce;
 			
-			super.makeJointB2(theWorld);
+			jointDef = mouseJointDef;
+			_object1 = theWorld.background;  // Box2d requires another b2Body for this joint for some insane reason, so temporarily set this just to the background
 			
-			if ( joint && theWorld )
-			{
-				joint.m_target.x = _worldTarget.x / theWorld.pixelsPerMeter;
-				joint.m_target.y = _worldTarget.y / theWorld.pixelsPerMeter;
-			}
-			
+			super.make(theWorld);
+	
+			joint.m_target.x = _worldTarget.x / theWorld.pixelsPerMeter;
+			joint.m_target.y = _worldTarget.y / theWorld.pixelsPerMeter;
 			
 			_object1 = null;
 		}

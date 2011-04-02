@@ -95,6 +95,114 @@ package QuickB2.objects.tangibles
 			setProperty(qb2_props.SLICE_FLAGS,            0xFFFFFFFF,     false);
 		}
 		
+		qb2_friend var _editSessionTracker:int;
+		qb2_friend var _massAtStartOfEditSession:Number;
+		qb2_friend var _areaAtStartOfEditSession:Number;
+		qb2_friend var _geometryChangeOccuredWhileInEditSession:Boolean = false;
+		qb2_friend var _positionInsideAncestorBodyChangedWhileInEditSession:Boolean = false;
+		
+		public function pushEditSession():void
+		{
+			if ( !_editSessionTracker )
+			{
+				editSessionStarted();
+			}
+			
+			_editSessionTracker++;
+		}
+		
+		public function popEditSession():void
+		{
+			_editSessionTracker--;
+			
+			if ( _editSessionTracker == 0 )
+			{
+				editSessionEnded();
+			}
+			else if( _editSessionTracker < 0 )
+			{
+				_editSessionTracker = 0;
+			}
+		}
+		
+		public function get inEditingSession():Boolean
+		{
+			return _editSessionTracker ? true : false;
+		}
+		
+		qb2_friend function editSessionStarted():void
+		{
+			if ( _bodyB2 )
+			{
+				_rigidImp.freezeBodyB2();
+			}
+			else if( _ancestorBody && _ancestorBody._bodyB2 )
+			{
+				_ancestorBody._rigidImp.freezeBodyB2();
+			}
+			
+			_positionInsideAncestorBodyChangedWhileInEditSession = false;
+			_geometryChangeOccuredWhileInEditSession = false;
+			_massAtStartOfEditSession = _mass;
+			_areaAtStartOfEditSession = _surfaceArea;
+		}
+		
+		qb2_friend function editSessionEnded():void
+		{
+			if ( _geometryChangeOccuredWhileInEditSession || _positionInsideAncestorBodyChangedWhileInEditSession )
+			{
+				flushShapes();
+			}
+			
+			_geometryChangeOccuredWhileInEditSession = false;
+			_positionInsideAncestorBodyChangedWhileInEditSession = false;
+			
+			var massDiff:Number = _mass        - _massAtStartOfEditSession;
+			var areaDiff:Number = _surfaceArea - _areaAtStartOfEditSession;
+			
+			var currParent:qb2Tangible = this;
+			while (currParent)
+			{					
+				var beforeMass:Number = currParent._mass;
+				var beforeArea:Number = currParent._surfaceArea;
+				var beforeDens:Number = currParent.density;
+				
+				if ( currParent != this )
+				{
+					currParent._surfaceArea += areaDiff;
+					currParent._mass        += massDiff;
+				}
+				
+				if ( currParent.inEditingSession )  return;
+				
+				if ( currParent._bodyB2 )
+				{
+					currParent._rigidImp.recomputeBodyB2Mass();
+					currParent._bodyB2.SetAwake(true);
+				}
+				
+				if ( currParent.eventFlags & MASS_CHANGED_BIT )
+				{
+					if ( true )
+					{
+						var evt:qb2MassEvent = getCachedEvent(qb2MassEvent.MASS_PROPS_CHANGED);
+						evt._affectedObject  = currParent;
+						evt._massChange      = currParent._mass        - beforeMass;
+						evt._areaChange      = currParent._surfaceArea - beforeArea;
+						evt._densityChange   = currParent.density      - beforeDens;
+						currParent.dispatchEvent(evt);
+					}
+				}
+				
+				if ( currParent is qb2Shape )
+				{
+					currParent.updateFrictionJoints();
+				}
+				
+				currParent = currParent._parent;
+			}
+		}
+		
 		qb2_friend function get _bodyB2():b2Body
 		{
 			return _rigidImp ? _rigidImp._bodyB2 : null;
@@ -102,8 +210,6 @@ package QuickB2.objects.tangibles
 		
 		public function get ancestorBody():qb2Body
 			{  return _ancestorBody;  }
-		qb2_friend function setAncestorBody(aBody:qb2Body):void
-			{  _ancestorBody = aBody;  }
 		qb2_friend var _ancestorBody:qb2Body;
 		
 		qb2_friend virtual function updateContactReporting(bits:uint):void { }
@@ -148,84 +254,6 @@ package QuickB2.objects.tangibles
 			}
 		}
 		
-		private var massFreezeTracker:int = 0;
-		
-		qb2_friend function pushMassFreeze():void
-		{
-			if ( !massFreezeTracker )
-			{
-				if ( _bodyB2 )
-				{
-					_bodyB2.SetType(b2Body.b2_staticBody);
-				}
-				else if( _ancestorBody && _ancestorBody._bodyB2 )
-				{
-					_ancestorBody._bodyB2.SetType(b2Body.b2_staticBody);
-				}
-			}
-			
-			massFreezeTracker++;
-		}
-		
-		qb2_friend function popMassFreeze():void
-		{
-			massFreezeTracker--;
-		}
-		
-		private function get massUpdateFrozen():Boolean
-			{  return massFreezeTracker ? true : false;  }
-			
-		qb2_friend function updateMassProps(massDiff:Number, areaDiff:Number, skipFirst:Boolean = false ):void
-		{
-			var original:qb2Tangible = this;
-			var currParent:qb2Tangible = this;
-			while (currParent)
-			{
-				if ( currParent.massUpdateFrozen )  return;
-				
-				var beforeMass:Number = currParent._mass;
-				var beforeArea:Number = currParent._surfaceArea;
-				var beforeDens:Number = currParent._density;
-				
-				if ( areaDiff || massDiff )
-				{
-					currParent._surfaceArea += areaDiff;
-					currParent._mass        += massDiff;
-					currParent._density = currParent._mass / currParent._surfaceArea;
-				}
-				
-				if ( currParent._bodyB2 )
-				{
-					currParent._rigidImp.recomputeBodyB2Mass();
-					currParent._bodyB2.SetAwake(true);
-				}
-				else if ( currParent._ancestorBody && currParent._ancestorBody._bodyB2 )
-				{
-					currParent._ancestorBody._bodyB2.SetAwake(true);
-				}
-				
-				if ( currParent.eventFlags & MASS_CHANGED_BIT )
-				{
-					if ( skipFirst && currParent != original || !skipFirst )
-					{
-						var evt:qb2MassEvent = getCachedEvent("massPropsChanged");
-						evt._affectedObject  = currParent;
-						evt._massChange      = currParent._mass        - beforeMass;
-						evt._areaChange      = currParent._surfaceArea - beforeArea;
-						evt._densityChange   = currParent._density     - beforeDens;
-						currParent.dispatchEvent(evt);
-					}
-				}
-				
-				if ( currParent is qb2Shape )
-				{
-					currParent.updateFrictionJoints();
-				}
-				
-				currParent = currParent._parent;
-			}
-		}
-		
 		qb2_friend var _effectFields:Vector.<qb2EffectField>;
 		
 		public function get actor():DisplayObject
@@ -261,7 +289,6 @@ package QuickB2.objects.tangibles
 			{
 				this._surfaceArea = source._surfaceArea;
 				this._mass        = source._mass;
-				this._density     = source._density;
 			}
 			
 			//--- Copy velocities.
@@ -275,18 +302,8 @@ package QuickB2.objects.tangibles
 		
 		public virtual function testPoint(point:amPoint2d):Boolean  { return false; }
 		
-		public function scaleBy(xValue:Number, yValue:Number, origin:amPoint2d = null, scaleMass:Boolean = true, scaleJointAnchors:Boolean = true, scaleActor:Boolean = true):qb2Tangible
+		public virtual function scaleBy(xValue:Number, yValue:Number, origin:amPoint2d = null, scaleMass:Boolean = true, scaleJointAnchors:Boolean = true, scaleActor:Boolean = true):qb2Tangible
 		{
-			if ( this.actor && scaleActor && (this is qb2IRigidObject) )
-			{
-				var mat:Matrix = this.actor.transform.matrix;
-				mat.scale(xValue, yValue);
-				this.actor.transform.matrix = mat;
-				
-				//this.actor.scaleX *= xValue;
-				//this.actor.scaleY *= yValue;
-			}
-			
 			return this;
 		}
 		
@@ -300,9 +317,8 @@ package QuickB2.objects.tangibles
 		}
 		
 		public function get density():Number
-			{  return _density;  }
+			{  return _mass / _surfaceArea;  }
 		public virtual function set density(value:Number):void { }
-		qb2_friend var _density:Number = 0;
 
 		public function get mass():Number
 			{  return _mass;  }

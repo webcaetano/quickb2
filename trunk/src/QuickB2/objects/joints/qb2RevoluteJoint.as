@@ -239,38 +239,29 @@ package QuickB2.objects.joints
 				referenceAngle = _object2._rigidImp._rotation - _object1._rigidImp._rotation;
 		}
 		
-		qb2_friend override function makeJointB2(theWorld:qb2World):void
+		qb2_friend override function make(theWorld:qb2World):void
 		{
-			if ( theWorld && theWorld.processingBox2DStuff )
-			{
-				theWorld.addDelayedCall(this, makeJointB2, theWorld);
-				return;
-			}
+			var conversion:Number       = theWorld.pixelsPerMeter;
+			var corrected1:amPoint2d    = getCorrectedLocal1(conversion, conversion);
+			var corrected2:amPoint2d    = getCorrectedLocal2(conversion, conversion);
 			
-			if ( checkForMake(theWorld) )
-			{
-				var conversion:Number       = theWorld.pixelsPerMeter;
-				var corrected1:amPoint2d    = getCorrectedLocal1(conversion, conversion);
-				var corrected2:amPoint2d    = getCorrectedLocal2(conversion, conversion);
-				
-				var revJointDef:b2RevoluteJointDef = b2Def.revoluteJoint;
-				revJointDef.localAnchorA.x   = corrected1.x;
-				revJointDef.localAnchorA.y   = corrected1.y;
-				revJointDef.localAnchorB.x   = corrected2.x;
-				revJointDef.localAnchorB.y   = corrected2.y;
-				
-				revJointDef.enableLimit    = hasLimits;
-				revJointDef.enableMotor    = maxTorque ? true : false;
-				revJointDef.lowerAngle     = lowerLimit;
-				revJointDef.upperAngle     = upperLimit;
-				revJointDef.maxMotorTorque = maxTorque;
-				revJointDef.motorSpeed     = targetSpeed;
-				revJointDef.referenceAngle = referenceAngle;
-				
-				jointDef = revJointDef;
-			}
+			var revJointDef:b2RevoluteJointDef = b2Def.revoluteJoint;
+			revJointDef.localAnchorA.x   = corrected1.x;
+			revJointDef.localAnchorA.y   = corrected1.y;
+			revJointDef.localAnchorB.x   = corrected2.x;
+			revJointDef.localAnchorB.y   = corrected2.y;
 			
-			super.makeJointB2(theWorld);
+			revJointDef.enableLimit    = hasLimits;
+			revJointDef.enableMotor    = maxTorque ? true : false;
+			revJointDef.lowerAngle     = lowerLimit;
+			revJointDef.upperAngle     = upperLimit;
+			revJointDef.maxMotorTorque = maxTorque;
+			revJointDef.motorSpeed     = targetSpeed;
+			revJointDef.referenceAngle = referenceAngle;
+			
+			jointDef = revJointDef;
+			
+			super.make(theWorld);
 		}
 		
 		private function get joint():b2RevoluteJoint
