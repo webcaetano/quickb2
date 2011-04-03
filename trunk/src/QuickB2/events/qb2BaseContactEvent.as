@@ -23,6 +23,7 @@
 package QuickB2.events 
 {
 	import As3Math.geo2d.*;
+	import Box2DAS.Collision.b2Manifold;
 	import Box2DAS.Collision.b2WorldManifold;
 	import Box2DAS.Common.V2;
 	import Box2DAS.Dynamics.b2World;
@@ -90,14 +91,34 @@ package QuickB2.events
 		
 		public function get normalImpulse():Number
 		{
-			var manifoldPoints:Array = _contactB2.GetManifold().points;
-			return (manifoldPoints[0].normalImpulse + manifoldPoints[1].normalImpulse) / 2.0;
+			var mani:b2Manifold = _contactB2.m_manifold;
+			var manifoldPoints:Array = mani.points;
+			
+			if ( mani.pointCount == 1 )
+			{
+				return manifoldPoints[0].normalImpulse;
+			}
+			else if ( mani.pointCount == 2 )
+			{
+				return manifoldPoints[0].normalImpulse + manifoldPoints[1].normalImpulse;
+			}
+			else return 0;
 		}
 		
 		public function get tangentImpulse():Number
 		{
-			var manifoldPoints:Array = _contactB2.GetManifold().points;
-			return (manifoldPoints[0].tangentImpulse + manifoldPoints[1].tangentImpulse) / 2.0;
+			var mani:b2Manifold = _contactB2.m_manifold;
+			var manifoldPoints:Array = mani.points;
+			
+			if ( mani.pointCount == 1 )
+			{
+				return manifoldPoints[0].tangentImpulse;
+			}
+			else if ( mani.pointCount == 2 )
+			{
+				return manifoldPoints[0].tangentImpulse + manifoldPoints[1].tangentImpulse;
+			}
+			else return 0;
 		}
 		
 		public function disableContact():void
