@@ -394,6 +394,7 @@ package QuickB2.objects
 		public function get parent():qb2ObjectContainer
 			{  return _parent;  }
 		qb2_friend var _parent:qb2ObjectContainer = null;
+		qb2_friend var _lastParent:qb2ObjectContainer = null;
 
 		/** The world this object resides in, if any.
 		 * @default null
@@ -450,7 +451,8 @@ package QuickB2.objects
 			return null;
 		}
 		
-		/** Gets the first common ancestor of this and another object, if any.
+		/**
+		 * Gets the first common ancestor of this and another object, if any.
 		 * If the two objects are in the same world, at the very least this function will return the world.
 		 */
 		public function getCommonAncestor(otherObject:qb2Object):qb2ObjectContainer
@@ -466,28 +468,49 @@ package QuickB2.objects
 		}
 		
 		//--- These three members act in place of "passing by reference".
-		qb2_friend static function setAncestorPair(local:qb2Object, other:qb2Object):void
+		qb2_friend static function setAncestorPair(local:qb2Object, other:qb2Object, useLastParents:Boolean = false):void
 		{
 			if ( local._parent != other._parent )
 			{
 				var localParentPath:Dictionary = new Dictionary(true);
-				localParentPath
 				
-				while ( local._parent )
+				if ( !useLastParents )
 				{
-					localParentPath[local.parent] = local;
-					local = local._parent;
-				}
-				
-				while ( other._parent )
-				{
-					if ( localParentPath[other._parent] )
+					while ( local._parent )
 					{
-						local = localParentPath[other._parent];
-						break;
+						localParentPath[local.parent] = local;
+						local = local._parent;
 					}
 					
-					other = other._parent;
+					while ( other._parent )
+					{
+						if ( localParentPath[other._parent] )
+						{
+							local = localParentPath[other._parent];
+							break;
+						}
+						
+						other = other._parent;
+					}
+				}
+				else
+				{
+					while ( local._lastParent )
+					{
+						localParentPath[local._lastParent] = local;
+						local = local._lastParent;
+					}
+					
+					while ( other._parent )
+					{
+						if ( localParentPath[other._lastParent] )
+						{
+							local = localParentPath[other._lastParent];
+							break;
+						}
+						
+						other = other._lastParent;
+					}
 				}
 			}
 			

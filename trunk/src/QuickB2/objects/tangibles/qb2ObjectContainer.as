@@ -261,7 +261,7 @@ package QuickB2.objects.tangibles
 			else
 				_objects.splice(index, 0, object);
 			
-			object._parent = this;
+			object._parent = object._lastParent = this;
 			
 			var asTang:qb2Tangible = object as qb2Tangible;
 			if ( asTang )
