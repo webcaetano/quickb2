@@ -70,23 +70,10 @@ package QuickB2.internals
 			eventFlagToCachedEventMap[SUB_PRE_SOLVE_BIT]       = qb2EventDispatcher.eventMap["subPreSolve"];
 			eventFlagToCachedEventMap[SUB_POST_SOLVE_BIT]      = qb2EventDispatcher.eventMap["subPostSolve"];
 		}
-
-		private function getDistToWorld(obj:qb2Tangible):int
-		{
-			var count:int = 0;
-			var currParent:qb2Tangible = obj;
-			while ( currParent != obj._world )
-			{
-				count++;
-				currParent = currParent._parent;
-			}
-			
-			return count;
-		}
 		
 		private function dispatchSubContactEvent(shape1:qb2Shape, shape2:qb2Shape, contact:b2Contact, eventFlag:uint):void
 		{		
-			var currParent:qb2ObjectContainer = shape1.parent;
+			var currParent:qb2ObjectContainer = shape1._lastParent;
 			while ( currParent )
 			{
 				if ( currParent._eventFlags & eventFlag )
@@ -104,7 +91,7 @@ package QuickB2.internals
 					}				
 				}
 				
-				currParent = currParent.parent;
+				currParent = currParent._lastParent;
 			}
 		}
 		
@@ -121,7 +108,7 @@ package QuickB2.internals
 						var asGroup:qb2Group = currParent as qb2Group;
 						if ( shape1.isDescendantOf(asGroup) && shape2.isDescendantOf(asGroup ) )
 						{
-							currParent = currParent.parent;
+							currParent = currParent._lastParent;
 							continue; // contact events aren't dispatched when the dispatcher is a group containing the two shapes that contacted.
 						}
 					}
@@ -130,7 +117,7 @@ package QuickB2.internals
 					event._localShape = shape1;
 					event._otherShape = shape2;
 					event._localObject = currParent;
-					qb2Object.setAncestorPair(currParent, shape2);
+					qb2Object.setAncestorPair(currParent, shape2, true);
 					event._otherObject = qb2Object.setAncestorPair_other as qb2Tangible; // TADA!!!
 					qb2Object.setAncestorPair_local = null;
 					qb2Object.setAncestorPair_other = null;
@@ -140,7 +127,7 @@ package QuickB2.internals
 					currParent.dispatchEvent(event);
 				}
 				
-				currParent = currParent.parent;
+				currParent = currParent._lastParent;
 			}
 		}
 		
