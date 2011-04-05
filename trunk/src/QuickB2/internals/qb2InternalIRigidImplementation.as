@@ -278,20 +278,7 @@ package QuickB2.internals
 			
 			_rotation = rotationInRadians;
 			
-			if ( _bodyB2 )
-			{
-				var world:qb2World = _tang._world;
-				var pixPerMeter:Number = world.pixelsPerMeter;
-				
-				if ( world.processingBox2DStuff )
-				{
-					world.addDelayedCall(_tang, _bodyB2.SetTransform, new V2(point.x / pixPerMeter, point.y / pixPerMeter), rotationInRadians);
-				}
-				else
-				{
-					_bodyB2.SetTransform(new V2(point.x / pixPerMeter, point.y / pixPerMeter), rotationInRadians);
-				}
-			}
+			adjustBodyB2Transform();
 			
 			updateActor();
 			
@@ -313,6 +300,24 @@ package QuickB2.internals
 			}		
 			
 			return asRigid;
+		}
+		
+		qb2_friend function adjustBodyB2Transform():void
+		{
+			if ( _bodyB2 )
+			{
+				var world:qb2World = _tang._world;
+				var pixPerMeter:Number = world.pixelsPerMeter;
+				
+				if ( world.processingBox2DStuff )
+				{
+					world.addDelayedCall(null, this.adjustBodyB2Transform);
+				}
+				else
+				{
+					_bodyB2.SetTransform(new V2(_position.x / pixPerMeter, _position.y / pixPerMeter), _rotation);
+				}
+			}
 		}
 		
 		qb2_friend function vectorUpdated(evt:amUpdateEvent):void

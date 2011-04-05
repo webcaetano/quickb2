@@ -488,13 +488,15 @@ package QuickB2.objects.tangibles
 					}
 				}
 				
-				if( makeTheCall )
+				if ( makeTheCall )
+				{
 					delayedCall.closure.apply(null, args);
+				}
 					
-				if ( object is qb2Tangible && (object as qb2Tangible)._bodyB2 )
+				/*if ( object is qb2Tangible && (object as qb2Tangible)._bodyB2 )
 				{
 					//(object as qb2Tangible)._rigidImp.recomputeBodyB2Mass();
-				}
+				}*/
 			}
 			delayedCalls.length = 0;
 			
