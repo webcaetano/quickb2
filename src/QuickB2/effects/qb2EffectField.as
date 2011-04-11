@@ -49,12 +49,18 @@ package QuickB2.effects
 		
 		public function qb2EffectField()
 		{
+			super();
+			init();
+		}
+		
+		private function init():void
+		{
 			isGhost = true;
 			
-			addEventListener(qb2ContainerEvent.DESCENDANT_ADDED_OBJECT,   childrenChanged, false, 0, true);
-			addEventListener(qb2ContainerEvent.DESCENDANT_REMOVED_OBJECT, childrenChanged, false, 0, true);
-			addEventListener(qb2ContainerEvent.ADDED_OBJECT,              childrenChanged, false, 0, true);
-			addEventListener(qb2ContainerEvent.REMOVED_OBJECT,            childrenChanged, false, 0, true);
+			addEventListener(qb2ContainerEvent.DESCENDANT_ADDED_OBJECT,   childrenChanged);
+			addEventListener(qb2ContainerEvent.DESCENDANT_REMOVED_OBJECT, childrenChanged);
+			addEventListener(qb2ContainerEvent.ADDED_OBJECT,              childrenChanged);
+			addEventListener(qb2ContainerEvent.REMOVED_OBJECT,            childrenChanged);
 			
 			addContainerEventListeners();
 			
@@ -261,21 +267,21 @@ package QuickB2.effects
 		{
 			addSelfToSystem();
 			
-			addEventListener(qb2ContainerEvent.ADDED_TO_WORLD,            addedOrRemoved,  false, 0, true);
-			addEventListener(qb2ContainerEvent.REMOVED_FROM_WORLD,        addedOrRemoved,  false, 0, true);
+			addEventListener(qb2ContainerEvent.ADDED_TO_WORLD,            addedOrRemoved);
+			addEventListener(qb2ContainerEvent.REMOVED_FROM_WORLD,        addedOrRemoved);
 		}
 		
 		private function removeContainerEventListeners():void
 		{
 			removeSelfFromSystem(parent, world);
 			
-			removeEventListener(qb2ContainerEvent.ADDED_TO_WORLD,            addedOrRemoved,  false);
-			removeEventListener(qb2ContainerEvent.REMOVED_FROM_WORLD,        addedOrRemoved,  false);
+			removeEventListener(qb2ContainerEvent.ADDED_TO_WORLD,            addedOrRemoved);
+			removeEventListener(qb2ContainerEvent.REMOVED_FROM_WORLD,        addedOrRemoved);
 		}
 		
 		private function addContactEventListeners():void
 		{
-			addEventListener(qb2UpdateEvent.POST_UPDATE, postUpdate, false, 0, true);
+			addEventListener(qb2UpdateEvent.POST_UPDATE, postUpdate);
 			
 			//--- Create (and fill) contact dictionary.
 			shapeContactDict = new Dictionary(WEAK_KEYS);
@@ -322,8 +328,8 @@ package QuickB2.effects
 				}
 			}
 			
-			addEventListener(qb2ContactEvent.CONTACT_STARTED, contact, false, 0, true);
-			addEventListener(qb2ContactEvent.CONTACT_ENDED,   contact, false, 0, true);
+			addEventListener(qb2ContactEvent.CONTACT_STARTED, contact);
+			addEventListener(qb2ContactEvent.CONTACT_ENDED,   contact);
 		}
 		
 		private function removeContactEventListeners():void

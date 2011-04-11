@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010 Johnson Center for Simulation at Pine Technical College
+ * Copyright (c) 2010 Doug Koellmer
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,18 +20,37 @@
  * THE SOFTWARE.
  */
 
-package QuickB2.internals 
+package QuickB2.misc.acting 
 {
+	import flash.display.Bitmap;
+	import flash.display.BitmapData;
+	
 	/**
 	 * ...
 	 * @author Doug Koellmer
-	 * 
-	 * @private
 	 */
-	public class qb2InternalPropertyAndFlagCollection 
+	public class qb2FlashBitmapActor extends Bitmap implements qb2IActor
 	{
-		public var ancestorFlagStack:Vector.<uint>          = new Vector.<uint>();
-		public var ancestorFlagOwnershipStack:Vector.<uint> = new Vector.<uint>();
-		public var ancestorPropertyMapStacks:Object = null;
+		public function qb2FlashBitmapActor (bitmapData:BitmapData = null, pixelSnapping:String = "auto", smoothing:Boolean = false)
+		{
+			super(bitmapData, pixelSnapping, smoothing);
+		}
+		
+		public function scaleBy(xValue:Number, yValue:Number):void
+		{
+			qb2_flashActorUtils.scaleActor(this, xValue, yValue);
+		}
+		
+		public function get parentActor():qb2IActorContainer
+		{
+			return parent as qb2IActorContainer;
+		}
+		
+		public function clone(deep:Boolean = true):qb2IActor
+		{
+			var newBitmap:qb2FlashBitmapActor = new qb2FlashBitmapActor(this.bitmapData ? this.bitmapData.clone() : null, this.pixelSnapping, this.smoothing);
+			newBitmap.transform.matrix = this.transform.matrix.clone();
+			return newBitmap;
+		}
 	}
 }

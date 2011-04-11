@@ -244,7 +244,7 @@ package QuickB2.objects.joints
 		{
 			if ( _localDirection )  _localDirection.removeEventListener(amUpdateEvent.ENTITY_UPDATED, vectorUpdated);
 			_localDirection = newVector;
-			_localDirection.addEventListener(amUpdateEvent.ENTITY_UPDATED, vectorUpdated, false, 0, true);
+			_localDirection.addEventListener(amUpdateEvent.ENTITY_UPDATED, vectorUpdated);
 			vectorUpdated(null);
 		}
 		private var _localDirection:amVector2d = new amVector2d();
@@ -317,7 +317,7 @@ package QuickB2.objects.joints
 		{
 			_localDirection.removeEventListener(amUpdateEvent.ENTITY_UPDATED, vectorUpdated);
 				_localDirection.normalize();
-			_localDirection.addEventListener(amUpdateEvent.ENTITY_UPDATED, vectorUpdated, false, 0, true);
+			_localDirection.addEventListener(amUpdateEvent.ENTITY_UPDATED, vectorUpdated);
 			
 			correctLocalVec();
 			

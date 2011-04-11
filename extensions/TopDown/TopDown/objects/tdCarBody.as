@@ -84,12 +84,18 @@ package TopDown.objects
 
 		public function tdCarBody()
 		{
-			addEventListener(qb2ContainerEvent.ADDED_TO_WORLD,     addedOrRemoved,    false, 0, true);
-			addEventListener(qb2ContainerEvent.REMOVED_FROM_WORLD, addedOrRemoved,    false, 0, true);
-			addEventListener(qb2ContainerEvent.INDEX_CHANGED,      indexChanged,      false, 0, true);
-			addEventListener(qb2MassEvent.MASS_PROPS_CHANGED,      massPropsUpdated,  false, 0, true);
-			addEventListener(qb2ContainerEvent.ADDED_OBJECT,       justAddedObject,   false, 0, true);
-			addEventListener(qb2ContainerEvent.REMOVED_OBJECT,     justRemovedObject, false, 0, true);
+			super();
+			init();
+		}
+		
+		private function init():void
+		{
+			addEventListener(qb2ContainerEvent.ADDED_TO_WORLD,     addedOrRemoved);
+			addEventListener(qb2ContainerEvent.REMOVED_FROM_WORLD, addedOrRemoved);
+			addEventListener(qb2ContainerEvent.INDEX_CHANGED,      indexChanged);
+			addEventListener(qb2MassEvent.MASS_PROPS_CHANGED,      massPropsUpdated);
+			addEventListener(qb2ContainerEvent.ADDED_OBJECT,       justAddedObject);
+			addEventListener(qb2ContainerEvent.REMOVED_OBJECT,     justRemovedObject);
 		}
 		
 		private function addedOrRemoved(evt:qb2ContainerEvent):void

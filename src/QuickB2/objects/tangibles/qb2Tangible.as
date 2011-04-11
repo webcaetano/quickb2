@@ -42,6 +42,8 @@ package QuickB2.objects.tangibles
 	import QuickB2.internals.*;
 	import QuickB2.loaders.proxies.*;
 	import QuickB2.misc.*;
+	import QuickB2.misc.acting.qb2IActor;
+	import QuickB2.misc.acting.qb2IActorContainer;
 	import QuickB2.objects.*;
 	import QuickB2.objects.joints.*;
 	import QuickB2.stock.*;
@@ -72,9 +74,7 @@ package QuickB2.objects.tangibles
 			
 			super();
 			
-			if ( (this as Object).constructor == qb2Tangible )  throw qb2_errors.ABSTRACT_CLASS_ERROR;
-			
-			initProps();
+			init();
 		}
 		
 		private function initRigidImp():void
@@ -85,8 +85,10 @@ package QuickB2.objects.tangibles
 			}
 		}
 		
-		private function initProps():void
-		{			
+		private function init():void
+		{
+			if ( (this as Object).constructor == qb2Tangible )  throw qb2_errors.ABSTRACT_CLASS_ERROR;
+			
 			//--- Set up default values for various properties.
 			turnFlagOn(qb2_flags.IS_DEBUG_DRAGGABLE | qb2_flags.ALLOW_SLEEPING | qb2_flags.ALLOW_COMPLEX_POLYGONS, false);
 			setProperty(qb2_props.CONTACT_CATEGORY_FLAGS, 0x0001 as uint, false);
@@ -181,17 +183,16 @@ package QuickB2.objects.tangibles
 					currParent._bodyB2.SetAwake(true);
 				}
 				
-				if ( currParent.eventFlags & MASS_CHANGED_BIT )
+				var dispatch:Boolean = true;
+				if ( dispatch )
 				{
-					if ( true )
-					{
-						var evt:qb2MassEvent = getCachedEvent(qb2MassEvent.MASS_PROPS_CHANGED);
-						evt._affectedObject  = currParent;
-						evt._massChange      = currParent._mass        - beforeMass;
-						evt._areaChange      = currParent._surfaceArea - beforeArea;
-						evt._densityChange   = currParent.density      - beforeDens;
-						currParent.dispatchEvent(evt);
-					}
+					var evt:qb2MassEvent = qb2_cachedEvents.MASS_EVENT.inUse ? new qb2MassEvent() : qb2_cachedEvents.MASS_EVENT;
+					evt.type = qb2MassEvent.MASS_PROPS_CHANGED;
+					evt._affectedObject  = currParent;
+					evt._massChange      = currParent._mass        - beforeMass;
+					evt._areaChange      = currParent._surfaceArea - beforeArea;
+					evt._densityChange   = currParent.density      - beforeDens;
+					currParent.dispatchEvent(evt);
 				}
 				
 				if ( currParent is qb2Shape )
@@ -211,63 +212,38 @@ package QuickB2.objects.tangibles
 		public function get ancestorBody():qb2Body
 			{  return _ancestorBody;  }
 		qb2_friend var _ancestorBody:qb2Body;
-		
-		qb2_friend virtual function updateContactReporting(bits:uint):void { }
-		
-		private function cloneActor():DisplayObject
-		{
-			var actorClone:DisplayObject = new (Object(this._actor).constructor as Class) as DisplayObject;
-			actorClone.transform.matrix = actor.transform.matrix.clone();
-			
-			//--- An actor can only contain proxies that should be deleted if
-			//--- it itself is a proxy, so this check can save some search time.
-			if ( actorClone is qb2Proxy )
-			{
-				var container:DisplayObjectContainer = actorClone as DisplayObjectContainer;
-				var numChildren:int = container.numChildren;
-				for (var i:int = 0; i < container.numChildren; i++) 
-				{
-					if ( container.getChildAt(i) is qb2Proxy )
-					{
-						container.removeChildAt(i--);
-					}
-				}
-			}
-			
-			return actorClone;
-		}
-		
+	
 		qb2_friend function removeActor():void
 		{
-			if ( _actor && _actor.parent && _parent && _parent._actor == _actor.parent )
+			if ( _actor && _actor.parentActor && _parent && _parent._actor == _actor.parentActor )
 			{
-				_actor.parent.removeChild(_actor);
+				_actor.parentActor.removeActor(_actor);
 			}
 		}
 		
 		qb2_friend function addActor():void
 		{
-			if ( _actor && !_actor.parent && _parent )
+			if ( _actor && !_actor.parentActor && _parent )
 			{
-				if( _parent._actor && (_parent._actor is DisplayObjectContainer) )
-					(_parent._actor as DisplayObjectContainer).addChild(_actor);
+				if( _parent._actor && (_parent._actor is qb2IActorContainer) )
+					(_parent._actor as qb2IActorContainer).addActor(_actor);
 			}
 		}
 		
 		qb2_friend var _effectFields:Vector.<qb2EffectField>;
 		
-		public function get actor():DisplayObject
+		public function get actor():qb2IActor
 			{  return _actor;  }
-		public function set actor(newDO:DisplayObject):void
+		public function set actor(newActor:qb2IActor):void
 		{
-			_actor = newDO;
+			_actor = newActor;
 			
 			if ( _actor is qb2ProxyObject )
 			{
 				(_actor as qb2ProxyObject).actualObject = this;
 			}
 		}
-		qb2_friend var _actor:DisplayObject;
+		qb2_friend var _actor:qb2IActor;
 		
 		public override function clone(deep:Boolean = true):qb2Object
 		{
@@ -275,9 +251,9 @@ package QuickB2.objects.tangibles
 			
 			cloned.copyTangibleProps(this);
 			
-			if ( deep && actor )
+			if ( deep && _actor )
 			{
-				cloned.actor = cloneActor();
+				cloned.actor = _actor.clone(deep);
 			}
 			
 			return cloned;

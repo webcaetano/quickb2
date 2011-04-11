@@ -6,6 +6,7 @@ package demos
 	import As3Math.geo2d.amVector2d;
 	import flash.display.*;
 	import QuickB2.events.*;
+	import QuickB2.misc.acting.qb2FlashSpriteActor;
 	import QuickB2.objects.tangibles.*;
 	import QuickB2.stock.qb2StageWalls;
 
@@ -18,10 +19,10 @@ package demos
 	{
 		public function Demo() 
 		{
-			this.actor = new Sprite();
+			this.actor = new qb2FlashSpriteActor();
 			
-			this.addEventListener(qb2ContainerEvent.ADDED_TO_WORLD, addedOrRemoved, false, 0, true);
-			this.addEventListener(qb2ContainerEvent.REMOVED_FROM_WORLD, addedOrRemoved, false, 0, true);
+			this.addEventListener(qb2ContainerEvent.ADDED_TO_WORLD, addedOrRemoved);
+			this.addEventListener(qb2ContainerEvent.REMOVED_FROM_WORLD, addedOrRemoved);
 		}
 		
 		public function get stageWalls():qb2StageWalls

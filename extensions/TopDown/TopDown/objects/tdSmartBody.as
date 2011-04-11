@@ -47,8 +47,8 @@ package TopDown.objects
 				throw qb2_errors.ABSTRACT_CLASS_ERROR;
 			}
 			
-			addEventListener(qb2ContainerEvent.ADDED_OBJECT,   justAddedObject,   false, 0, true);
-			addEventListener(qb2ContainerEvent.REMOVED_OBJECT, justRemovedObject, false, 0, true);
+			addEventListener(qb2ContainerEvent.ADDED_OBJECT,   justAddedObject);
+			addEventListener(qb2ContainerEvent.REMOVED_OBJECT, justRemovedObject);
 		}
 		
 		private function justAddedObject(evt:qb2ContainerEvent):void

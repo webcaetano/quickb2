@@ -72,15 +72,15 @@ package demos
 		{
 			if ( _dragging )
 			{
-				_endDrag.x = _startDrag.x + (actor.mouseX - _startDrag.x) * CROSSHAIRS_LEAD_MULT;
-				_endDrag.y = _startDrag.y + (actor.mouseY - _startDrag.y) * CROSSHAIRS_LEAD_MULT;
+				_endDrag.x = _startDrag.x + (stage.mouseX - _startDrag.x) * CROSSHAIRS_LEAD_MULT;
+				_endDrag.y = _startDrag.y + (stage.mouseY - _startDrag.y) * CROSSHAIRS_LEAD_MULT;
 				crosshairs.x = _endDrag.x;
 				crosshairs.y = _endDrag.y;
 			}
 			else
 			{
-				crosshairs.x = actor.mouseX;
-				crosshairs.y = actor.mouseY;
+				crosshairs.x = stage.mouseX;
+				crosshairs.y = stage.mouseY;
 			}
 			
 			var graphics:srGraphics2d = world.debugDrawGraphics;
@@ -119,7 +119,7 @@ package demos
 			if ( evt.type == MouseEvent.MOUSE_DOWN )
 			{
 				_dragging = true;
-				_startDrag.set(actor.mouseX, actor.mouseY);
+				_startDrag.set(stage.mouseX, stage.mouseY);
 				_endDrag.copy(_startDrag);
 			}
 			else if( evt.type == MouseEvent.MOUSE_UP )
@@ -221,7 +221,7 @@ package demos
 				mouse.addEventListener(MouseEvent.MOUSE_UP,   mouseEvent);
 				stage.addEventListener(Event.MOUSE_LEAVE,     mouseEvent);
 				
-				this.actor.addEventListener(Event.ENTER_FRAME, updateCrosshairs);
+				stage.addEventListener(Event.ENTER_FRAME, updateCrosshairs);
 			}
 			else
 			{
@@ -232,7 +232,7 @@ package demos
 				stage.removeEventListener(Event.MOUSE_LEAVE,     mouseEvent);
 				stage.removeEventListener(MouseEvent.MOUSE_MOVE, mouseEvent);
 				
-				this.actor.removeEventListener(Event.ENTER_FRAME, updateCrosshairs);
+				stage.removeEventListener(Event.ENTER_FRAME, updateCrosshairs);
 			}
 		}
 	}

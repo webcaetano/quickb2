@@ -21,6 +21,7 @@
     <class path="..\..\extensions\TopDown" />
     <class path="..\..\dependencies\src\SoundTree" />
     <class path="..\..\dependencies\src\surRender" />
+    <class path="..\..\dependencies\src\rEvent" />
   </classpaths>
   <!-- Build options -->
   <build>

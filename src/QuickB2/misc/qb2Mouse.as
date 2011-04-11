@@ -26,6 +26,8 @@ package QuickB2.misc
 	import flash.display.*;
 	import flash.events.*;
 	import QuickB2.events.*;
+	import revent.rEventDispatcher;
+	import revent.rIEventDispatcher;
 	
 	[Event(name="mouseDown", type="flash.events.MouseEvent")]
 	[Event(name="mouseUp",   type="flash.events.MouseEvent")]
@@ -37,7 +39,7 @@ package QuickB2.misc
 	 * ...
 	 * @author Doug Koellmer
 	 */
-	public class qb2Mouse extends qb2EventDispatcher
+	public class qb2Mouse extends EventDispatcher
 	{
 		public var suppressEvents:Boolean = false;
 		

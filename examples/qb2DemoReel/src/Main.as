@@ -14,8 +14,10 @@
 	import QuickB2.effects.qb2EffectField;
 	import QuickB2.effects.qb2GravityField;
 	import QuickB2.events.qb2UpdateEvent;
+	import QuickB2.internals.qb2InternalPropertyAndFlagCollection;
 	import QuickB2.loaders.proxies.qb2ProxyBody;
 	import QuickB2.loaders.qb2FlashLoader;
+	import QuickB2.misc.acting.qb2FlashSpriteActor;
 	import QuickB2.objects.*;
 	import QuickB2.objects.tangibles.*;
 	import QuickB2.stock.*;
@@ -80,7 +82,7 @@
 			//--- and a sprite for drawing into using the Graphics context.
 			//--- An empty actor is provided for any demos featuring DisplayObject's.
 			world.debugDragSource = this;
-			world.actor = addChild(new Sprite());
+			world.actor = addChild(new qb2FlashSpriteActor()) as qb2FlashSpriteActor;
 			var debugDrawSprite:Sprite = (addChild(new Sprite()) as Sprite);
 			debugDrawSprite.mouseEnabled = false; // so physics drawing doesn't interfere with gui.
 			world.debugDrawGraphics = new srVectorGraphics2d(debugDrawSprite.graphics);
@@ -175,7 +177,7 @@
 			this.y = -cameraPoint.y;
 			//rotationContainer.rotation = _cameraRotation;
 			
-			 trace(currDemo.mass, currDemo.surfaceArea);
+			// trace(currDemo.mass, currDemo.surfaceArea);
 		}
 		
 		public function get stageWalls():qb2StageWalls

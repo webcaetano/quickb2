@@ -27,13 +27,14 @@ package QuickB2.events
 	import QuickB2.debugging.*;
 	import QuickB2.objects.*;
 	import QuickB2.objects.tangibles.*;
+	import revent.rEvent;
 	use namespace qb2_friend;
 	
 	/**
 	 * ...
 	 * @author Doug Koellmer
 	 */
-	public class qb2MassEvent extends qb2Event
+	public class qb2MassEvent extends rEvent
 	{
 		public static const MASS_PROPS_CHANGED:String  = "massPropsChanged";
 		
@@ -43,12 +44,12 @@ package QuickB2.events
 		qb2_friend var _densityChange:Number = 0;
 		qb2_friend var _areaChange:Number    = 0;
 		
-		public function qb2MassEvent(type:String) 
+		public function qb2MassEvent(type:String = null) 
 			{  super(type);  }
 		
-		public override function clone():Event
+		public override function clone():rEvent
 		{
-			var evt:qb2MassEvent = new qb2MassEvent(this.type);
+			var evt:qb2MassEvent = super.clone() as qb2MassEvent;
 			evt._affectedObject = this._affectedObject;
 			evt._massChange     = this._massChange;
 			evt._densityChange  = this._densityChange;

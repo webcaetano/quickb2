@@ -26,27 +26,30 @@ package QuickB2.events
 	import QuickB2.*;
 	import QuickB2.debugging.*;
 	import QuickB2.objects.*;
+	import revent.rEvent;
 	use namespace qb2_friend;
 	
 	/**
 	 * ...
 	 * @author Doug Koellmer
 	 */
-	public class qb2UpdateEvent extends qb2Event
+	public class qb2UpdateEvent extends rEvent
 	{
-		public static const PRE_UPDATE:String  = "preUpdate";
-		public static const POST_UPDATE:String = "postUpdate";
+		public static const PRE_UPDATE:String     = "preUpdate";
+		public static const POST_UPDATE:String    = "postUpdate";
+		
+		public static const ALL_EVENT_TYPES:Array = [PRE_UPDATE, POST_UPDATE];
 		
 		qb2_friend var _object:qb2Object;
 		
-		public function qb2UpdateEvent(type:String) 
+		public function qb2UpdateEvent(type:String = null) 
 		{
 			super(type);
 		}
 		
-		public override function clone():Event
+		public override function clone():rEvent
 		{
-			var evt:qb2UpdateEvent = new qb2UpdateEvent(this.type);
+			var evt:qb2UpdateEvent = super.clone() as qb2UpdateEvent;
 			evt._object = this._object;
 			return evt;
 		}

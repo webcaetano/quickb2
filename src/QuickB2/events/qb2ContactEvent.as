@@ -28,6 +28,7 @@ package QuickB2.events
 	import QuickB2.debugging.*;
 	import QuickB2.objects.*;
 	import QuickB2.objects.tangibles.*;
+	import revent.rEvent;
 	
 	use namespace qb2_friend;
 	
@@ -37,16 +38,18 @@ package QuickB2.events
 	 */
 	public class qb2ContactEvent extends qb2BaseContactEvent
 	{
-		public static const PRE_SOLVE:String       = "preSolve";
-		public static const POST_SOLVE:String      = "postSolve";
-		public static const CONTACT_STARTED:String = "contactStarted";
-		public static const CONTACT_ENDED:String   = "contactEnded";
+		public static const CONTACT_STARTED:String = qb2BaseContactEvent.CONTACT_STARTED;
+		public static const CONTACT_ENDED:String   = qb2BaseContactEvent.CONTACT_ENDED;
+		public static const PRE_SOLVE:String       = qb2BaseContactEvent.PRE_SOLVE;
+		public static const POST_SOLVE:String      = qb2BaseContactEvent.POST_SOLVE;
+		
+		public static const ALL_EVENT_TYPES:Array  = [CONTACT_STARTED, CONTACT_ENDED, PRE_SOLVE, POST_SOLVE];
 		
 		qb2_friend var _localShape:qb2Shape, _otherShape:qb2Shape;
 		
 		qb2_friend var _localObject:qb2Tangible, _otherObject:qb2Tangible;
 		
-		public function qb2ContactEvent(type:String)
+		public function qb2ContactEvent(type:String = null)
 			{  super(type);  }
 		
 		public function get localShape():qb2Shape
@@ -61,9 +64,9 @@ package QuickB2.events
 		public function get otherObject():qb2Tangible
 			{  return _otherObject;  }
 		
-		public override function clone():Event
+		public override function clone():rEvent
 		{
-			var evt:qb2ContactEvent = new qb2ContactEvent(type);
+			var evt:qb2ContactEvent = super.clone() as qb2ContactEvent;
 			evt._localShape    = _localShape;
 			evt._otherShape    = _otherShape;
 			evt._localObject   = _localObject;

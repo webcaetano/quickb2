@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010 Johnson Center for Simulation at Pine Technical College
+ * Copyright (c) 2010 Doug Koellmer
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,18 +20,23 @@
  * THE SOFTWARE.
  */
 
-package QuickB2.internals 
+package QuickB2.events 
 {
+	import QuickB2.*;
+	use namespace qb2_friend;
+	
 	/**
-	 * ...
-	 * @author Doug Koellmer
+	 * A collection of reusable event instances.
 	 * 
-	 * @private
+	 * @author Doug Koellmer
 	 */
-	public class qb2InternalPropertyAndFlagCollection 
+	public class qb2_cachedEvents 
 	{
-		public var ancestorFlagStack:Vector.<uint>          = new Vector.<uint>();
-		public var ancestorFlagOwnershipStack:Vector.<uint> = new Vector.<uint>();
-		public var ancestorPropertyMapStacks:Object = null;
+		public static const CONTACT_EVENT:qb2ContactEvent        = new qb2ContactEvent();
+		public static const SUB_CONTACT_EVENT:qb2SubContactEvent = new qb2SubContactEvent();
+		public static const CONTAINER_EVENT:qb2ContainerEvent    = new qb2ContainerEvent();
+		public static const MASS_EVENT:qb2MassEvent              = new qb2MassEvent();
+		public static const TRIP_SENSOR_EVENT:qb2TripSensorEvent = new qb2TripSensorEvent();
+		public static const UPDATE_EVENT:qb2UpdateEvent          = new qb2UpdateEvent();
 	}
 }

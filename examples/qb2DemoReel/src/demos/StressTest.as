@@ -7,6 +7,8 @@ package demos
 	import flash.display.PixelSnapping;
 	import flash.display.Sprite;
 	import QuickB2.events.qb2ContainerEvent;
+	import QuickB2.misc.acting.qb2FlashBitmapActor;
+	import QuickB2.misc.acting.qb2FlashSpriteActor;
 	import QuickB2.misc.qb2Keyboard;
 	import QuickB2.objects.tangibles.qb2Body;
 	import QuickB2.objects.tangibles.qb2PolygonShape;
@@ -44,13 +46,13 @@ package demos
 		private static function makeRedSquare(position:amPoint2d):qb2Body
 		{
 			var body:qb2Body = new qb2Body();
-			var img:Bitmap = new Bitmap(new BitmapData(1, 1, false, 0xff0000), PixelSnapping.NEVER);
+			var img:qb2FlashBitmapActor = new qb2FlashBitmapActor(new BitmapData(1, 1, false, 0xff0000), PixelSnapping.NEVER);
 			img.width = img.height = squareSize;
 			img.x -= squareSize / 2;
 			img.y -= squareSize / 2;
 			var rect:qb2PolygonShape = qb2Stock.newRectShape(new amPoint2d(), squareSize, squareSize);
 			rect.actor = img;
-			body.actor = new Sprite();
+			body.actor = new qb2FlashSpriteActor();
 			body.addObject(rect); // adds the actor too.
 			body.mass = 1;
 			body.position.copy(position);

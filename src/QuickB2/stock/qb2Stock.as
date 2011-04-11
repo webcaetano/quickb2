@@ -141,7 +141,7 @@ package QuickB2.stock
 			sensor.setTransform(center, initRotation);
 			sensor.addObject(newRectShape(new amPoint2d(), width, height));
 			sensor.tripTime = tripTime;
-			if ( tripCallback != null)  sensor.addEventListener(qb2TripSensorEvent.SENSOR_TRIPPED, tripCallback, false, 0, true );
+			if ( tripCallback != null)  sensor.addEventListener(qb2TripSensorEvent.SENSOR_TRIPPED, tripCallback );
 			return sensor;
 		}
 		
@@ -151,7 +151,7 @@ package QuickB2.stock
 			sensor.setTransform(center, 0);
 			sensor.addObject(newCircleShape(new amPoint2d(), radius));
 			sensor.tripTime = tripTime;
-			if ( tripCallback != null )  sensor.addEventListener(qb2TripSensorEvent.SENSOR_TRIPPED, tripCallback, false, 0, true);
+			if ( tripCallback != null )  sensor.addEventListener(qb2TripSensorEvent.SENSOR_TRIPPED, tripCallback );
 			return sensor;
 		}
 		

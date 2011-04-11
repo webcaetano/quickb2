@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010 Johnson Center for Simulation at Pine Technical College
+ * Copyright (c) 2010 Doug Koellmer
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,26 +20,27 @@
  * THE SOFTWARE.
  */
 
-package QuickB2.events 
+package QuickB2.misc.acting 
 {
-	import flash.events.*;
-	import QuickB2.*;
-	import QuickB2.debugging.*;
-	
 	/**
 	 * ...
 	 * @author Doug Koellmer
 	 */
-	public class qb2Event extends Event
+	public interface qb2IActor 
 	{
-		public function qb2Event(type:String)
-		{
-			super(type);
-			
-			if ( (this as Object).constructor == qb2Event )  throw qb2_errors.ABSTRACT_CLASS_ERROR;
-		}
+		function get x():Number;
+		function set x(value:Number):void;
 		
-		public override function toString():String 
-			{  return qb2DebugTraceUtils.formatToString(this, "qb2Event");  }
+		function get y():Number;
+		function set y(value:Number):void;
+		
+		function get rotation():Number;
+		function set rotation(value:Number):void;
+		
+		function scaleBy(xValue:Number, yValue:Number):void
+		
+		function get parentActor():qb2IActorContainer;
+		
+		function clone(deep:Boolean = true):qb2IActor;
 	}
 }

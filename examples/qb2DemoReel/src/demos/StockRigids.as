@@ -91,7 +91,7 @@ package demos
 			//--- If it's a body, it gets broken up into its constituent parts.
 			var tripSensor:qb2TripSensor = qb2Stock.newRectSensor(new amPoint2d(stage.stageWidth / 2, stage.stageHeight - incX / 2 ), stage.stageWidth/2, incX / 2, 0);
 			tripSensor.tripTime = .5;
-			tripSensor.addEventListener(qb2TripSensorEvent.SENSOR_TRIPPED, tripped, false, 0, true);
+			tripSensor.addEventListener(qb2TripSensorEvent.SENSOR_TRIPPED, tripped);
 			addObjectAt(tripSensor, 0); // makes the sensor get drawn on the bottom z-wise.
 		}
 		

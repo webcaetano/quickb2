@@ -27,16 +27,18 @@ package QuickB2.objects.tangibles
 	import flash.display.*;
 	import flash.events.*;
 	import QuickB2.effects.*;
+	import QuickB2.misc.acting.qb2IActor;
 	import QuickB2.objects.*;
 	import QuickB2.objects.joints.*;
 	import QuickB2.objects.tangibles.*;
+	import revent.rIEventDispatcher;
 	import surrender.srIDebugDrawable2d;
 	
 	/**
 	 * ...
 	 * @author Doug Koellmer
 	 */
-	public interface qb2IRigidObject extends IEventDispatcher, srIDebugDrawable2d
+	public interface qb2IRigidObject extends rIEventDispatcher, srIDebugDrawable2d
 	{
 		// INTERFACE FUNCTIONS
 		function updateActor():void;
@@ -79,8 +81,8 @@ package QuickB2.objects.tangibles
 		//function get effectFields():Vector.<qb2EffectField>;
 		//function set effectFields(value:Vector.<qb2EffectField>):void 
 			
-		function get actor():DisplayObject;
-		function set actor(newDO:DisplayObject):void;
+		function get actor():qb2IActor;
+		function set actor(newDO:qb2IActor):void;
 		
 		function testPoint(point:amPoint2d):Boolean;
 		

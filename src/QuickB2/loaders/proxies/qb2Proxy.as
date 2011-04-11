@@ -23,12 +23,14 @@
 package QuickB2.loaders.proxies 
 {
 	import flash.display.MovieClip;
+	import QuickB2.misc.acting.qb2FlashMovieClipActor;
+	import QuickB2.misc.acting.qb2IActorContainer;
 	
 	/**
 	 * ...
 	 * @author Doug Koellmer
 	 */
-	public class qb2Proxy extends MovieClip
+	public class qb2Proxy extends qb2FlashMovieClipActor
 	{
 		public var actualObject:* = null;
 		

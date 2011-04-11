@@ -28,6 +28,7 @@ package QuickB2.events
 	import QuickB2.objects.*;
 	import QuickB2.objects.tangibles.*;
 	import QuickB2.stock.*;
+	import revent.rEvent;
 	
 	use namespace qb2_friend;
 	
@@ -35,7 +36,7 @@ package QuickB2.events
 	 * ...
 	 * @author Doug Koellmer
 	 */
-	public class qb2TripSensorEvent extends qb2Event
+	public class qb2TripSensorEvent extends rEvent
 	{
 		public static const SENSOR_TRIPPED:String = "sensorTripped";
 		public static const SENSOR_ENTERED:String = "sensorEntered";
@@ -47,7 +48,7 @@ package QuickB2.events
 		
 		qb2_friend var _startTime:Number;
 		
-		public function qb2TripSensorEvent(type:String) 
+		public function qb2TripSensorEvent(type:String = null) 
 		{
 			super(type);
 		}
@@ -67,9 +68,9 @@ package QuickB2.events
 			return _startTime;
 		}
 		
-		public override function clone():Event
+		public override function clone():rEvent
 		{
-			var evt:qb2TripSensorEvent = new qb2TripSensorEvent(type);
+			var evt:qb2TripSensorEvent = super.clone() as qb2TripSensorEvent;
 			evt._sensor = _sensor;
 			evt._visitingObject = _visitingObject;
 			evt._startTime = _startTime;

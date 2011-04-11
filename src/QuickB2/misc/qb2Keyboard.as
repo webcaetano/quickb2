@@ -34,7 +34,7 @@ package QuickB2.misc
 	 * ...
 	 * @author Doug Koellmer
 	 */
-	public class qb2Keyboard extends qb2EventDispatcher
+	public class qb2Keyboard extends EventDispatcher
 	{
 		private const _keyMap:Dictionary     = new Dictionary();
 		private const _history:Vector.<uint> = new Vector.<uint>();

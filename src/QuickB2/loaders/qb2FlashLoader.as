@@ -31,10 +31,12 @@ package QuickB2.loaders
 	import QuickB2.events.*;
 	import QuickB2.loaders.proxies.*;
 	import QuickB2.loaders.proxies.geoproxies.*;
+	import QuickB2.misc.acting.qb2IActor;
 	import QuickB2.objects.*;
 	import QuickB2.objects.joints.*;
 	import QuickB2.objects.tangibles.*;
 	import QuickB2.stock.*;
+	import revent.rEventDispatcher;
 	
 	use namespace qb2_friend;
 	
@@ -42,7 +44,7 @@ package QuickB2.loaders
 	 * ...
 	 * @author Doug Koellmer
 	 */
-	public class qb2FlashLoader extends qb2EventDispatcher
+	public class qb2FlashLoader extends rEventDispatcher
 	{
 		public function qb2FlashLoader():void {}
 		
@@ -362,7 +364,7 @@ package QuickB2.loaders
 					//--- Set actor for tangibles.
 					if ( object is qb2Tangible )
 					{
-						(object as qb2Tangible).actor = subclip; // this sets qb2ProxyObject::actualObject
+						(object as qb2Tangible).actor = subclip as qb2IActor; // this sets qb2ProxyObject::actualObject
 					}
 				}
 			}
@@ -385,7 +387,7 @@ package QuickB2.loaders
 				
 				if ( object is qb2Tangible )
 				{
-					popDown((object as qb2Tangible).actor);
+					popDown((object as qb2Tangible).actor as DisplayObject);
 					
 					asTang = object as qb2Tangible;
 					
@@ -397,9 +399,9 @@ package QuickB2.loaders
 				
 					if ( groupActorTransforms[object.parent] )
 					{
-						var matrix:Matrix = asTang.actor.transform.matrix.clone();
+						var matrix:Matrix = (asTang.actor as DisplayObject).transform.matrix.clone();
 						matrix.concat(groupActorTransforms[asTang.parent]);
-						asTang.actor.transform.matrix = matrix;
+						(asTang.actor as DisplayObject).transform.matrix = matrix;
 					}
 				
 					if ( object is qb2ObjectContainer )
@@ -409,8 +411,8 @@ package QuickB2.loaders
 						if ( container is qb2Group )
 						{
 							group = container as qb2Group;
-							groupActorTransforms[group] = group.actor.transform.matrix.clone();
-							group.actor.transform.matrix = new Matrix();
+							groupActorTransforms[group] = (group.actor as DisplayObject).transform.matrix.clone();
+							(group.actor as DisplayObject).transform.matrix = new Matrix();
 						}
 						
 						for ( i = 0; i < container.numObjects; i++ )
@@ -761,7 +763,7 @@ package QuickB2.loaders
 							
 							if ( listener != null )
 							{
-								object.addEventListener(varName, listener, false, 0, true);
+								object.addEventListener(varName, listener);
 							}
 						}
 					}
