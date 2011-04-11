@@ -1,3 +1,14 @@
+- move actor up to qb2Object
+
+- use qb2ISound for sound field
+
+- interface for keyboard/mouse input.
+
+- push/pop fill for srGraphics2d?
+
+- merge update and debug draw loop (move JOINS_IN_DEBUG_DRAWING checking to update loop too, and make direct calls to drawDebug for container work).
+
+
 
 - bound circles
 
