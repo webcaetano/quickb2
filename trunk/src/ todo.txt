@@ -1,0 +1,118 @@
+- move actor up to qb2Object
+
+- use qb2ISound for sound field
+
+- interface for keyboard/mouse input.
+
+- push/pop fill for srGraphics2d?
+
+- merge update and debug draw loop (move JOINS_IN_DEBUG_DRAWING checking to update loop too, and make direct calls to drawDebug for container work).
+
+
+
+- bound circles
+
+- virtual function on qb2Object that is overloaded by subclasses to determine what it contributes as far as geometry for bounding reps (maybe).
+
+- have explode preserve velocities correctly.
+
+- have revolute spring working off of forces
+
+- polish off kill box conditions.
+
+- have a isTouching type function
+
+- have one click build for all .swc and documentation builds...maybe examples too.
+
+- make a qb2MouseEvent to wrap MouseEvent types, and also to have the stage enter/stage leave events
+
+- make laser smoother
+
+- fix .swc so qb2_friend members aren't exposed.
+
+- convert qb2_props.IS_KINEMATIC to qb2_prop_isKinematic...maybe
+
+
+TESTING
+
+- make sure set object only calls mass change thing once
+
+- test adding jello to body and world back and forth
+
+- test moving and adding points for polygon
+
+- make sure joint throws error when you repeatedly add and remove its attached object to/from the world (without destruction listener assigned.
+
+- try to explode a group out of a body (jello out of a body).
+
+- test jello leaving a kill box by positions
+
+- test clone functions for all 3 types
+
+- test that restitution is perserved when explodiong a rounded rect
+
+
+
+
+
+
+
+=== Box2d ISSUES
+
+- weld joint connecting two fixedRotation bodies fails (something to do with box2d, 99%).
+
+- setting identical limits for piston joint seems to make the limit set to zero or something.
+
+
+
+=== eventually
+
+- have springs snap to position if they are either (a) within a certain distance to their length and under a certain speed, or (b) moving at a high enough frequency back and forth past their length (meaning very high K/damping)
+
+- figure out a better way for trip sensor to define what object is visiting it, perhaps giving it a bit flag, each bit standing for a level in the world hierarchy...this could also mean getting rid of the otherObject thing for contact event
+
+- matrix transform functions...major thing here is to allow non-uniform scaling and skewing.
+
+- extrusions on amCurve2d's...prolly added to qb2Stock
+
+- have getLinearVel at pnt type functions be available when an object isn't in the world
+
+- component icons
+
+- shatter-type functions
+
+- implement get inertia for all tangibles
+
+- triangle mapping utilities of some kind
+
+- expose AABB query
+
+- expose raycast
+
+- expose other joints (?)
+
+- deal with flushShape case for sensors...when a shape is just being flushed, it shouldn't fire sensor events if it doesn't have to.
+
+- validate/invalidate for various intensive property queries like centerOfMass and bounding reps, so they can be queried multiple times in a single frame without penalty.
+
+- have box2d git thing be pulled in automatically
+
+- fix elbow joints for qb2Stock polyline body...give them limits so they don't tweek out in extreme situations.
+
+- more robust/extendable draw system, where insetad of Graphics, it's qb2IDrawable, so you can render things however u want by implementing an interface
+
+
+
+FUN
+
+- make a ragdoll class
+
+- make a rope class
+
+- tgheo walker class.
+
+- make a cloth class
+
+- make chain class
+
+- explosion shift

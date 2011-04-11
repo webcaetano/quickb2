@@ -56,32 +56,18 @@ package QuickB2.stock
 		
 		public function qb2TripSensor()
 		{
-			addEventListener(qb2ContactEvent.CONTACT_STARTED, started,    false, 0, true);
-			addEventListener(qb2ContactEvent.CONTACT_ENDED,   ended,      false, 0, true);
-			addEventListener(qb2UpdateEvent.POST_UPDATE,      postUpdate, false, 0, true);
+			super();
+			init();
+		}
+		
+		private function init():void
+		{
+			addEventListener(qb2ContactEvent.CONTACT_STARTED, started);
+			addEventListener(qb2ContactEvent.CONTACT_ENDED,   ended);
+			addEventListener(qb2UpdateEvent.POST_UPDATE,      postUpdate);
 			
 			isGhost = true;
-			
-			if ( !eventsInitialized )
-			{
-				initializeEvents();
-			}
 		}
-		
-		qb2_friend static var SENSOR_ENTERED_BIT:uint;
-		qb2_friend static var SENSOR_EXITED_BIT:uint;
-		qb2_friend static var SENSOR_TRIPPED_BIT:uint;
-		
-		private static function initializeEvents():void
-		{
-			SENSOR_ENTERED_BIT = registerCachedEvent(new qb2TripSensorEvent(qb2TripSensorEvent.SENSOR_ENTERED));
-			SENSOR_EXITED_BIT  = registerCachedEvent(new qb2TripSensorEvent(qb2TripSensorEvent.SENSOR_EXITED));
-			SENSOR_TRIPPED_BIT = registerCachedEvent(new qb2TripSensorEvent(qb2TripSensorEvent.SENSOR_TRIPPED));
-			
-			eventsInitialized = true;
-		}
-		
-		private static var eventsInitialized:Boolean = false;
 		
 		public override function clone(deep:Boolean = true):qb2Object
 		{
@@ -155,12 +141,9 @@ package QuickB2.stock
 			
 			if ( firstContact )
 			{
-				if ( eventFlags & SENSOR_ENTERED_BIT )
-				{
-					fireEvent(qb2TripSensorEvent.SENSOR_ENTERED, theContact, false);
-				}
+				fireEvent(qb2TripSensorEvent.SENSOR_ENTERED, theContact, false);
 				
-				if ( (eventFlags & SENSOR_TRIPPED_BIT) && tripTime == 0 )
+				if ( tripTime == 0 )
 				{
 					fireEvent(qb2TripSensorEvent.SENSOR_TRIPPED, theContact, true);
 				}
@@ -201,17 +184,15 @@ package QuickB2.stock
 					if ( contact.trippedSensor )
 						_numTrippedVisitors--;
 					
-					if ( eventFlags & SENSOR_EXITED_BIT )
-					{
-						fireEvent(qb2TripSensorEvent.SENSOR_EXITED, contact, false);
-					}
+					fireEvent(qb2TripSensorEvent.SENSOR_EXITED, contact, false);
 				}
 			}
 		}
 		
 		private function fireEvent(type:String, contact:qb2InternalTripSensorContact, tripper:Boolean):void
 		{
-			var event:qb2TripSensorEvent = getCachedEvent(type);
+			var event:qb2TripSensorEvent = qb2_cachedEvents.TRIP_SENSOR_EVENT;
+			event.type = type;
 			event._sensor = this;
 			event._visitingObject = contact.visitingObject;
 			event._startTime = contact.startTime;

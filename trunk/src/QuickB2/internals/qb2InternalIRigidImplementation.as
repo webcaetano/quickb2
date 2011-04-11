@@ -161,11 +161,14 @@ package QuickB2.internals
 		qb2_friend function freezeBodyB2():void
 		{
 			var theWorld:qb2World = qb2World.worldDict[_bodyB2.m_world] as qb2World;
-			if ( theWorld.processingBox2DStuff )
+			if ( theWorld.isLocked )
 			{
 				theWorld.addDelayedCall(null, freezeBodyB2);
 				return;
 			}
+			
+			if ( _bodyB2.m_type == b2Body.b2_staticBody )  return;
+			
 			_linearVelocity._x = _bodyB2.m_linearVelocity.x;
 			_linearVelocity._y = _bodyB2.m_linearVelocity.y;
 			_angularVelocity   = _bodyB2.m_angularVelocity;
@@ -178,7 +181,7 @@ package QuickB2.internals
 			//--- Box2D gets pissed sometimes if you change a body from dynamic to static/kinematic within a contact callback.
 			//--- So whenever this happen's the call is delayed until after the physics step, which shouldn't affect the simulation really.
 			var theWorld:qb2World = qb2World.worldDict[_bodyB2.m_world] as qb2World;
-			if ( theWorld.processingBox2DStuff )
+			if ( theWorld.isLocked )
 			{
 				theWorld.addDelayedCall(null, this.recomputeBodyB2Mass);
 				return;
@@ -214,9 +217,7 @@ package QuickB2.internals
 			
 			if ( _tang.actor && scaleActor )
 			{
-				var mat:Matrix = _tang.actor.transform.matrix;
-				mat.scale(xValue, yValue);
-				_tang.actor.transform.matrix = mat;
+				_tang.actor.scaleBy(xValue, yValue);
 			}
 		}
 		
@@ -307,14 +308,14 @@ package QuickB2.internals
 			if ( _bodyB2 )
 			{
 				var world:qb2World = _tang._world;
-				var pixPerMeter:Number = world.pixelsPerMeter;
 				
-				if ( world.processingBox2DStuff )
+				if ( world.isLocked )
 				{
 					world.addDelayedCall(null, this.adjustBodyB2Transform);
 				}
 				else
 				{
+					var pixPerMeter:Number = world.pixelsPerMeter;
 					_bodyB2.SetTransform(new V2(_position.x / pixPerMeter, _position.y / pixPerMeter), _rotation);
 				}
 			}

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010 Johnson Center for Simulation at Pine Technical College
+ * Copyright (c) 2011 Doug Koellmer
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,18 +20,14 @@
  * THE SOFTWARE.
  */
 
-package QuickB2.internals 
+package TopDown.events 
 {
 	/**
 	 * ...
 	 * @author Doug Koellmer
-	 * 
-	 * @private
 	 */
-	public class qb2InternalPropertyAndFlagCollection 
+	public class td_cachedEvents 
 	{
-		public var ancestorFlagStack:Vector.<uint>          = new Vector.<uint>();
-		public var ancestorFlagOwnershipStack:Vector.<uint> = new Vector.<uint>();
-		public var ancestorPropertyMapStacks:Object = null;
+		public static const TRACK_EVENT:tdTrackEvent = new tdTrackEvent();
 	}
 }

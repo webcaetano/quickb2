@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010 Johnson Center for Simulation at Pine Technical College
+ * Copyright (c) 2010 Doug Koellmer
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,18 +20,40 @@
  * THE SOFTWARE.
  */
 
-package QuickB2.internals 
+package QuickB2.misc.acting 
 {
+	import flash.display.DisplayObject;
+	import flash.display.Sprite;
+	
 	/**
 	 * ...
 	 * @author Doug Koellmer
-	 * 
-	 * @private
 	 */
-	public class qb2InternalPropertyAndFlagCollection 
+	public class qb2FlashSpriteActor extends Sprite implements qb2IActorContainer
 	{
-		public var ancestorFlagStack:Vector.<uint>          = new Vector.<uint>();
-		public var ancestorFlagOwnershipStack:Vector.<uint> = new Vector.<uint>();
-		public var ancestorPropertyMapStacks:Object = null;
+		public function scaleBy(xValue:Number, yValue:Number):void
+		{
+			qb2_flashActorUtils.scaleActor(this, xValue, yValue);
+		}
+		
+		public function get parentActor():qb2IActorContainer
+		{
+			return parent as qb2IActorContainer;
+		}
+		
+		public function clone(deep:Boolean = true):qb2IActor
+		{
+			return qb2_flashActorUtils.cloneSprite(this) as qb2IActor
+		}
+		
+		public function addActor(actor:qb2IActor):void
+		{
+			addChild(actor as DisplayObject);
+		}
+		
+		public function removeActor(actor:qb2IActor):void
+		{
+			removeChild(actor as DisplayObject);
+		}
 	}
 }

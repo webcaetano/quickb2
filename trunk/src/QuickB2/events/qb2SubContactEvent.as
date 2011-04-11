@@ -28,6 +28,7 @@ package QuickB2.events
 	import QuickB2.debugging.*;
 	import QuickB2.objects.*;
 	import QuickB2.objects.tangibles.*;
+	import revent.rEvent;
 	
 	use namespace qb2_friend;
 	
@@ -37,16 +38,18 @@ package QuickB2.events
 	 */
 	public class qb2SubContactEvent extends qb2BaseContactEvent
 	{
-		public static const SUB_PRE_SOLVE:String       = "subPreSolve";
-		public static const SUB_POST_SOLVE:String      = "subPostSolve";
-		public static const SUB_CONTACT_STARTED:String = "subContactStarted";
-		public static const SUB_CONTACT_ENDED:String   = "subContactEnded";
+		public static const SUB_CONTACT_STARTED:String = qb2BaseContactEvent.SUB_CONTACT_STARTED;
+		public static const SUB_CONTACT_ENDED:String   = qb2BaseContactEvent.SUB_CONTACT_ENDED
+		public static const SUB_PRE_SOLVE:String       = qb2BaseContactEvent.SUB_PRE_SOLVE;
+		public static const SUB_POST_SOLVE:String      = qb2BaseContactEvent.SUB_POST_SOLVE;
+		
+		public static const ALL_EVENT_TYPES:Array      = [SUB_CONTACT_STARTED, SUB_CONTACT_ENDED, SUB_PRE_SOLVE, SUB_POST_SOLVE];
 		
 		qb2_friend var _shape1:qb2Shape, _shape2:qb2Shape;
 		
 		qb2_friend var _ancestorGroup:qb2Group;
 		
-		public function qb2SubContactEvent(type:String)
+		public function qb2SubContactEvent(type:String = null)
 			{  super(type);  }
 		
 		public function get shape1():qb2Shape
@@ -58,9 +61,9 @@ package QuickB2.events
 		public function get ancestorGroup():qb2Group
 			{  return _ancestorGroup;  }
 		
-		public override function clone():Event
+		public override function clone():rEvent
 		{
-			var evt:qb2SubContactEvent = new qb2SubContactEvent(type);
+			var evt:qb2SubContactEvent = super.clone() as qb2SubContactEvent;
 			evt._shape1        = _shape1;
 			evt._shape2        = _shape2;
 			evt._ancestorGroup = _ancestorGroup;

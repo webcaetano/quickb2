@@ -6,15 +6,23 @@
 
 - added several more demos to qb2DemoReel to showcase new features, and cleaned up some of the code so that people can more easily copy/paste from demo source if so inclined.
 
-- lots of minor optimizations and some bug fixes...spread some code around in an attempt to have qb2Tangible be less than like 1000 lines
+- lots of minor optimizations and some bug fixes...internally spread some code around in an attempt to have qb2Tangible be less than like 1000 lines
 
 - created a qb2ContactFilter class to wrap up all qb2Tangible member properties having to do with contact filtering
 
 - changed the qb2Object::clone() function to have a "deep" option that is true by default.
 
-- brought in two seperate libraries to handle event dispatching and rendering (Eventer, and surRender, respectively).  I wrote these other two libraries from scratch and they have their own open source projects
+- brought in two external libraries to handle event dispatching and rendering (rEvent, and surRender, respectively).  I wrote these other two libraries from scratch and they have their own open source projects.  I mostly wrote them to address limitations with their Flash-side counterparts for QuickB2, but they can be used in other projects too, which is why they aren't specific to QuickB2
 
 - cleaned up some of the qb2FlashLoader stuff, making it more manageable internally, and made some more examples
+
+- added qb2Tangible::pushEditSession()/popEditSession()...when making muliple changes to a tangible object, it can be much more efficient to put the changes inside an edit session.
+
+- made the immediate-mode and retain-mode rendering hooks much cleaner and integrateable with other libraries by allowing users to implement interfaces that QuickB2 understands...one side effect of this that there's no strict reliance on Flash's built-in API's, making the library as a whole more modular and portable...Flash implementations of the interface hooks are included, so the practical change to the user is minimal.
+
+- added more modular hooks for mouse, keyboard, and sound...again, the user implements interfaces to mitigate reliance on Flash, and again, Flash implementations are included so there's no real practical effect on the user.
+
+- merged the update() and debugDraw() tree passes into one pass for much more efficiency.
 
 
 
@@ -62,4 +70,4 @@
 
 - created a logo
 
-- rehauled the whole qb2Object class hierarchy to use bitmasks in place of all boolean properties...boolean-based getters/setters are left in place so you can still have the impression of working with booleans if you're a newb.
+- rehauled the whole qb2Object class hierarchy to use bitmasks in place of all boolean properties...boolean-based getters/setters are left in place so you can still have the impression of working with booleans if you're a noob.

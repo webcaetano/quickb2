@@ -197,7 +197,6 @@ package demos
 			cameraTargetPoint.translateBy(carLead);
 			trace(carLead);*/
 			
-			
 			//--- Just make it follow the player's position exactly, instead of leading it, which is choppy with all this gui stuff on screen.
 			cameraPoint.copy(playerCar.position);
 			cameraTargetPoint.copy(playerCar.position);

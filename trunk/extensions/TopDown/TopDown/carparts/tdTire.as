@@ -31,6 +31,7 @@ package TopDown.carparts
 	import QuickB2.events.*;
 	import QuickB2.misc.*;
 	import QuickB2.objects.*;
+	import revent.rEvent;
 	import surrender.srGraphics2d;
 	import TopDown.*;
 	import TopDown.debugging.*;
@@ -89,6 +90,12 @@ package TopDown.carparts
 		
 		public function tdTire(initPosition:amPoint2d = null, initWidth:Number= 6, initRadius:Number = 10, initIsDriven:Boolean = false, initCanTurn:Boolean = false, initCanBrake:Boolean = false, initFriction:Number = 1, initRollingFriction:Number = .1 )
 		{
+			super();
+			init(initPosition, initWidth, initRadius, initIsDriven, initCanTurn, initCanBrake, initFriction, initRollingFriction);
+		}
+		
+		private function init(initPosition:amPoint2d = null, initWidth:Number= 6, initRadius:Number = 10, initIsDriven:Boolean = false, initCanTurn:Boolean = false, initCanBrake:Boolean = false, initFriction:Number = 1, initRollingFriction:Number = .1):void
+		{
 			position = initPosition ? initPosition : new amPoint2d();
 			
 			isDriven = initIsDriven;
@@ -100,10 +107,10 @@ package TopDown.carparts
 			width = initWidth;
 			radius = initRadius;
 			
-			addEventListener(qb2ContainerEvent.REMOVED_FROM_WORLD, addedOrRemoved, false, 0, true);
+			addEventListener(qb2ContainerEvent.REMOVED_FROM_WORLD, addedOrRemoved);
 		}
 		
-		private function addedOrRemoved(evt:Event):void
+		private function addedOrRemoved(evt:rEvent):void
 		{
 			lastWorldPos = null;
 		}
@@ -232,7 +239,7 @@ package TopDown.carparts
 		{
 			if ( _position )  _position.removeEventListener(amUpdateEvent.ENTITY_UPDATED, pointUpdated);
 			_position = newPoint;
-			_position.addEventListener(amUpdateEvent.ENTITY_UPDATED, pointUpdated, false, 0, true);
+			_position.addEventListener(amUpdateEvent.ENTITY_UPDATED, pointUpdated);
 			pointUpdated(null);
 		}
 		

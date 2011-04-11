@@ -32,6 +32,8 @@ package QuickB2.objects
 	import QuickB2.misc.*;
 	import QuickB2.objects.joints.*;
 	import QuickB2.objects.tangibles.*;
+	import revent.rEventDispatcher;
+	import revent.rReflectionEvent;
 	import surrender.srGraphics2d;
 	import surrender.srIDebugDrawable2d;
 	use namespace qb2_friend;
@@ -47,20 +49,82 @@ package QuickB2.objects
 	 * ...
 	 * @author Doug Koellmer
 	 */
-	public class qb2Object extends qb2EventDispatcher implements srIDebugDrawable2d
+	public class qb2Object extends rEventDispatcher implements srIDebugDrawable2d
 	{
 		/// A place to put any kind of data you want to be associated with this object.
 		public var userData:*;
 		
 		public function qb2Object()
 		{
+			init();
+		}
+		
+		private function init():void
+		{
 			if ( (this as Object).constructor == qb2Object )  throw qb2_errors.ABSTRACT_CLASS_ERROR;
 			
 			turnFlagOn(qb2_flags.JOINS_IN_DEBUG_DRAWING | qb2_flags.JOINS_IN_DEEP_CLONING | qb2_flags.JOINS_IN_UPDATE_CHAIN, false);
 			
-			if ( !eventsInitialized )
+			addEventListenerForTypes(rReflectionEvent.ALL_EVENT_TYPES, reflectionEvent);
+		}
+		
+		private function reflectionEvent(evt:rReflectionEvent):void
+		{
+			var eventTypesAdded:Boolean = evt.type == rReflectionEvent.EVENT_TYPES_ADDED;
+			
+			if ( evt.concernsTypes(qb2UpdateEvent.ALL_EVENT_TYPES) )
 			{
-				initializeEvents();
+				if ( _world )
+				{
+					if ( eventTypesAdded )
+					{
+						if ( evt.concernsType(qb2UpdateEvent.PRE_UPDATE) )
+						{
+							if ( !_world.preEventers[this] )
+							{
+								_world.preEventers[this] = true;
+							}
+						}
+						if ( evt.concernsType(qb2UpdateEvent.POST_UPDATE) )
+						{
+							if ( !_world.postEventers[this] )
+							{
+								_world.postEventers[this] = true;
+							}
+						}
+					}
+					else
+					{
+						if ( evt.concernsType(qb2UpdateEvent.PRE_UPDATE) )
+						{
+							if ( _world.preEventers[this] )
+								delete _world.preEventers[this];
+						}
+						if ( evt.concernsType(qb2UpdateEvent.POST_UPDATE) )
+						{
+							if ( _world.postEventers[this] )
+								delete _world.postEventers[this];
+						}
+					}
+				}
+			}
+			else
+			{
+				/*var asTang:qb2Tangible = this as qb2Tangible;
+				
+				if ( asTang )
+				{
+					var allContactTypes:Array = qb2BaseContactEvent.ALL_EVENT_TYPES;
+					var allReportingBits:Vector.<uint> = qb2BaseContactEvent.REPORTING_BITS;
+					var numContactTypes:int = allContactTypes.length;
+					
+					var reportingFlags:uint = 0;
+					
+					for (var i:int = 0; i < numContactTypes; i++) 
+					{
+						if( evt.concernsType
+					}
+				}*/
 			}
 		}
 		
@@ -81,24 +145,7 @@ package QuickB2.objects
 		 */
 		public final function turnFlagOff(flagOrFlags:uint, takeOwnership:Boolean = true):qb2Object
 		{
-			var oldFlags:uint = _flags;
-			_flags &= ~flagOrFlags;
-			
-			if ( !takeOwnership )
-			{
-				_ownershipFlagsForBooleans &= ~flagOrFlags;
-				flagsChanged(oldFlags ^ _flags);
-			}
-			else
-			{
-				_ownershipFlagsForBooleans |= flagOrFlags;
-				flagsChanged(oldFlags ^ _flags);
-				
-				if ( this is qb2ObjectContainer )
-				{
-					cascadeFlags(this as qb2ObjectContainer, flagOrFlags);
-				}
-			}
+			setFlag(false, flagOrFlags, takeOwnership);
 			
 			return this;
 		}
@@ -109,11 +156,64 @@ package QuickB2.objects
 		 */
 		public final function turnFlagOn(flagOrFlags:uint, takeOwnership:Boolean = true):qb2Object
 		{
+			setFlag(true, flagOrFlags, takeOwnership);
+			
+			return this;
+		}
+	
+		/**
+		 * Sets a flag(s) on or off based on a boolean value.
+		 */
+		public final function setFlag(bool:Boolean, flagOrFlags:uint, takeOwnership:Boolean = true):qb2Object
+		{
 			var oldFlags:uint = _flags;
-			_flags |= flagOrFlags;
-				
+			
+			if ( bool )
+			{
+				_flags |= flagOrFlags;
+			}
+			else
+			{
+				_flags &= ~flagOrFlags;
+			}
+			
+			var asContainer:qb2ObjectContainer = this as qb2ObjectContainer;
+			
 			if ( !takeOwnership )
 			{
+				/*var ownershipFlagsThatWillBeWiped:uint = flagOrFlags & _ownershipFlagsForBooleans;
+				var flagsTaken:uint = 0;
+				
+				if ( ownershipFlagsThatWillBeWiped )
+				{
+					var currParent:qb2ObjectContainer = this._parent;
+					
+					while ( currParent )
+					{
+						var flagsThatCouldBeTaken:uint = flagsTaken | (ownershipFlagsThatWillBeWiped & currParent._ownershipFlagsForBooleans);
+						var flagsNotYetTaken:uint = flagsTaken ^ flagsThatCouldBeTaken;
+						_flags     |= flagsNotYetTaken & currParent._flags;
+						flagsTaken |= flagsNotYetTaken;
+						
+						currParent = currParent._parent;
+					}
+				}
+				
+				_ownershipFlagsForBooleans &= ~flagOrFlags;
+				
+				var flagsThatChanged:uint = oldFlags ^ _flags;
+				
+				flagsChanged(oldFlags ^ _flags);
+				
+				if ( flagsTaken )
+				{
+					var asContainer:qb2ObjectContainer = this as qb2ObjectContainer;
+					if ( asContainer )
+					{
+						cascadeFlags(asContainer, flagsTaken & flagOrFlags);
+					}
+				}*/
+				
 				_ownershipFlagsForBooleans &= ~flagOrFlags;
 				flagsChanged( oldFlags ^ _flags );
 			}
@@ -122,27 +222,10 @@ package QuickB2.objects
 				_ownershipFlagsForBooleans |= flagOrFlags;
 				flagsChanged(oldFlags ^ _flags);
 				
-				if ( this is qb2ObjectContainer )
+				if ( asContainer )
 				{
-					cascadeFlags(this as qb2ObjectContainer, flagOrFlags);
+					cascadeFlags(asContainer, flagOrFlags);
 				}
-			}
-			
-			return this;
-		}
-		
-		/**
-		 * Sets a flag(s) on or off based on a boolean value.
-		 */
-		public final function setFlag(bool:Boolean, flagOrFlags:uint, takeOwnership:Boolean = true):qb2Object
-		{
-			if ( bool )
-			{
-				turnFlagOn(flagOrFlags, takeOwnership);
-			}
-			else
-			{
-				turnFlagOff(flagOrFlags, takeOwnership);
 			}
 			
 			return this;
@@ -301,7 +384,7 @@ package QuickB2.objects
 		public function get joinsInDeepCloning():Boolean
 			{  return _flags & qb2_flags.JOINS_IN_DEEP_CLONING ? true : false;  }
 		public function set joinsInDeepCloning(bool:Boolean):void
-			{  setFlag(bool, qb2_flags.JOINS_IN_DEEP_CLONING);  }
+			{  setFlag(bool, qb2_flags.JOINS_IN_DEEP_CLONING, false);  }
 		
 		/**
 		 * Whether or not this object joins in world debug drawing.  Direct calls to drawDebug() will still work regardless.
@@ -310,7 +393,7 @@ package QuickB2.objects
 		public function get joinsInDebugDrawing():Boolean
 			{  return _flags & qb2_flags.JOINS_IN_DEBUG_DRAWING ? true : false;  }
 		public function set joinsInDebugDrawing(bool:Boolean):void
-			{  setFlag(bool, qb2_flags.JOINS_IN_DEBUG_DRAWING);  }
+			{  setFlag(bool, qb2_flags.JOINS_IN_DEBUG_DRAWING, false);  }
 		
 		/**
 		 * Whether or not this object joins in the update chain.  Setting this to false means that overriding qb2Object::update() is meaningless.
@@ -319,74 +402,13 @@ package QuickB2.objects
 		public function get joinsInUpdateChain():Boolean
 			{  return _flags & qb2_flags.JOINS_IN_UPDATE_CHAIN ? true : false;  }
 		public function set joinsInUpdateChain(bool:Boolean):void
-			{  setFlag(bool, qb2_flags.JOINS_IN_UPDATE_CHAIN);  }
+			{  setFlag(bool, qb2_flags.JOINS_IN_UPDATE_CHAIN, false);  }
 		
 		qb2_friend static var cancelPropertyInheritance:Boolean = false; // this is invoked by clone functions to cancel the property flow
 		
 		protected virtual function propertyChanged(propertyName:String):void {}
 		
 		protected virtual function flagsChanged(affectedFlags:uint):void              {}
-		
-		qb2_friend static var CONTACT_STARTED_BIT:uint;
-		qb2_friend static var CONTACT_ENDED_BIT:uint;
-		qb2_friend static var PRE_SOLVE_BIT:uint;
-		qb2_friend static var POST_SOLVE_BIT:uint;
-		
-		qb2_friend static var SUB_CONTACT_STARTED_BIT:uint;
-		qb2_friend static var SUB_CONTACT_ENDED_BIT:uint;
-		qb2_friend static var SUB_PRE_SOLVE_BIT:uint;
-		qb2_friend static var SUB_POST_SOLVE_BIT:uint;
-		
-		qb2_friend static var ADDED_TO_WORLD_BIT:uint;
-		qb2_friend static var REMOVED_FROM_WORLD_BIT:uint;
-		qb2_friend static var ADDED_OBJECT_BIT:uint;
-		qb2_friend static var REMOVED_OBJECT_BIT:uint;
-		qb2_friend static var INDEX_CHANGED_BIT:uint;
-		
-		qb2_friend static var DESCENDANT_ADDED_OBJECT_BIT:uint;
-		qb2_friend static var DESCENDANT_REMOVED_OBJECT_BIT:uint;
-		
-		qb2_friend static var PRE_UPDATE_BIT:uint;
-		qb2_friend static var POST_UPDATE_BIT:uint;
-		
-		qb2_friend static var MASS_CHANGED_BIT:uint;
-		
-		qb2_friend static var CONTACT_BITS:uint;
-		
-		private static function initializeEvents():void
-		{
-			CONTACT_STARTED_BIT           = registerCachedEvent(new qb2ContactEvent(    qb2ContactEvent.CONTACT_STARTED             ));
-			CONTACT_ENDED_BIT             = registerCachedEvent(new qb2ContactEvent(    qb2ContactEvent.CONTACT_ENDED               ));
-			PRE_SOLVE_BIT                 = registerCachedEvent(new qb2ContactEvent(    qb2ContactEvent.PRE_SOLVE                   ));
-			POST_SOLVE_BIT                = registerCachedEvent(new qb2ContactEvent(    qb2ContactEvent.POST_SOLVE                  ));
-			
-			SUB_CONTACT_STARTED_BIT       = registerCachedEvent(new qb2SubContactEvent( qb2SubContactEvent.SUB_CONTACT_STARTED      ));
-			SUB_CONTACT_ENDED_BIT         = registerCachedEvent(new qb2SubContactEvent( qb2SubContactEvent.SUB_CONTACT_ENDED        ));
-			SUB_PRE_SOLVE_BIT             = registerCachedEvent(new qb2SubContactEvent( qb2SubContactEvent.SUB_PRE_SOLVE            ));
-			SUB_POST_SOLVE_BIT            = registerCachedEvent(new qb2SubContactEvent( qb2SubContactEvent.SUB_POST_SOLVE           ));
-			
-			ADDED_TO_WORLD_BIT            = registerCachedEvent(new qb2ContainerEvent(  qb2ContainerEvent.ADDED_TO_WORLD            ));
-			REMOVED_FROM_WORLD_BIT        = registerCachedEvent(new qb2ContainerEvent(  qb2ContainerEvent.REMOVED_FROM_WORLD        ));
-			ADDED_OBJECT_BIT              = registerCachedEvent(new qb2ContainerEvent(  qb2ContainerEvent.ADDED_OBJECT              ));
-			REMOVED_OBJECT_BIT            = registerCachedEvent(new qb2ContainerEvent(  qb2ContainerEvent.REMOVED_OBJECT            ));
-			INDEX_CHANGED_BIT             = registerCachedEvent(new qb2ContainerEvent(  qb2ContainerEvent.INDEX_CHANGED             ));
-			
-			DESCENDANT_ADDED_OBJECT_BIT   = registerCachedEvent(new qb2ContainerEvent(  qb2ContainerEvent.DESCENDANT_ADDED_OBJECT   ));
-			DESCENDANT_REMOVED_OBJECT_BIT = registerCachedEvent(new qb2ContainerEvent(  qb2ContainerEvent.DESCENDANT_REMOVED_OBJECT ));
-			
-			PRE_UPDATE_BIT                = registerCachedEvent(new qb2UpdateEvent(     qb2UpdateEvent.PRE_UPDATE                   ));       
-			POST_UPDATE_BIT               = registerCachedEvent(new qb2UpdateEvent(     qb2UpdateEvent.POST_UPDATE                  ));                     
-			
-			MASS_CHANGED_BIT              = registerCachedEvent(new qb2MassEvent(       qb2MassEvent.MASS_PROPS_CHANGED             ));
-			
-			CONTACT_BITS =
-				CONTACT_STARTED_BIT     | CONTACT_ENDED_BIT     | PRE_SOLVE_BIT     | POST_SOLVE_BIT     |
-				SUB_CONTACT_STARTED_BIT | SUB_CONTACT_ENDED_BIT | SUB_PRE_SOLVE_BIT | SUB_POST_SOLVE_BIT ;
-			
-			eventsInitialized = true;
-		}
-		
-		private static var eventsInitialized:Boolean = false;
 		
 		/** The parent of this object, if any.
 		 * @default null
@@ -573,93 +595,6 @@ package QuickB2.objects
 		qb2_friend function relay_update():void
 			{  update();  }
 		
-		public override function addEventListener(type:String, listener:Function, useCapture:Boolean = false, priority:int = 0, useWeakReference:Boolean = false):void
-		{
-			var oldFlags:uint = eventFlags;
-			
-			super.addEventListener(type, listener, useCapture, priority, useWeakReference);
-			
-			var eventFlag:uint = getCachedEventBit(type);
-			
-			var flagAdded:Boolean = oldFlags != eventFlags;
-			
-			if ( _world )
-			{
-				if ( eventFlags & PRE_UPDATE_BIT )
-				{
-					if ( !_world.preEventers[this] )
-					{
-						_world.preEventers[this] = true;
-					}
-				}
-				if ( eventFlags & POST_UPDATE_BIT )
-				{
-					if ( !_world.postEventers[this] )
-					{
-						_world.postEventers[this] = true;
-					}
-				}
-				
-				if ( flagAdded && (this is qb2Tangible) )
-				{
-					if ( eventFlag & CONTACT_BITS )
-					{
-						var metaBits:uint = this.collectAncestorEventFlags();
-						var asTang:qb2Tangible = this as qb2Tangible;
-						asTang.updateContactReporting(metaBits);
-					}
-				}
-			}
-		}
-		
-		public override function removeEventListener (type:String, listener:Function, useCapture:Boolean = false) : void
-		{
-			var oldFlags:uint = eventFlags;
-			
-			super.removeEventListener(type, listener, useCapture);
-			
-			var eventFlag:uint = getCachedEventBit(type);
-			
-			var flagRemoved:Boolean = oldFlags != eventFlags;
-			
-			if ( _world )
-			{
-				if ( !(eventFlags & PRE_UPDATE_BIT) )
-				{
-					if ( _world.preEventers[this] )
-						delete _world.preEventers[this];
-				}
-				if ( !(eventFlags & POST_UPDATE_BIT) )
-				{
-					if ( _world.postEventers[this] )
-						delete _world.postEventers[this];
-				}
-				
-				if ( (this is qb2Tangible) && flagRemoved )
-				{					
-					if ( eventFlag & CONTACT_BITS )
-					{
-						var metaBits:uint = this.collectAncestorEventFlags();
-						var asTang:qb2Tangible = this as qb2Tangible;
-						asTang.updateContactReporting(metaBits);
-					}
-				}
-			}
-		}
-		
-		private function collectAncestorEventFlags():uint
-		{
-			var currParent:qb2Object = this;
-			var flags:uint = 0;
-			while ( currParent )
-			{
-				flags |= currParent.eventFlags;
-				currParent = currParent.parent;
-			}
-			
-			return flags;
-		}
-		
 		qb2_friend static function walkDownTree(theObject:qb2Object, theWorld:qb2World, theAncestorBody:qb2Body, theCollection:qb2InternalPropertyAndFlagCollection, theAncestor:qb2ObjectContainer, adding:Boolean):void
 		{
 			//--- (1) Set the ancestor body for object.
@@ -714,6 +649,13 @@ package QuickB2.objects
 					theObject.flagsChanged(flagsAffected);
 				}
 			}
+			else
+			{
+				if ( !theCollection )
+				{
+					theCollection = new qb2InternalPropertyAndFlagCollection();
+				}
+			}
 			
 			//--- (3) Process added-to-world-type stuff if applicable.
 			if ( adding && theWorld )
@@ -722,22 +664,20 @@ package QuickB2.objects
 				
 				theObject.makeWrapper(theWorld);
 				
-				if ( theObject.eventFlags & PRE_UPDATE_BIT )
+				if ( theObject.hasEventListener(qb2UpdateEvent.PRE_UPDATE) )
 				{
 					theWorld.preEventers[theObject] = true;
 				}
-				if ( theObject.eventFlags & POST_UPDATE_BIT )
+				if ( theObject.hasEventListener(qb2UpdateEvent.POST_UPDATE) )
 				{
 					theWorld.postEventers[theObject] = true;
 				}
 				
-				if ( theObject.eventFlags & ADDED_TO_WORLD_BIT )
-				{
-					var evt:qb2ContainerEvent = getCachedEvent(qb2ContainerEvent.ADDED_TO_WORLD);
-					evt._ancestor = theAncestor;
-					evt._child    = theObject;
-					theObject.dispatchEvent(evt);
-				}
+				var evt:qb2ContainerEvent = qb2_cachedEvents.CONTAINER_EVENT.inUse ? new qb2ContainerEvent() : qb2_cachedEvents.CONTAINER_EVENT;
+				evt.type = qb2ContainerEvent.ADDED_TO_WORLD;
+				evt._ancestor = theAncestor;
+				evt._child    = theObject;
+				theObject.dispatchEvent(evt);
 			}
 			
 			//--- (4) Process removed-from-world-type stuff if applicable.
@@ -752,13 +692,11 @@ package QuickB2.objects
 				if ( theWorld.postEventers[theObject] )
 					delete theWorld.postEventers[theObject];
 				
-				if ( theObject.eventFlags & REMOVED_FROM_WORLD_BIT )
-				{
-					evt = getCachedEvent(qb2ContainerEvent.REMOVED_FROM_WORLD);
-					evt._ancestor = theAncestor;
-					evt._child    = theObject;
-					theObject.dispatchEvent(evt);
-				}
+				evt = qb2_cachedEvents.CONTAINER_EVENT.inUse ? new qb2ContainerEvent() : qb2_cachedEvents.CONTAINER_EVENT;
+				evt.type = qb2ContainerEvent.REMOVED_FROM_WORLD;
+				evt._ancestor = theAncestor;
+				evt._child    = theObject;
+				theObject.dispatchEvent(evt);
 			}
 			
 			var madeBody:Boolean = adding && asTang && !asTang._ancestorBody && (asTang is qb2IRigidObject);
@@ -821,7 +759,7 @@ package QuickB2.objects
 		{
 			if ( theWorld && shouldMake() )
 			{
-				if ( theWorld.processingBox2DStuff )
+				if ( theWorld.isLocked )
 				{
 					theWorld.addDelayedCall(this, makeWrapper, theWorld);
 				}
@@ -836,7 +774,7 @@ package QuickB2.objects
 		{
 			if ( theWorld && shouldDestroy() )
 			{
-				if ( theWorld.processingBox2DStuff )
+				if ( theWorld.isLocked )
 				{
 					theWorld.addDelayedCall(this, destroyWrapper, theWorld);
 				}
@@ -878,8 +816,6 @@ package QuickB2.objects
 			//--- Copy ownership of flags/properties.
 			this._ownershipFlagsForBooleans   = source._ownershipFlagsForBooleans;
 			this._ownershipFlagsForProperties = source._ownershipFlagsForProperties;
-			
-			this.useWeakListeners = source.useWeakListeners;
 			
 			//--- Copy values for flags/properties.
 			this._flags = source._flags;

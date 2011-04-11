@@ -27,13 +27,14 @@ package QuickB2.events
 	import QuickB2.debugging.*;
 	import QuickB2.objects.*;
 	import QuickB2.objects.tangibles.*;
+	import revent.rEvent;
 	use namespace qb2_friend;
 	
 	/**
 	 * ...
 	 * @author Doug Koellmer
 	 */
-	public class qb2ContainerEvent extends qb2Event
+	public class qb2ContainerEvent extends rEvent
 	{
 		public static const ADDED_OBJECT:String              = "addedObject";
 		public static const REMOVED_OBJECT:String            = "removedObject";
@@ -46,14 +47,14 @@ package QuickB2.events
 		qb2_friend var _child:qb2Object;
 		qb2_friend var _ancestor:qb2ObjectContainer;
 		
-		public function qb2ContainerEvent(type:String) 
+		public function qb2ContainerEvent(type:String = null) 
 		{
 			super(type);
 		}
 		
-		public override function clone():Event
+		public override function clone():rEvent
 		{
-			var evt:qb2ContainerEvent = new qb2ContainerEvent(type);
+			var evt:qb2ContainerEvent = super.clone() as qb2ContainerEvent;
 			evt._child    = _child;
 			evt._ancestor = _ancestor;
 			return evt;

@@ -59,7 +59,6 @@ package QuickB2.objects.tangibles
 		private static var baseClone_joints:Dictionary = null;
 		private static var baseClone_rigids:Dictionary = null;
 		
-		
 		public override function clone(deep:Boolean = true):qb2Object
 		{
 			var actorToo:Boolean = true;
@@ -150,18 +149,6 @@ package QuickB2.objects.tangibles
 			}
 			
 			return newContainer;
-		}
-		
-		qb2_friend override function updateContactReporting(bits:uint):void
-		{
-			for (var i:int = 0; i < _objects.length; i++) 
-			{
-				if ( _objects[i] is qb2Tangible )
-				{
-					var asTang:qb2Tangible = _objects[i] as qb2Tangible;
-					asTang.updateContactReporting(bits | asTang._eventFlags);
-				}
-			}
 		}
 		
 		qb2_friend override function updateFrictionJoints():void
@@ -271,15 +258,13 @@ package QuickB2.objects.tangibles
 			
 			walkDownTree(object, _world, this._ancestorBody ? this._ancestorBody :  ( this is qb2Body ? this as qb2Body : null), collection, this, true);
 			
-			if ( eventFlags & ADDED_OBJECT_BIT )
-			{
-				var evt:qb2ContainerEvent = getCachedEvent(qb2ContainerEvent.ADDED_OBJECT);
-				evt._ancestor = this;
-				evt._child    = object;
-				dispatchEvent(evt);
-			}
+			var evt:qb2ContainerEvent = qb2_cachedEvents.CONTAINER_EVENT.inUse ? new qb2ContainerEvent() : qb2_cachedEvents.CONTAINER_EVENT;
+			evt.type = qb2ContainerEvent.ADDED_OBJECT;
+			evt._ancestor = this;
+			evt._child    = object;
+			dispatchEvent(evt);
 			
-			processDescendantEvent(DESCENDANT_ADDED_OBJECT_BIT, getCachedEvent(qb2ContainerEvent.DESCENDANT_ADDED_OBJECT) , object);
+			processDescendantEvent(qb2ContainerEvent.DESCENDANT_ADDED_OBJECT, object);
 		}
 		
 		private function removeObjectFromArray(index:uint):qb2Object
@@ -302,31 +287,28 @@ package QuickB2.objects.tangibles
 			}
 			popEditSession();
 			
-			if ( eventFlags & REMOVED_OBJECT_BIT )
-			{
-				var evt:qb2ContainerEvent = getCachedEvent(qb2ContainerEvent.REMOVED_OBJECT);
-				evt._ancestor = this;
-				evt._child    = objectRemoved;
-				dispatchEvent(evt);
-			}
+			var evt:qb2ContainerEvent = qb2_cachedEvents.CONTAINER_EVENT.inUse ? new qb2ContainerEvent() : qb2_cachedEvents.CONTAINER_EVENT;
+			evt.type = qb2ContainerEvent.REMOVED_OBJECT;
+			evt._ancestor = this;
+			evt._child    = objectRemoved;
+			dispatchEvent(evt);
 			
-			processDescendantEvent(DESCENDANT_REMOVED_OBJECT_BIT, getCachedEvent(qb2ContainerEvent.DESCENDANT_REMOVED_OBJECT), objectRemoved);
+			processDescendantEvent(qb2ContainerEvent.DESCENDANT_REMOVED_OBJECT, objectRemoved);
 		
 			return objectRemoved;
 		}
 		
-		private function processDescendantEvent(bit:uint, cachedEvent:qb2ContainerEvent, object:qb2Object):void
+		private function processDescendantEvent(type:String, object:qb2Object):void
 		{
 			var currParent:qb2ObjectContainer = this.parent;
+			
 			while ( currParent )
 			{
-				if ( currParent.eventFlags & bit )
-				{
-					var evt:qb2ContainerEvent = cachedEvent;
-					evt._ancestor = this;
-					evt._child    = object;
-					currParent.dispatchEvent(evt);
-				}
+				var evt:qb2ContainerEvent = qb2_cachedEvents.CONTAINER_EVENT.inUse ? new qb2ContainerEvent() : qb2_cachedEvents.CONTAINER_EVENT;
+				evt.type = type;
+				evt._ancestor = this;
+				evt._child    = object;
+				currParent.dispatchEvent(evt);
 				
 				currParent = currParent.parent;
 			}
@@ -417,13 +399,11 @@ package QuickB2.objects.tangibles
 				}
 			}
 			
-			if ( object._eventFlags & INDEX_CHANGED_BIT )
-			{
-				var event:qb2ContainerEvent = getCachedEvent(qb2ContainerEvent.INDEX_CHANGED);
-				event._child    = object;
-				event._ancestor = this;
-				object.dispatchEvent(event);
-			}
+			var event:qb2ContainerEvent = qb2_cachedEvents.CONTAINER_EVENT.inUse ? new qb2ContainerEvent() : qb2_cachedEvents.CONTAINER_EVENT;
+			event.type = qb2ContainerEvent.INDEX_CHANGED;
+			event._child    = object;
+			event._ancestor = this;
+			object.dispatchEvent(event);
 			
 			return this;
 		}

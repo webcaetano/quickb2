@@ -2,6 +2,7 @@ package demos
 {
 	import As3Math.consts.*;
 	import As3Math.geo2d.*;
+	import flash.utils.getTimer;
 	import QuickB2.events.*;
 	import QuickB2.objects.tangibles.*;
 	import QuickB2.stock.*;
@@ -35,21 +36,26 @@ package demos
 		private function updateShapes(evt:qb2UpdateEvent):void
 		{
 			//--- Rotate all the body's children around the body's local center.
-			var direction:Number = -1;
-			for (var i:int = 0; i < aBody.numObjects; i++) 
+			//--- Edit session is optional, but should result in a minor speed boost.
+			aBody.pushEditSession();
 			{
-				var rigid:qb2IRigidObject = aBody.getObjectAt(i) as qb2IRigidObject;
-				
-				rigid.position.rotateBy(RAD_1 * direction, new amPoint2d());
-				
-				if ( rigid is qb2CircleShape )  continue;
-				
-				//--- Make different things rotate at different speeds.
-				var mult:Number = rigid is qb2Body ? 4 : -6;
-				rigid.rotateBy(-RAD_1 * direction * mult, rigid.position);
-				
-				direction = -direction;
+				var direction:Number = -1;
+				for (var i:int = 0; i < aBody.numObjects; i++) 
+				{
+					var rigid:qb2IRigidObject = aBody.getObjectAt(i) as qb2IRigidObject;
+					
+					rigid.position.rotateBy(RAD_1 * direction, new amPoint2d());
+					
+					if ( rigid is qb2CircleShape )  continue;
+					
+					//--- Make different things rotate at different speeds.
+					var mult:Number = rigid is qb2Body ? 4 : -6;
+					rigid.rotateBy(-RAD_1 * direction * mult, rigid.position);
+					
+					direction = -direction;
+				}
 			}
+			aBody.popEditSession();
 		}
 	}
 }

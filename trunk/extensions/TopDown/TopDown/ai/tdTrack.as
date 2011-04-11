@@ -59,21 +59,7 @@ package TopDown.ai
 		public function tdTrack( initStart:amPoint2d = null, initEnd:amPoint2d = null)
 		{
 			set(initStart ? initStart : new amPoint2d(), initEnd ? initEnd : new amPoint2d());
-			
-			if ( !eventsInitialized )
-			{
-				initializeEvents();
-			}
 		}
-		
-		private static function initializeEvents():void
-		{
-			registerCachedEvent(new tdTrackEvent(tdTrackEvent.TRACK_MOVED));
-			
-			eventsInitialized = true;
-		}
-		
-		private static var eventsInitialized:Boolean = false;
 		
 		public function get numBranches():uint
 			{  return branches.length;  }
@@ -139,13 +125,11 @@ package TopDown.ai
 				_map.updateTrackBranches(this);
 			}
 			
-			if ( shouldDispatch(tdTrackEvent.TRACK_MOVED) )
-			{
-				var event:tdTrackEvent = getCachedEvent(tdTrackEvent.TRACK_MOVED);
-				event._track = this;
-				event._map = _map;
-				this.dispatchEvent(event);
-			}
+			var event:tdTrackEvent = td_cachedEvents.TRACK_EVENT;
+			event.type = tdTrackEvent.TRACK_MOVED;
+			event._track = this;
+			event._map = _map;
+			this.dispatchEvent(event);
 		}
 		
 		public function get map():tdMap
@@ -184,7 +168,7 @@ package TopDown.ai
 		{
 			if ( _start )  _start.removeEventListener(amUpdateEvent.ENTITY_UPDATED, updateOnMap);
 			_start = aPoint;
-			_start.addEventListener(amUpdateEvent.ENTITY_UPDATED, updateOnMap, false, 0, true);
+			_start.addEventListener(amUpdateEvent.ENTITY_UPDATED, updateOnMap);
 			
 			updateOnMap(null);
 		}
@@ -194,9 +178,9 @@ package TopDown.ai
 		
 		public function set end(aPoint:amPoint2d):void
 		{
-			if ( _end )  _start.removeEventListener(amUpdateEvent.ENTITY_UPDATED, updateOnMap);
+			if ( _end )  _end.removeEventListener(amUpdateEvent.ENTITY_UPDATED, updateOnMap);
 			_end = aPoint;
-			_end.addEventListener(amUpdateEvent.ENTITY_UPDATED, updateOnMap, false, 0, true);
+			_end.addEventListener(amUpdateEvent.ENTITY_UPDATED, updateOnMap);
 			
 			updateOnMap(null);
 		}

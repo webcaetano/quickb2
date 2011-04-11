@@ -45,8 +45,8 @@ package TopDown.objects
 		
 		public function tdMap():void
 		{
-			addEventListener(qb2ContainerEvent.ADDED_OBJECT,   justAddedObject,   false, 0, true);
-			addEventListener(qb2ContainerEvent.REMOVED_OBJECT, justRemovedObject, false, 0, true);
+			addEventListener(qb2ContainerEvent.ADDED_OBJECT,   justAddedObject);
+			addEventListener(qb2ContainerEvent.REMOVED_OBJECT, justRemovedObject);
 		}
 		
 		public function get trafficManager():tdTrafficManager

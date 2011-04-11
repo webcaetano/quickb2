@@ -42,66 +42,53 @@ package QuickB2.internals
 	 */
 	public class qb2InternalContactListener extends b2ContactListener
 	{
-		private var CONTACT_STARTED_BIT:uint, CONTACT_ENDED_BIT:uint, PRE_SOLVE_BIT:uint, POST_SOLVE_BIT:uint;
-		private var SUB_CONTACT_STARTED_BIT:uint, SUB_CONTACT_ENDED_BIT:uint, SUB_PRE_SOLVE_BIT:uint, SUB_POST_SOLVE_BIT:uint;
-		
 		private static const eventFlagToCachedEventMap:Dictionary = new Dictionary();
 		
+		private var CONTACT_STARTED:String, CONTACT_ENDED:String, PRE_SOLVE:String, POST_SOLVE:String;
+		private var SUB_CONTACT_STARTED:String, SUB_CONTACT_ENDED:String, SUB_PRE_SOLVE:String, SUB_POST_SOLVE:String;
+		
 		public function qb2InternalContactListener()
-		{			
-			//--- This is done to cut down on costly class look-ups whenever a collision is detected.
-			//--- Local instance variables are much faster to access than static variables of other classes.
-			CONTACT_STARTED_BIT     = qb2Object.CONTACT_STARTED_BIT;
-			CONTACT_ENDED_BIT       = qb2Object.CONTACT_ENDED_BIT;
-			PRE_SOLVE_BIT           = qb2Object.PRE_SOLVE_BIT;
-			POST_SOLVE_BIT          = qb2Object.POST_SOLVE_BIT;
-			SUB_CONTACT_STARTED_BIT = qb2Object.SUB_CONTACT_STARTED_BIT;
-			SUB_CONTACT_ENDED_BIT   = qb2Object.SUB_CONTACT_ENDED_BIT;
-			SUB_PRE_SOLVE_BIT       = qb2Object.SUB_PRE_SOLVE_BIT;
-			SUB_POST_SOLVE_BIT      = qb2Object.SUB_POST_SOLVE_BIT;
+		{
+			CONTACT_STARTED = qb2ContactEvent.CONTACT_STARTED;
+			CONTACT_ENDED   = qb2ContactEvent.CONTACT_ENDED;
+			PRE_SOLVE       = qb2ContactEvent.PRE_SOLVE;
+			POST_SOLVE      = qb2ContactEvent.POST_SOLVE;
 			
-			//--- Build up a flag-to-event map, again for slightly more efficiency over class look-ups, and no if-elsing.
-			eventFlagToCachedEventMap[CONTACT_STARTED_BIT]     = qb2EventDispatcher.eventMap["contactStarted"];
-			eventFlagToCachedEventMap[CONTACT_ENDED_BIT]       = qb2EventDispatcher.eventMap["contactEnded"];
-			eventFlagToCachedEventMap[PRE_SOLVE_BIT]           = qb2EventDispatcher.eventMap["preSolve"];
-			eventFlagToCachedEventMap[POST_SOLVE_BIT]          = qb2EventDispatcher.eventMap["postSolve"];
-			eventFlagToCachedEventMap[SUB_CONTACT_STARTED_BIT] = qb2EventDispatcher.eventMap["subContactStarted"];
-			eventFlagToCachedEventMap[SUB_CONTACT_ENDED_BIT]   = qb2EventDispatcher.eventMap["subContactEnded"];
-			eventFlagToCachedEventMap[SUB_PRE_SOLVE_BIT]       = qb2EventDispatcher.eventMap["subPreSolve"];
-			eventFlagToCachedEventMap[SUB_POST_SOLVE_BIT]      = qb2EventDispatcher.eventMap["subPostSolve"];
+			SUB_CONTACT_STARTED = qb2SubContactEvent.SUB_CONTACT_STARTED;
+			SUB_CONTACT_ENDED   = qb2SubContactEvent.SUB_CONTACT_ENDED;
+			SUB_PRE_SOLVE       = qb2SubContactEvent.SUB_PRE_SOLVE;
+			SUB_POST_SOLVE      = qb2SubContactEvent.SUB_POST_SOLVE;
 		}
 		
-		private function dispatchSubContactEvent(shape1:qb2Shape, shape2:qb2Shape, contact:b2Contact, eventFlag:uint):void
+		private function dispatchSubContactEvent(shape1:qb2Shape, shape2:qb2Shape, contact:b2Contact, type:String):void
 		{		
 			var currParent:qb2ObjectContainer = shape1._lastParent;
 			while ( currParent )
 			{
-				if ( currParent._eventFlags & eventFlag )
+				if ( shape2.isDescendantOf(currParent)  )
 				{
-					if ( shape2.isDescendantOf(currParent)  )
-					{
-						var subEvent:qb2SubContactEvent = eventFlagToCachedEventMap[eventFlag] as qb2SubContactEvent;
-						subEvent._shape1 = shape1;
-						subEvent._shape2 = shape2;
-						subEvent._ancestorGroup = currParent as qb2Group;
-						subEvent._contactB2 = contact;
-						subEvent._world = shape1.world;
-						
-						currParent.dispatchEvent(subEvent);
-					}				
+					var subEvent:qb2SubContactEvent = qb2_cachedEvents.SUB_CONTACT_EVENT;
+					subEvent.type = type;
+					subEvent._shape1 = shape1;
+					subEvent._shape2 = shape2;
+					subEvent._ancestorGroup = currParent as qb2Group;
+					subEvent._contactB2 = contact;
+					subEvent._world = shape1.world;
+					
+					currParent.dispatchEvent(subEvent);
 				}
 				
 				currParent = currParent._lastParent;
 			}
 		}
 		
-		private function dispatchContactEvent(shape1:qb2Shape, shape2:qb2Shape, contact:b2Contact, eventFlag:uint):void
+		private function dispatchContactEvent(shape1:qb2Shape, shape2:qb2Shape, contact:b2Contact, type:String):void
 		{
 			var currParent:qb2Tangible = shape1;
 			
 			while ( currParent && !(currParent is qb2World) )
 			{
-				if ( currParent._eventFlags & eventFlag )
+				if( currParent.hasEventListener(type) )
 				{
 					if ( currParent is qb2Group )
 					{
@@ -113,7 +100,8 @@ package QuickB2.internals
 						}
 					}
 					
-					var event:qb2ContactEvent = eventFlagToCachedEventMap[eventFlag] as qb2ContactEvent;
+					var event:qb2ContactEvent = qb2_cachedEvents.CONTACT_EVENT;
+					event.type = type;
 					event._localShape = shape1;
 					event._otherShape = shape2;
 					event._localObject = currParent;
@@ -138,9 +126,9 @@ package QuickB2.internals
 			
 			if ( shape1.flaggedForDestroy || shape2.flaggedForDestroy )  return;
 			
-			dispatchSubContactEvent(shape1, shape2, contact, SUB_CONTACT_STARTED_BIT);
-			dispatchContactEvent(shape1, shape2, contact, CONTACT_STARTED_BIT);
-			dispatchContactEvent(shape2, shape1, contact, CONTACT_STARTED_BIT);
+			dispatchSubContactEvent(shape1, shape2, contact, SUB_CONTACT_STARTED);
+			dispatchContactEvent(shape1, shape2, contact, CONTACT_STARTED);
+			dispatchContactEvent(shape2, shape1, contact, CONTACT_STARTED);
 		}
 		
 		public override function EndContact(contact:b2Contact):void
@@ -150,9 +138,9 @@ package QuickB2.internals
 			
 			if ( shape1.flaggedForDestroy || shape2.flaggedForDestroy )  return;
 			
-			dispatchSubContactEvent(shape1, shape2, contact, SUB_CONTACT_ENDED_BIT);
-			dispatchContactEvent(shape1, shape2, contact, CONTACT_ENDED_BIT);
-			dispatchContactEvent(shape2, shape1, contact, CONTACT_ENDED_BIT);
+			dispatchSubContactEvent(shape1, shape2, contact, SUB_CONTACT_ENDED);
+			dispatchContactEvent(shape1, shape2, contact, CONTACT_ENDED);
+			dispatchContactEvent(shape2, shape1, contact, CONTACT_ENDED);
 		}
 		
 		public override function PreSolve(contact:b2Contact, oldManifold:b2Manifold):void
@@ -162,9 +150,9 @@ package QuickB2.internals
 			
 			if ( shape1.flaggedForDestroy || shape2.flaggedForDestroy )  return;
 			
-			dispatchSubContactEvent(shape1, shape2, contact, SUB_PRE_SOLVE_BIT);
-			dispatchContactEvent(shape1, shape2, contact, PRE_SOLVE_BIT);
-			dispatchContactEvent(shape2, shape1, contact, PRE_SOLVE_BIT);
+			dispatchSubContactEvent(shape1, shape2, contact, SUB_PRE_SOLVE);
+			dispatchContactEvent(shape1, shape2, contact, PRE_SOLVE);
+			dispatchContactEvent(shape2, shape1, contact, PRE_SOLVE);
 		}
 		
 		public override function PostSolve(contact:b2Contact, impulse:b2ContactImpulse):void
@@ -174,9 +162,9 @@ package QuickB2.internals
 			
 			if ( shape1.flaggedForDestroy || shape2.flaggedForDestroy )  return;
 			
-			dispatchSubContactEvent(shape1, shape2, contact, SUB_POST_SOLVE_BIT);
-			dispatchContactEvent(shape1, shape2, contact, POST_SOLVE_BIT);
-			dispatchContactEvent(shape2, shape1, contact, POST_SOLVE_BIT);
+			dispatchSubContactEvent(shape1, shape2, contact, SUB_POST_SOLVE);
+			dispatchContactEvent(shape1, shape2, contact, POST_SOLVE);
+			dispatchContactEvent(shape2, shape1, contact, POST_SOLVE);
 		}
 	}
 }

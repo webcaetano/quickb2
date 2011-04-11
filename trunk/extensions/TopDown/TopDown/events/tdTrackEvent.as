@@ -26,6 +26,7 @@ package TopDown.events
 	import QuickB2.*;
 	import QuickB2.events.*;
 	import QuickB2.objects.*;
+	import revent.rEvent;
 	import TopDown.*;
 	import TopDown.ai.*;
 	import TopDown.objects.*;
@@ -37,19 +38,19 @@ package TopDown.events
 	 * ...
 	 * @author Doug Koellmer
 	 */
-	public class tdTrackEvent extends qb2Event
+	public class tdTrackEvent extends rEvent
 	{
 		public static const TRACK_MOVED:String = "trackMoved";
 		
 		td_friend var _track:tdTrack;
 		td_friend var _map:tdMap;
 		
-		public function tdTrackEvent(type:String) 
+		public function tdTrackEvent(type:String = null) 
 		{
 			super(type);
 		}
 		
-		public override function clone():Event
+		public override function clone():rEvent
 		{
 			var evt:tdTrackEvent = new tdTrackEvent(type);
 			evt._track  = _track;

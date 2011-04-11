@@ -534,8 +534,8 @@ package TopDown.ai.brains
 		{
 			history.unshift(track);
 			
-			track.addEventListener(tdTrackEvent.TRACK_MOVED, trackChanged, false, 0, true);
-			track.addEventListener(qb2ContainerEvent.REMOVED_FROM_WORLD, trackChanged, false, 0, true);
+			track.addEventListener(tdTrackEvent.TRACK_MOVED, trackChanged);
+			track.addEventListener(qb2ContainerEvent.REMOVED_FROM_WORLD, trackChanged);
 			
 			if ( history.length > historyDepth )
 			{

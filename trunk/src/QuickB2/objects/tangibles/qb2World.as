@@ -101,7 +101,7 @@ package QuickB2.objects.tangibles
 			{  return _background;  }
 		qb2_friend var _background:qb2Body = new qb2Body();
 		
-		qb2_friend var processingBox2DStuff:Boolean = false;
+		qb2_friend var isLocked:Boolean = false;
 		
 		private const delayedCalls:Vector.<qb2InternalDelayedCall> = new Vector.<qb2InternalDelayedCall>();
 		
@@ -447,7 +447,8 @@ package QuickB2.objects.tangibles
 			for (var key:* in preEventers)
 			{
 				var dispatcher:qb2Object = key as qb2Object;
-				var preEvent:qb2UpdateEvent = getCachedEvent("preUpdate");
+				var preEvent:qb2UpdateEvent = qb2_cachedEvents.UPDATE_EVENT;
+				preEvent.type = qb2UpdateEvent.PRE_UPDATE;
 				preEvent._object = dispatcher;
 				dispatcher.dispatchEvent(preEvent);
 			}
@@ -457,9 +458,11 @@ package QuickB2.objects.tangibles
 			_lastTimeStep = timeStep;
 			_clock += _lastTimeStep;
 	
-			processingBox2DStuff = true;
+			isLocked = true;
+			{
 				b2Base.lib.b2World_Step(_worldB2._ptr, timeStep, velocityIterations, positionIterations);
-			processingBox2DStuff = false;
+			}
+			isLocked = false;
 			
 			//--- Go through the changes made by the user to the physics world (if any) inside contact callbacks.
 			//--- These are delayed until now because changing things in the middle of a timestep is not allowed in Box2D.
@@ -512,7 +515,8 @@ package QuickB2.objects.tangibles
 			for ( key in postEventers)
 			{
 				dispatcher = key as qb2Object;
-				var postEvent:qb2UpdateEvent = getCachedEvent(qb2UpdateEvent.POST_UPDATE);
+				var postEvent:qb2UpdateEvent = qb2_cachedEvents.UPDATE_EVENT;
+				postEvent.type = qb2UpdateEvent.POST_UPDATE;
 				postEvent._object = dispatcher;
 				dispatcher.dispatchEvent(postEvent);
 			}
@@ -545,7 +549,7 @@ package QuickB2.objects.tangibles
 		
 		qb2_friend function registerGlobalTerrain(terrain:qb2Terrain):void
 		{
-			terrain.addEventListener(qb2ContainerEvent.INDEX_CHANGED, terrainIndexChanged, false, 0, true);
+			terrain.addEventListener(qb2ContainerEvent.INDEX_CHANGED, terrainIndexChanged);
 			
 			addTerrainToList(terrain);
 		}

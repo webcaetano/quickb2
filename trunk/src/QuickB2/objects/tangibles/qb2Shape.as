@@ -54,11 +54,19 @@ package QuickB2.objects.tangibles
 		qb2_friend const fixtures:Vector.<b2Fixture> = new Vector.<b2Fixture>();
 		
 		qb2_friend var flaggedForDestroy:Boolean = false;
-	
+		
+		qb2_friend static const CONTACT_REPORTING_FLAGS:uint = qb2_flags.REPORTS_CONTACT_STARTED   | qb2_flags.REPORTS_CONTACT_ENDED |
+															   qb2_flags.REPORTS_PRE_SOLVE         | qb2_flags.REPORTS_POST_SOLVE    ;
+		
 		public function qb2Shape()
 		{
 			super();
 			
+			init();
+		}
+		
+		private function init():void
+		{
 			if ( (this as Object).constructor == qb2Shape )  throw qb2_errors.ABSTRACT_CLASS_ERROR;
 			
 			turnFlagOn(qb2_flags.ALLOW_COMPLEX_POLYGONS, false); // for the "convertToPoly" function, this should be defined for circles and polys.
@@ -191,7 +199,7 @@ package QuickB2.objects.tangibles
 		}
 		
 		protected override function flagsChanged(affectedFlags:uint):void
-		{			
+		{
 			_rigidImp.flagsChanged(affectedFlags);
 			
 			if ( !this.fixtures.length )  return;
@@ -202,6 +210,16 @@ package QuickB2.objects.tangibles
 				for ( var i:int = 0; i < this.fixtures.length; i++ )
 				{
 					this.fixtures[i].SetSensor(isAGhost);
+				}
+			}
+			else if ( affectedFlags & CONTACT_REPORTING_FLAGS )
+			{
+				for ( i = 0; i < shapeB2s.length; i++ )
+				{
+					fixtures[i].m_reportBeginContact = _flags & qb2_flags.REPORTS_CONTACT_STARTED ? true : false;
+					fixtures[i].m_reportEndContact   = _flags & qb2_flags.REPORTS_CONTACT_ENDED   ? true : false;
+					fixtures[i].m_reportPreSolve     = _flags & qb2_flags.REPORTS_PRE_SOLVE       ? true : false;
+					fixtures[i].m_reportPostSolve    = _flags & qb2_flags.REPORTS_POST_SOLVE      ? true : false;
 				}
 			}
 		}
@@ -230,7 +248,7 @@ package QuickB2.objects.tangibles
 				return;
 			}
 			
-			if ( _world.processingBox2DStuff )
+			if ( _world.isLocked )
 			{
 				_world.addDelayedCall(null, updateFrictionJoints);
 				return;
@@ -276,7 +294,7 @@ package QuickB2.objects.tangibles
 					
 					var theWorld:qb2World = qb2World.worldDict[jthFrictionJoint.m_world] as qb2World;
 					
-					if ( theWorld.processingBox2DStuff )
+					if ( theWorld.isLocked )
 					{
 						theWorld.addDelayedCall(null, jthFrictionJoint.m_world.DestroyJoint, jthFrictionJoint);
 					}
@@ -318,7 +336,7 @@ package QuickB2.objects.tangibles
 		{
 			if ( theWorld )
 			{
-				if ( theWorld.processingBox2DStuff )
+				if ( theWorld.isLocked )
 				{
 					theWorld.addDelayedCall(this, makeShapeB2Wrapper, theWorld);
 				}
@@ -333,7 +351,7 @@ package QuickB2.objects.tangibles
 		{
 			if ( theWorld )
 			{
-				if ( theWorld.processingBox2DStuff )
+				if ( theWorld.isLocked )
 				{
 					theWorld.addDelayedCall(this, destroyShapeB2Wrapper, theWorld);
 				}
@@ -360,51 +378,22 @@ package QuickB2.objects.tangibles
 			fixtureDef.isSensor            = isGhost;
 			fixtureDef.restitution         = restitution;
 			
-			var currParent:qb2Tangible = this;
-			var ancestorEventFlags:uint = 0;
-			while ( currParent )
-			{
-				ancestorEventFlags |= currParent._eventFlags;
-				currParent = currParent.parent;
-			}
-			
-			var beginContact:Boolean = ancestorEventFlags & (CONTACT_STARTED_BIT | SUB_CONTACT_STARTED_BIT) ? true : false;
-			var endContact:Boolean   = ancestorEventFlags & (CONTACT_ENDED_BIT   | SUB_CONTACT_ENDED_BIT)   ? true : false;
-			var preSolve:Boolean     = ancestorEventFlags & (PRE_SOLVE_BIT       | SUB_PRE_SOLVE_BIT)       ? true : false;
-			var postSolve:Boolean    = ancestorEventFlags & (POST_SOLVE_BIT      | SUB_POST_SOLVE_BIT)      ? true : false;
-			
 			for ( var i:int = 0; i < shapeB2s.length; i++ )
 			{
 				fixtureDef.shape = shapeB2s[i];
 				fixtures.push(body.CreateFixture(fixtureDef));
 				fixtures[i].SetUserData(this);
 				
-				fixtures[i].m_reportBeginContact = beginContact;
-				fixtures[i].m_reportEndContact   = endContact;
-				fixtures[i].m_reportPreSolve     = preSolve;
-				fixtures[i].m_reportPostSolve    = postSolve;
+				fixtures[i].m_reportBeginContact = true;// _flags & qb2_flags.REPORTS_CONTACT_STARTED    ? true : false;
+				fixtures[i].m_reportEndContact   = true;// _flags & qb2_flags.REPORTS_CONTACT_ENDED      ? true : false;
+				fixtures[i].m_reportPreSolve     = true;// _flags & qb2_flags.REPORTS_CONTACT_PRE_SOLVE  ? true : false;
+				fixtures[i].m_reportPostSolve    = true;// _flags & qb2_flags.REPORTS_CONTACT_POST_SOLVE ? true : false;
 			}
 			
 			theWorld._terrainRevisionDict[this]  = 0 as int;
 			theWorld._gravityZRevisionDict[this] = 0 as int;
 			
 			updateFrictionJoints();
-		}
-		
-		qb2_friend override function updateContactReporting(bits:uint):void
-		{
-			var beginContact:Boolean = bits & (CONTACT_STARTED_BIT | SUB_CONTACT_STARTED_BIT) ? true : false;
-			var endContact:Boolean   = bits & (CONTACT_ENDED_BIT   | SUB_CONTACT_ENDED_BIT)   ? true : false;
-			var preSolve:Boolean     = bits & (PRE_SOLVE_BIT       | SUB_PRE_SOLVE_BIT)       ? true : false;
-			var postSolve:Boolean    = bits & (POST_SOLVE_BIT      | SUB_POST_SOLVE_BIT)      ? true : false;
-			
-			for ( var i:int = 0; i < shapeB2s.length; i++ )
-			{
-				fixtures[i].m_reportBeginContact = beginContact;
-				fixtures[i].m_reportEndContact   = endContact;
-				fixtures[i].m_reportPreSolve     = preSolve;
-				fixtures[i].m_reportPostSolve    = postSolve;
-			}
 		}
 		
 		qb2_friend override function destroy(theWorld:qb2World):void

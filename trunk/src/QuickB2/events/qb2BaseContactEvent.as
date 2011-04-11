@@ -29,16 +29,45 @@ package QuickB2.events
 	import Box2DAS.Dynamics.b2World;
 	import Box2DAS.Dynamics.Contacts.*;
 	import QuickB2.*;
+	import QuickB2.misc.qb2_flags;
 	import QuickB2.objects.tangibles.qb2World;
+	import revent.rEvent;
 	use namespace qb2_friend;
 	
 	/**
-	 * ...
+	 * Base class for contact events.  This class cannot be used directly.
+	 * 
 	 * @author Doug Koellmer
 	 */
-	public class qb2BaseContactEvent extends qb2Event
+	public class qb2BaseContactEvent extends rEvent
 	{
-		public function qb2BaseContactEvent(type:String)
+		qb2_friend static const CONTACT_STARTED:String     = "contactStarted";
+		qb2_friend static const CONTACT_ENDED:String       = "contactEnded";
+		qb2_friend static const PRE_SOLVE:String           = "preSolve";
+		qb2_friend static const POST_SOLVE:String          = "postSolve";
+		qb2_friend static const SUB_CONTACT_STARTED:String = "subContactStarted";
+		qb2_friend static const SUB_CONTACT_ENDED:String   = "subContactEnded";
+		qb2_friend static const SUB_PRE_SOLVE:String       = "subPreSolve";
+		qb2_friend static const SUB_POST_SOLVE:String      = "subPostSolve";
+
+		public static const ALL_EVENT_TYPES:Array =
+		[
+			PRE_SOLVE,     POST_SOLVE,     CONTACT_STARTED,     CONTACT_ENDED,
+			SUB_PRE_SOLVE, SUB_POST_SOLVE, SUB_CONTACT_STARTED, SUB_CONTACT_ENDED
+		];
+		
+		public static const STARTED_TYPES:Array    = [ CONTACT_STARTED, SUB_CONTACT_STARTED ];
+		public static const ENDED_TYPES:Array      = [ CONTACT_ENDED,   SUB_CONTACT_ENDED   ];
+		public static const PRE_SOLVE_TYPES:Array  = [ PRE_SOLVE,       SUB_PRE_SOLVE       ];
+		public static const POST_SOLVE_TYPES:Array = [ POST_SOLVE,      SUB_POST_SOLVE      ];
+		
+		qb2_friend static const REPORTING_BITS:Vector.<uint> = Vector.<uint>
+		([
+			qb2_flags.REPORTS_PRE_SOLVE, qb2_flags.REPORTS_POST_SOLVE, qb2_flags.REPORTS_CONTACT_STARTED, qb2_flags.REPORTS_CONTACT_ENDED,
+			qb2_flags.REPORTS_PRE_SOLVE, qb2_flags.REPORTS_POST_SOLVE, qb2_flags.REPORTS_CONTACT_STARTED, qb2_flags.REPORTS_CONTACT_ENDED
+		]);
+		
+		public function qb2BaseContactEvent(type:String = null)
 		{
 			super(type);
 			

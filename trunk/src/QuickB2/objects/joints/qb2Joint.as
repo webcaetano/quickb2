@@ -85,8 +85,8 @@ package QuickB2.objects.joints
 		{
 			if ( !object._rigidImp._attachedJoints )  object._rigidImp._attachedJoints = new Vector.<qb2Joint>();
 			object._rigidImp._attachedJoints.push(this);
-			object.addEventListener(qb2ContainerEvent.ADDED_TO_WORLD,     addedOrRemoved, false, 0, true);
-			object.addEventListener(qb2ContainerEvent.REMOVED_FROM_WORLD, addedOrRemoved, false, 0, true);
+			object.addEventListener(qb2ContainerEvent.ADDED_TO_WORLD,     addedOrRemoved);
+			object.addEventListener(qb2ContainerEvent.REMOVED_FROM_WORLD, addedOrRemoved);
 			
 			makeWrapper(_world);
 		}

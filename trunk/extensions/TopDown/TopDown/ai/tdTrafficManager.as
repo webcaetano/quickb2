@@ -29,6 +29,7 @@ package TopDown.ai
 	import QuickB2.events.*;
 	import QuickB2.objects.*;
 	import QuickB2.objects.tangibles.*;
+	import revent.rEventDispatcher;
 	import TopDown.*;
 	import TopDown.ai.brains.*;
 	import TopDown.loaders.*;
@@ -41,7 +42,7 @@ package TopDown.ai
 	 * ...
 	 * @author Doug Koellmer
 	 */
-	public class tdTrafficManager extends qb2EventDispatcher
+	public class tdTrafficManager extends rEventDispatcher
 	{
 		public const horizon:amBoundBox2d = new amBoundBox2d();
 		
